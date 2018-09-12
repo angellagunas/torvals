@@ -1,19 +1,16 @@
 import React, { Component } from 'react'
-import { branch } from 'baobab-react/higher-order'
-import PropTypes from 'baobab-react/prop-types'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import api from '~base/api'
 import moment from 'moment'
 import env from '~base/env-variables'
 import FontAwesome from 'react-fontawesome'
 
-import Page from '~base/page'
-import { loggedIn, verifyRole } from '~base/middlewares/'
-import Loader from '~base/components/spinner'
-import UserForm from './form'
-import Multiselect from '~base/components/base-multiselect'
-import tree from '~core/tree'
-import Breadcrumb from '~base/components/base-breadcrumb'
-import NotFound from '~base/components/not-found'
+import Loader from '~base/components/spinner';
+import UserForm from './form';
+import Multiselect from '~base/components/base-multiselect';
+import tree from '~core/tree';
+import Breadcrumb from '~base/components/base-breadcrumb';
+import NotFound from '~base/components/not-found';
 
 class UserDetail extends Component {
   constructor (props) {
@@ -22,7 +19,7 @@ class UserDetail extends Component {
       loaded: false,
       loading: true,
       resetLoading: false,
-      resetText: 'Restablecer Contraseña',
+      resetText: this.formatTitle('user.resetText'),
       resetClass: 'button is-danger',
       user: {},
       roles: [],
@@ -40,6 +37,10 @@ class UserDetail extends Component {
     this.loadGroups()
     this.loadRoles()
     this.loadProjects()
+  }
+
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
   }
 
   async loadProjects () {
@@ -181,7 +182,7 @@ class UserDetail extends Component {
   async resetOnClick () {
     await this.setState({
       resetLoading: true,
-      resetText: 'Enviando email...',
+      resetText: this.formatTitle('user.resetText1'),
       resetClass: 'button is-info'
     })
 
@@ -192,14 +193,14 @@ class UserDetail extends Component {
       setTimeout(() => {
         this.setState({
           resetLoading: true,
-          resetText: '¡Éxito!',
+          resetText: this.formatTitle('user.resetText2'),
           resetClass: 'button is-success'
         })
       }, 3000)
     } catch (e) {
       await this.setState({
         resetLoading: true,
-        resetText: '¡Error!',
+        resetText: this.formatTitle('user.resetText3'),
         resetClass: 'button is-danger'
       })
     }
@@ -207,7 +208,7 @@ class UserDetail extends Component {
     setTimeout(() => {
       this.setState({
         resetLoading: false,
-        resetText: 'Restablecer Contraseña',
+        resetText: this.formatTitle('user.resetText'),
         resetClass: 'button is-danger'
       })
     }, 10000)
@@ -219,7 +220,10 @@ class UserDetail extends Component {
     if (saving) {
       return (
         <p className='card-header-title' style={{fontWeight: '200', color: 'grey'}}>
-          Saving <span style={{paddingLeft: '5px'}}><FontAwesome className='fa-spin' name='spinner' /></span>
+          <FormattedMessage
+            id='user.saving'
+            defaultMessage={`Guardando`}
+          /> <span style={{paddingLeft: '5px'}}><FontAwesome className='fa-spin' name='spinner' /></span>
         </p>
       )
     }
@@ -237,7 +241,10 @@ class UserDetail extends Component {
 
       return (
         <p className='card-header-title' style={{fontWeight: '200', color: 'grey'}}>
-          Saved
+          <FormattedMessage
+            id='user.saved'
+            defaultMessage={`Guardado`}
+          />
         </p>
       )
     }
@@ -251,13 +258,47 @@ class UserDetail extends Component {
     this.setState({ isLoading: '' })
   }
 
-  finishUpHandler () {
+  async finishUpHandler () {
+    await this.updateStep()
     this.setState({ isLoading: '' })
+  }
+
+  async updateStep () {
+    try {
+      let user = tree.get('user')
+      if (user.currentOrganization.wizardSteps.users) {
+        return
+      }
+      let url = '/app/organizations/' + user.currentOrganization.uuid + '/step'
+
+      let res = await api.post(url, {
+        step: {
+          name: 'users',
+          value: true
+        }
+      })
+
+      if (res) {
+        let me = await api.get('/user/me')
+        tree.set('user', me.user)
+        tree.set('organization', me.user.currentOrganization)
+        tree.set('rule', me.rule)
+        tree.set('role', me.user.currentRole)
+        tree.set('loggedIn', me.loggedIn)
+        tree.commit()
+        return true
+      } else {
+        return false
+      }
+    } catch (e) {
+      console.log(e)
+      return false
+    }
   }
 
   render () {
     if (this.state.notFound) {
-      return <NotFound msg='este usuario' />
+      return <NotFound msg={this.formatTitle('user.notFound')} />
     }
     const { user } = this.state
     const currentUser = tree.get('user')
@@ -340,17 +381,21 @@ class UserDetail extends Component {
                 path={[
                   {
                     path: '/',
-                    label: 'Inicio',
+                    label: this.formatTitle('user.breadcrumbStart'),
                     current: false
                   },
                   {
                     path: '/manage/users-groups',
-                    label: 'Usuarios',
-                    current: false
+                    label: this.formatTitle('user.breadcrumbUsers'),
+                    current: false,
+                    onclick: (e) => {
+                      e.preventDefault()
+                      this.props.selectUser()
+                    }
                   },
                   {
                     path: '/manage/users',
-                    label: 'Detalle',
+                    label: this.formatTitle('user.breadcrumbDetail'),
                     current: true
                   },
                   {
@@ -367,8 +412,12 @@ class UserDetail extends Component {
             <div className='level-item'>
               <a
                 className='button is-info'
-                onClick={() => { this.props.selectUser() }}>
-                Regresar
+                onClick={() => { this.props.selectUser() }}
+              >
+                <FormattedMessage
+                  id='user.back'
+                  defaultMessage={`Regresar`}
+                />
               </a>
             </div>
             <div className='level-item'>
@@ -383,7 +432,10 @@ class UserDetail extends Component {
               <div className='card'>
                 <header className='card-header'>
                   <p className='card-header-title'>
-                      Detalle
+                    <FormattedMessage
+                      id='user.detail'
+                      defaultMessage={`Detalle`}
+                    />
                   </p>
                 </header>
                 <div className='card-content'>
@@ -405,14 +457,17 @@ class UserDetail extends Component {
                         <div className='field is-grouped'>
                           <div className='control'>
                             {!disabledForm &&
-                            <button
-                              className={'button is-primary ' + this.state.isLoading}
-                              disabled={!!this.state.isLoading}
-                              type='submit'
-                                >
-                                  Guardar
-                                </button>
-                              }
+                              <button
+                                className={'button is-primary ' + this.state.isLoading}
+                                disabled={!!this.state.isLoading}
+                                type='submit'
+                              >
+                                <FormattedMessage
+                                  id='user.btnSave'
+                                  defaultMessage={`Guardar`}
+                                />
+                              </button>
+                            }
                           </div>
                         </div>
                       </UserForm>
@@ -427,16 +482,19 @@ class UserDetail extends Component {
                   <div className='card'>
                     <header className='card-header'>
                       <p className='card-header-title'>
-                          Grupos
-                        </p>
+                        <FormattedMessage
+                          id='user.groups'
+                          defaultMessage={`Grupos`}
+                        />
+                      </p>
                       <div>
                         {this.getSavingMessage()}
                       </div>
                     </header>
                     <div className='card-content'>
                       <Multiselect
-                        availableTitle='Disponible'
-                        assignedTitle='Asignado'
+                        availableTitle={this.formatTitle('user.multiselectAvailableTitle')}
+                        assignedTitle={this.formatTitle('user.multiselectAssignedTitle')}
                         assignedList={this.state.selectedGroups}
                         availableList={availableList}
                         dataFormatter={(item) => { return item.name || 'N/A' }}
@@ -456,19 +514,4 @@ class UserDetail extends Component {
   }
 }
 
-export default UserDetail
-
-/* UserDetail.contextTypes = {
-  tree: PropTypes.baobab
-}
-
-const branchedUserDetail = branch({}, UserDetail)
-
-export default Page({
-  path: '/manage/users/:uuid',
-  title: 'User details',
-  roles: 'admin, orgadmin, analyst, consultor-level-3, consultor-level-2, manager-level-2, manager-level-3',
-  exact: true,
-  validate: [loggedIn, verifyRole],
-  component: branchedUserDetail
-}) */
+export default injectIntl(UserDetail)

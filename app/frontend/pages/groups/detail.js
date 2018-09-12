@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
 import Link from '~base/router/link'
@@ -45,6 +46,10 @@ class GroupDetail extends Component {
     this.load()
   }
 
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
   findCatalogName = (name) => {
     let find = ''
     this.rules.catalogs.map(item => {
@@ -69,6 +74,7 @@ class GroupDetail extends Component {
           .groupBy(x => x.type)
           .map((value, key) => ({
             type: this.findCatalogName(key),
+            slug: key,
             objects: value
           }))
           .value()
@@ -85,36 +91,17 @@ class GroupDetail extends Component {
   getColumns () {
     return [
       {
-        'title': 'Nombre',
+        'title': this.formatTitle('user.formName'),
         'property': 'name',
         'default': 'N/A',
         'sortable': true
       },
       {
-        'title': 'Email',
+        'title': this.formatTitle('user.formEmail'),
         'property': 'email',
         'default': 'N/A',
         'sortable': true
-      },
-      /* {
-        'title': 'Acciones',
-        formatter: (row) => {
-          if (currentRole === 'consultor-level-3' || currentRole === 'consultor-level-2') {
-            return <Link className='button is-primary' to={'/manage/users/' + row.uuid}>
-              <span className='icon is-small'>
-                <i className='fa fa-eye' />
-              </span>
-            </Link>
-          } else {
-            return <Link className='button is-primary' to={'/manage/users/' + row.uuid}>
-              <span className='icon is-small'>
-                <i className='fa fa-pencil' />
-              </span>
-            </Link>
-            
-          }
-        }
-      } */
+      }
     ]
   }
 
@@ -195,23 +182,26 @@ class GroupDetail extends Component {
   getColumnsUsersToAsign () {
     return [
       {
-        'title': 'Nombre',
+        'title': this.formatTitle('user.formName'),
         'property': 'name',
         'default': 'N/A',
         'sortable': true
       },
       {
-        'title': 'Email',
+        'title': this.formatTitle('user.formEmail'),
         'property': 'email',
         'default': 'N/A',
         'sortable': true
       },
       {
-        'title': 'Acciones',
+        'title': this.formatTitle('groups.tableActions'),
         formatter: (row) => {
           return (
             <button className='button' onClick={e => { this.addToGroup(row.uuid) }}>
-              Agregar
+              <FormattedMessage
+                id="groups.btnAdd"
+                defaultMessage={`Agregar`}
+              />
             </button>
           )
         }
@@ -275,7 +265,7 @@ class GroupDetail extends Component {
 
   render () {
     if (this.state.notFound) {
-      return <NotFound msg='este grupo' />
+      return <NotFound msg={this.formatTitle('groups.notFound')} />
     }
 
     const { group } = this.state
@@ -291,11 +281,10 @@ class GroupDetail extends Component {
             <div className='field is-grouped is-grouped-right'>
               <div className='control'>
                 <DeleteButton
-                  titleButton={'Eliminar'}
-                  objectName='Grupo'
+                  objectName={this.formatTitle('groups.deleteTitle')}
                   objectDelete={this.deleteObject.bind(this)}
-                  message={`¿Está seguro que desea eliminar el grupo ${group.name}?`}
-                    />
+                  message={`${this.formatTitle('groups.deleteMsg')} ${group.name}?`}
+                />
               </div>
             </div>
           </div>
@@ -310,17 +299,21 @@ class GroupDetail extends Component {
                 path={[
                   {
                     path: '/',
-                    label: 'Inicio',
+                    label: this.formatTitle('groups.breadcrumbStart'),
                     current: false
                   },
                   {
                     path: '/manage/groups',
-                    label: 'Grupos',
-                    current: true
+                    label: this.formatTitle('groups.breadcrumbGroups'),
+                    current: false,
+                    onclick: (e) => {
+                      e.preventDefault()
+                      this.props.selectGroup()
+                    }
                   },
                   {
                     path: '/manage/groups',
-                    label: 'Detalle',
+                    label: this.formatTitle('groups.breadcrumbDetail'),
                     current: true
                   },
                   {
@@ -337,8 +330,12 @@ class GroupDetail extends Component {
             <div className='level-item'>
               <a
                 className='button is-info'
-                onClick={() => { this.props.selectGroup() }}>
-                Regresar
+                onClick={() => { this.props.selectGroup() }}
+              >
+                <FormattedMessage
+                  id="groups.btnBack"
+                  defaultMessage={`Regresar`}
+                />
               </a>
             </div>
             <div className='level-item'>
@@ -354,7 +351,10 @@ class GroupDetail extends Component {
               <div className='card'>
                 <header className='card-header'>
                   <p className='card-header-title'>
-                      Detalle
+                    <FormattedMessage
+                      id="groups.detail"
+                      defaultMessage={`Detalle`}
+                    />
                   </p>
                 </header>
                 <div className='card-content'>
@@ -371,14 +371,14 @@ class GroupDetail extends Component {
                         canEdit={currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2'}
                         canCreate={currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2'}
                       >
-                        
+
                         {
                           this.state.catalogItems &&
                           this.state.catalogItems.length > 0 &&
                           this.state.catalogItems.map(item => {
                             return (
-                              <div className='has-20-margin-top' key={item.type}>
-                                <p className='label'>{item.type}</p>
+                              <div className='has-20-margin-top' key={item.slug}>
+                                <p className='label'>{this.formatTitle('catalogs.' + item.slug)}</p>
                                 <div className='tags'>
                                   {item.objects.map((obj) => {
                                     return (
@@ -393,7 +393,7 @@ class GroupDetail extends Component {
                               </div>
                             )
                           })
-                          
+
                         }
                         {currentRole !== 'consultor-level-2' &&
                         <div className='field is-grouped has-20-margin-top'>
@@ -402,7 +402,12 @@ class GroupDetail extends Component {
                               className={'button is-primary ' + this.state.isLoading}
                               disabled={!!this.state.isLoading}
                               type='submit'
-                              >Guardar</button>
+                            >
+                              <FormattedMessage
+                                id="groups.btnSave"
+                                defaultMessage={`Guardar`}
+                              />
+                            </button>
                           </div>
                         </div>
                         }
@@ -416,26 +421,32 @@ class GroupDetail extends Component {
               <div className='card'>
                 <header className='card-header'>
                   <p className='card-header-title'>
-                      Usuarios
-                    </p>
+                    <FormattedMessage
+                      id="groups.users"
+                      defaultMessage={`Usuarios`}
+                    />
+                  </p>
                   {currentRole !== 'consultor-level-2' &&
-                  
+
                   <div className='card-header-select'>
                     <button className='button is-primary' onClick={() => this.showModalList()}>
-                        Agregar
-                      </button>
+                      <FormattedMessage
+                        id="groups.btnAdd"
+                        defaultMessage={`Agregar`}
+                      />
+                    </button>
                     <BaseModal
-                      title='Usuarios para asignar'
+                      title={this.formatTitle('groups.assignUsers')}
                       className={this.state.classNameList}
                       finishUp={this.finishUpList.bind(this)}
                       hideModal={this.hideModalList.bind(this)}
-                         >
+                    >
                       <BranchedPaginatedTable
                         branchName='usersAsign'
                         baseUrl='/app/users'
                         columns={this.getColumnsUsersToAsign()}
                         filters={{groupAsign: this.props.group.uuid, organization: group.organization.uuid}}
-                         />
+                      />
                     </BaseModal>
 
                   </div>
@@ -444,8 +455,11 @@ class GroupDetail extends Component {
 
                   <div className='card-header-select'>
                     <button className='button is-primary' onClick={() => this.showModal()}>
-                        Nuevo usuario
-                      </button>
+                      <FormattedMessage
+                        id="groups.btnNewUser"
+                        defaultMessage={`Nuevo usuario`}
+                      />
+                    </button>
                     <CreateUser
                       className={this.state.className}
                       finishUp={this.finishUp.bind(this)}
@@ -455,7 +469,7 @@ class GroupDetail extends Component {
                       url='/app/users/'
                       filters={{group: this.props.group.uuid}}
                       organization={group.organization._id}
-                      />
+                    />
                   </div>
                   }
                 </header>
@@ -467,7 +481,7 @@ class GroupDetail extends Component {
                         baseUrl='/app/users'
                         columns={this.getColumns()}
                         filters={{group: this.props.group.uuid}}
-                         />
+                      />
                     </div>
                   </div>
                 </div>
@@ -480,18 +494,4 @@ class GroupDetail extends Component {
   }
 }
 
-export default GroupDetail
-/* GroupDetail.contextTypes = {
-  tree: PropTypes.baobab
-}
-
-const branchedGroupDetail = branch({groups: 'groups'}, GroupDetail)
-
-export default Page({
-  path: '/manage/groups/:uuid',
-  title: 'Detalles de grupo',
-  exact: true,
-  roles: 'admin, orgadmin, analyst, consultor-level-3, consultor-level-2, manager-level-2, manager-level-3',
-  validate: [loggedIn, verifyRole],
-  component: branchedGroupDetail
-}) */
+export default injectIntl(GroupDetail)

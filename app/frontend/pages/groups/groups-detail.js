@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import { BranchedPaginatedTable } from '~base/components/base-paginated-table'
 import api from '~base/api'
 import DeleteButton from '~base/components/base-deleteButton'
@@ -19,10 +20,15 @@ class GroupsDetail extends Component {
       canCreate: 'admin, orgadmin, analyst, manager-level-2, manager-level-3'
     }
   }
+
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
   getColumns () {
     return [
       {
-        'title': 'Nombre',
+        'title': this.formatTitle('groups.formName'),
         'property': 'name',
         'default': 'N/A',
         'sortable': true,
@@ -33,7 +39,7 @@ class GroupsDetail extends Component {
         }
       },
       {
-        'title': 'Creado',
+        'title': this.formatTitle('groups.tableCreated'),
         'property': 'dateCreated',
         'default': 'N/A',
         'sortable': true,
@@ -44,7 +50,7 @@ class GroupsDetail extends Component {
         }
       },
       {
-        'title': 'Miembros',
+        'title': this.formatTitle('groups.tableMembers'),
         'property': 'users',
         'default': '0',
         'sortable': true,
@@ -52,13 +58,13 @@ class GroupsDetail extends Component {
           return (
             <div>
               {row.users.length}
-              {row.users.length > 0 && <GroupUsers group={row} />}
+              {row.users.length > 0 && <GroupUsers changeTab={(tab) => this.props.changeTab(tab)} group={row} />}
             </div>
           )
         }
       },
       {
-        'title': 'Acciones',
+        'title': this.formatTitle('groups.tableActions'),
         formatter: (row) => {
           const deleteObject = async function () {
             var url = '/app/groups/' + row.uuid
@@ -84,10 +90,10 @@ class GroupsDetail extends Component {
                 <DeleteButton
                   iconOnly
                   icon='fa fa-trash'
-                  objectName='Grupo'
+                  objectName={this.formatTitle('groups.deleteTitle')}
                   objectDelete={deleteObject}
-                  message={`¿Está seguro de querer eliminar el grupo ${row.name} ?`}
-                  />
+                  message={`${this.formatTitle('groups.deleteMsg')} ${row.name} ?`}
+                />
               </div>
           }
 
@@ -150,7 +156,12 @@ class GroupsDetail extends Component {
           <div className='section level has-10-margin-top'>
             <div className='level-left'>
               <div className='level-item'>
-                <h1 className='title is-5'>Visualiza tus grupos</h1>
+                <h1 className='title is-5'>
+                  <FormattedMessage
+                    id='groups.title'
+                    defaultMessage={`Visualiza tus grupos`}
+                  />
+                </h1>
               </div>
             </div>
             <div className='level-right'>
@@ -161,7 +172,9 @@ class GroupsDetail extends Component {
                       className='input input-search'
                       type='text'
                       value={this.state.searchTerm}
-                      onChange={(e) => { this.searchOnChange(e) }} placeholder='Buscar' />
+                      onChange={(e) => { this.searchOnChange(e) }}
+                      placeholder={this.formatTitle('dashboard.searchText')}
+                    />
 
                     <span className='icon is-small is-right'>
                       <i className='fa fa-search fa-xs' />
@@ -173,8 +186,14 @@ class GroupsDetail extends Component {
               <div className='level-item'>
                 <a
                   className='button is-info is-pulled-right'
-                  onClick={() => this.showModal()}>
-                  <span>Nuevo Grupo</span>
+                  onClick={() => this.showModal()}
+                >
+                  <span>
+                    <FormattedMessage
+                      id='groups.btnNew'
+                      defaultMessage={`Nuevo Grupo`}
+                    />
+                  </span>
                 </a>
               </div>
               }
@@ -197,7 +216,7 @@ class GroupsDetail extends Component {
             finishUp={(obj) => this.finishUp(obj)}
             canCreate={this.state.canCreate}
             selectGroup={() => { this.selectGroup() }}
-            />
+          />
         </div>
       }
         {this.state.groupSelected &&
@@ -214,4 +233,4 @@ class GroupsDetail extends Component {
   }
 }
 
-export default GroupsDetail
+export default injectIntl(GroupsDetail)

@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
 import { toast } from 'react-toastify'
@@ -21,7 +22,6 @@ import TabHistorical from './detail-tabs/tab-historical'
 import TabApprove from './detail-tabs/tab-approve'
 import CreateDataSet from './create-dataset'
 import TabAdjustment from './detail-tabs/tab-adjustments'
-// import Breadcrumb from '~base/components/base-breadcrumb'
 import TabAnomalies from './detail-tabs/tab-anomalies'
 import CreateProject from './create'
 
@@ -58,6 +58,10 @@ class ProjectDetail extends Component {
     this.rules = tree.get('rule')
   }
 
+  formatTitle(id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
   async componentWillMount () {
     user = this.context.tree.get('user')
     currentRole = user.currentRole.slug
@@ -73,8 +77,6 @@ class ProjectDetail extends Component {
       })
     }
 
-    // await this.hasSaleCenter()
-    // await this.hasChannel()
     await this.load()
 
     this.setState({
@@ -105,7 +107,7 @@ class ProjectDetail extends Component {
         if (body.data.status === 'empty') {
           tab = 'datasets'
         }
-        else if (body.data.status === 'pendingRows' || body.data.status === 'processing') {
+        else if (body.data.status === 'pendingRows' || body.data.status === 'processing' || body.data.status === 'conciliating') {
           tab = 'ajustes'
         }
         else if (body.data.status === 'adjustment') {
@@ -452,7 +454,7 @@ class ProjectDetail extends Component {
   async handleAdjustmentRequest(obj, showMessage, finishAdjustments=false) {
     let { pendingDataRows } = this.state
     let cycle = tree.get('selectedCycle')
-    
+
     let productAux = []
     if (currentRole === 'consultor-level-3') {
       return
@@ -467,7 +469,7 @@ class ProjectDetail extends Component {
     try {
       var res = await api.post('/app/rows/request', {rows: rows, finishAdjustments: finishAdjustments, cycle: cycle.uuid, dataset: this.state.project.activeDataset.uuid})
       if (currentRole === 'manager-level-1' || currentRole === 'manager-level-2') {
-        this.notify('Sus ajustes se han guardado', 5000, toast.TYPE.INFO)
+        this.notify(this.formatTitle('adjustments.save'), 5000, toast.TYPE.INFO)
         if (showMessage) {
           this.setState({
             adjustmentML1: true
@@ -479,8 +481,7 @@ class ProjectDetail extends Component {
         }
       }
     } catch (e) {
-      this.notify('Ocurrio un error ' + e.message, 5000, toast.TYPE.ERROR)
-
+      this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
       return
     }
 
@@ -515,6 +516,7 @@ class ProjectDetail extends Component {
 
   render () {
     if (this.state.notFound) {
+      //TODO: translate
       return <NotFound msg='este proyecto' />
     }
 
@@ -525,11 +527,19 @@ class ProjectDetail extends Component {
             <div className='column'>
               <article className='message is-warning'>
                 <div className='message-header'>
-                  <p>Atención</p>
+                  <p>
+                    <FormattedMessage
+                      id="projects.alertTitle"
+                      defaultMessage={`Atención`}
+                    />
+                  </p>
                 </div>
                 <div className='message-body has-text-centered is-size-5'>
-                  Necesitas tener asignado al menos un centro de venta para ver esta sección, ponte en contacto con tu supervisor.
-            </div>
+                  <FormattedMessage
+                    id="projects.alertSalesCenter"
+                    defaultMessage={`Necesitas tener asignado al menos un centro de venta para ver esta sección, ponte en contacto con tu supervisor.`}
+                  />
+                </div>
               </article>
             </div>
           </div>
@@ -544,11 +554,19 @@ class ProjectDetail extends Component {
             <div className='column'>
               <article className='message is-warning'>
                 <div className='message-header'>
-                  <p>Atención</p>
+                  <p>
+                    <FormattedMessage
+                      id="projects.alertTitle"
+                      defaultMessage={`Atención`}
+                    />
+                  </p>
                 </div>
                 <div className='message-body has-text-centered is-size-5'>
-                  Necesitas tener asignado al menos un canal para ver esta sección, ponte en contacto con tu supervisor.
-            </div>
+                  <FormattedMessage
+                    id="projects.alertChanel"
+                    defaultMessage={`Necesitas tener asignado al menos un canal para ver esta sección, ponte en contacto con tu supervisor.`}
+                  />
+                </div>
               </article>
             </div>
           </div>
@@ -576,7 +594,7 @@ class ProjectDetail extends Component {
     const tabs = [
       {
         name: 'graficos',
-        title: 'Gráficos',
+        title: this.formatTitle('tabs.graphics'),
         hide: (testRoles('manager-level-1') ||
           project.status === 'empty' ||
           project.status === 'conciliating' ||
@@ -594,7 +612,7 @@ class ProjectDetail extends Component {
       },
       {
         name: 'ajustes',
-        title: 'Ajustes',
+        title: this.formatTitle('tabs.adjustments'),
         reload: false,
         hide: project.status === 'empty' ||
               project.status === 'updating-rules' ||
@@ -621,7 +639,7 @@ class ProjectDetail extends Component {
       },
       {
         name: 'aprobar',
-        title: 'Aprobar',
+        title: this.formatTitle('tabs.approve'),
         badge: true,
         valueBadge: this.state.counterAdjustments,
         reload: true,
@@ -629,7 +647,7 @@ class ProjectDetail extends Component {
               project.status === 'processing' ||
               project.status === 'pendingRows' ||
               project.status === 'empty' ||
-              project.status === 'cloning' || 
+              project.status === 'cloning' ||
               project.status === 'updating-rules' ||
               project.status === 'pending-configuration'),
         content: (
@@ -642,7 +660,7 @@ class ProjectDetail extends Component {
       },
       {
         name: 'datasets',
-        title: 'Datasets',
+        title: this.formatTitle('tabs.datasets'),
         hide: testRoles('manager-level-1, consultor-level-2, manager-level-2, consultor-level-3'),
         reload: true,
         content: (
@@ -658,7 +676,7 @@ class ProjectDetail extends Component {
       },
       {
         name: 'anomalias',
-        title: 'Anomalías',
+        title: this.formatTitle('tabs.anomalies'),
         reload: true,
         hide: (testRoles('manager-level-1') ||
           project.status === 'processing' ||
@@ -677,7 +695,7 @@ class ProjectDetail extends Component {
       },
       {
         name: 'configuracion',
-        title: 'Configuración',
+        title: this.formatTitle('tabs.config'),
         hide: testRoles('manager-level-1, consultor-level-2, manager-level-2, consultor-level-3'),
         reload: true,
         content: (
@@ -691,8 +709,8 @@ class ProjectDetail extends Component {
                   hideModal={this.hideModalClone.bind(this)}
                   finishUp={this.finishUpClone.bind(this)}
                   canEdit={canEdit}
-                  title='Clonar Proyecto'
-                  buttonText='Clonar'
+                  title={this.formatTitle('projectConfig.clone') + ' ' + this.formatTitle('projectConfig.project')}
+                  buttonText={this.formatTitle('projectConfig.clone')} 
                 />
               }
               {canEdit &&
@@ -707,17 +725,21 @@ class ProjectDetail extends Component {
                               type='button'
                               onClick={this.showModalClone.bind(this)}
                             >
-                              Clonar
+                              <FormattedMessage
+                                id="projectConfig.clone"
+                                defaultMessage={`Clonar`}
+                              />
                             </button>
                           }
                         </div>
                         <div className='control'>
                           <DeleteButton
-                            objectName='Proyecto'
+                            objectName={this.formatTitle('projectConfig.project')}
                             objectDelete={() => this.deleteObject()}
                             message={'¿Estas seguro de querer eliminar este Proyecto?'}
                             hideIcon
-                            titleButton={'Eliminar'}
+                            titleButton={this.formatTitle('projectConfig.delete')}
+                            message={this.formatTitle('projectConfig.deleteMsg')}
                           />
                         </div>
                       </div>
@@ -746,7 +768,12 @@ class ProjectDetail extends Component {
                       className={'button is-primary ' + this.state.isLoading}
                       disabled={!!this.state.isLoading}
                       type='submit'
-                    >Guardar</button>
+                    >
+                      <FormattedMessage
+                        id="projectConfig.save"
+                        defaultMessage={`Guardar`}
+                      />
+                    </button>
                   </div>
                 </div>
               </ProjectForm>
@@ -762,7 +789,10 @@ class ProjectDetail extends Component {
         <i className='fa fa-plus-circle' />
       </span>
       <span>
-        Agregar Dataset
+        <FormattedMessage
+          id="projects.addDataset"
+          defaultMessage={`Agregar Dataset`}
+        />
       </span>
     </button>)
     var consolidarButton
@@ -771,8 +801,12 @@ class ProjectDetail extends Component {
         <p className='control btn-conciliate'>
           <a className={'button is-success ' + this.state.isConciliating}
             disabled={!!this.state.isConciliating}
-            onClick={e => this.conciliateOnClick()}>
-              Consolidar
+            onClick={e => this.conciliateOnClick()}
+          >
+            <FormattedMessage
+              id="projects.btnConsolidate"
+              defaultMessage={`Consolidar`}
+            />
           </a>
         </p>
     }
@@ -781,42 +815,18 @@ class ProjectDetail extends Component {
         <p className='control btn-conciliate'>
           <a className={'button is-success ' + this.state.isConciliating}
             disabled={!!this.state.isConciliating}
-            onClick={e => this.handleAllAdjustmentRequest()}>
-            Finalizar
+            onClick={e => this.handleAllAdjustmentRequest()}
+          >
+            <FormattedMessage
+              id="projects.btnFinalize"
+              defaultMessage={`Finalizar`}
+            />
           </a>
         </p>
     }
 
     return (
       <div>
-        {
-          /* !testRoles('manager-level-1') &&
-          <Breadcrumb
-            path={[
-              {
-                path: '/',
-                label: 'Inicio',
-                current: false
-              },
-              {
-                path: '/projects',
-                label: 'Proyectos',
-                current: false
-              },
-              {
-                path: '/projects/',
-                label: 'Detalle',
-                current: true
-              },
-              {
-                path: '/projects/',
-                label: project.name,
-                current: true
-              }
-            ]}
-            align='left'
-          /> */
-        }
         <Tabs
           onChangeTab={(tab) => this.setState({ actualTab: tab})}
           tabTitle={project.name}
@@ -832,15 +842,21 @@ class ProjectDetail extends Component {
                         <span className='icon is-small is-transparent-text'>
                           <i className='fa fa-gears' />
                         </span>
-                    Ajustes
-                  </span>
+                        <FormattedMessage
+                          id="tabs.adjustments"
+                          defaultMessage={`Ajustes`}
+                        />
+                      </span>
                     </p>
                     <p className='control'>
                       <span className='has-text-success has-text-weight-semibold'>
                         <span className='icon is-small'>
                           <i className='fa fa-check' />
                         </span>
-                      Realizados {this.state.modified}
+                        <FormattedMessage
+                          id="projects.done"
+                          defaultMessage={`Realizados`}
+                        /> {this.state.modified}
                       </span>
 
                     </p>
@@ -849,7 +865,10 @@ class ProjectDetail extends Component {
                         <span className='icon is-small'>
                           <i className='fa fa-exclamation-triangle' />
                         </span>
-                      Por aprobar {this.state.counterAdjustments}
+                        <FormattedMessage
+                          id="projects.toTry"
+                          defaultMessage={`Por aprobar`}
+                        /> {this.state.counterAdjustments}
                       </span>
                     </p>
                     {consolidarButton}
@@ -865,10 +884,18 @@ class ProjectDetail extends Component {
               <div className='column'>
                 <article className='message is-warning'>
                   <div className='message-header'>
-                    <p>Atención</p>
+                    <p>
+                      <FormattedMessage
+                        id="projects.alertTitle"
+                        defaultMessage={`Atención`}
+                      />
+                    </p>
                   </div>
                   <div className='message-body has-text-centered is-size-5'>
-                    Este proyecto aún no contiene datasets, ponte en contacto con tu supervisor.
+                    <FormattedMessage
+                      id="projects.emptyMsg"
+                      defaultMessage={`Este proyecto aún no contiene datasets, ponte en contacto con tu supervisor.`}
+                    />
                 </div>
                 </article>
               </div>
@@ -887,13 +914,15 @@ class ProjectDetail extends Component {
         />
 
         <BaseModal
-          title='Proyecto desactualizado'
+          title={this.formatTitle('projects.outdatedTitle')}
           className={this.state.outdatedClassName}
           hideModal={this.hideModalOutdated.bind(this)}
         >
           <p>
-            Este proyecto se encuentra usando una version pasada de reglas de negocio,
-            ¿Desea actualizarlo?
+            <FormattedMessage
+              id="projects.outdatedMsg"
+              defaultMessage={`Este proyecto se encuentra usando una version pasada de reglas de negocio, ¿Desea actualizarlo?`}
+            />
           </p> <br />
           <div className='field is-grouped'>
             <div className='control'>
@@ -902,12 +931,18 @@ class ProjectDetail extends Component {
                 disabled={!!this.state.isUpdating}
                 onClick={this.updateProject.bind(this)}
               >
-                Actualizar
+                <FormattedMessage
+                  id="projects.btnUpdate"
+                  defaultMessage={`Actualizar`}
+                />
               </button>
             </div>
             <div className='control'>
               <button className='button' onClick={this.hideModalOutdated.bind(this)} type='button'>
-                Cancelar
+                <FormattedMessage
+                  id="projects.btnCancel"
+                  defaultMessage={`Cancelar`}
+                />
               </button>
             </div>
           </div>
@@ -930,9 +965,9 @@ const BranchedProjectDetail = branch((props, context) => {
 
 export default Page({
   path: '/projects/:uuid',
-  title: 'Detalle',
+  title: 'Detalle', //TODO: translate
   exact: true,
   roles: 'consultor-level-3, analyst, orgadmin, admin, consultor-level-2, manager-level-2, manager-level-1, manager-level-3',
   validate: [loggedIn, verifyRole],
-  component: BranchedProjectDetail
+  component: injectIntl(BranchedProjectDetail)
 })

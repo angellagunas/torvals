@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import Loader from '~base/components/spinner'
 import { testRoles } from '~base/tools'
+import tree from '~core/tree'
 
 import api from '~base/api'
 
@@ -23,17 +25,21 @@ class InviteUserForm extends Component {
     }
   }
 
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
   async componentWillMount () {
     await this.loadProjects()
 
     if (this.state.formData.role) {
       var role = this.props.roles.find((item) => {
-        return item._id === this.state.formData.role
+        return item.uuid === this.state.formData.role
       })
       if (role && role.slug === 'manager-level-1') {
         if (this.state.projects.length === 0) {
           this.setState({
-            error: '¡No existen proyectos!',
+            error: this.formatTitle('user.formProjectErrorMsg'),
             apiCallErrorMessage: 'message is-danger',
             cannotCreate: true
           })
@@ -47,7 +53,7 @@ class InviteUserForm extends Component {
   async changeHandler ({formData}) {
     if (formData.role && this.state.formData.role !== formData.role) {
       var role = this.props.roles.find((item) => {
-        return item._id === formData['role']
+        return item.uuid === formData['role']
       })
 
       if (role && role.slug === 'manager-level-1') {
@@ -55,7 +61,7 @@ class InviteUserForm extends Component {
         if (this.state.projects.length === 0) {
           return this.setState({
             formData,
-            error: '¡No existen proyectos!',
+            error: this.formatTitle('user.formProjectErrorMsg'),
             apiCallErrorMessage: 'message is-danger',
             cannotCreate: true
           })
@@ -92,6 +98,39 @@ class InviteUserForm extends Component {
     })
   }
 
+  async updateStep () {
+    try {
+      let user = tree.get('user')
+      if (user.currentOrganization.wizardSteps.users) {
+        return
+      }
+      let url = '/app/organizations/' + user.currentOrganization.uuid + '/step'
+
+      let res = await api.post(url, {
+        step: {
+          name: 'users',
+          value: true
+        }
+      })
+
+      if (res) {
+        let me = await api.get('/user/me')
+        tree.set('user', me.user)
+        tree.set('organization', me.user.currentOrganization)
+        tree.set('rule', me.rule)
+        tree.set('role', me.user.currentRole)
+        tree.set('loggedIn', me.loggedIn)
+        tree.commit()
+        return true
+      } else {
+        return false
+      }
+    } catch (e) {
+      console.log(e)
+      return false
+    }
+  }
+
   async submitHandler ({formData}) {
     formData.sendInvite = true
 
@@ -110,7 +149,7 @@ class InviteUserForm extends Component {
       this.clearState()
       this.setState({...this.state, apiCallMessage: 'message is-success'})
       if (this.props.finishUp) this.props.finishUp(data.data)
-
+      await this.updateStep()
       return
     } catch (e) {
       if (this.props.errorHandler) this.props.errorHandler(e)
@@ -136,18 +175,18 @@ class InviteUserForm extends Component {
       title: '',
       required: ['email', 'name'],
       properties: {
-        name: {type: 'string', title: 'Nombre'},
-        email: {type: 'string', title: 'Email'},
+        name: {type: 'string', title: this.formatTitle('user.formName')},
+        email: {type: 'string', title: this.formatTitle('user.formEmail')},
         role: {
           type: 'string',
-          title: 'Rol',
+          title: this.formatTitle('user.formRole'),
           enum: [],
           enumNames: [],
           default: 'manager-level-1'
         },
         group: {
           type: 'string',
-          title: 'Grupo',
+          title: this.formatTitle('user.formGroup'),
           enum: [],
           enumNames: []
         }
@@ -167,10 +206,15 @@ class InviteUserForm extends Component {
 
     if (this.state.formData.role) {
       var role = this.props.roles.find((item) => {
-        return item._id === this.state.formData.role
+        return item.uuid === this.state.formData.role
       })
       if (role && role.slug === 'manager-level-1') {
-        schema.properties['project'] = { type: 'string', title: 'Proyecto', enum: [], enumNames: [] }
+        schema.properties['project'] = {
+          type: 'string',
+          title: this.formatTitle('user.formProject'),
+          enum: [],
+          enumNames: []
+        }
         uiSchema['project'] = {'ui:widget': SelectWidget}
         schema.required.push('project')
       } else {
@@ -192,7 +236,7 @@ class InviteUserForm extends Component {
       return <Loader />
     }
 
-    schema.properties.role.enum = this.props.roles.map(item => { return item._id })
+    schema.properties.role.enum = this.props.roles.map(item => { return item.uuid })
     schema.properties.role.enumNames = this.props.roles.map(item => { return item.name })
 
     if (this.props.groups && this.props.groups.length > 0) {
@@ -200,7 +244,12 @@ class InviteUserForm extends Component {
         schema.properties.group.enum = this.props.groups.map(item => { return item.uuid })
         schema.properties.group.enumNames = this.props.groups.map(item => { return item.name })
       } else {
-        schema.properties['group'] = { type: 'string', title: 'Grupo', enum: [], enumNames: [] }
+        schema.properties['group'] = {
+          type: 'string',
+          title: this.formatTitle('user.formGroup'),
+          enum: [],
+          enumNames: []
+        }
         uiSchema['group'] = {'ui:widget': SelectWidget}
         schema.properties.group.enum = this.props.groups.map(item => { return item.uuid })
         schema.properties.group.enumNames = this.props.groups.map(item => { return item.name })
@@ -243,7 +292,10 @@ class InviteUserForm extends Component {
         >
           <div className={this.state.apiCallMessage}>
             <div className='message-body is-size-7 has-text-centered'>
-              Se ha enviado la invitación correctamente! La invitación estará vigente durante 24 horas.
+              <FormattedMessage
+                id='user.inviteMsg'
+                defaultMessage={`!Se ha enviado la invitación correctamente! La invitación estará vigente durante 24 horas.`}
+              />
             </div>
           </div>
 
@@ -259,4 +311,4 @@ class InviteUserForm extends Component {
   }
 }
 
-export default InviteUserForm
+export default injectIntl(InviteUserForm)

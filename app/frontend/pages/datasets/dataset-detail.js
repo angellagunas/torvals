@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
 import Link from '~base/router/link'
@@ -52,6 +53,10 @@ class DataSetDetail extends Component {
       isLoadingBtnUn: ''
     }
 
+  }
+
+  formatTitle(id) {
+    return this.props.intl.formatMessage({ id: id })
   }
 
   componentWillMount() {
@@ -109,23 +114,26 @@ class DataSetDetail extends Component {
 
   getColumns() {
     return [
-      {
-        'title': 'Nombre',
+      { 
+        'title': this.formatTitle('tables.colName'),
         'property': 'name',
         'default': 'N/A',
         'sortable': true
       },
-      {
-        'title': 'Email',
+      { 
+        'title': this.formatTitle('tables.colEmail'),
         'property': 'email',
         'default': 'N/A',
         'sortable': true
       },
-      {
-        'title': 'Acciones',
+      { 
+        'title': this.formatTitle('tables.colActions'),
         formatter: (row) => {
           return <Link className='button' to={'/manage/users/' + row.uuid}>
-            Detalle
+            <FormattedMessage
+              id="datasets.detail"
+              defaultMessage={`Detalle`}
+            />
           </Link>
         }
       }
@@ -200,7 +208,10 @@ class DataSetDetail extends Component {
             <div className='card'>
               <header className='card-header'>
                 <p className='card-header-title'>
-                  Subir archivo
+                  <FormattedMessage
+                    id="datasets.fileUpload"
+                    defaultMessage={`Subir archivo`}
+                  />
                 </p>
               </header>
               <div className='card-content'>
@@ -215,8 +226,10 @@ class DataSetDetail extends Component {
                             </span>
                           </div>
                           <div className='media-content'>
-                            Aún no se a cargado un archivo.
-                            Favor de acudir con su supervisor para cualquier aclaración.
+                            <FormattedMessage
+                              id="datasets.fileUploadInfo"
+                              defaultMessage={`Aún no se a cargado un archivo. Favor de acudir con su supervisor para cualquier aclaración.`}
+                            />
                           </div>
                         </div>
                       </div>
@@ -236,7 +249,10 @@ class DataSetDetail extends Component {
           <div className='card'>
             <header className='card-header'>
               <p className='card-header-title'>
-                Archivo cargado
+                <FormattedMessage
+                  id="datasets.fileUploaded"
+                  defaultMessage={`Archivo cargado`}
+                />
               </p>
             </header>
             <div className='card-content'>
@@ -251,10 +267,14 @@ class DataSetDetail extends Component {
                           </span>
                         </div>
                         <div className='media-content'>
-                          El archivo {dataset.fileChunk.filename} ha sido cargado y
-                          se enviará para preprocesamiento.
-                          Favor de regresar en un par de minutos.
-                          </div>
+                          <FormattedMessage
+                            id="datasets.fileUploadedInfo1"
+                            defaultMessage={`El archivo`}
+                          /> {dataset.fileChunk.filename} <FormattedMessage
+                            id="datasets.fileUploadedInfo2"
+                            defaultMessage={`ha sido cargado y se enviará para preprocesamiento. Favor de regresar en un par de minutos.`}
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -270,7 +290,10 @@ class DataSetDetail extends Component {
           <div className='card'>
             <header className='card-header'>
               <p className='card-header-title'>
-                Dataset enviado a preprocesamiento
+                <FormattedMessage
+                  id="datasets.processing"
+                  defaultMessage={`Dataset enviado a preprocesamiento`}
+                />
               </p>
             </header>
             <div className='card-content'>
@@ -285,8 +308,14 @@ class DataSetDetail extends Component {
                           </span>
                         </div>
                         <div className='media-content'>
-                          El dataset {dataset.fileChunk.filename} se está preprocesando
-                          </div>
+                          <FormattedMessage
+                            id="datasets.processingMsg1"
+                            defaultMessage={`El dataset`}
+                          /> {dataset.fileChunk.filename} <FormattedMessage
+                            id="datasets.processingMsg2"
+                            defaultMessage={`se está preprocesando`}
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -302,7 +331,10 @@ class DataSetDetail extends Component {
           <div className='card'>
             <header className='card-header'>
               <p className='card-header-title'>
-                Procesando Dataset
+                <FormattedMessage
+                  id="datasets.processingTitle"
+                  defaultMessage={`Procesando Dataset`}
+                />
               </p>
             </header>
             <div className='card-content'>
@@ -317,8 +349,14 @@ class DataSetDetail extends Component {
                           </span>
                         </div>
                         <div className='media-content'>
-                          El dataset {dataset.fileChunk.filename} se está procesando
-                          </div>
+                          <FormattedMessage
+                            id="datasets.processingMsg1"
+                            defaultMessage={`El dataset`}
+                          /> {dataset.fileChunk ? dataset.fileChunk.filename : ''} <FormattedMessage
+                            id="datasets.processingMsg2"
+                            defaultMessage={`se está preprocesando`}
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -335,7 +373,10 @@ class DataSetDetail extends Component {
                           disabled={!!this.state.isLoadingConfigure}
                           onClick={e => this.cancelOnClick()}
                         >
-                          Cancelar
+                          <FormattedMessage
+                            id="datasets.btnCancel"
+                            defaultMessage={`Cancelar`}
+                          />
                         </button>
                       }
                     </div>
@@ -353,7 +394,10 @@ class DataSetDetail extends Component {
             <div className='card'>
               <header className='card-header'>
                 <p className='card-header-title'>
-                  Configurando el Dataset
+                  <FormattedMessage
+                    id="datasets.configuring"
+                    defaultMessage={`Configurando el Dataset`}
+                  />
                 </p>
               </header>
               <div className='card-content'>
@@ -378,7 +422,10 @@ class DataSetDetail extends Component {
             <div className='card'>
               <header className='card-header'>
                 <p className='card-header-title'>
-                  Configurando el Dataset
+                  <FormattedMessage
+                    id="datasets.configuring"
+                    defaultMessage={`Configurando el Dataset`}
+                  />
                 </p>
               </header>
               <div className='card-content'>
@@ -393,8 +440,11 @@ class DataSetDetail extends Component {
                             </span>
                           </div>
                           <div className='media-content'>
-                            Configuración en proceso!
-                        </div>
+                            <FormattedMessage
+                              id="datasets.configuringMsg"
+                              defaultMessage={`Configuración en proceso!`}
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -411,7 +461,10 @@ class DataSetDetail extends Component {
           <div className='card'>
             <header className='card-header'>
               <p className='card-header-title'>
-                Revisando el dataset
+                <FormattedMessage
+                  id="datasets.reviewing"
+                  defaultMessage={`Revisando el dataset`}
+                />
               </p>
             </header>
             <div className='card-content'>
@@ -428,8 +481,11 @@ class DataSetDetail extends Component {
                       disabled={!!this.state.isLoadingConfigure}
                       onClick={e => this.configureOnClick()}
                     >
-                      Configurar
-                        </button>
+                      <FormattedMessage
+                      id="datasets.btnConfig"
+                        defaultMessage={`Configurar`}
+                      />
+                    </button>
                   </div>
                   <div className='control'>
                     <button
@@ -437,8 +493,11 @@ class DataSetDetail extends Component {
                       disabled={!!this.state.isLoadingConsolidate}
                       onClick={e => this.consolidateOnClick()}
                     >
-                      Conciliar
-                        </button>
+                      <FormattedMessage
+                        id="datasets.btnConciliate"
+                        defaultMessage={`Conciliar`}
+                      />
+                    </button>
                   </div>
                 </div>
               }
@@ -452,7 +511,10 @@ class DataSetDetail extends Component {
           <div className='card'>
             <header className='card-header'>
               <p className='card-header-title'>
-                Dataset enviado a conciliación
+                <FormattedMessage
+                  id="datasets.conciliation"
+                  defaultMessage={`Dataset enviado a conciliación`}
+                />
               </p>
             </header>
             <div className='card-content'>
@@ -467,7 +529,10 @@ class DataSetDetail extends Component {
                           </span>
                         </div>
                         <div className='media-content'>
-                          Este dataset está en proceso de conciliación
+                          <FormattedMessage
+                            id="datasets.conciliationMsg"
+                            defaultMessage={`Este dataset está en proceso de conciliación`}
+                          />
                         </div>
                       </div>
                     </div>
@@ -484,14 +549,17 @@ class DataSetDetail extends Component {
           <div className='card'>
             <header className='card-header'>
               <p className='card-header-title'>
-                Dataset conciliado
+                <FormattedMessage
+                  id="datasets.conciliated"
+                  defaultMessage={`Dataset conciliado`}
+                />
               </p>
             </header>
             <div className='card-content'>
               <ConfigureViewDataset
                 fmin={dataset.dateMin}
                 fmax={dataset.dateMax}
-                statusText={'Dataset conciliado'}
+                statusText={this.formatTitle('datasets.conciliated')}
                 statusIcon={'fa fa-2x fa-check'}
                 initialState={dataset}
               />
@@ -505,7 +573,10 @@ class DataSetDetail extends Component {
           <div className='card'>
             <header className='card-header'>
               <p className='card-header-title'>
-                Dataset enviado a procesamiento
+                <FormattedMessage
+                  id="datasets.pendingRows"
+                  defaultMessage={`Dataset enviado a procesamiento`}
+                />
               </p>
             </header>
             <div className='card-content'>
@@ -520,7 +591,10 @@ class DataSetDetail extends Component {
                           </span>
                         </div>
                         <div className='media-content'>
-                          Este Dataset se está procesando para ajuste, en unos momentos más aparecerá su información
+                          <FormattedMessage
+                            id="datasets.pendingRowsMsg"
+                            defaultMessage={`Este Dataset se está procesando para ajuste, en unos momentos más aparecerá su información`}
+                          />
                         </div>
                       </div>
                     </div>
@@ -537,14 +611,17 @@ class DataSetDetail extends Component {
           <div className='card'>
             <header className='card-header'>
               <p className='card-header-title'>
-                Procesando ajustes del Dataset
+                <FormattedMessage
+                  id="datasets.adjustmentTitle"
+                  defaultMessage={`Procesando ajustes del Dataset`}
+                />
               </p>
             </header>
             <div className='card-content'>
               <ConfigureViewDataset
                 fmin={dataset.dateMin}
                 fmax={dataset.dateMax}
-                statusText={'Se está haciendo ajuste de este Dataset'}
+                statusText={this.formatTitle('datasets.adjustmentDesc')}
                 statusIcon={'fa fa-2x fa-pencil'}
                 initialState={dataset}
               />
@@ -558,7 +635,10 @@ class DataSetDetail extends Component {
           <div className='card'>
             <header className='card-header'>
               <p className='card-header-title'>
-                Estado del dataset
+                <FormattedMessage
+                  id="datasets.errorState"
+                  defaultMessage={`Estado del dataset`}
+                />
               </p>
             </header>
             <div className='card-content'>
@@ -575,7 +655,10 @@ class DataSetDetail extends Component {
                         <div className='media-content'>
                           {
                             testRoles('orgadmin') ? dataset.error
-                            : 'Se ha generado un error. Por favor intenta borrar este dataset y generar otro. Si no se soluciona, contacta a un administrador.'
+                            : <FormattedMessage
+                              id="datasets.errorStateMsg"
+                              defaultMessage={`Se ha generado un error. Por favor intenta borrar este dataset y generar otro. Si no se soluciona, contacta a un administrador.`}
+                            />
                           }
                         </div>
                       </div>
@@ -721,26 +804,26 @@ class DataSetDetail extends Component {
       }))
 
       if (res.success > 0) {
-        this.notify(
-          `¡Se confirmaron exitosamente ${res.success} ${type}!`,
+        this.notify( 
+          this.formatTitle('datasets.successObj') + res.success + ' ' + type,
           5000,
           toast.TYPE.SUCCESS
         )
       }
 
       if (res.error > 0) {
-        this.notify(
-          `¡No se pudieron confirmar ${res.error} ${type}!`,
+        this.notify( 
+          this.formatTitle('datasets.errorObj') + res.error + ' ' + type,
           5000,
           toast.TYPE.ERROR
         )
       }
 
       if (res.error === 0 && res.success === 0) {
-        this.notify(`¡Error al confirmar ${type}!`, 5000, toast.TYPE.ERROR)
+        this.notify(`Error ${type}`, 5000, toast.TYPE.ERROR)
       }
     } catch (e) {
-      this.notify(`¡Error al confirmar ${type}!`, 5000, toast.TYPE.ERROR)
+      this.notify(`Error ${type}`, 5000, toast.TYPE.ERROR)
     }
 
 
@@ -758,7 +841,7 @@ class DataSetDetail extends Component {
       let currentUnidentified = this.state.currentUnidentified
       currentUnidentified.externalId = String(currentUnidentified.externalId)
       return (<BaseModal
-        title={'Editar ' + currentUnidentified.catalog.name}
+        title={this.formatTitle('datasets.edit') + ' ' + currentUnidentified.catalog.name}
         className={this.state.classNameUn}
         hideModal={() => this.hideModalUnidentified()} >
         <ChannelForm
@@ -776,10 +859,20 @@ class DataSetDetail extends Component {
                 className={'button is-primary ' + this.state.isLoading}
                 disabled={!!this.state.isLoading}
                 type='submit'
-              >Guardar</button>
+              >
+                <FormattedMessage
+                  id="datasets.btnSave"
+                  defaultMessage={`Guardar`}
+                />
+              </button>
             </div>
             <div className='control'>
-              <button className='button' onClick={() => this.hideModalUnidentified()} type='button'>Cancelar</button>
+              <button className='button' onClick={() => this.hideModalUnidentified()} type='button'>
+                <FormattedMessage
+                  id="datasets.btnCancel"
+                  defaultMessage={`Cancelar`}
+                />
+              </button>
             </div>
           </div>
         </ChannelForm>
@@ -904,12 +997,15 @@ renderUnidentified(){
                 {canEdit &&
                   <div className={item.isOpen ? 'control' : 'is-hidden'}>
                     <button
-                    onClick={() => this.confirmUnidentified(item.type)}
-                    disabled={this.countUnidentified(item.type) === 0 || !!this.state.isLoadingBtnUn}
+                      onClick={() => this.confirmUnidentified(item.type)}
+                      disabled={this.countUnidentified(item.type) === 0 || !!this.state.isLoadingBtnUn}
                       className={'button is-primary is-outlined is-pulled-right confirm-btn ' + this.state.isLoadingBtnUn}
                     >
-                    Confirmar ({this.countUnidentified(item.type)})
-                </button>
+                      <FormattedMessage
+                        id="datasets.confirm"
+                        defaultMessage={`Confirmar`}
+                      /> ({this.countUnidentified(item.type)})
+                    </button>
                   </div>
                 }
                 <div className='control'>
@@ -931,7 +1027,7 @@ renderUnidentified(){
                       <tr>
                         {canEdit &&
                           <th className='has-text-centered'>
-                            <span title='Seleccionar todos'>
+                            <span title={this.formatTitle('dashboard.selectAll')}>
                               <Checkbox
                                 label='checkAll'
                                 handleCheckboxChange={(e, value) => this.checkAllUnidentified(value, key, item.type)}
@@ -941,10 +1037,25 @@ renderUnidentified(){
                             </span>
                           </th>
                         }
-                        <th>Id Externo</th>
-                        <th>Nombre</th>
+                        <th>
+                          <FormattedMessage
+                            id="datasets.externalId"
+                            defaultMessage={`Id Externo`}
+                          />
+                        </th>
+                        <th>
+                          <FormattedMessage
+                            id="datasets.name"
+                            defaultMessage={`Nombre`}
+                          />
+                        </th>
                         {canEdit &&
-                          <th>Acciones</th>
+                          <th>
+                            <FormattedMessage
+                              id="datasets.actions"
+                              defaultMessage={`Acciones`}
+                            />
+                          </th>
                         }
                       </tr>
                     </thead>
@@ -1000,7 +1111,7 @@ renderUnidentified(){
 
   render() {
     if (this.state.notFound) {
-      return <NotFound msg='este dataset' />
+      return <NotFound msg=' dataset' />
     }
 
     const { dataset, canEdit } = this.state
@@ -1012,10 +1123,10 @@ renderUnidentified(){
     var deleteButton = (
       <DeleteButton
         hideIcon
-        titleButton={'Eliminar'}
+        titleButton={this.formatTitle('datasets.delete')}
         objectName='Dataset'
         objectDelete={this.deleteObject.bind(this)}
-        message={`¿Estas seguro de que deseas eliminar el dataset ${dataset.name}?`}
+        message={this.formatTitle('datasets.deleteMsg') + dataset.name + '?'}
       />
     )
 
@@ -1038,7 +1149,10 @@ renderUnidentified(){
                       className='button is-info'
                       onClick={() => {this.props.setDataset('')}}
                     >
-                      Regresar
+                      <FormattedMessage
+                        id="datasets.btnBack"
+                        defaultMessage={`Regresar`}
+                      />
                     </a>
                   </div>
                   <div className='control'>
@@ -1087,7 +1201,12 @@ renderUnidentified(){
                                 className={'button is-primary ' + this.state.isLoading}
                                 disabled={!!this.state.isLoading}
                                 type='submit'
-                              >Guardar</button>
+                              >
+                                <FormattedMessage
+                                  id="datasets.btnSave"
+                                  defaultMessage={`Guardar`}
+                                />
+                              </button>
                             </div>
                           </div>
                         </DatasetDetailForm>
@@ -1106,5 +1225,5 @@ renderUnidentified(){
   }
 }
 
-export default DataSetDetail
+export default injectIntl(DataSetDetail)
 

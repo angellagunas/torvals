@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
 import api from '~base/api'
@@ -60,6 +61,7 @@ class PriceDetail extends Component {
 
   render () {
     if (this.state.notFound) {
+      //TODO: translate
       return <NotFound msg='este precio' />
     }
 
@@ -81,12 +83,12 @@ class PriceDetail extends Component {
               path={[
                 {
                   path: '/',
-                  label: 'Inicio',
+                  label: 'Inicio', //TODO: translate
                   current: false
                 },
                 {
                   path: '/catalogs/prices',
-                  label: 'Precios',
+                  label: 'Precios', //TODO: translate
                   current: false
                 },
                 {
@@ -103,7 +105,10 @@ class PriceDetail extends Component {
                 <div className='card'>
                   <header className='card-header'>
                     <p className='card-header-title'>
-                      Precio
+                      <FormattedMessage
+                        id="prices.title"
+                        defaultMessage={`Precio`}
+                      />
                     </p>
                   </header>
                   <div className='card-content'>
@@ -126,7 +131,12 @@ class PriceDetail extends Component {
                                   className={'button is-primary ' + this.state.isLoading}
                                   disabled={!!this.state.isLoading}
                                   type='submit'
-                              >Guardar</button> : ''
+                              >
+                                <FormattedMessage
+                                  id="prices.btnSave"
+                                  defaultMessage={`Guardar`}
+                                />
+                              </button> : ''
                               }
 
                             </div>
@@ -153,7 +163,7 @@ const branchedPriceDetails = branch({ prices: 'prices' }, PriceDetail)
 
 export default Page({
   path: '/catalogs/prices/:uuid',
-  title: 'Price details',
+  title: 'Price details', //TODO: translate
   exact: true,
   validate: loggedIn,
   component: branchedPriceDetails

@@ -6,6 +6,8 @@ import moment from 'moment'
 import api from '~base/api'
 import { toast } from 'react-toastify'
 import _ from 'lodash'
+import { injectIntl } from 'react-intl'
+import { defaultCatalogs } from '~base/tools'
 
 class CreateModal extends Component {
   constructor (props) {
@@ -18,6 +20,20 @@ class CreateModal extends Component {
     }
     this.catalogs = {}
     this.engines = {}
+  }
+
+  formatTitle(id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
+  findInCatalogs(slug) {
+    let find = false
+    defaultCatalogs.map(item => {
+      if (item.value === slug) {
+        find = true
+      }
+    })
+    return find
   }
 
   selectReport (report) {
@@ -74,9 +90,9 @@ class CreateModal extends Component {
 
         c = _.orderBy(c, 'year')
 
-        let min
+        let min = c[0]
         c.map(item => {
-          if (item.year === 2018 && item.number === 1 && item.name === 'enero #1') {
+          if (item.year === 2018 && item.number === 1) {
             min = item
           }
         })
@@ -89,7 +105,7 @@ class CreateModal extends Component {
       }
     } catch (e) {
       console.log(e)
-      this.notify('Error obteniendo ciclos ' + e.message, 5000, toast.TYPE.ERROR)
+      this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
     }
   }
 
@@ -161,10 +177,43 @@ class CreateModal extends Component {
       }
     } catch (e) {
       console.log(e)
-      this.notify('Error obteniendo modelos ' + e.message, 5000, toast.TYPE.ERROR)
+      this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
       this.setState({
         engines: []
       })
+    }
+  }
+
+  async updateStep () {
+    try {
+      let user = tree.get('user')
+      if (user.currentOrganization.wizardSteps.forecast) {
+        return
+      }
+      let url = '/app/organizations/' + user.currentOrganization.uuid + '/step'
+
+      let res = await api.post(url, {
+        step: {
+          name: 'forecast',
+          value: true
+        }
+      })
+
+      if (res) {
+        let me = await api.get('/user/me')
+        tree.set('user', me.user)
+        tree.set('organization', me.user.currentOrganization)
+        tree.set('rule', me.rule)
+        tree.set('role', me.user.currentRole)
+        tree.set('loggedIn', me.loggedIn)
+        tree.commit()
+        return true
+      } else {
+        return false
+      }
+    } catch (e) {
+      console.log(e)
+      return false
     }
   }
 
@@ -207,10 +256,11 @@ class CreateModal extends Component {
           this.hideModal()
           this.props.finishUp(res)
         })
+        await this.updateStep()
       }
     } catch (e) {
       console.log(e)
-      this.notify('Error generando forecast ' + e.message, 5000, toast.TYPE.ERROR)
+      this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
       this.setState({
         generating: ''
       })
@@ -247,7 +297,7 @@ class CreateModal extends Component {
     return (
       <div className='forecast'>
         <BaseModal
-          title={'Crear predicción'}
+          title={this.formatTitle('forecasts.btnCreate') + ' ' + this.formatTitle('tables.colForecast')}
           className={this.props.className}
           hideModal={this.hideModal}>
 
@@ -264,7 +314,7 @@ class CreateModal extends Component {
           </div>
 
           <div className='field'>
-            <label className='label'>Elige un tipo de reporte </label>
+            <label className='label'>{this.formatTitle('forecasts.createChoose')} </label>
             <div className='control'>
               <div className='columns'>
                 <div className='column is-narrow'>
@@ -276,7 +326,7 @@ class CreateModal extends Component {
                     checked={this.state.reportType === 'informative'}
                     onChange={() => this.selectReport('informative')} />
                   <label className='has-text-weight-normal' htmlFor='informative'>
-                    <span title='Informativo'>Informativo</span>
+                    <span title='Informativo'>{this.formatTitle('forecasts.informative')}</span>
                   </label>
                 </div>
 
@@ -289,7 +339,7 @@ class CreateModal extends Component {
                     checked={this.state.reportType === 'compatible'}
                     onChange={() => this.selectReport('compatible')} />
                   <label className='has-text-weight-normal' htmlFor='compatible'>
-                    <span title='Conciliable'>Conciliable</span>
+                    <span title='Conciliable'>{this.formatTitle('forecasts.compatible')}</span>
                   </label>
                 </div>
               </div>
@@ -300,22 +350,26 @@ class CreateModal extends Component {
               this.state.project.cycleStatus !== 'forecastCreation' &&
               this.state.project.cycleStatus !== 'salesUpload' &&
 
-              <p className='help info-message'>En este momento no es posible crear un reporte conciliable hasta tu próximo ciclo.</p>
+              <p className='help info-message'>{this.formatTitle('forecasts.createMsg')}</p>
             }
           </div>
 
           {this.state.reportType === 'informative' &&
           <div className='field'>
-            <label className='label'>Elige tus catálogos </label>
+            <label className='label'>{this.formatTitle('forecasts.createcatalogs')} </label>
             <div className='control'>
               <div className='columns is-multiline forecast-catalog'>
                 {
                   rules.catalogs.map((item, key) => {
+                    let title = item.name
+                    if (this.findInCatalogs(item.slug)) {
+                      title = this.formatTitle('catalogs.' + item.slug)
+                    }
                     return (
                       <div className='column is-narrow is-capitalized has-text-weight-normal' key={key}>
                         <Checkbox
                           key={key}
-                          label={item.name}
+                          label={title}
                           checked={this.catalogs[item.uuid] !== undefined}
                           handleCheckboxChange={(e, value) => this.selectCatalog(value, item)}
                         />
@@ -327,7 +381,7 @@ class CreateModal extends Component {
               </div>
             </div>
             {this.state.emptyCatalogs &&
-              <p className='help is-danger'>¡Debes elegir al menos un catálogo para generar tu predicción!</p>
+              <p className='help is-danger'>{this.formatTitle('forecasts.createAlert')}</p>
             }
           </div>
           }
@@ -339,7 +393,7 @@ class CreateModal extends Component {
               {this.state.minPeriod &&
               <div className='level-item'>
                 <div className='field'>
-                  <label className='label'>Ciclo inicial</label>
+                  <label className='label'>{this.formatTitle('forecasts.createInitial')}</label>
                   <div className='field is-grouped control'>
                     <div className={this.state.reportType === 'compatible' ? 'dropdown is-disabled' : 'dropdown is-hoverable'}>
                       <div className='dropdown-trigger'>
@@ -379,7 +433,7 @@ class CreateModal extends Component {
               {this.state.maxPeriod &&
               <div className='level-item'>
                 <div className='field'>
-                  <label className='label'>Ciclo final</label>
+                  <label className='label'>{this.formatTitle('forecasts.createFinal')}</label>
                   <div className='field is-grouped control'>
                     <div className={this.state.reportType === 'compatible' ? 'dropdown is-disabled' : 'dropdown is-hoverable'}>
                       <div className='dropdown-trigger'>
@@ -413,19 +467,20 @@ class CreateModal extends Component {
           </div>
 
           <div className='field'>
-            <label className='label'>Elige uno o varios modelos </label>
+            <label className='label'>{this.formatTitle('forecasts.createModels')} </label>
             <div className='control columns is-multiline'>
               {this.state.engines && this.state.engines.map(item => {
                 return (
-                  <div className='column is-4 is-capitalized' key={item.uuid}>
+                  <div className='column is-4' key={item.uuid}>
                     <div className='forecast-engine'>
                       <Checkbox
                         key={item.uuid}
                         checked={this.engines[item.uuid] !== undefined}
                         label={
                           <span>
-                            <p className='title is-6'>{item.name}</p>
-                            <p className='subtitle is-6'>{item.description || 'Sin descripción'}</p>
+                            <p className='title is-6 is-capitalized'>{item.name}</p>
+                            <p className='subtitle is-6 tooltip is-tooltip-multiline'
+                              data-tooltip={item.description || 'Sin descripción'}>{item.description || 'Sin descripción'}</p>
                           </span>
                         }
                         handleCheckboxChange={(e, value) => this.selectEngine(value, item)}
@@ -436,7 +491,7 @@ class CreateModal extends Component {
               })}
             </div>
             {this.state.emptyEngines &&
-              <p className='help is-danger'>¡Debes elegir al menos un modelo para generar tu predicción!</p>
+              <p className='help is-danger'>{this.formatTitle('forecasts.createAlert2')}</p>
             }
           </div>
 
@@ -449,7 +504,7 @@ class CreateModal extends Component {
                 this.state.project.cycleStatus !== 'salesUpload'
               }
             onClick={() => this.generateForecast()}>
-            Crear
+            {this.formatTitle('forecasts.btnCreate')}
           </button>
 
         </BaseModal>
@@ -458,4 +513,4 @@ class CreateModal extends Component {
   }
 }
 
-export default CreateModal
+export default injectIntl(CreateModal)

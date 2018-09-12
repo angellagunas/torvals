@@ -5,17 +5,9 @@ import env from '~base/env-variables'
 import Link from '~base/router/link'
 import cookies from '~base/cookies'
 import Loader from '~base/components/spinner'
+import { injectIntl } from 'react-intl'
 
 import { BaseForm, PasswordWidget, EmailWidget } from '~components/base-form'
-
-const schema = {
-  type: 'object',
-  required: ['email', 'password'],
-  properties: {
-    email: { type: 'string', title: 'Email' },
-    password: { type: 'string', title: 'Contraseña' }
-  }
-}
 
 const uiSchema = {
   password: { 'ui:widget': PasswordWidget },
@@ -26,7 +18,7 @@ class LogInButton extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      className: ' is-active',
+      className: '',
       formData: {
         email: '',
         password: ''
@@ -78,6 +70,12 @@ class LogInButton extends Component {
           password: ''
         }
       })
+    }
+
+    if (!user.languageCode) {
+      localStorage.setItem('lang', 'es-MX')
+    } else {
+      localStorage.setItem('lang', user.languageCode)
     }
 
     if (user.organizations && user.organizations.length > 1) {
@@ -196,7 +194,19 @@ class LogInButton extends Component {
     })
   }
 
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
   render () {
+    const schema = {
+      type: 'object',
+      required: ['email', 'password'],
+      properties: {
+        email: { type: 'string', title: this.formatTitle('login.email') },
+        password: { type: 'string', title: this.formatTitle('login.pass') }
+      }
+    }
     let spinner
 
     if (this.state.loading) {
@@ -215,7 +225,7 @@ class LogInButton extends Component {
       resetLink = (
         <p>
           <Link to='/password/forgotten/'>
-            ¿Olvidó su contraseña?
+            {this.formatTitle('login.forgot')}
           </Link>
         </p>
       )
@@ -230,7 +240,7 @@ class LogInButton extends Component {
               <div className='card land-card'>
                 <header className='card-header'>
                   <p className='card-header-title'>
-                    Seleccione una organización
+                    {this.formatTitle('login.select')}
                   </p>
                 </header>
                 <div className='card-content'>
@@ -248,9 +258,8 @@ class LogInButton extends Component {
 
     return (
       <div>
-        <a className='button is-info is-outlined' onClick={(e) => { this.showModal(e) }}>Log In</a>
-        <div className={'modal' + this.state.className}>
-          <div className='modal-background' onClick={(e) => {}} />
+        <div className={'modal' + this.props.modalClass}>
+          <div className='modal-background' onClick={() => { this.props.hideModal() }} />
           <div className='modal-content land-login'>
             <section>
               <div className='card-image'>
@@ -260,7 +269,7 @@ class LogInButton extends Component {
               </div>
               <div className='card-container'>
                 <h1 className='is-size-4 pad-bottom'>
-                  Bienvenido a Orax
+                  {this.formatTitle('login.welcome')}
                 </h1>
                 <div className='content'>
                   <div className='columns is-centered'>
@@ -283,8 +292,8 @@ class LogInButton extends Component {
                             type='submit'
                             disabled={!!error}
                           >
-                            Iniciar sesión
-                      </button>
+                            {this.formatTitle('login.loginBtn')}
+                          </button>
                         </div>
                       </BaseForm>
                     </div>
@@ -294,9 +303,11 @@ class LogInButton extends Component {
               </div>
             </section>
           </div>
+          <button className='modal-close login is-large has-text-dark' aria-label='close' onClick={() => { this.props.hideModal() }} />
+
         </div>
       </div>
     )
   }
 }
-export default LogInButton
+export default injectIntl(LogInButton)

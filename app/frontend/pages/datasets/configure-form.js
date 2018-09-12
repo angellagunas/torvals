@@ -1,8 +1,10 @@
 import React, { Component } from 'react'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import api from '~base/api'
 import Loader from '~base/components/spinner'
 import lov from 'lov'
 import s from 'underscore.string'
+import { defaultCatalogs } from '~base/tools'
 
 class ConfigureDatasetForm extends Component {
   constructor (props) {
@@ -73,6 +75,20 @@ class ConfigureDatasetForm extends Component {
         errors: {}
       }
     }
+  }
+
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
+  findInCatalogs (slug) {
+    let find = false
+    defaultCatalogs.map(item => {
+      if (item.value === slug) {
+        find = true
+      }
+    })
+    return find
   }
 
   componentWillMount () {
@@ -216,13 +232,17 @@ class ConfigureDatasetForm extends Component {
 
     for (let col of rules.catalogs) {
       if (col.slug === 'precio') continue
+      let title = col.name
+      if (this.findInCatalogs(col.slug)) {
+        title = this.formatTitle('catalogs.' + col.slug)
+      }
       cols.push({
         id: {
-          label: `${col.name} Id *`,
+          label: `${title} Id *`,
           name: `is_${col.slug}_id`
         },
         name: {
-          label: `${col.name} Nombre`,
+          label: title + ' ' + this.formatTitle('datasets.name'),
           name: `is_${col.slug}_name`
         }
       })
@@ -265,10 +285,10 @@ class ConfigureDatasetForm extends Component {
       if (!values[key] || typeof values[key] !== 'string' || values[key].trim() === '') {
         this.setState({isLoading: ''})
         return this.setState({
-          error: `¡Ha habido errores al procesar el formulario!`,
+          error: this.formatTitle('datasets.errorForm'),
           apiCallErrorMessage: 'message is-danger',
           errors: {
-            [key]: '¡Valor requerido!'
+            [key]: this.formatTitle('form.required')
           }
         })
       }
@@ -298,7 +318,12 @@ class ConfigureDatasetForm extends Component {
           <div className='columns'>
             <div className='column'>
               <div className='field'>
-                <label className='label'>Fecha *</label>
+                <label className='label'>
+                  <FormattedMessage
+                    id='datasets.date'
+                    defaultMessage={`Fecha`}
+                  /> *
+                </label>
                 <div className='control'>
                   <div className='select is-fullwidth'>
                     <select type='text'
@@ -307,7 +332,9 @@ class ConfigureDatasetForm extends Component {
                       className={this.state.errors['isDate'] ? 'is-fullwidth select-is-danger' : 'is-fullwidth'}
                       onChange={(e) => { this.handleChangeSelect('isDate', e) }}
                     >
-                      <option value=''>Selecciona una opción</option>
+                      <option value=''>
+                        {this.formatTitle('datasets.selectOption')}
+                      </option>
                       {
                         this.state.formData.columns.map(function (item, key) {
                           return <option key={key}
@@ -325,7 +352,12 @@ class ConfigureDatasetForm extends Component {
             <div className='column'>
 
               <div className='field'>
-                <label className='label'>Análisis *</label>
+                <label className='label'>
+                  <FormattedMessage
+                    id='datasets.analysis'
+                    defaultMessage={`Análisis`}
+                  /> *
+                </label>
                 <div className='control'>
                   <div className='select is-fullwidth'>
                     <select type='text'
@@ -334,7 +366,9 @@ class ConfigureDatasetForm extends Component {
                       className={this.state.errors['isAnalysis'] ? 'is-fullwidth select-is-danger' : 'is-fullwidth'}
                       onChange={(e) => { this.handleChangeSelect('isAnalysis', e) }}
                     >
-                      <option value=''>Selecciona una opción</option>
+                      <option value=''>
+                        {this.formatTitle('datasets.selectOption')}
+                      </option>
                       {
                         this.state.formData.columns.map(function (item, key) {
                           return <option key={key}
@@ -354,7 +388,12 @@ class ConfigureDatasetForm extends Component {
           <div className='columns'>
             <div className='column'>
               <div className='field'>
-                <label className='label'>Ajuste</label>
+                <label className='label'>
+                  <FormattedMessage
+                    id='datasets.adjustment'
+                    defaultMessage={`Ajuste`}
+                  />
+                </label>
                 <div className='control'>
                   <div className='select is-fullwidth'>
                     <select type='text'
@@ -362,7 +401,9 @@ class ConfigureDatasetForm extends Component {
                       name='isAdjustment'
                       value={this.state.isAdjustment}
                       onChange={(e) => { this.handleChangeSelect('isAdjustment', e) }}>
-                      <option value=''>Selecciona una opción</option>
+                      <option value=''>
+                        {this.formatTitle('datasets.selectOption')}
+                      </option>
                       {
                     this.state.formData.columns.map(function (item, key) {
                       return <option key={key}
@@ -377,7 +418,12 @@ class ConfigureDatasetForm extends Component {
             <div className='column'>
 
               <div className='field'>
-                <label className='label'>Predicción</label>
+                <label className='label'>
+                  <FormattedMessage
+                    id='datasets.prediction'
+                    defaultMessage={`Predicción`}
+                  />
+                </label>
                 <div className='control'>
                   <div className='select is-fullwidth'>
                     <select type='text'
@@ -385,7 +431,9 @@ class ConfigureDatasetForm extends Component {
                       name='isPrediction'
                       value={this.state.isPrediction}
                       onChange={(e) => { this.handleChangeSelect('isPrediction', e) }}>
-                      <option value=''>Selecciona una opción</option>
+                      <option value=''>
+                        {this.formatTitle('datasets.selectOption')}
+                      </option>
                       {
                     this.state.formData.columns.map(function (item, key) {
                       return <option key={key}
@@ -399,7 +447,12 @@ class ConfigureDatasetForm extends Component {
             </div>
           </div>
           <div className='field'>
-            <label className='label'>Venta</label>
+            <label className='label'>
+              <FormattedMessage
+                id='datasets.sale'
+                defaultMessage={`Venta`}
+              />
+            </label>
             <div className='control'>
               <div className='select is-fullwidth'>
                 <select type='text'
@@ -407,7 +460,9 @@ class ConfigureDatasetForm extends Component {
                   name='isSales'
                   value={this.state.isSales}
                   onChange={(e) => { this.handleChangeSelect('isSales', e) }}>
-                  <option value=''>Selecciona una opción</option>
+                  <option value=''>
+                    {this.formatTitle('datasets.selectOption')}
+                  </option>
                   {
                     this.state.formData.columns.map(function (item, key) {
                       return <option key={key}
@@ -432,7 +487,9 @@ class ConfigureDatasetForm extends Component {
                           name={item.id.name}
                           value={this.getValue(item.id.name)}
                           onChange={(e) => { this.handleChangeSelect(item.id.name, e) }}>
-                          <option value=''>Selecciona una opción</option>
+                          <option value=''>
+                            {this.formatTitle('datasets.selectOption')}
+                          </option>
                           {
                             this.state.formData.columns.map(function (item, key) {
                               return <option key={key}
@@ -458,7 +515,9 @@ class ConfigureDatasetForm extends Component {
                           name={item.name.name}
                           value={this.getValue(item.name.name)}
                           onChange={(e) => { this.handleChangeSelect(item.name.name, e) }}>
-                          <option value=''>Selecciona una opción</option>
+                          <option value=''>
+                            {this.formatTitle('datasets.selectOption')}
+                          </option>
                           {
                             this.state.formData.columns.map(function (item, key) {
                               return <option key={key}
@@ -477,10 +536,20 @@ class ConfigureDatasetForm extends Component {
           <div className='columns has-borders'>
             <div className='column is-6' />
             <div className='column is-3 has-text-centered'>
-              <label className='label'>Filtro de Operación</label>
+              <label className='label'>
+                <FormattedMessage
+                  id='datasets.operationFilter'
+                  defaultMessage={`Filtro de Operación`}
+                />
+              </label>
             </div>
             <div className='column is-3 has-text-centered'>
-              <label className='label'>Filtro de Análisis</label>
+              <label className='label'>
+                <FormattedMessage
+                  id='datasets.analysisFilter'
+                  defaultMessage={`Filtro de Análisis`}
+                />
+              </label>
             </div>
           </div>
 
@@ -523,7 +592,9 @@ class ConfigureDatasetForm extends Component {
                 <div className='control'>
                   <div className='select is-fullwidth'>
                     <select onChange={(e) => { this.handleChangeGroupings('groupingColumn', e) }}>
-                      <option value='' >Elige una opción</option>
+                      <option value='' >
+                        {this.formatTitle('datasets.selectOption')}
+                      </option>
                       {
                     this.state.formData.columns.map(function (item, key) {
                       return <option key={key}
@@ -561,7 +632,10 @@ class ConfigureDatasetForm extends Component {
                     onClick={(e) => this.handleColumnsValues(e)}
                     type='button'
                   >
-                    Agregar
+                    <FormattedMessage
+                      id='datasets.btnAdd'
+                      defaultMessage={`Agregar`}
+                    />
                   </button>
                 </p>
               </div>
@@ -571,15 +645,35 @@ class ConfigureDatasetForm extends Component {
           <table className='table is-fullwidth is-narrow'>
             <thead>
               <tr>
-                <th>Columna</th>
-                <th>Valor 1</th>
-                <th colSpan='2'>Valor 2</th>
+                <th>
+                  <FormattedMessage
+                    id='datasets.column'
+                    defaultMessage={`Columna`}
+                  />
+                </th>
+                <th>
+                  <FormattedMessage
+                    id='datasets.value1'
+                    defaultMessage={`Valor 1`}
+                  />
+                </th>
+                <th colSpan='2'>
+                  <FormattedMessage
+                    id='datasets.value2'
+                    defaultMessage={`Valor 2`}
+                  />
+                </th>
               </tr>
             </thead>
             <tbody>
               {this.state.formData.groupings.length === 0 ? (
                 <tr>
-                  <td colSpan='4'>No hay agrupaciones que mostrar</td>
+                  <td colSpan='4'>
+                    <FormattedMessage
+                      id='datasets.emptyGroups'
+                      defaultMessage={`No hay agrupaciones que mostrar`}
+                    />
+                  </td>
                 </tr>
                 ) : (
                   this.state.formData.groupings.map((item, key) => {
@@ -607,7 +701,10 @@ class ConfigureDatasetForm extends Component {
 
           <div className={this.state.apiCallMessage}>
             <div className='message-body is-size-7 has-text-centered'>
-              Se ha configurado al Dataset correctamente
+              <FormattedMessage
+                id='datasets.emptyGroups'
+                defaultMessage={`configuredMsg`}
+              />
             </div>
           </div>
           <div className={this.state.apiCallErrorMessage}>
@@ -622,7 +719,10 @@ class ConfigureDatasetForm extends Component {
                 className={'button is-primary' + this.state.isLoading}
                 disabled={!!this.state.isLoading}
               >
-                Procesar
+                <FormattedMessage
+                  id='datasets.btnProcess'
+                  defaultMessage={`Procesar`}
+                />
               </button>
             </div>
           </div>
@@ -634,4 +734,4 @@ class ConfigureDatasetForm extends Component {
   }
 }
 
-export default ConfigureDatasetForm
+export default injectIntl(ConfigureDatasetForm)

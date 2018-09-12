@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import { BranchedPaginatedTable } from '~base/components/base-paginated-table'
 import CreateDataSet from '../create-dataset'
 import api from '~base/api'
@@ -17,10 +18,15 @@ class TabDatasets extends Component {
       datasetDetail: this.props.datasetDetail
     }
   }
+
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
   getColumns () {
     return [
       {
-        'title': 'Nombre',
+        'title': this.formatTitle('tables.colName'),
         'property': 'name',
         'default': 'N/A',
         'sortable': true,
@@ -33,7 +39,7 @@ class TabDatasets extends Component {
         }
       },
       {
-        'title': 'Rango Fechas',
+        'title': this.formatTitle('datasets.dateRange'),
         'property': 'dateMin',
         'default': 'N/A',
         'sortable': true,
@@ -44,16 +50,20 @@ class TabDatasets extends Component {
         }
       },
       {
-        'title': 'Fuente',
+        'title': this.formatTitle('datasets.source'),
         'property': 'source',
         'default': 'N/A',
         'sortable': true,
         formatter: (row) => {
-          return datasetStatus[row.source]
+          if (this.formatTitle('dates.locale') === 'en') {
+            return <span className='is-capitalized'>{row.source}</span>
+          } else {
+            return datasetStatus[row.source]
+          }
         }
       },
       {
-        'title': 'Añadido en',
+        'title': this.formatTitle('tables.colCreated'),
         'property': 'dateCreated',
         'default': 'N/A',
         'sortable': true,
@@ -64,7 +74,7 @@ class TabDatasets extends Component {
         }
       },
       {
-        'title': 'Acciones',
+        'title': this.formatTitle('tables.colActions'),
         formatter: (row) => {
           return (
             <div className='field is-grouped'>
@@ -103,7 +113,10 @@ class TabDatasets extends Component {
                     : 'is-hidden'
                   }
                 >
-                  Fin. Configuración
+                  <FormattedMessage
+                    id='datasets.endConfig'
+                    defaultMessage={`Fin. Configuración`}
+                  />
                 </a>
               </div>
               <div className='control'>
@@ -112,10 +125,11 @@ class TabDatasets extends Component {
                     iconOnly
                     icon='fa fa-trash'
                     objectName='Dataset'
+                    titleButton={this.formatTitle('datasets.delete')}
                     objectDelete={() => this.removeDatasetOnClick(row.uuid)}
-                    message={'¿Estas seguro de querer eliminar este dataset?'}
-                  />
-                }
+                    message={this.formatTitle('datasets.deleteMsg') + row.name + '?'}
+              />
+            }
               </div>
             </div>
           )
@@ -199,20 +213,27 @@ class TabDatasets extends Component {
     if (dataSetsNumber) {
       adviseContent =
         <div>
-          Debes terminar de configurar al menos un
-          <strong> dataset </strong>
+          <FormattedMessage
+            id='datasets.datasetConfigMsg1'
+            defaultMessage={`Debes terminar de configurar al menos un dataset`}
+          />
         </div>
     } else {
       adviseContent =
         <div>
-          Necesitas subir y configurar al menos un
-          <strong> dataset </strong> para tener información disponible
+          <FormattedMessage
+            id='datasets.datasetConfigMsg2'
+            defaultMessage={`Necesitas subir y configurar al menos un dataset para tener información disponible`}
+          />
         </div>
     }
     if (this.props.project.status === 'updating-rules') {
       return (
         <div className='section has-text-centered subtitle has-text-primary'>
-          Actualizando reglas del proyecto
+          <FormattedMessage
+            id='datasets.updatingRules'
+            defaultMessage={`Actualizando reglas del proyecto`}
+          />
           <Loader />
         </div>
       )
@@ -226,7 +247,12 @@ class TabDatasets extends Component {
               {this.props.project.status === 'empty'
               ? <article className='message is-warning'>
                 <div className='message-header'>
-                  <p>Atención</p>
+                  <p>
+                    <FormattedMessage
+                      id='datasets.alertMsg'
+                      defaultMessage={`Atención`}
+                    />
+                  </p>
                 </div>
                 <div className='message-body is-size-6'>
                   <div className='level'>
@@ -245,7 +271,12 @@ class TabDatasets extends Component {
                         <a
                           className='button is-info is-pulled-right'
                           onClick={() => this.showModalDataset()}>
-                          <span>Agregar Dataset</span>
+                          <span>
+                            <FormattedMessage
+                              id='datasets.add'
+                              defaultMessage={`Agregar Dataset`}
+                            />
+                          </span>
                         </a>
                       </div>
                     </div>
@@ -256,7 +287,12 @@ class TabDatasets extends Component {
               <a
                 className='button is-info is-pulled-right has-20-margin-sides'
                 onClick={() => this.showModalDataset()}>
-                <span>Agregar Dataset</span>
+                <span>
+                  <FormattedMessage
+                    id='datasets.add'
+                    defaultMessage={`Agregar Dataset`}
+                  />
+                </span>
               </a>
             }
             </div>
@@ -296,4 +332,4 @@ TabDatasets.contextTypes = {
   tree: PropTypes.baobab
 }
 
-export default TabDatasets
+export default injectIntl(TabDatasets)

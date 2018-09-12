@@ -2,34 +2,9 @@ import React, { Component } from 'react'
 import moment from 'moment'
 import Cal from '../../cal'
 import { toast } from 'react-toastify'
+import { FormattedMessage, injectIntl } from 'react-intl'
 
-const colors = {
-  1: {
-    rangeClass: 'calendar-range-forecast',
-    rangeClassStart: 'limit-forecast',
-    tooltip: 'generar predicción'
-  },
-  2: {
-    rangeClass: 'calendar-range-sales',
-    rangeClassStart: 'limit-sales',
-    tooltip: 'subir ventas'
-  },
-  3: {
-    rangeClass: 'calendar-range-adjustments',
-    rangeClassStart: 'limit-adjustments',
-    tooltip: 'realizar ajustes'
-  },
-  4: {
-    rangeClass: 'calendar-range-approve',
-    rangeClassStart: 'limit-approve',
-    tooltip: 'aprobar ajustes'
-  },
-  5: {
-    rangeClass: 'calendar-range-consolidate',
-    rangeClassStart: 'limit-consolidate',
-    tooltip: 'concentrar información'
-  }
-}
+let colors = {}
 
 class DeadLines extends Component {
   constructor (props) {
@@ -43,12 +18,41 @@ class DeadLines extends Component {
         consolidation:
           moment.utc(this.props.rules.startDate)
             .add(this.props.rules.cycleDuration, this.props.rules.cycle)
-            .add(-1, 'days').diff(moment.utc(this.props.rules.startDate), 'days')
+            .diff(moment.utc(this.props.rules.startDate), 'days')
       },
       startDate: moment.utc(this.props.rules.startDate) || moment.utc(),
       endDate: moment.utc(this.props.rules.startDate)
       .add(this.props.rules.cycleDuration, this.props.rules.cycle)
-      .add(-1, 'days') || moment.utc().add(1, 'M')
+      .add(-1, 'days') || moment.utc().add(1, 'M'),
+      dates: {}
+    }
+
+    colors = {
+      1: {
+        rangeClass: 'calendar-range-forecast',
+        rangeClassStart: 'limit-forecast',
+        tooltip: this.formatTitle('wizard.rulesPrediction')
+      },
+      2: {
+        rangeClass: 'calendar-range-sales',
+        rangeClassStart: 'limit-sales',
+        tooltip: this.formatTitle('wizard.rulesSalesUpdate')
+      },
+      3: {
+        rangeClass: 'calendar-range-adjustments',
+        rangeClassStart: 'limit-adjustments',
+        tooltip: this.formatTitle('wizard.rulesAdjustment')
+      },
+      4: {
+        rangeClass: 'calendar-range-approve',
+        rangeClassStart: 'limit-approve',
+        tooltip: this.formatTitle('wizard.rulesAdjustmentApprove')
+      },
+      5: {
+        rangeClass: 'calendar-range-consolidate',
+        rangeClassStart: 'limit-consolidate',
+        tooltip: this.formatTitle('wizard.rulesInfo')
+      }
     }
   }
 
@@ -59,15 +63,15 @@ class DeadLines extends Component {
   verifyCycle () {
     let cycleDays = moment.utc(this.props.rules.startDate)
       .add(this.props.rules.cycleDuration, this.props.rules.cycle)
-      .add(-1, 'days').diff(moment.utc(this.props.rules.startDate), 'days')
+      .diff(moment.utc(this.props.rules.startDate), 'days')
 
     let d = this.state.data
 
-    let totalDays = d.salesUpload + d.forecastCreation + d.rangeAdjustment + d.rangeAdjustmentRequest
+    let totalDays = this.validNumber(d.salesUpload, 1) + this.validNumber(d.forecastCreation, 1) + d.rangeAdjustment + d.rangeAdjustmentRequest
 
     if (totalDays > cycleDays) {
       this.notify(
-        'El ciclo cambió, debe establecer los ciclos de operación.',
+        this.formatTitle('wizard.deadlinesChange'),
         5000,
         toast.TYPE.INFO
       )
@@ -93,9 +97,13 @@ class DeadLines extends Component {
 
   handleInputChange (name, value) {
     let aux = this.state.data
-    value = value.replace(/\D/, '')
-
-    aux[name] = Number(value)
+    let val = 1
+    if (!isNaN(Number(value))) {
+      val = Number(value)
+    } else {
+      return
+    }
+    aux[name] = val
 
     this.setState({
       data: aux
@@ -144,7 +152,7 @@ class DeadLines extends Component {
       isToday: true,
       isActive: false,
       isTooltip: true,
-      tooltipText: 'Inicio del primer ciclo'
+      tooltipText: this.formatTitle('wizard.periodsCyclesStart')
     }
     return d
   }
@@ -159,7 +167,7 @@ class DeadLines extends Component {
       isToday: true,
       isActive: false,
       isTooltip: true,
-      tooltipText: 'Fin del ciclo'
+      tooltipText: this.formatTitle('wizard.deadlinesEnd')
     }
     return d
   }
@@ -185,6 +193,7 @@ class DeadLines extends Component {
     }
 
     range[e.format('YYYY-MM-DD')] = {
+      key: key,
       date: s,
       isRange: true,
       isRangeEnd: true,
@@ -192,38 +201,63 @@ class DeadLines extends Component {
       isToday: false,
       isActive: true,
       isTooltip: true,
-      rangeClass: colors[key].rangeClass,
+      rangeClass: end.diff(start) > 1 ? colors[key].rangeClass : '',
       rangeClassEnd: colors[key].rangeClassStart,
-      tooltipText: 'Límite para ' + colors[key].tooltip
+      tooltipText: this.formatTitle('wizard.deadlinesLimit') + ' ' + colors[key].tooltip
     }
     return range
+  }
+
+  validNumber (num, min = 0) {
+    let sd = Number(num) - min
+    if (isNaN(sd) || sd < 0) {
+      sd = 0
+    }
+    return sd
+  }
+
+  overlap (one, two) {
+    if (one[Object.keys(one)[Object.keys(one).length - 1]].date
+      .diff(two[Object.keys(two)[Object.keys(two).length - 1]].date, 'days') === 0) {
+      return true
+    }
+    return false
   }
 
   makeDates () {
     let data = this.state.data
     let dates = {}
-
     let start = this.makeStartDate(this.state.startDate)
     dates[Object.keys(start)[0]] = Object.values(start)[0]
     let end = this.makeEndDate(this.state.endDate)
     dates[Object.keys(end)[0]] = Object.values(end)[0]
 
     let saleDate = this.state.startDate.clone()
-      .add(Number(data.salesUpload), 'days')
-    let forecastDate = this.state.startDate.clone()
-      .add(Number(data.salesUpload) + Number(data.forecastCreation), 'days')
-    let adjusmentDate = this.state.startDate.clone()
-      .add(Number(data.salesUpload) + Number(data.forecastCreation) + Number(data.rangeAdjustment), 'days')
+      .add(this.validNumber(data.salesUpload, 1), 'days')
 
-    let approveDate = this.state.startDate.clone()
-      .add(Number(data.salesUpload) + Number(data.forecastCreation) +
-      Number(data.rangeAdjustment) + Number(data.rangeAdjustmentRequest), 'days')
+    let forecastDate = saleDate.clone()
+      .add(this.validNumber(data.forecastCreation, 1), 'days')
+
+    let adjusmentDate = forecastDate.clone()
+      .add(this.validNumber(data.rangeAdjustment), 'days')
+
+    let approveDate = adjusmentDate.clone()
+      .add(this.validNumber(data.rangeAdjustmentRequest), 'days')
 
     let sales = this.makeRange(this.state.startDate, saleDate, 2)
     let forecast = this.makeRange(saleDate, forecastDate, 1)
     let adjusment = this.makeRange(forecastDate, adjusmentDate, 3)
     let approve = this.makeRange(adjusmentDate, approveDate, 4)
     let consolidation = this.makeRange(approveDate, this.state.endDate.clone(), 5)
+
+    if (this.overlap(sales, forecast)) {
+      sales[Object.keys(sales)[Object.keys(sales).length - 1]].tooltipText += ' / ' + this.formatTitle('wizard.rulesPrediction')
+      sales[Object.keys(sales)[Object.keys(sales).length - 1]].rangeClassEnd = 'limit-sales-forecast'
+    }
+    if (this.overlap(approve, consolidation)) {
+      approve[Object.keys(approve)[Object.keys(approve).length - 1]].tooltipText += ' / ' + this.formatTitle('wizard.rulesInfo')
+      approve[Object.keys(approve)[Object.keys(approve).length - 1]].rangeClassEnd = 'limit-approve-consolidate'
+    }
 
     dates = {
       ...dates,
@@ -243,10 +277,10 @@ class DeadLines extends Component {
     let data = this.state.data
     let c = moment.utc(this.props.rules.startDate)
       .add(this.props.rules.cycleDuration, this.props.rules.cycle)
-      .add(-1, 'days').diff(moment.utc(this.props.rules.startDate), 'days')
+      .diff(moment.utc(this.props.rules.startDate), 'days')
 
-    data.consolidation = c - data.salesUpload -
-    data.forecastCreation - data.rangeAdjustment -
+    data.consolidation = c - this.validNumber(data.salesUpload, 1) -
+    this.validNumber(data.forecastCreation, 1) - data.rangeAdjustment -
     data.rangeAdjustmentRequest
 
     this.setState({ data }, () => {
@@ -257,7 +291,7 @@ class DeadLines extends Component {
         this.makeDates()
       } else {
         this.notify(
-          'Error: No puedes tomar más días de los que dura el ciclo.',
+          'Error: ' + this.formatTitle('wizard.deadlinesError'),
           5000,
           toast.TYPE.ERROR
         )
@@ -321,30 +355,34 @@ class DeadLines extends Component {
     }
   }
 
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
   render () {
     const deadlines = [
       {
-        title: 'Actualizar datos de ventas',
+        title: this.formatTitle('wizard.rulesSalesUpdate'),
         name: 'salesUpload',
         color: 'deadline-sales'
       },
       {
-        title: 'Generar Predicción',
+        title: this.formatTitle('wizard.rulesPrediction'),
         name: 'forecastCreation',
         color: 'deadline-forecast'
       },
       {
-        title: 'Realizar Ajustes',
+        title: this.formatTitle('wizard.rulesAdjustment'),
         name: 'rangeAdjustment',
         color: 'deadline-adjustments'
       },
       {
-        title: 'Aprobar Ajustes',
+        title: this.formatTitle('wizard.rulesAdjustmentApprove'),
         name: 'rangeAdjustmentRequest',
         color: 'deadline-approve'
       },
       {
-        title: 'Concentrar Información',
+        title: this.formatTitle('wizard.rulesInfo'),
         name: 'consolidation',
         color: 'deadline-consolidate'
       }
@@ -363,15 +401,28 @@ class DeadLines extends Component {
 
     return (
       <div className='section pad-sides has-20-margin-top'>
-        <h1 className='title is-5'> Ciclos de operación</h1>
-        <p className='subtitle is-6'>Define las fechas para el ciclo de operación a partir de la fecha de inicio.</p>
+        <h1 className='title is-5'>
+          <FormattedMessage
+            id='wizard.deadlinesTitle'
+            defaultMessage={`Ciclos de operación`}
+          />
+        </h1>
+        <p className='subtitle is-6'>
+          <FormattedMessage
+            id='wizard.deadlinesSubTitle'
+            defaultMessage={`Define las fechas para el ciclo de operación a partir de la fecha de inicio.`}
+          />
+        </p>
         <div className='columns is-centered'>
 
           <div className='column is-6'>
             <div className='card'>
               <header className='card-header'>
                 <p className='card-header-title'>
-                  Fechas para operar
+                  <FormattedMessage
+                    id='wizard.deadlinesDates'
+                    defaultMessage={`Fechas para operar`}
+                  />
                 </p>
               </header>
               <div className='card-content'>
@@ -394,7 +445,10 @@ class DeadLines extends Component {
                           </p>
                           <p className='control'>
                             <a className='button is-static'>
-                              Días
+                              <FormattedMessage
+                                id='wizard.deadlinesDays'
+                                defaultMessage={`Días`}
+                              />
                             </a>
                           </p>
                         </div>
@@ -419,11 +473,21 @@ class DeadLines extends Component {
 
         </div>
 
-        <div className='buttons wizard-steps'>
+        <div className='buttons wizard-steps has-margin-big'>
           {this.props.org && !this.props.org.isConfigured &&
             this.props.completed && this.props.completed.length < 4
-            ? <button onClick={() => this.props.setStep(3)} className='button is-primary'>Atrás</button>
-            : <button onClick={() => this.props.setStep(1)} className='button is-danger'>Cancelar</button>
+            ? <button onClick={() => this.props.setStep(3)} className='button is-primary'>
+              <FormattedMessage
+                id='wizard.deadlinesBtnPrev'
+                defaultMessage={`Atrás`}
+              />
+            </button>
+            : <button onClick={() => this.props.setStep(1)} className='button is-danger'>
+              <FormattedMessage
+                id='wizard.deadlinesBtnCancel'
+                defaultMessage={`Cancelar`}
+              />
+            </button>
           }
           <button
             disabled={this.state.disableBtn}
@@ -431,7 +495,14 @@ class DeadLines extends Component {
             className='button is-primary'>
             {this.props.org && !this.props.org.isConfigured &&
               this.props.completed && this.props.completed.length < 4
-              ? 'Siguente' : 'Guardar'
+              ? <FormattedMessage
+                id='wizard.deadlinesBtnNext'
+                defaultMessage={`Siguente`}
+              />
+              : <FormattedMessage
+                id='wizard.deadlinesBtnSave'
+                defaultMessage={`Guardar`}
+              />
             }
           </button>
         </div>
@@ -440,4 +511,4 @@ class DeadLines extends Component {
   }
 }
 
-export default DeadLines
+export default injectIntl(DeadLines)

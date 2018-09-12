@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import 'react-datepicker/dist/react-datepicker.css'
 import Page from '~base/page'
 import { loggedIn } from '~base/middlewares/'
@@ -15,114 +16,123 @@ import tree from '~core/tree'
 const colors = {
   1: {
     rangeClass: 'calendar-range-forecast',
-    rangeClassStart: 'limit-forecast'
+    rangeClassStart: 'limit-forecast',
   },
   2: {
     rangeClass: 'calendar-range-sales',
-    rangeClassStart: 'limit-sales'
+    rangeClassStart: 'limit-sales',
   },
   3: {
     rangeClass: 'calendar-range-adjustments',
-    rangeClassStart: 'limit-adjustments'
+    rangeClassStart: 'limit-adjustments',
   },
   4: {
     rangeClass: 'calendar-range-approve',
-    rangeClassStart: 'limit-approve'
+    rangeClassStart: 'limit-approve',
   },
   5: {
     rangeClass: 'calendar-range-consolidate',
-    rangeClassStart: 'limit-consolidate'
+    rangeClassStart: 'limit-consolidate',
   },
   6: {
     rangeClass: 'calendar-range-lime',
-    rangeClassStart: 'limit-lime'
+    rangeClassStart: 'limit-lime',
   },
   7: {
     rangeClass: 'calendar-range-orange',
-    rangeClassStart: 'limit-orange'
+    rangeClassStart: 'limit-orange',
   },
   8: {
     rangeClass: 'calendar-range-teal',
-    rangeClassStart: 'limit-teal'
+    rangeClassStart: 'limit-teal',
   },
   9: {
     rangeClass: 'calendar-range-pink',
-    rangeClassStart: 'limit-pink'
+    rangeClassStart: 'limit-pink',
   },
   10: {
     rangeClass: 'calendar-range-grey',
-    rangeClassStart: 'limit-grey'
+    rangeClassStart: 'limit-grey',
   },
   11: {
     rangeClass: 'calendar-range-yellow',
-    rangeClassStart: 'limit-yellow'
+    rangeClassStart: 'limit-yellow',
   },
   12: {
     rangeClass: 'calendar-range-cyan',
-    rangeClassStart: 'limit-cyan'
-  }
-
-}
+    rangeClassStart: 'limit-cyan',
+  },
+};
 
 class Calendar extends Component {
-  constructor (props) {
-    super(props)
+  constructor(props) {
+    super(props);
     this.state = {
       startWeekDate: moment().utc(),
       highlightDates: [],
       showWeekNumbers: true,
-      selectedYear: moment().utc().get('year'),
-      selectedCycle: ''
-    }
-    this.color = 0
+      selectedYear: moment()
+        .utc()
+        .get('year'),
+      selectedCycle: '',
+    };
+    this.color = 0;
   }
 
-  componentWillMount () {
-    this.getPeriods()
+  componentWillMount() {
+    this.getPeriods();
   }
 
-  showWeeks () {
+  showWeeks() {
     this.setState({
-      showWeekNumbers: !this.state.showWeekNumbers
-    })
+      showWeekNumbers: !this.state.showWeekNumbers,
+    });
   }
 
-  async filterChangeHandler (name, value) {
+  async filterChangeHandler(name, value) {
     if (name === 'year') {
-      this.setState({
-        selectedYear: value
-      }, () => {
-        this.getPeriods()
-      })
+      this.setState(
+        {
+          selectedYear: value,
+        },
+        () => {
+          this.getPeriods();
+        }
+      );
     } else if (name === 'cycle') {
       this.setState({
-        selectedCycle: value
-      })
+        selectedCycle: value,
+      });
     }
   }
 
-  async getPeriods () {
-    let org = tree.get('user').currentOrganization
-    let url = '/app/periods/' + org.uuid
+  async getPeriods() {
+    let org = tree.get('user').currentOrganization;
+    let url = '/app/periods/' + org.uuid;
 
-    let res = await api.get(url)
+    let res = await api.get(url);
 
     if (res) {
       let cycles = _(res.data)
         .groupBy(x => x.cycle.uuid)
         .map((value, key) => ({ cycle: key, periods: value }))
         .value()
-        .filter((item) => { return moment.utc(item.periods[0].dateEnd).get('year') === this.state.selectedYear })
+        .filter(item => {
+          return (
+            moment.utc(item.periods[0].dateEnd).get('year') ===
+            this.state.selectedYear
+          );
+        });
 
       this.setState({
         cycles: cycles,
-        years: res.years
-      })
+        years: res.years,
+      });
     }
   }
 
-  makeStartDate (date) {
-    let d = {}
+  makeStartDate(date) {
+    let d = {};
     d[moment.utc(date).format('YYYY-MM-DD')] = {
       date: moment.utc(date),
       isRange: false,
@@ -131,13 +141,13 @@ class Calendar extends Component {
       isToday: true,
       isActive: false,
       isTooltip: true,
-      tooltipText: 'Inicio del ciclo'
+      tooltipText: this.formatTitle('wizard.periodsStartCycle')
     }
     return d
   }
 
-  makeEndDate (date) {
-    let d = {}
+  makeEndDate(date) {
+    let d = {};
     d[moment.utc(date).format('YYYY-MM-DD')] = {
       date: moment.utc(date),
       isRange: false,
@@ -146,22 +156,22 @@ class Calendar extends Component {
       isToday: true,
       isActive: false,
       isTooltip: true,
-      tooltipText: 'Fin del ciclo'
+      tooltipText: this.formatTitle('wizard.periodsEndCycle')
     }
     return d
   }
 
-  makeRange (start, end, key) {
-    let s = moment.utc(start)
-    let e = moment.utc(end)
+  makeRange(start, end, key) {
+    let s = moment.utc(start);
+    let e = moment.utc(end);
 
     if (this.color === 12) {
-      this.color = 1
+      this.color = 1;
     } else {
-      this.color++
+      this.color++;
     }
 
-    let range = {}
+    let range = {};
     range[s.format('YYYY-MM-DD')] = {
       date: s,
       isRange: true,
@@ -170,13 +180,13 @@ class Calendar extends Component {
       isToday: false,
       isActive: true,
       isTooltip: true,
-      tooltipText: 'Inicio de periodo ' + key,
+      tooltipText: this.formatTitle('wizard.periodsStartPeriod') + ' ' + key,
       rangeClass: colors[this.color].rangeClass,
-      rangeClassStart: colors[this.color].rangeClassStart
-    }
+      rangeClassStart: colors[this.color].rangeClassStart,
+    };
 
     while (s.format('YYYY-MM-DD') !== e.format('YYYY-MM-DD')) {
-      s = s.add(1, 'day')
+      s = s.add(1, 'day');
       range[s.format('YYYY-MM-DD')] = {
         date: s,
         isRange: true,
@@ -185,7 +195,7 @@ class Calendar extends Component {
         isToday: false,
         isActive: false,
         isTooltip: true,
-        tooltipText: 'Periodo ' + key,
+        tooltipText: this.formatTitle('calendar.period') + ' ' + key,
         rangeClass: colors[this.color].rangeClass
       }
     }
@@ -200,121 +210,129 @@ class Calendar extends Component {
       isTooltip: true,
       rangeClass: colors[this.color].rangeClass,
       rangeClassEnd: colors[this.color].rangeClassStart,
-      tooltipText: 'Fin de periodo ' + key
+      tooltipText: this.formatTitle('wizard.periodsEndPeriod') + ' ' + key
     }
     return range
   }
 
-  makeDates (cycle, periods) {
-    let dates = {}
+  makeDates(cycle, periods) {
+    let dates = {};
 
     periods.map((item, key) => {
       dates = {
         ...dates,
-        ...this.makeRange(item.dateStart, item.dateEnd, key + 1)
-      }
-    })
-    let start = this.makeStartDate(cycle.dateStart)
-    dates[Object.keys(start)[0]] = Object.values(start)[0]
-    let end = this.makeEndDate(cycle.dateEnd)
-    dates[Object.keys(end)[0]] = Object.values(end)[0]
-    return dates
+        ...this.makeRange(item.dateStart, item.dateEnd, key + 1),
+      };
+    });
+    let start = this.makeStartDate(cycle.dateStart);
+    dates[Object.keys(start)[0]] = Object.values(start)[0];
+    let end = this.makeEndDate(cycle.dateEnd);
+    dates[Object.keys(end)[0]] = Object.values(end)[0];
+    return dates;
   }
 
-  async changePeriod (item, value, type, key) {
-    let url = '/app/periods/' + item.uuid
+  async changePeriod(item, value, type, key) {
+    let url = '/app/periods/' + item.uuid;
 
     let res = await api.post(url, {
       startDate: type === 'start' ? moment.utc(value).format() : item.dateStart,
-      endDate: type === 'start' ? item.dateEnd : moment.utc(value).format()
-    })
+      endDate: type === 'start' ? item.dateEnd : moment.utc(value).format(),
+    });
 
     if (res) {
-      this.getPeriods()
+      this.getPeriods();
     }
   }
 
-  async changeCycle (item, value, type) {
-    let cycle = item.periods[0].cycle
+  async changeCycle(item, value, type) {
+    let cycle = item.periods[0].cycle;
 
-    let url = '/app/cycles/' + cycle.uuid
+    let url = '/app/cycles/' + cycle.uuid;
 
     let res = await api.post(url, {
-      startDate: type === 'start' ? moment.utc(value).format() : cycle.dateStart,
-      endDate: type === 'start' ? cycle.dateEnd : moment.utc(value).format()
-    })
+      startDate:
+        type === 'start' ? moment.utc(value).format() : cycle.dateStart,
+      endDate: type === 'start' ? cycle.dateEnd : moment.utc(value).format(),
+    });
 
     if (res) {
-      this.getPeriods()
+      this.getPeriods();
     }
+  }
+
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
   }
 
   render () {
     if (!this.state.cycles) {
-      return <Loader />
+      return <Loader />;
     }
 
     return (
 
       <div className='calendar-view'>
         <div className='section-header'>
-          <h2>Calendario</h2>
+          <h2>
+            <FormattedMessage
+              id='calendar.title'
+              defaultMessage={`Calendario`}
+            />
+          </h2>
         </div>
-
         <Breadcrumb
           path={[
             {
               path: '/',
-              label: 'Inicio',
+              label: this.formatTitle('sideMenu.home'),
               current: false
             },
             {
               path: '/calendario',
-              label: 'Calendario',
+              label: this.formatTitle('calendar.title'),
               current: true
             }
           ]}
           align='left'
-          />
-
+        />
         <div className='section level selects'>
           <div className='level-left'>
             <div className='level-item'>
               <Select
-                label='Año'
+                label={this.formatTitle('orgRules.year')}
                 name='year'
                 value={this.state.selectedYear}
                 type='integer'
-                placeholder='Seleccionar'
+                placeholder={this.formatTitle('calendar.select')}
                 options={this.state.years}
-                onChange={(name, value) => { this.filterChangeHandler(name, value) }}
-                />
+                onChange={(name, value) => {
+                  this.filterChangeHandler(name, value);
+                }}
+              />
             </div>
             <div className='level-item'>
               {this.state.cycles &&
               <Select
-                label='Ciclo'
+                label={this.formatTitle('adjustments.cycle')}
                 name='cycle'
                 value={this.state.selectedCycle}
-                placeholder='Todos los ciclos'
+                placeholder={this.formatTitle('calendar.all')}
                 optionValue='cycle'
                 optionName='name'
                 options={this.state.cycles.map(item => { return {cycle: item.cycle, name: moment.utc(item.periods[0].cycle.dateStart).format('MMMM')} })}
                 onChange={(name, value) => { this.filterChangeHandler(name, value) }}
               />}
             </div>
-            <div className='level-item'>
+            <div className="level-item">
               <Checkbox
-                label='Mostrar número de semana'
+                label={this.formatTitle('calendar.showWeek')}
                 handleCheckboxChange={(e) => this.showWeeks()}
                 key='showWeeks'
                 checked={this.state.showWeekNumbers}
-                />
+              />
             </div>
-
           </div>
         </div>
-
         <div className='columns is-multiline is-centered'>
 
           {this.state.cycles && this.state.cycles.map((item, key) => {
@@ -338,7 +356,12 @@ class Calendar extends Component {
                   <div key={key} className='columns'>
                     <div className='column'>
                       <div className='field'>
-                        <label className='label'>Inicio de ciclo</label>
+                        <label className='label'>
+                          <FormattedMessage
+                            id='calendar.cyclesStart'
+                            defaultMessage={`Inicio de ciclo`}
+                          />
+                        </label>
                         <div className='control'>
                           <input className='input' type='date'
                             value={moment.utc(cycle.dateStart).format('YYYY-MM-DD')}
@@ -346,7 +369,12 @@ class Calendar extends Component {
                         </div>
                       </div>
                       <div className='field'>
-                        <label className='label'>Fin de ciclo</label>
+                        <label className='label'>
+                          <FormattedMessage
+                            id='calendar.cyclesEnd'
+                            defaultMessage={`Fin de ciclo`}
+                          />
+                        </label>
                         <div className='control'>
                           <input className='input' type='date'
                             value={moment.utc(cycle.dateEnd).format('YYYY-MM-DD')}
@@ -357,12 +385,22 @@ class Calendar extends Component {
                       {item.periods.map((item, key) => {
                         return (
                           <div key={moment.utc(item.dateStart).format('YYYY-MM-DD')} className='field'>
-                            <label className='label'>Periodo {key + 1}</label>
+                            <label className='label'>
+                              <FormattedMessage
+                                id='calendar.period'
+                                defaultMessage={`Periodo`}
+                              /> {key + 1}
+                            </label>
                             <div className='control'>
                               <div className='field is-grouped'>
                                 <div className='control'>
                                   <div className='field'>
-                                    <label className='label'>Inicio</label>
+                                    <label className='label'>
+                                      <FormattedMessage
+                                        id='calendar.start'
+                                        defaultMessage={`Inicio`}
+                                      />
+                                    </label>
                                     <div className='control'>
                                       <input className='input' type='date'
                                         value={moment.utc(item.dateStart).format('YYYY-MM-DD')}
@@ -372,7 +410,12 @@ class Calendar extends Component {
                                 </div>
                                 <div className='control'>
                                   <div className='field'>
-                                    <label className='label'>Fin</label>
+                                    <label className='label'>
+                                      <FormattedMessage
+                                        id='calendar.end'
+                                        defaultMessage={`Fin`}
+                                      />
+                                    </label>
                                     <div className='control'>
                                       <input className='input' type='date'
                                         value={moment.utc(item.dateEnd).format('YYYY-MM-DD')}
@@ -383,28 +426,28 @@ class Calendar extends Component {
                               </div>
                             </div>
                           </div>
-                        )
-                      })}
-                    </div>
-                    <div className='column is-narrow'>
-                      <Cal
-                        key={key}
-                        showWeekNumber={this.state.showWeekNumbers}
-                        date={date}
-                        minDate={moment.utc(cycle.dateStart).startOf('month')}
-                        maxDate={moment.utc(cycle.dateEnd).endOf('month')}
-                        dates={this.makeDates(cycle, item.periods)} />
+                          );
+                        })}
+                      <div className="column is-narrow">
+                        <Cal
+                          key={key}
+                          showWeekNumber={this.state.showWeekNumbers}
+                          date={date}
+                          minDate={moment.utc(cycle.dateStart).startOf('month')}
+                          maxDate={moment.utc(cycle.dateEnd).endOf('month')}
+                          dates={this.makeDates(cycle, item.periods)}
+                        />
+                      </div>
                     </div>
                   </div>
-
-                )
+                  );
+                }
               }
-            }
-          })}
+            })}
         </div>
         <br />
       </div>
-    )
+    );
   }
 }
 
@@ -412,7 +455,7 @@ export default Page({
   path: '/calendario',
   exact: true,
   validate: loggedIn,
-  component: Calendar,
+  component: injectIntl(Calendar),
   title: 'Calendario',
-  icon: 'calendar'
-})
+  icon: 'calendar',
+});

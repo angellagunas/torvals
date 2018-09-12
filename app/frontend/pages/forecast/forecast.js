@@ -10,9 +10,11 @@ import DeleteButton from '~base/components/base-deleteButton'
 import BaseModal from '~base/components/base-modal'
 import moment from 'moment'
 import { toast } from 'react-toastify'
+import { injectIntl } from 'react-intl'
+import { defaultCatalogs } from '~base/tools'
 
 class Forecast extends Component {
-  constructor (props) {
+  constructor(props) {
     super(props)
     this.state = {
       loading: true,
@@ -25,22 +27,26 @@ class Forecast extends Component {
     this.rules = tree.get('rule')
   }
 
-  componentWillMount () {
+  formatTitle(id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
+  componentWillMount() {
     this.getProjects()
   }
 
-  moveTo (route) {
+  moveTo(route) {
     this.props.history.push(route)
   }
 
-  moveToPrediction (prediction) {
+  moveToPrediction(prediction) {
     tree.set('selectedProject', prediction.project)
     tree.commit()
 
     this.props.history.push('/forecast/detail/' + prediction.uuid)
   }
 
-  notify (message = '', timeout = 5000, type = toast.TYPE.INFO) {
+  notify(message = '', timeout = 5000, type = toast.TYPE.INFO) {
     if (!toast.isActive(this.toastId)) {
       this.toastId = toast(message, {
         autoClose: timeout,
@@ -58,7 +64,7 @@ class Forecast extends Component {
     }
   }
 
-  async getProjects () {
+  async getProjects() {
     let url = '/app/projects'
 
     let res = await api.get(url, {
@@ -87,7 +93,7 @@ class Forecast extends Component {
     })
   }
 
-  async selectProject (project) {
+  async selectProject(project) {
     this.setState({
       projectSelected: project
     }, () => {
@@ -95,7 +101,7 @@ class Forecast extends Component {
     })
   }
 
-  async getForecast () {
+  async getForecast() {
     this.setState({
       loadingForecasts: true
     })
@@ -125,19 +131,19 @@ class Forecast extends Component {
     }
   }
 
-  showCreateModal () {
+  showCreateModal() {
     this.setState({
       createModal: 'is-active'
     })
   }
 
-  hideCreateModal () {
+  hideCreateModal() {
     this.setState({
       createModal: ''
     })
   }
 
-  forecastMenu (item) {
+  forecastMenu(item) {
     return (
       <div className='dropdown is-right is-hoverable'>
         <div className='dropdown-trigger'>
@@ -149,16 +155,18 @@ class Forecast extends Component {
           <div className='dropdown-content'>
             <div className='dropdown-item'>
               <button className='button is-primary is-small'
-                onClick={() => this.moveToPrediction(item)}
-              >Detalle</button>
+                onClick={() => this.moveToPrediction(item)}>
+                {this.formatTitle('forecasts.detail')}
+              </button>
             </div>
             <div className='dropdown-item'>
               <DeleteButton
+                titleButton={this.formatTitle('datasets.delete')}
                 buttonClass='is-small'
                 hideIcon
-                objectName='Predicción'
+                objectName={this.formatTitle('tables.colForecast')}
                 objectDelete={() => this.deleteForecast(item)}
-                message={<span>¿Estas seguro de querer eliminar esta Predicción?</span>}
+                message={<span>{this.formatTitle('forecasts.deleteMsg')}</span>}
               />
             </div>
           </div>
@@ -167,7 +175,7 @@ class Forecast extends Component {
     )
   }
 
-  async deleteForecast (item) {
+  async deleteForecast(item) {
     let url = '/app/forecastGroups/'
     try {
       let res = await api.del(url + item.uuid)
@@ -181,21 +189,31 @@ class Forecast extends Component {
     }
   }
 
-  forecasts () {
+  findInCatalogs(slug) {
+    let find = false
+    defaultCatalogs.map(item => {
+      if (item.value === slug) {
+        find = true
+      }
+    })
+    return find
+  }
+
+  forecasts() {
     return (
       <div className='column'>
         <div className='level'>
           <div className='level-left'>
             <div className='level-item'>
-              <h2>Tienes {this.state.forecasts.length}
-                {this.state.forecasts.length > 1 ? ' predicciones disponibles' : ' predicción disponible'} </h2>
+              <h2>{this.formatTitle('forecasts.have')} {this.state.forecasts.length}
+                {this.state.forecasts.length > 1 ? ' ' + this.formatTitle('forecasts.many') : ' ' + this.formatTitle('forecasts.one')} </h2>
             </div>
           </div>
           <div className='level-right'>
             <div className='level-item'>
               <button className='button is-primary'
                 onClick={() => this.showCreateModal()}>
-                Nueva predicción
+                {this.formatTitle('forecasts.new')}
               </button>
             </div>
           </div>
@@ -219,57 +237,66 @@ class Forecast extends Component {
                           </div>
 
                           <p>
-                            <strong>Reporte
+                            <strong>{this.formatTitle('adjustments.report')}
                               <span className='is-capitalized is-pulled-right'>
-                              Ciclos
+                                {this.formatTitle('adjustments.cycle')}
                               </span>
                             </strong>
                             <br />
-                            {item.type === 'compatible' ? 'Conciliable'
-                              : item.type === 'informative' ? 'Informativo' : 'Creado'}
+                            {
+                              this.formatTitle('forecasts.' + item.type)
+                            }
                             <span className='is-capitalized is-pulled-right'>
                               {item.cycles.length > 0 &&
-                              moment.utc(item.cycles[0].dateStart).format('MMMM') +
-                            ' #' + item.cycles[0].cycle + ' - ' +
-                            moment.utc(item.cycles[item.cycles.length - 1].dateStart).format('MMMM') +
-                            ' #' + item.cycles[item.cycles.length - 1].cycle
-                            }
+                                moment.utc(item.cycles[0].dateStart).format('MMMM') +
+                                ' #' + item.cycles[0].cycle + ' - ' +
+                                moment.utc(item.cycles[item.cycles.length - 1].dateStart).format('MMMM') +
+                                ' #' + item.cycles[item.cycles.length - 1].cycle
+                              }
                             </span>
                           </p>
                           <div>
-                            <strong>Catálogos</strong>
+                            <strong>{this.formatTitle('sideMenu.catalogs')}</strong>
                             <br />
                             <div>
                               {item.type === 'compatible'
-                            ? this.rules.catalogs.map((item, key) => {
-                              let cat = item.name + ', '
-                              if (key === this.rules.catalogs.length - 1) {
-                                cat = item.name
+                                ? this.rules.catalogs.map((item, key) => {
+                                  let title = item.name
+                                  if (this.findInCatalogs(item.slug)) {
+                                    title = this.formatTitle('catalogs.' + item.slug)
+                                  }
+                                  let cat = title + ', '
+                                  if (key === this.rules.catalogs.length - 1) {
+                                    cat = title
+                                  }
+                                  return (
+                                    <Link key={item.uuid}
+                                      to={'/catalogs/' + item.slug}>
+                                      {cat}
+                                    </Link>
+                                  )
+                                })
+                                : item.catalogs.map((obj, key) => {
+                                  let title = obj.name
+                                  if (this.findInCatalogs(obj.slug)) {
+                                    title = this.formatTitle('catalogs.' + obj.slug)
+                                  }
+                                  let cat = title + ', '
+                                  if (key === item.catalogs.length - 1) {
+                                    cat = title
+                                  }
+                                  return (
+                                    <Link key={obj.uuid}
+                                      to={'/catalogs/' + obj.slug}>
+                                      {cat}
+                                    </Link>
+                                  )
+                                })
                               }
-                              return (
-                                <Link key={item.uuid}
-                                  to={'/catalogs/' + item.slug}>
-                                  {cat}
-                                </Link>
-                              )
-                            })
-                            : item.catalogs.map((obj, key) => {
-                              let cat = obj.name + ', '
-                              if (key === item.catalogs.length - 1) {
-                                cat = obj.name
-                              }
-                              return (
-                                <Link key={obj.uuid}
-                                  to={'/catalogs/' + obj.slug}>
-                                  {cat}
-                                </Link>
-                              )
-                            })
-                          }
                             </div>
                           </div>
                           <div>
-                            <strong>Modelos</strong>
+                            <strong>{this.formatTitle('forecasts.models')}</strong>
                             <br />
                             {item.engines.map((obj, key) => {
                               let engine = obj.name + ', '
@@ -292,50 +319,49 @@ class Forecast extends Component {
     )
   }
 
-  finishUp (forecast) {
+  finishUp(forecast) {
     this.showForecastMsg(forecast)
     this.getForecast()
   }
 
-  forecastMsg () {
+  forecastMsg() {
     return (
       <BaseModal
         title={'Predicción en proceso'}
         className={this.state.forecastMsg}
         hideModal={() => this.hideForecastMsg()}>
-        <p>Tu predicción se está generando. <br />
-        Este proceso puede tomar mucho tiempo.
-        Te avisaremos por correo cuando el proceso termine.
+        <p>{this.formatTitle('forecasts.msg1')}<br />
+          {this.formatTitle('forecasts.msg2')}
         </p>
         <br />
         <button
           className='button generate-btn is-primary is-pulled-right'
           onClick={() => this.hideForecastMsg()}>
-          Aceptar
+          {this.formatTitle('forecasts.btnOk')}
         </button>
       </BaseModal>
     )
   }
 
-  showForecastMsg (forecast) {
+  showForecastMsg(forecast) {
     this.setState({
       forecastMsg: ' is-active',
       activeForecast: forecast
     })
   }
 
-  hideForecastMsg () {
+  hideForecastMsg() {
     this.setState({
       forecastMsg: '',
       activeForecast: undefined
     })
   }
 
-  render () {
+  render() {
     if (this.state.loading) {
       return (
         <div className='column is-fullwidth has-text-centered subtitle has-text-primary'>
-          Cargando, un momento por favor
+          {this.formatTitle('dashboard.tableLoading')}
           <Loader />
         </div>
       )
@@ -343,135 +369,134 @@ class Forecast extends Component {
     return (
       <div>
         <div className='section-header'>
-          <h2>Predicciones</h2>
+          <h2>{this.formatTitle('sideMenu.forecast')}</h2>
         </div>
         <div className='section'>
           {this.state.projects &&
-          this.state.projects.length > 0 &&
-          this.state.projectSelected
-          ? <div className='columns filters-project '>
-            <div className='column is-3'>
-              <div className='columns is-multiline'>
-                <div className='column is-12'>
+            this.state.projects.length > 0 &&
+            this.state.projectSelected
+            ? <div className='columns filters-project '>
+              <div className='column is-3'>
+                <div className='columns is-multiline'>
+                  <div className='column is-12'>
 
-                  <div className='card projects'>
-                    <div className='card-header'>
-                      <h1>
-                        <span className='icon'>
-                          <i className='fa fa-folder' />
-                        </span>
-                        Proyectos</h1>
-                    </div>
-                    <div className='card-content'>
-                      <aside className='menu' disabled={this.state.waitingData}>
-                        <ul className='menu-list'>
-                          {this.state.projects &&
-                            this.state.projects.map((item) => {
-                              if (item.mainDataset) {
-                                if (!item.selected) {
-                                  item.selected = false
+                    <div className='card projects'>
+                      <div className='card-header'>
+                        <h1>
+                          <span className='icon'>
+                            <i className='fa fa-folder' />
+                          </span>
+                          {this.formatTitle('sideMenu.projects')}</h1>
+                      </div>
+                      <div className='card-content'>
+                        <aside className='menu' disabled={this.state.waitingData}>
+                          <ul className='menu-list'>
+                            {this.state.projects &&
+                              this.state.projects.map((item) => {
+                                if (item.mainDataset) {
+                                  if (!item.selected) {
+                                    item.selected = false
+                                  }
+                                  return (
+                                    <li key={item.uuid}>
+                                      <a>
+                                        <div className='field' key={item.uuid}>
+                                          <input
+                                            className='is-checkradio is-info is-small'
+                                            id={item.name}
+                                            type='radio'
+                                            name='project'
+                                            checked={item.uuid === this.state.projectSelected.uuid}
+                                            disabled={this.state.waitingData}
+                                            onChange={() => this.selectProject(item)} />
+                                          <label htmlFor={item.name}>
+                                            {<span title={item.name}>{item.name}</span>}
+                                          </label>
+                                        </div>
+                                        <span className='icon is-pulled-right' onClick={() => { this.moveTo('/projects/' + item.uuid) }}>
+                                          <i className={this.currentRole === 'consultor-level-3' ? 'fa fa-eye has-text-info' : 'fa fa-edit has-text-info'} />
+                                        </span>
+                                      </a>
+                                    </li>
+                                  )
                                 }
-                                return (
-                                  <li key={item.uuid}>
-                                    <a>
-                                      <div className='field' key={item.uuid}>
-                                        <input
-                                          className='is-checkradio is-info is-small'
-                                          id={item.name}
-                                          type='radio'
-                                          name='project'
-                                          checked={item.uuid === this.state.projectSelected.uuid}
-                                          disabled={this.state.waitingData}
-                                          onChange={() => this.selectProject(item)} />
-                                        <label htmlFor={item.name}>
-                                          {<span title={item.name}>{item.name}</span>}
-                                        </label>
-                                      </div>
-                                      <span className='icon is-pulled-right' onClick={() => { this.moveTo('/projects/' + item.uuid) }}>
-                                        <i className={this.currentRole === 'consultor-level-3' ? 'fa fa-eye has-text-info' : 'fa fa-edit has-text-info'} />
-                                      </span>
-                                    </a>
-                                  </li>
-                                )
-                              }
-                            })
-                          }
-                        </ul>
-                      </aside>
+                              })
+                            }
+                          </ul>
+                        </aside>
+                      </div>
                     </div>
                   </div>
-
                 </div>
               </div>
-            </div>
 
-            {this.state.loadingForecasts &&
-            <div className='column is-fullwidth has-text-centered subtitle has-text-primary'>
-                  Cargando, un momento por favor
+              {this.state.loadingForecasts &&
+                <div className='column is-fullwidth has-text-centered subtitle has-text-primary'>
+                {this.formatTitle('dashboard.tableLoading')}
                   <Loader />
+                </div>
+              }
+              {!this.state.loadingForecasts && this.state.forecasts.length === 0 &&
+                <div className='column'>
+                  <article className='message is-info'>
+                    <div className='message-header has-text-weight-bold'>
+                      <p>{this.formatTitle('forecasts.alertTitle')}</p>
+                    </div>
+                    <div className='message-body is-size-6 has-text-centered'>
+                      <span className='icon is-large has-text-info'>
+                        <i className='fa fa-magic fa-2x' />
+                      </span>
+                      <span className='is-size-5'>
+                        {this.formatTitle('forecasts.alertMsg')}
+                   </span>
+                      <br />
+                      <br />
+                      <a
+                        className='button is-info is-medium'
+                        onClick={() => this.showCreateModal()}>
+                        <span>{this.formatTitle('forecasts.btnCreate')}</span>
+                      </a>
+                    </div>
+                  </article>
+                </div>
+              }
+
+              {
+                !this.state.loadingForecasts && this.state.forecasts.length > 0 &&
+                this.forecasts()
+              }
+
+              {this.forecastMsg()}
+              <CreateModal
+                project={this.state.projectSelected}
+                className={this.state.createModal}
+                hideModal={() => this.hideCreateModal()}
+                finishUp={() => this.finishUp()} />
             </div>
-            }
-            {!this.state.loadingForecasts && this.state.forecasts.length === 0 &&
-              <div className='column'>
+            : <div className='columns is-centered'>
+              <div className='column is-8'>
                 <article className='message is-info'>
                   <div className='message-header has-text-weight-bold'>
-                    <p>Configuración de predicciones</p>
+                    <p>{this.formatTitle('forecasts.alertTitle')}</p>
                   </div>
                   <div className='message-body is-size-6 has-text-centered'>
                     <span className='icon is-large has-text-info'>
                       <i className='fa fa-magic fa-2x' />
                     </span>
                     <span className='is-size-5'>
-                   Aún no tienes predicciones disponibles para este proyecto.
+                      {this.formatTitle('forecasts.alertMsg2')}
                    </span>
                     <br />
                     <br />
                     <a
                       className='button is-info is-medium'
-                      onClick={() => this.showCreateModal()}>
-                      <span>Crear</span>
+                      onClick={() => { this.props.history.push('/projects') }}>
+                      <span>{this.formatTitle('forecasts.btnCreate')}</span>
                     </a>
                   </div>
                 </article>
               </div>
-            }
-
-            {
-              !this.state.loadingForecasts && this.state.forecasts.length > 0 &&
-              this.forecasts()
-            }
-
-            {this.forecastMsg()}
-            <CreateModal
-              project={this.state.projectSelected}
-              className={this.state.createModal}
-              hideModal={() => this.hideCreateModal()}
-              finishUp={() => this.finishUp()} />
-          </div>
-        : <div className='columns is-centered'>
-          <div className='column is-8'>
-            <article className='message is-info'>
-              <div className='message-header has-text-weight-bold'>
-                <p>Configuración de predicciones</p>
-              </div>
-              <div className='message-body is-size-6 has-text-centered'>
-                <span className='icon is-large has-text-info'>
-                  <i className='fa fa-magic fa-2x' />
-                </span>
-                <span className='is-size-5'>
-                  Debes crear al menos un proyecto para poder crear una predicción
-                   </span>
-                <br />
-                <br />
-                <a
-                  className='button is-info is-medium'
-                  onClick={() => this.showCreateModal()}>
-                  <span>Crear</span>
-                </a>
-              </div>
-            </article>
-          </div>
-        </div>
+            </div>
           }
         </div>
       </div>
@@ -486,5 +511,5 @@ export default Page({
   exact: true,
   roles: 'consultor-level-3, analyst, orgadmin, admin',
   validate: [loggedIn, verifyRole],
-  component: Forecast
+  component: injectIntl(Forecast)
 })

@@ -1,8 +1,10 @@
 import React, { Component } from 'react'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import StickTable from '~base/components/stick-table'
 import Checkbox from '~base/components/base-checkbox'
 import Loader from '~base/components/spinner'
 import classNames from 'classnames'
+import { defaultCatalogs } from '~base/tools'
 
 class ProductTable extends Component {
   constructor (props) {
@@ -59,25 +61,45 @@ class ProductTable extends Component {
       <div className="field has-addons view-btns">
         <span className="control">
           <a className={this.props.currentRole === 'consultor-level-3' ? 'button is-info is-outlined btn-lvl-3' : 'button is-info is-outlined'} onClick={this.props.show}>
-            Vista Periodo
+            <FormattedMessage
+              id="adjustments.periodView"
+              defaultMessage={`Vista Periodo`}
+            />
           </a>
         </span>
         <span className="control">
           <a className={this.props.currentRole === 'consultor-level-3' ? 'button is-info btn-lvl-3' : 'button is-info'}>
-            Vista Producto
+            <FormattedMessage
+              id="adjustments.productView"
+              defaultMessage={`Vista Producto`}
+            />
           </a>
         </span>
       </div>
     )
   }
 
+  findInCatalogs(slug) {
+    let find = false
+    defaultCatalogs.map(item => {
+      if (item.value === slug) {
+        find = true
+      }
+    })
+    return find
+  }
+
   getCatalogColumns() {
     return this.rules.catalogs.map(item => {
       if (item.slug !== 'producto' && item.slug !== 'precio'){
+        let title = item.name
+        if (this.findInCatalogs(item.slug)) {
+          title = this.formatTitle('catalogs.' + item.slug)
+        }
       return (
         {
           group: ' ',
-          title: item.name,
+          title: title,
           property: 'catalog_' + item.slug,
           default: 'N/A',
           sortable: true,
@@ -138,7 +160,7 @@ class ProductTable extends Component {
       },
       {
         group: ' ',
-        title: 'Id',
+        title: this.formatTitle('tables.colId'),
         property: 'productId',
         default: 'N/A',
         sortable: true,
@@ -153,7 +175,7 @@ class ProductTable extends Component {
       },
       {
         group: ' ',
-        title: 'Producto',
+        title: this.formatTitle('tables.colProduct'),
         property: 'productName',
         default: 'N/A',
         sortable: true,
@@ -166,7 +188,7 @@ class ProductTable extends Component {
             product = row.productName
           }
           if (product === 'Not identified') {
-            product = 'No identificado'
+            product = this.formatTitle('dashboard.unidentified')
           }
           return product
         }
@@ -175,7 +197,7 @@ class ProductTable extends Component {
         group: ' ',
         title: <span
           className='icon'
-          title={`¡Hay ${this.props.adjustmentRequestCount} productos fuera de rango!`}
+          title={`¡${this.props.adjustmentRequestCount} ${this.formatTitle('adjustments.outOfRange')}!`}
           onClick={() => {
             this.props.handleAllAdjustmentRequest()
           }}
@@ -191,7 +213,7 @@ class ProductTable extends Component {
       },
       {
         group: ' ',
-        title: 'Periodo',
+        title: this.formatTitle('adjustments.period'),
         property: 'period.period',
         default: 'N/A',
         sortable: true,
@@ -207,7 +229,7 @@ class ProductTable extends Component {
       ...this.getCatalogColumns(),
       {
         group: ' ',
-        title: 'Predicción',
+        title: this.formatTitle('tables.colForecast'),
         property: 'prediction',
         default: 0,
         sortable: true,
@@ -222,7 +244,11 @@ class ProductTable extends Component {
       },
       {
         group: ' ',
-        title: this.splitWords('Ajuste_Anterior'),
+        title: this.formatTitle('dates.locale') === 'en' ?
+          this.splitWords(this.formatTitle('adjustments.last') + '_' + this.formatTitle('tables.colAdjustment') + ' ')
+          :
+          this.splitWords(this.formatTitle('tables.colAdjustment') + '_' + this.formatTitle('adjustments.last') + ' ')
+        ,
         property: 'lastAdjustment',
         default: 0,
         sortable: true,
@@ -239,7 +265,7 @@ class ProductTable extends Component {
       },
       {
         group: ' ',
-        title: 'Ajuste',
+        title: this.formatTitle('tables.colAdjustment'),
         property: 'adjustmentForDisplay',
         default: '',
         sortable: true,
@@ -274,7 +300,11 @@ class ProductTable extends Component {
       },
       {
         group: ' ',
-        title: this.splitWords('Rango_Ajustado'),
+        title: this.formatTitle('dates.locale') === 'en' ?
+          this.splitWords(this.formatTitle('adjustments.adjusted') + '_' + this.formatTitle('adjustments.range'))
+          :
+          this.splitWords(this.formatTitle('adjustments.range') + '_' + this.formatTitle('adjustments.adjusted'))
+        ,
         property: 'percentage',
         default: 0,
         sortable: true,
@@ -318,17 +348,17 @@ class ProductTable extends Component {
         sorted.sort((a, b) => { return parseFloat(b[e]) - parseFloat(a[e]) })
       }
 
-    } 
+    }
     else if (e.indexOf('_') !== -1) {
       let sort = e.split('_')
-      
+
       if (this.state.sortAscending) {
-        sorted = _.orderBy(sorted, function (e) { 
+        sorted = _.orderBy(sorted, function (e) {
           return e.catalogItems.map((item, key) => {
             if (sort[1] === item.type) {
               return e.catalogItems[key]['name'].toLowerCase()
             }
-          }) 
+          })
         }, ['asc'])
       }
       else {
@@ -458,6 +488,10 @@ class ProductTable extends Component {
     }
   }
 
+  formatTitle(id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
   render () {
     if (this.state.filteredData.length === 0) {
       return (
@@ -479,4 +513,4 @@ class ProductTable extends Component {
   }
 }
 
-export default ProductTable
+export default injectIntl(ProductTable)

@@ -1,0 +1,21 @@
+{% extends "./layout.html" %} 
+{% block content %}
+    <tr>
+      <td colSpan="2" class="body">
+        <p class="main">Forecast Conciliado</p>
+        <p>
+          <img src="{{ org_logo }}" width="100" height="auto" alt="Orax">
+        </p>
+        <p class="label">La predicción
+          <strong>{{ prediction }} </strong> ha sido creada exitosamente y se encuentra
+        lista para su integración a un proyecto.</p>
+        <p class="label status">COMPLETADA</p>
+        <p>
+          Para ir a Orax y conciliar la predicción da click aquí:
+        </p>
+        <p>
+          <a class="btn" href="{{ url }}" target="_blank">Conciliar Dataset</a>
+        </p>
+      </td>
+    </tr>
+{% endblock %}

@@ -28,6 +28,10 @@ const Period = require('./period')
 const Rule = require('./rule')
 const AdjustmentDownload = require('./adjustment-download')
 const UserReport = require('./user-report')
+const Label = require('./label')
+const Language = require('./language')
+const Note = require('./note')
+const Alert = require('./alert')
 // #Import
 
 module.exports = {
@@ -60,5 +64,9 @@ module.exports = {
   Period,
   Rule,
   AdjustmentDownload,
-  UserReport// #Exports
+  UserReport,
+  Label,
+  Language,
+  Note,
+  Alert// #Exports
 }

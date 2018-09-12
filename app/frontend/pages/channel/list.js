@@ -9,12 +9,12 @@ import CreateChannel from './create'
 
 export default ListPage({
   path: '/catalogs/channels',
-  title: 'Canales',
+  title: 'Canales', //TODO: translate
   icon: 'filter',
   exact: true,
   roles: 'analyst, orgadmin, admin, consultor-level-2, manager-level-2, consultor-level-3, manager-level-3',
   validate: [loggedIn, verifyRole],
-  titleSingular: 'Canal',
+  titleSingular: 'Canal', //TODO: translate
   create: true,
   createComponent: CreateChannel,
   export: true,
@@ -25,12 +25,12 @@ export default ListPage({
     path: [
       {
         path: '/',
-        label: 'Inicio',
+        label: 'Inicio', //TODO: translate
         current: false
       },
       {
         path: '/admin/catalogs/channels/',
-        label: 'Canales',
+        label: 'Canales', //TODO: translate
         current: true
       }
     ],
@@ -44,17 +44,17 @@ export default ListPage({
   schema: {
     type: 'object',
     required: [],
-    properties: {
+    properties: { //TODO: translate
       general: {type: 'text', title: 'Buscar'}
     }
   },
   uiSchema: {
-    general: {'ui:widget': 'SearchFilter'}
+    general: { 'ui:widget': 'SearchFilter' },
   },
   getColumns: () => {
     return [
       {
-        'title': 'Nombre',
+        'title': 'Nombre', //TODO: translate
         'property': 'name',
         'default': 'N/A',
         'sortable': true,
@@ -67,7 +67,7 @@ export default ListPage({
         }
       },
       {
-        'title': 'Creado',
+        'title': 'Creado', //TODO: translate
         'property': 'dateCreated',
         'default': 'N/A',
         'sortable': true,
@@ -78,7 +78,7 @@ export default ListPage({
         }
       },
       {
-        'title': 'Acciones',
+        'title': 'Acciones', //TODO: translate
         formatter: (row) => {
           if (testRoles('consultor-level-3, consultor-level-2')) {
             return (

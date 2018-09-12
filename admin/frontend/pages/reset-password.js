@@ -96,7 +96,7 @@ class ResetPassword extends Component {
         <div className='card'>
           <header className='card-header'>
             <p className='card-header-title'>
-              Restabler contraseña
+              Restablecer contraseña
             </p>
             <a className='card-header-icon'>
               <span className='icon'>

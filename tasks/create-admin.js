@@ -18,7 +18,8 @@ const task = new Task(async function (argv) {
     password: argv.password,
     name: argv.name,
     isAdmin: true,
-    validEmail: true
+    validEmail: true,
+    isVerified: true
   })
 
   await admin.save()

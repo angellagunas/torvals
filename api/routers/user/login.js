@@ -1,5 +1,5 @@
 const Route = require('lib/router/route')
-const {User} = require('models')
+const { Language, User} = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -19,8 +19,11 @@ module.exports = new Route({
       }
     })
 
+    const language = await Language.findOne({_id: user.language})
     let userPublic = user.toPublic()
     userPublic.organizations = orgsAux
+    userPublic.language = language ? language.uuid : undefined
+    userPublic.languageCode = language ? language.code : undefined
 
     const token = await user.createToken({
       type: 'session'

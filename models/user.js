@@ -7,12 +7,13 @@ const assert = require('http-assert')
 const { aws } = require('../config')
 const awsService = require('aws-sdk')
 const moment = require('moment')
-
-const Mailer = require('lib/mailer')
+const sendEmail = require('tasks/emails/send-email')
 
 const SALT_WORK_FACTOR = parseInt(process.env.SALT_WORK_FACTOR)
 
 const userSchema = new Schema({
+  language: { type: Schema.Types.ObjectId, ref: 'Language' },
+
   name: { type: String, required: true },
   password: { type: String },
   email: { type: String, required: true, unique: true, trim: true },
@@ -33,9 +34,8 @@ const userSchema = new Schema({
     region: { type: String }
   },
 
-  accountOwner: { type: Boolean, default: false },
-  language: { type: String, default: 'ES' },
   job: { type: String },
+  phone: { type: String },
   isVerified: { type: Boolean, default: false },
 
   isDeleted: { type: Boolean, default: false },
@@ -87,6 +87,7 @@ userSchema.methods.toPublic = function () {
     accountOwner: this.accountOwner,
     language: this.language,
     job: this.job,
+    phone: this.phone,
     isVerified: this.isVerified
   }
 }
@@ -106,6 +107,7 @@ userSchema.methods.toAdmin = function () {
     accountOwner: this.accountOwner,
     language: this.language,
     job: this.job,
+    phone: this.phone,
     isVerified: this.isVerified
   }
 
@@ -146,7 +148,7 @@ userSchema.statics.auth = async function (email, password) {
     email: userEmail,
     isDeleted: false
   }).populate('organizations.organization')
-  assert(user, 401, 'Invalid email/password')
+  assert(user, 401, 'Email/Password inválidos')
 
   const isValid = await new Promise((resolve, reject) => {
     bcrypt.compare(password, user.password, (err, compared) =>
@@ -154,7 +156,7 @@ userSchema.statics.auth = async function (email, password) {
     )
   })
 
-  assert(isValid, 401, 'Invalid email/password')
+  assert(isValid, 401, 'Email/Password inválidos')
 
   return user
 }
@@ -163,9 +165,8 @@ userSchema.statics.register = async function (options) {
   const {email} = options
 
   const emailTaken = await this.findOne({ email })
-  assert(!emailTaken, 401, 'Email already in use')
+  assert(!emailTaken, 401, 'El email ya esta en uso.')
 
-  // create in mongoose
   const createdUser = await this.create(options)
 
   return createdUser
@@ -192,6 +193,9 @@ userSchema.statics.validateInvite = async function (email, token) {
   assert(user, 401, '¡Usuario inválido! Contacta al administrador de la página.')
   const userToken = await UserToken.findOne({'user': user._id, 'key': token, type: 'invite', 'validUntil': {$gte: moment.utc()}})
   assert(userToken, 401, 'Token inválido! Contacta al administrador de la página.')
+
+  user.isVerified = true
+  await user.save()
 
   return user
 }
@@ -258,18 +262,19 @@ userSchema.methods.sendActivationEmail = async function () {
     type: 'activation'
   })
 
-  const email = new Mailer('activation')
-
   const data = this.toJSON()
   data.url = process.env.APP_HOST + '/emails/activate?token=' + userToken.key + '&email=' + encodeURIComponent(this.email)
+  data.url = `${process.env.APP_HOST}/emails/activate?token=${userToken.key}&email=${encodeURIComponent(this.email)}`
 
-  await email.format(data)
-  await email.send({
-    recipient: {
-      email: this.email,
-      name: this.name
-    },
-    title: 'Activación a Orax'
+  const recipients = {
+    email: this.email,
+    name: this.name
+  }
+  sendEmail.run({
+    recipients,
+    args: data,
+    template: 'activation',
+    title: 'Activación a Orax.'
   })
 }
 
@@ -291,56 +296,55 @@ userSchema.methods.sendInviteEmail = async function () {
     type: 'invite'
   })
 
-  const email = new Mailer('invite')
-
   const data = this.toJSON()
-  data.url = process.env.APP_HOST + '/emails/invite?token=' + userToken.key + '&email=' + encodeURIComponent(this.email)
+  data.url = `${process.env.APP_HOST}/emails/invite?token=${userToken.key}&email=${encodeURIComponent(this.email)}`
 
-  await email.format(data)
-  await email.send({
-    recipient: {
-      email: this.email,
-      name: this.name
-    },
-    title: 'Invitación a Orax'
+  const recipients = {
+    email: this.email,
+    name: this.name
+  }
+  sendEmail.run({
+    recipients,
+    args: data,
+    template: 'invite',
+    title: 'Invitación a Orax.'
   })
 }
 
 userSchema.methods.sendResetPasswordEmail = async function (admin) {
   const UserToken = mongoose.model('UserToken')
-  let userToken = await UserToken.create({
+  const userToken = await UserToken.create({
     user: this._id,
     validUntil: moment().add(10, 'days').utc(),
     type: 'reset'
   })
   let url = process.env.APP_HOST
-
   if (admin) url = process.env.ADMIN_HOST + process.env.ADMIN_PREFIX
 
-  const email = new Mailer('reset-password')
-
   const data = this.toJSON()
-  data.url = url + '/emails/reset?token=' + userToken.key + '&email=' + encodeURIComponent(this.email)
+  data.url = `${url}/emails/reset?token=${userToken.key}&email=${encodeURIComponent(this.email)}`
 
-  await email.format(data)
-  await email.send({
-    recipient: {
+  sendEmail.run({
+    args: data,
+    recipients: {
       email: this.email,
       name: this.name
     },
+    template: 'reset-password',
     title: 'Restablecer contraseña en Orax'
   })
 }
 
 userSchema.methods.sendPasswordConfirmation = async function () {
-  const email = new Mailer('confirm-password')
-  await email.format()
-  await email.send({
-    recipient: {
-      email: this.email,
-      name: this.name
-    },
-    title: 'Cambio de contraseña en Orax'
+  const recipients = {
+    email: this.email,
+    name: this.name
+  }
+  sendEmail.run({
+    recipients,
+    args: {},
+    template: 'confirm-password',
+    title: 'Cambio de contraseña en Orax.'
   })
 }
 

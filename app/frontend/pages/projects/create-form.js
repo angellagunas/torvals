@@ -1,5 +1,7 @@
 import React, { Component } from 'react'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import api from '~base/api'
+import tree from '~core/tree'
 
 import {
   BaseForm,
@@ -7,6 +9,44 @@ import {
   TextareaWidget,
   SelectWidget
 } from '~base/components/base-form'
+
+const status = [
+  'new',
+  'empty',
+  'adjustment',
+  'uploading',
+  'uploaded',
+  'preprocessing',
+  'configuring',
+  'processing',
+  'reviewing',
+  'ready',
+  'conciliated',
+  'pendingRows',
+  'error',
+  'cloning',
+  'updating-rules',
+  'pending-configuration'
+]
+
+const statusName = [
+  'Nuevo',
+  'Sin datos',
+  'Ajuste',
+  'Cargando',
+  'Cargado',
+  'Preprocesando',
+  'Configurando',
+  'Procesando',
+  'Revisando',
+  'Listo',
+  'Conciliado',
+  'Pendiente',
+  'Error',
+  'Clonando',
+  'Actualizando reglas',
+  'Configuración pendiente'
+]
 
 class ProjectForm extends Component {
   constructor (props) {
@@ -25,8 +65,8 @@ class ProjectForm extends Component {
         'name'
       ],
       properties: {
-        name: {type: 'string', title: 'Nombre'},
-        description: {type: 'string', title: 'Descripción'}
+        name: {type: 'string', title: this.formatTitle('projectConfig.name')},
+        description: { type: 'string', title: this.formatTitle('projectConfig.description')}
       }
     }
 
@@ -34,6 +74,10 @@ class ProjectForm extends Component {
       name: {'ui:widget': TextWidget},
       description: {'ui:widget': TextareaWidget, 'ui:rows': 3}
     }
+  }
+
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
   }
 
   componentWillMount () {
@@ -58,6 +102,39 @@ class ProjectForm extends Component {
     })
   }
 
+  async updateStep () {
+    try {
+      let user = tree.get('user')
+      if (user.currentOrganization.wizardSteps.project) {
+        return
+      }
+      let url = '/app/organizations/' + user.currentOrganization.uuid + '/step'
+
+      let res = await api.post(url, {
+        step: {
+          name: 'project',
+          value: true
+        }
+      })
+
+      if (res) {
+        let me = await api.get('/user/me')
+        tree.set('user', me.user)
+        tree.set('organization', me.user.currentOrganization)
+        tree.set('rule', me.rule)
+        tree.set('role', me.user.currentRole)
+        tree.set('loggedIn', me.loggedIn)
+        tree.commit()
+        return true
+      } else {
+        return false
+      }
+    } catch (e) {
+      console.log(e)
+      return false
+    }
+  }
+
   async submitHandler ({formData}) {
     if (this.props.submitHandler) this.props.submitHandler(formData)
     try {
@@ -68,6 +145,7 @@ class ProjectForm extends Component {
       this.clearState()
       this.setState({...this.state, apiCallMessage: 'message is-success'})
       if (this.props.finishUp) this.props.finishUp(data.data)
+      await this.updateStep()
       return
     } catch (e) {
       if (this.props.errorHandler) this.props.errorHandler(e)
@@ -94,56 +172,22 @@ class ProjectForm extends Component {
       this.uiSchema['status'] = {'ui:widget': SelectWidget, 'ui:disabled': !this.props.isAdmin}
       this.schema.properties['status'] = {
         type: 'string',
-        title: 'Estado',
-        enum: [
-          'new',
-          'empty',
-          'adjustment',
-          'uploading',
-          'uploaded',
-          'preprocessing',
-          'configuring',
-          'processing',
-          'reviewing',
-          'ready',
-          'conciliated',
-          'pendingRows',
-          'error',
-          'cloning',
-          'updating-rules',
-          'pending-configuration'
-        ],
-        enumNames: [
-          'Nuevo',
-          'Sin datos',
-          'Ajuste',
-          'Cargando',
-          'Cargado',
-          'Preprocesando',
-          'Configurando',
-          'Procesando',
-          'Revisando',
-          'Listo',
-          'Conciliado',
-          'Pendiente',
-          'Error',
-          'Clonando',
-          'Actualizando reglas',
-          'Configuración pendiente'
-        ]
+        title: this.formatTitle('projectConfig.status'),
+        enum: status,
+        enumNames: this.formatTitle('dates.locale') === 'en' ? status : statusName
       }
       this.uiSchema['showOnDashboard'] = {'ui:widget': SelectWidget}
       this.schema.properties['showOnDashboard'] = {
         type: 'boolean',
-        title: 'Primario (Mostrar en dashboard)',
+        title: this.formatTitle('projectConfig.primary'),
         default: false,
         enum: [
           true,
           false
         ],
         enumNames: [
-          'Si',
-          'No'
+          this.formatTitle('projectConfig.yes'),
+          this.formatTitle('projectConfig.no')
         ]
       }
     } else {
@@ -167,7 +211,7 @@ class ProjectForm extends Component {
       this.uiSchema['cycleStatus'] = {'ui:widget': TextWidget, 'ui:disabled': true}
       this.schema.properties['cycleStatus'] = {
         type: 'string',
-        title: 'Etapa actual del ciclo'
+        title: this.formatTitle('projectConfig.cycleStatus')
       }
     }
     return (
@@ -181,7 +225,10 @@ class ProjectForm extends Component {
         >
           <div className={this.state.apiCallMessage}>
             <div className='message-body is-size-7 has-text-centered'>
-              Los datos se han guardado correctamente
+              <FormattedMessage
+                id='projectConfig.saved'
+                defaultMessage={`Los datos se han guardado correctamente`}
+              />
             </div>
           </div>
 
@@ -197,4 +244,4 @@ class ProjectForm extends Component {
   }
 }
 
-export default ProjectForm
+export default injectIntl(ProjectForm)

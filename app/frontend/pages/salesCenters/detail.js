@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import api from '~base/api'
 import moment from 'moment'
 import Link from '~base/router/link'
@@ -147,13 +148,13 @@ class SalesCenterDetail extends Component {
   getColumns () {
     return [
       {
-        'title': 'Estado',
+        'title': 'Estado', //TODO: translate
         'property': 'status',
         'default': 'N/A',
         'sortable': true
       },
       {
-        'title': 'Fecha Inicial',
+        'title': 'Fecha Inicial', //TODO: translate
         'property': 'dateStart',
         'default': 'N/A',
         'sortable': true,
@@ -164,7 +165,7 @@ class SalesCenterDetail extends Component {
         }
       },
       {
-        'title': 'Fecha Final',
+        'title': 'Fecha Final', //TODO: translate
         'property': 'dateEnd',
         'default': 'N/A',
         'sortable': true,
@@ -175,7 +176,7 @@ class SalesCenterDetail extends Component {
         }
       },
       {
-        'title': 'Acciones',
+        'title': 'Acciones', //TODO: translate
         formatter: (row) => {
           if (testRoles('manager-level-2, consultor-level-3')) {
             return (
@@ -205,7 +206,10 @@ class SalesCenterDetail extends Component {
     if (saving) {
       return (
         <p className='card-header-title' style={{fontWeight: '200', color: 'grey'}}>
-          Guardando <span style={{paddingLeft: '5px'}}><FontAwesome className='fa-spin' name='spinner' /></span>
+          <FormattedMessage
+            id="salesCenter.saving"
+            defaultMessage={`saving`}
+          /> <span style={{paddingLeft: '5px'}}><FontAwesome className='fa-spin' name='spinner' /></span>
         </p>
       )
     }
@@ -223,7 +227,10 @@ class SalesCenterDetail extends Component {
 
       return (
         <p className='card-header-title' style={{fontWeight: '200', color: 'grey'}}>
-          Guardado
+          <FormattedMessage
+            id="salesCenter.saved"
+            defaultMessage={`Guardado`}
+          />
         </p>
       )
     }
@@ -243,6 +250,7 @@ class SalesCenterDetail extends Component {
 
   render () {
     if (this.state.notFound) {
+      //TODO: translate
       return <NotFound msg='este centro de venta' />
     }
 
@@ -271,12 +279,12 @@ class SalesCenterDetail extends Component {
                 path={[
                   {
                     path: '/',
-                    label: 'Inicio',
+                    label: 'Inicio', //TODO: translate
                     current: false
                   },
                   {
                     path: '/catalogs/salesCenters',
-                    label: 'Centros de venta',
+                    label: 'Centros de venta', //TODO: translate
                     current: false
                   },
                   {
@@ -293,9 +301,10 @@ class SalesCenterDetail extends Component {
             <div className='level-item'>
               {canEdit &&
                 <DeleteButton
-                  titleButton={'Eliminar'}
+                  titleButton={'Eliminar'} //TODO: translate
                   objectName='Centro de ventas'
                   objectDelete={this.deleteObject.bind(this)}
+                  //TODO: translate
                   message={`¿Deseas eliminar el centro de ventas ${this.state.salesCenter.name}?`}
                 />
               }
@@ -310,8 +319,11 @@ class SalesCenterDetail extends Component {
               <div className='card'>
                 <header className='card-header'>
                   <p className='card-header-title'>
-                      Detalle
-                    </p>
+                    <FormattedMessage
+                      id="salesCenter.detail"
+                      defaultMessage={`Detalle`}
+                    />
+                  </p>
                 </header>
                 <div className='card-content'>
                   <div className='columns'>
@@ -332,7 +344,12 @@ class SalesCenterDetail extends Component {
                               className={'button is-primary ' + this.state.isLoading}
                               disabled={!!this.state.isLoading}
                               type='submit'
-                              >Guardar</button>
+                            >
+                              <FormattedMessage
+                                id="salesCenter.btnSave"
+                                defaultMessage={`Guardar`}
+                              />
+                            </button>
                           </div>
                         </div>
                       </SalesCenterForm>
@@ -346,11 +363,15 @@ class SalesCenterDetail extends Component {
               <div className='card'>
                 <header className='card-header'>
                   <p className='card-header-title'>
-                      Grupos
-                    </p>
+                    <FormattedMessage
+                      id="salesCenter.groups"
+                      defaultMessage={`Grupos`}
+                    />
+                  </p>
                 </header>
                 <div className='card-content'>
                   <Multiselect
+                    //TODO: translate
                     availableTitle='Disponible'
                     assignedTitle='Asignado'
                     assignedList={this.state.selectedGroups}
@@ -359,7 +380,7 @@ class SalesCenterDetail extends Component {
                     availableClickHandler={this.availableGroupOnClick.bind(this)}
                     assignedClickHandler={this.assignedGroupOnClick.bind(this)}
                     disabled={!canEdit}
-                    />
+                  />
                 </div>
               </div>
             </div>
@@ -372,7 +393,7 @@ class SalesCenterDetail extends Component {
 
 export default Page({
   path: '/catalogs/salesCenters/:uuid',
-  title: 'Sales center detail',
+  title: 'Sales center detail', //TODO: translate
   exact: true,
   roles: 'analyst, orgadmin, admin, consultor-level-2, manager-level-2, consultor-level-3, manager-level-3',
   validate: [loggedIn, verifyRole],

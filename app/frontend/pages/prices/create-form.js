@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import Loader from '~base/components/spinner'
 import api from '~base/api'
 
@@ -11,7 +12,7 @@ const schema = {
   type: 'object',
   title: '',
   required: [],
-  properties: {
+  properties: { //TODO: translate
     price: {type: 'string', title: 'Precio'},
     product: {type: 'string', title: 'Producto'},
     channel: {type: 'string', title: 'Canal'}
@@ -57,7 +58,7 @@ class PriceForm extends Component {
     if (this.props.submitHandler) this.props.submitHandler(formData)
     if (isNaN(formData.price)) {
       return this.setState({
-        ...this.state,
+        ...this.state, //TODO: translate
         error: 'Precio tiene que ser un valor numérico',
         apiCallErrorMessage: 'message is-danger'
       })
@@ -106,7 +107,10 @@ class PriceForm extends Component {
         >
           <div className={this.state.apiCallMessage}>
             <div className='message-body is-size-7 has-text-centered'>
-              Los datos se han guardado correctamente
+              <FormattedMessage
+                id="prices.savedMsg"
+                defaultMessage={`Los datos se han guardado correctamente`}
+              />
             </div>
           </div>
 

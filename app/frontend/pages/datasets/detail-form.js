@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-
+import { FormattedMessage, injectIntl } from 'react-intl'
 import api from '~base/api'
 import { datasetStatus } from '~base/tools'
 
@@ -36,13 +36,20 @@ class DatasetDetailForm extends Component {
       apiCallMessage: 'is-hidden',
       apiCallErrorMessage: 'is-hidden'
     }
-    uiSchema['status'] = { 'ui:widget': SelectWidget, 'ui:disabled': !this.props.isAdmin }
+    uiSchema['status'] = { 'ui:widget': SelectWidget, 'ui:disabled': true }
     schema.properties['status'] = {
       type: 'string',
-      title: 'Estado',
+      title: this.formatTitle('datasets.status'),
       enum: Object.keys(datasetStatus),
-      enumNames: Object.values(datasetStatus)
+      enumNames: this.formatTitle('dates.locale') === 'en' ? Object.keys(datasetStatus) : Object.values(datasetStatus)
     }
+
+    schema.properties.name.title = this.formatTitle('datasets.name')
+    schema.properties.description.title = this.formatTitle('datasets.description')
+  }
+
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
   }
 
   componentWillReceiveProps (nextProps) {
@@ -113,7 +120,10 @@ class DatasetDetailForm extends Component {
         >
           <div className={this.state.apiCallMessage}>
             <div className='message-body is-size-7 has-text-centered'>
-              Los datos se han guardado correctamente
+              <FormattedMessage
+                id='datasets.savedMsg'
+                defaultMessage={`Los datos se han guardado correctamente`}
+              />
             </div>
           </div>
 
@@ -129,4 +139,4 @@ class DatasetDetailForm extends Component {
   }
 }
 
-export default DatasetDetailForm
+export default injectIntl(DatasetDetailForm)

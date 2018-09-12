@@ -1,0 +1,12 @@
+{% extends "./layout.html" %}
+
+{% block content %}
+    <tr>
+      <td colSpan="2" class="body">
+        <p class="main">Se ha creado una nueva organización {{organization}} en Orax</p>
+        <p>El contacto es: </p>
+        <p>Nombre: {{owner.name}}</p>
+        <p>email: {{owner.email}}</p>
+      </td>
+    </tr>
+{% endblock %}

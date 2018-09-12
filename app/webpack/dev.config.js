@@ -47,7 +47,9 @@ module.exports = {
       'PREFIX': JSON.stringify(''),
       'API_HOST': JSON.stringify(config.server.apiHost),
       'APP_HOST': JSON.stringify(config.server.appHost),
-      'EMAIL_SEND': JSON.stringify(config.mailer.active)
+      'EMAIL_SEND': JSON.stringify(config.mailer.active),
+      'COOKIE_SUFIX': JSON.stringify(config.server.cookieSufix),
+      'ANALITYCS_ID': JSON.stringify(config.analitycs.id)
     })
   ],
   resolve: {

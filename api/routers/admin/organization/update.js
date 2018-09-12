@@ -9,27 +9,26 @@ module.exports = new Route({
   path: '/:uuid',
   validator: lov.object().keys({
     name: lov.string().required(),
-    country: lov.string().required(),
-    status: lov.string().required(),
-    employees: lov.number().required(),
-    rfc: lov.string().required(),
-    billingEmail: lov.string().required(),
-    businessName: lov.string().required(),
-    accountType: lov.string().required(),
-    availableUsers: lov.number().required(),
-    billingStart: lov.date().required(),
-    billingEnd: lov.date().required(),
+    country: lov.string(),
+    employees: lov.number(),
+    rfc: lov.string(),
+    billingEmail: lov.string(),
+    businessName: lov.string(),
+    businessType: lov.string(),
+    accountType: lov.string(),
+    availableUsers: lov.number(),
     salesRep: lov.object().keys({
-      name: lov.string().required(),
-      email: lov.string().email().required(),
-      phone: lov.string().required()
-    })
+      name: lov.string(),
+      email: lov.string().email(),
+      phone: lov.string()
+    }),
+    description: lov.string()
   }),
   handler: async function (ctx) {
     var organizationId = ctx.params.uuid
     var data = ctx.request.body
 
-    var file = data.profile
+    var file = data.profile || ''
 
     const org = await Organization.findOne({'uuid': organizationId, 'isDeleted': false})
     ctx.assert(org, 404, 'Organización no encontrada')
@@ -37,16 +36,15 @@ module.exports = new Route({
     org.set({
       name: data.name,
       country: data.country,
-      status: data.status,
       employees: data.employees,
       rfc: data.rfc,
       billingEmail: data.billingEmail,
       businessName: data.businessName,
+      businessType: data.businessType,
       accountType: data.accountType,
       availableUsers: data.availableUsers,
-      billingStart: data.billingStart,
-      billingEnd: data.billingEnd,
-      salesRep: data.salesRep
+      salesRep: data.salesRep,
+      description: data.description
     })
 
     if (!data.description) org.set({description: ''})

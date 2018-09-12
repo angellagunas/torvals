@@ -9,28 +9,19 @@ module.exports = new Route({
   validator: lov.object().keys({
     email: lov.string().email().required(),
     password: lov.string().required(),
-    name: lov.string().required()
+    name: lov.string().required(),
+    job: lov.string(),
+    phone: lov.string()
   }),
   handler: async function (ctx) {
-    const { name, email, password } = ctx.request.body
+    const { name, email, password, job, phone } = ctx.request.body
     const user = await User.register({
       name,
       email,
-      password
+      password,
+      job,
+      phone
     })
-
-    let defaultRole = await Role.findOne({isDefault: true})
-    if (!defaultRole) {
-      defaultRole = await Role.create({
-        name: 'Default',
-        slug: 'default',
-        description: 'Default role',
-        isDefault: true
-      })
-    }
-
-    user.role = defaultRole
-    user.save()
 
     user.sendActivationEmail()
 

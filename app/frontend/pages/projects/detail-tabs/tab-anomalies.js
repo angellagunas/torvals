@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import moment from 'moment'
 import api from '~base/api'
 import Loader from '~base/components/spinner'
@@ -12,6 +13,7 @@ import Checkbox from '~base/components/base-checkbox'
 import Editable from '~base/components/base-editable'
 import { toast } from 'react-toastify'
 import Select from './select'
+import { defaultCatalogs } from '~base/tools'
 
 var currentRole
 
@@ -85,9 +87,9 @@ class TabAnomalies extends Component {
             loaded: true
           })
         }
-
+      
         if(res.data.length === 0)
-          this.notify('No hay anomalías que mostrar', 5000, toast.TYPE.INFO)
+          this.notify(this.formatTitle('anomalies.emptyAnomalies'), 5000, toast.TYPE.INFO)
 
       } catch (e) {
         this.setState({
@@ -95,7 +97,8 @@ class TabAnomalies extends Component {
           isFiltered: false,
           loaded: true
         })
-        this.notify('Error:Intente de nuevo', 5000, toast.TYPE.ERROR)
+        
+        this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
       }
     })
   }
@@ -113,7 +116,26 @@ class TabAnomalies extends Component {
 
     this.rules.catalogs.map(item => {
       if (item.slug === name) {
-        find = item.name
+        find = item
+      }
+    })
+    
+    let title = find.name
+    if (this.findInCatalogs(find.slug)) {
+      title = this.formatTitle('catalogs.' + find.slug)
+    }
+    return title
+  }
+
+  formatTitle(id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
+  findInCatalogs(slug) {
+    let find = false
+    defaultCatalogs.map(item => {
+      if (item.value === slug) {
+        find = true
       }
     })
     return find
@@ -154,7 +176,7 @@ class TabAnomalies extends Component {
               label={this.findName(key)}
               name={key}
               value={this.state.formData[key]}
-              placeholder='Todas'
+              placeholder={this.formatTitle('anomalies.all')}
               optionValue='uuid'
               optionName='name'
               options={element}
@@ -171,9 +193,14 @@ class TabAnomalies extends Component {
     const catalogs = this.props.project.rule.catalogs || []
     const catalogItems = catalogs.map((catalog, i) => {
       if(catalog.slug !== 'producto'){
+        let title = catalog.name
+        if (this.findInCatalogs(catalog.slug)) {
+          title = this.formatTitle('catalogs.' + catalog.slug)
+        }
+        
         return (
           {
-            'title': ` ${catalog.name}`,
+            'title': ` ${title}`,
             'property': '',
             'default': 'N/A',
             'sortable': true,
@@ -191,8 +218,8 @@ class TabAnomalies extends Component {
   ).filter(item => item)
 
     let cols = [
-      {
-        'title': 'Seleccionar Todo',
+      { 
+        'title': this.formatTitle('dashboard.selectAll'),
         'abbreviate': true,
         'abbr': (() => {
           if (currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2') {
@@ -225,7 +252,7 @@ class TabAnomalies extends Component {
         }
       },
       {
-        'title': 'Id',
+        'title': this.formatTitle('tables.colId'),
         'property': 'productId',
         'default': 'N/A',
         'sortable': true,
@@ -233,8 +260,8 @@ class TabAnomalies extends Component {
           return String(row.newProduct.externalId)
         }
       },
-      {
-        'title': 'Producto',
+      { 
+        'title': this.formatTitle('tables.colProduct'),
         'property': 'product.name',
         'default': 'N/A',
         'sortable': true,
@@ -243,8 +270,8 @@ class TabAnomalies extends Component {
         }
       },
       ...catalogItems,
-      {
-        'title': 'Tipo de Anomalía',
+      { 
+        'title': this.formatTitle('anomalies.type'),
         'property': 'type',
         'default': 'N/A',
         'sortable': true,
@@ -252,8 +279,8 @@ class TabAnomalies extends Component {
           return String(row.type)
         }
       },
-      {
-        'title': 'Fecha',
+      { 
+        'title': this.formatTitle('tables.colDate'),
         'property': 'date',
         'default': 'N/A',
         'sortable': true,
@@ -261,8 +288,8 @@ class TabAnomalies extends Component {
           return moment.utc(row.date, 'YYYY-MM-DD').local().format('DD/MM/YYYY')
         }
       },
-      {
-        'title': 'Predicción',
+      { 
+        'title': this.formatTitle('tables.colForecast'),
         'property': 'prediction',
         'default': 0,
         'type': 'number',
@@ -318,12 +345,12 @@ class TabAnomalies extends Component {
       this.setState({
         anomalies: aux
       })
-
-      this.notify('¡Ajuste guardado!', 5000, toast.TYPE.INFO)
+      
+      this.notify(this.formatTitle('anomalies.saved'), 5000, toast.TYPE.INFO)
 
     }
     else{
-      this.notify('Intente de nuevo', 5000, toast.TYPE.ERROR)
+      this.notify(this.formatTitle('anomalies.try'), 5000, toast.TYPE.ERROR)
     }
 
     return true
@@ -508,13 +535,18 @@ class TabAnomalies extends Component {
 
             <div className='column is-narrow pad-top-5'>
               <div className='field'>
-                <label className='label'>Búsqueda general</label>
+                <label className='label'>
+                  <FormattedMessage
+                    id="dashboard.searchText"
+                    defaultMessage={`Búsqueda general`}
+                  />
+                </label>
                 <div className='control has-icons-right'>
                   <input
                     className='input input-search'
                     type='text'
                     value={this.state.searchTerm}
-                    onKeyUp={(e) => { this.searchOnChange(e) }} placeholder='Buscar' />
+                    onKeyUp={(e) => { this.searchOnChange(e) }} placeholder={this.formatTitle('dashboard.searchText')} />
 
                   <span className='icon is-small is-right'>
                     <i className='fa fa-search fa-xs'></i>
@@ -530,8 +562,11 @@ class TabAnomalies extends Component {
                   type='button'
                   onClick={e => this.restore()}
                 >
-                  Recuperar ({Object.keys(this.state.selected).length})
-                  </button>
+                  <FormattedMessage
+                    id="anomalies.recover"
+                    defaultMessage={`Recuperar`}
+                  /> ({Object.keys(this.state.selected).length})
+                </button>
               </div>
             }
           </div>
@@ -542,14 +577,24 @@ class TabAnomalies extends Component {
             <section className='section'>
               <center>
                 <Loader/>
-                <h2 className='has-text-info'>Cargando anomalías</h2>
+                <h2 className='has-text-info'>
+                  <FormattedMessage
+                    id="anomalies.loadingAnomalies"
+                    defaultMessage={`Cargando anomalías`}
+                  />
+                </h2>
               </center>
             </section>
           :
             this.state.anomalies.length === 0
               ? <section className='section'>
                   <center>
-                  <h2 className='subtitle has-text-primary'>No hay anomalías que mostrar</h2>
+                  <h2 className='subtitle has-text-primary'>
+                    <FormattedMessage
+                      id="anomalies.emptyAnomalies"
+                      defaultMessage={`No hay anomalías que mostrar`}
+                    />
+                  </h2>
                   </center>
                 </section>
               :
@@ -579,4 +624,4 @@ class TabAnomalies extends Component {
   }
 }
 
-export default TabAnomalies
+export default injectIntl(TabAnomalies)

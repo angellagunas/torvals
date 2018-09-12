@@ -1,0 +1,22 @@
+{% extends "./layout.html" %}
+
+{% block content %}
+    <tr>
+      <td colspan="2" class="body">
+        <p class="main">Periodo de facturación terminado.</p>
+        <p class="label">El periodo de facturación ha terminado, para consultar mas información sobre ello visita “Orax.io”</p>
+        <p>
+          <a class="btn" href="{{ url }}" target="_blank">Ir a Orax</a>
+        </p>
+        <p>
+          Para solicitar una prórroga contacta a uno de tus superiores.
+        </p>
+        <p>
+          Si has tenido problemas puedes encontrar ayuda “aquí” o ponerte en contacto con uno de nuestros asesores.
+        </p>
+        <p>
+          <a class="link" href="{{ urlHelp }}">Solicitar Ayuda</a>
+        </p>
+      </td>
+    </tr>
+{% endblock %}

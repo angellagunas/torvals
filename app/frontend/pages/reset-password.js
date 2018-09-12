@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import Page from '~base/page'
 
 import api from '~base/api'
@@ -6,14 +7,6 @@ import Loader from '~base/components/spinner'
 import tree from '~core/tree'
 
 import {BaseForm, EmailWidget} from '~components/base-form'
-
-const schema = {
-  type: 'object',
-  required: ['email'],
-  properties: {
-    email: {type: 'string', title: 'Email'}
-  }
-}
 
 const uiSchema = {
   email: {'ui:widget': EmailWidget}
@@ -89,7 +82,18 @@ class ResetPassword extends Component {
     }, 5000)
   }
 
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
   render () {
+    const schema = {
+      type: 'object',
+      required: ['email'],
+      properties: {
+        email: { type: 'string', title: this.formatTitle('login.email') }
+      }
+    }
     let spinner
 
     if (this.state.loading) {
@@ -108,18 +112,19 @@ class ResetPassword extends Component {
         <div className='card'>
           <header className='card-header'>
             <p className='card-header-title'>
-              Restabler contraseña
+              <FormattedMessage
+                id='login.forgot'
+                defaultMessage={`¿Olvidó su contraseña?`}
+              />
             </p>
-            <a className='card-header-icon'>
-              <span className='icon'>
-                <i className='fa fa-angle-down' />
-              </span>
-            </a>
           </header>
           <div className='card-content'>
             <div className='content'>
               <p>
-                Necesitamos tu dirección de correo para enviarte un link de restablecimiento de la contraseña:
+                <FormattedMessage
+                  id='resetPassword.contentTitle'
+                  defaultMessage={`Necesitamos tu dirección de correo para enviarte un link de restablecimiento de la contraseña: `}
+                />
               </p>
               <BaseForm schema={schema}
                 uiSchema={uiSchema}
@@ -131,7 +136,10 @@ class ResetPassword extends Component {
                 { spinner }
                 <div className={this.state.apiCallMessage}>
                   <div className='message-body is-size-7 has-text-centered'>
-                    El e-mail ha sido enviado. El link tendrá una vigencia de 10 dias.
+                    <FormattedMessage
+                      id='resetPassword.emailSend'
+                      defaultMessage={`El e-mail ha sido enviado. El link tendrá una vigencia de 10 dias.`}
+                    />
                   </div>
                 </div>
                 <div className={this.state.apiCallErrorMessage}>
@@ -144,7 +152,10 @@ class ResetPassword extends Component {
                   type='submit'
                   disabled={!!error}
                 >
-                  Enviar link a la dirección de correo
+                  <FormattedMessage
+                    id='resetPassword.contentBtnText'
+                    defaultMessage={`Enviar link a la dirección de correo`}
+                  />
                 </button>
               </BaseForm>
             </div>
@@ -159,5 +170,5 @@ export default Page({
   path: '/password/forgotten',
   title: 'Reset Password',
   exact: true,
-  component: ResetPassword
+  component: injectIntl(ResetPassword)
 })

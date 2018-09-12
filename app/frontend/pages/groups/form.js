@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-
+import { FormattedMessage, injectIntl } from 'react-intl'
 import api from '~base/api'
 
 import {
@@ -7,23 +7,6 @@ import {
   TextWidget,
   TextareaWidget
 } from '~base/components/base-form'
-
-const schema = {
-  type: 'object',
-  title: '',
-  required: [
-    'name'
-  ],
-  properties: {
-    name: {type: 'string', title: 'Nombre'},
-    description: {type: 'string', title: 'Descripción'}
-  }
-}
-
-const uiSchema = {
-  name: {'ui:widget': TextWidget},
-  description: {'ui:widget': TextareaWidget, 'ui:rows': 3}
-}
 
 class GroupForm extends Component {
   constructor (props) {
@@ -36,6 +19,10 @@ class GroupForm extends Component {
   }
 
   errorHandler (e) {}
+
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
 
   changeHandler ({formData}) {
     this.setState({
@@ -73,6 +60,23 @@ class GroupForm extends Component {
   }
 
   render () {
+    const schema = {
+      type: 'object',
+      title: '',
+      required: [
+        'name'
+      ],
+      properties: {
+        name: {type: 'string', title: this.formatTitle('groups.formName')},
+        description: {type: 'string', title: this.formatTitle('groups.formDescription')}
+      }
+    }
+
+    const uiSchema = {
+      name: {'ui:widget': TextWidget},
+      description: {'ui:widget': TextareaWidget, 'ui:rows': 3}
+    }
+
     var error
     let { canEdit, canCreate } = this.props
     if (this.state.error) {
@@ -104,7 +108,10 @@ class GroupForm extends Component {
         >
           <div className={this.state.apiCallMessage}>
             <div className='message-body is-size-7 has-text-centered'>
-              Los datos se han guardado correctamente
+              <FormattedMessage
+                id='groups.savedMsg'
+                defaultMessage={`Los datos se han guardado correctamente`}
+              />
             </div>
           </div>
 
@@ -120,4 +127,4 @@ class GroupForm extends Component {
   }
 }
 
-export default GroupForm
+export default injectIntl(GroupForm)

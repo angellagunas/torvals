@@ -1,9 +1,13 @@
 import React, { Component, Fragment } from 'react'
+import { FormattedMessage } from 'react-intl'
 
 function DangerText() {
   return (
-    <p className="has-text-danger">
-      * En el ciclo actual no se permite realizar ajustes
+    <p className='has-text-danger'>
+      * <FormattedMessage
+        id='wizard.rangesWarningMsg'
+        defaultMessage={`En el ciclo actual no se permite realizar ajustes`}
+      />
     </p>
   )
 }
@@ -72,7 +76,13 @@ class Ranges extends Component {
           <div className='field has-addons' key={i}>
             <p className='control'>
               <a className='button is-capitalized'>
-                Ciclo {i + 1} {i === 0 && <Fragment>(Actual) <span className="has-text-danger">*</span></Fragment>}
+                <FormattedMessage
+                  id='wizard.rangesCycle'
+                  defaultMessage={`Ciclo`}
+                />&nbsp; {i + 1} {i === 0 && <Fragment><FormattedMessage
+                  id='wizard.rangesActual'
+                  defaultMessage={`(Actual)`}
+                /> <span className='has-text-danger'>*</span></Fragment>}
               </a>
             </p>
             <p className='control'>
@@ -84,7 +94,10 @@ class Ranges extends Component {
             </p>
             <p className='control'>
               <a className='button is-static'>
-                % de ajuste
+                % &nbsp; <FormattedMessage
+                  id='wizard.rangesPercentage'
+                  defaultMessage={`de ajuste`}
+                />
               </a>
             </p>
           </div>
@@ -94,7 +107,13 @@ class Ranges extends Component {
           <div className='field has-addons' key={i}>
             <p className='control'>
               <a className='button is-capitalized'>
-                Ciclo {i + 1} {i === 0 && <Fragment>(Actual) <span className="has-text-danger">*</span></Fragment>}
+                <FormattedMessage
+                  id='wizard.rangesCycle'
+                  defaultMessage={`Ciclo`}
+                />&nbsp; {i + 1} {i === 0 && <Fragment><FormattedMessage
+                  id='wizard.rangesActual'
+                  defaultMessage={`(Actual)`}
+                /> <span className='has-text-danger'>*</span></Fragment>}
               </a>
             </p>
             <p className='control'>
@@ -105,7 +124,10 @@ class Ranges extends Component {
             </p>
             <p className='control'>
               <a className='button is-static'>
-                % de ajuste
+                % &nbsp;<FormattedMessage
+                  id='wizard.rangesPercentage'
+                  defaultMessage={`de ajuste`}
+                />
               </a>
             </p>
           </div>
@@ -129,17 +151,31 @@ class Ranges extends Component {
     let rules = this.props.rules
     return (
       <div className='section pad-sides has-20-margin-top'>
-        <h1 className='title is-5'> Rangos de ajuste</h1>
+        <h1 className='title is-5'>
+          <FormattedMessage
+            id='wizard.rangesAdjustment'
+            defaultMessage={`Rangos de ajuste`}
+          />
+        </h1>
         <p className='subtitle is-6'>
-          Asigna el porcentaje de ajuste para cada ciclo disponible. <br />
-          Si ingresas "0" no se permitirá ajustar en ese ciclo, mientras que si dejas vacío no habrá límite de ajuste.
+          <FormattedMessage
+            id='wizard.rangesDescription1'
+            defaultMessage={`Asigna el porcentaje de ajuste para cada ciclo disponible.`}
+          /> <br />
+          <FormattedMessage
+            id='wizard.rangesDescription2'
+            defaultMessage={`Si ingresas "0" no se permitirá ajustar en ese ciclo, mientras que si dejas vacío no habrá límite de ajuste.`}
+          />
         </p>
         <div className='columns is-centered'>
           <div className='column'>
             <div className='card'>
               <header className='card-header'>
                 <p className='card-header-title'>
-                  Ajustes para Manager Level 1
+                  <FormattedMessage
+                    id='wizard.rangesManager1'
+                    defaultMessage={`Ajustes para Manager Level 1`}
+                  />
                 </p>
               </header>
               <div className='card-content'>
@@ -155,7 +191,10 @@ class Ranges extends Component {
             <div className='card'>
               <header className='card-header'>
                 <p className='card-header-title'>
-                  Ajustes para Manager Level 2
+                  <FormattedMessage
+                    id='wizard.rangesManager2'
+                    defaultMessage={`Ajustes para Manager Level 2`}
+                  />
                 </p>
               </header>
               <div className='card-content'>
@@ -171,15 +210,32 @@ class Ranges extends Component {
         <div className='buttons wizard-steps'>
           {this.props.org && !this.props.org.isConfigured &&
             this.props.completed && this.props.completed.length < 4
-            ? <button onClick={() => this.props.setStep(2)} className='button is-primary'>Atrás</button>
-            : <button onClick={() => this.props.setStep(1)} className='button is-danger'>Cancelar</button>
+            ? <button onClick={() => this.props.setStep(2)} className='button is-primary'>
+              <FormattedMessage
+                id='wizard.btnPrev'
+                defaultMessage={`Atrás`}
+              />
+            </button>
+            : <button onClick={() => this.props.setStep(1)} className='button is-danger'>
+              <FormattedMessage
+                id='wizard.rangesBtnCancel'
+                defaultMessage={`Cancelar`}
+              />
+            </button>
           }
           <button
             onClick={() => this.next()}
             className='button is-primary'>
             {this.props.org && !this.props.org.isConfigured &&
               this.props.completed && this.props.completed.length < 4
-              ? 'Siguente' : 'Guardar'
+              ? <FormattedMessage
+                id='wizard.rangesBtnNext'
+                defaultMessage={`Siguente`}
+              />
+              : <FormattedMessage
+                id='wizard.rangesBtnSave'
+                defaultMessage={`Guardar`}
+              />
             }
           </button>
         </div>

@@ -12,6 +12,9 @@ import { BranchedPaginatedTable } from '~base/components/base-paginated-table'
 import OrganizationForm from './form'
 import Breadcrumb from '~base/components/base-breadcrumb'
 import NotFound from '~base/components/not-found'
+import BaseModal from '~base/components/base-modal'
+import OrganizationActivationForm from './activation-form'
+import ListsNote from '~components/list-note'
 
 class OrganizationDetail extends Component {
   constructor (props) {
@@ -20,7 +23,9 @@ class OrganizationDetail extends Component {
       loading: true,
       loaded: false,
       organization: {},
-      isLoading: ''
+      isLoading: '',
+      className: '',
+      refreshNotes: false
     }
   }
 
@@ -102,6 +107,25 @@ class OrganizationDetail extends Component {
     this.setState({ isLoading: '' })
   }
 
+  showModal () {
+    this.setState({
+      className: ' is-active'
+    })
+  }
+
+  hideModal () {
+    this.setState({
+      className: ''
+    })
+  }
+
+  finishUp () {
+    this.setState({
+      className: '',
+      refreshNotes: true
+    })
+  }
+
   render () {
     if (this.state.notFound) {
       return <NotFound msg='esta organización' />
@@ -138,6 +162,49 @@ class OrganizationDetail extends Component {
               align='left'
             />
             <div className='columns'>
+              <div className='column has-text-right'>
+                {this.state.organization.status === 'activationPending' &&
+                <div className='field is-grouped is-grouped-right'>
+                  <div className='control'>
+                    <button className='button is-primary' onClick={(e) => this.showModal()}>
+                    Activar
+                   </button>
+                    <BaseModal
+                      title='Activar organización'
+                      className={this.state.className}
+                      hideModal={this.hideModal.bind(this)}
+                    >
+                      <OrganizationActivationForm
+                        finishUp={this.finishUp.bind(this)}
+                        hideModal={this.hideModal.bind(this)}
+                        initialState={organization}
+                        url={'/admin/organizations/' + organization.uuid + '/activate'}
+                        load={this.load.bind(this)}
+                      >
+                        <div className='field is-grouped'>
+                          <div className='control'>
+                            <button
+                              className={'button is-primary ' + this.state.isLoading}
+                              disabled={!!this.state.isLoading}
+                              type='submit'
+                              >Guardar</button>
+                          </div>
+
+                          <div className='control'>
+                            <button
+                              className={'button is-danger ' + this.state.isLoadin}
+                              disabled={!!this.state.isLoading}
+                              type='button'
+                              onClick={() => this.hideModal()}
+                              >Cancelar</button>
+                          </div>
+                        </div>
+                      </OrganizationActivationForm>
+                    </BaseModal>
+                  </div>
+                </div>
+              }
+              </div>
               <div className='column has-text-right'>
                 <div className='field is-grouped is-grouped-right'>
                   <div className='control'>
@@ -203,6 +270,20 @@ class OrganizationDetail extends Component {
                          />
                       </div>
                     </div>
+                  </div>
+                </div>
+
+                <div className='card' style={{margin: '20px 0'}}>
+                  <header className='card-header'>
+                    <p className='card-header-title'>
+                      Observaciones
+                        </p>
+                  </header>
+                  <div className='card-content'>
+                    <ListsNote
+                      uuid={this.state.organization.uuid}
+                      refresh={this.state.refreshNotes}
+                    />
                   </div>
                 </div>
               </div>

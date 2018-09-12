@@ -20,11 +20,11 @@ const task = new Task(async function (argv) {
   log.call('Train engine.')
   const spawnPio = spawnSync(
     'pio',
-    ['train', '--main-py-file', 'train.py', 'blaaaaa'],
+    ['train', '--main-py-file', './train.py'],
     { cwd: `/engines/${forecast.engine.path}` }
   )
 
-  log.call(spawnPio.output)
+  // log.call(spawnPio.output)
   log.call(spawnPio.stdout)
   log.call(spawnPio.signal)
 

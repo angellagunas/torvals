@@ -5,6 +5,12 @@ const { apiPort } = require('config/server')
 const { multiple, numWorkers } = require('config/api-workers')
 const api = require('./api')
 const { each } = require('lodash')
+const Raven = require('raven')
+
+if (config.sentry.dsn) {
+  const git = require('git-rev-sync')
+  Raven.config(config.sentry.dsn, {release: git.long(), name: 'API/Crons'}).install()
+}
 
 const execQueues = () => {
   const queues = require('queues/')

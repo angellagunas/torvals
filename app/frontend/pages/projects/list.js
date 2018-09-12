@@ -8,13 +8,14 @@ import {loggedIn, verifyRole} from '~base/middlewares/'
 import CreateProject from './create'
 
 export default ListPage({
+  translate: true,
   path: '/projects',
-  title: 'Proyectos',
+  title: 'sideMenu.projects',
   icon: 'folder',
   exact: true,
   roles: 'consultor-level-3, analyst, orgadmin, admin, consultor-level-2, manager-level-2, manager-level-3',
   validate: [loggedIn, verifyRole],
-  titleSingular: 'Proyecto',
+  titleSingular: 'projectConfig.project',
   create: true,
   createComponent: CreateProject,
   breadcrumbs: true,
@@ -22,12 +23,12 @@ export default ListPage({
     path: [
       {
         path: '/',
-        label: 'Inicio',
+        label: 'sideMenu.home',
         current: false
       },
       {
         path: '/projects/',
-        label: 'Proyectos',
+        label: 'sideMenu.projects',
         current: true
       }
     ],
@@ -51,7 +52,7 @@ export default ListPage({
   getColumns: () => {
     return [
       {
-        'title': 'Nombre',
+        'title': 'tables.colName',
         'property': 'name',
         'default': 'N/A',
         'sortable': true,
@@ -64,7 +65,7 @@ export default ListPage({
         }
       },
       {
-        'title': 'Creado',
+        'title': 'tables.colCreated',
         'property': 'dateCreated',
         'default': 'N/A',
         'sortable': true,
@@ -75,7 +76,7 @@ export default ListPage({
         }
       },
       {
-        'title': 'Acciones',
+        'title': 'tables.colActions',
         formatter: (row) => {
           if (testRoles('consultor-level-2, consultor-level-3')) {
             return (
@@ -97,5 +98,23 @@ export default ListPage({
         }
       }
     ]
-  }
+  },
+  noDataComponent: (<div className='columns is-centered'>
+    <div className='column is-8'>
+      <article className='message is-info'>
+        <div className='message-header has-text-weight-bold'>
+          <p>Proyecto nuevo</p>
+        </div>
+        <div className='message-body is-size-6 has-text-centered'>
+          <span className='icon is-large has-text-info'>
+            <i className='fa fa-magic fa-2x' />
+          </span>
+          <span className='is-size-5'>
+            Debes crear al menos un proyecto para poder crear una predicción
+          </span>
+
+        </div>
+      </article>
+    </div>
+  </div>)
 })

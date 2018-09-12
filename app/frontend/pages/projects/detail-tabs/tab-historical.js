@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import moment from 'moment'
 import api from '~base/api'
 import { toast } from 'react-toastify'
@@ -11,6 +12,7 @@ import { BaseTable } from '~base/components/base-table'
 import InputRange from 'react-input-range'
 import 'react-input-range/lib/css/index.css'
 import Checkbox from '~base/components/base-checkbox'
+import { defaultCatalogs } from '~base/tools'
 
 class TabHistorical extends Component {
   constructor(props) {
@@ -64,9 +66,9 @@ class TabHistorical extends Component {
     try{
     let url = '/app/dashboard/projects'
     let res = await api.get(url, projects)
-    
+
     this.getCatalogFilters(res.catalogItems)
-    
+
     this.setState({
       loading: false,
       filters: res,
@@ -76,6 +78,7 @@ class TabHistorical extends Component {
       this.getProductTable()
     })
     }catch(e){
+      //TODO: translate
       this.notify('Error al obtener los filtros ' + e.message, 5000, toast.TYPE.ERROR)
         this.setState({
           loading: false,
@@ -107,7 +110,7 @@ class TabHistorical extends Component {
           date_end: moment.utc([this.state.maxPeriod.year, this.state.maxPeriod.number - 1]).endOf('month').format('YYYY-MM-DD'),
           projects: Object.values(this.selectedProjects),
           catalogItems: Object.keys(this.selectedItems),
-          prices: this.state.prices          
+          prices: this.state.prices
         })
 
         let totalPSale = 0
@@ -127,10 +130,10 @@ class TabHistorical extends Component {
           , ['asc'])
 
         data.map((item) => {
-          totalAdjustment += item.adjustment
-          totalPrediction += item.prediction
-          totalSale += item.sale
-          totalPSale += item.previousSale
+          totalAdjustment += item.adjustment ? item.adjustment : 0
+          totalPrediction += item.prediction ? item.prediction : 0
+          totalSale += item.sale ? item.sale : 0
+          totalPSale += item.previousSale ? item.previousSale : 0
 
           if (moment(item.date).isBetween(moment().startOf('month'), moment().endOf('month'), null, '[]')) {
             activePeriod.push(item)
@@ -164,9 +167,10 @@ class TabHistorical extends Component {
           })
         }, 10)
       } catch (e) {
+        //TODO: translate
         this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
         this.setState({
-          noData: e.message + ', intente más tarde'
+          noData: e.message + ', ' + this.formatTitle('dashboard.try')
         })
       }
     }
@@ -200,9 +204,10 @@ class TabHistorical extends Component {
       })
     }
     catch (e) {
+      //TODO: translate
       this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
       this.setState({
-        noData: e.message + ', intente más tarde'
+        noData: e.message + ', ' + this.formatTitle('dashboard.try')
       })
     }
   }
@@ -240,7 +245,7 @@ class TabHistorical extends Component {
   getColumns() {
     let cols = [
       {
-        'title': 'Id',
+        'title': this.formatTitle('tables.colId'),
         'property': 'product.externalId',
         'default': 'N/A',
         'sortable': true,
@@ -249,7 +254,7 @@ class TabHistorical extends Component {
         }
       },
       {
-        'title': 'Producto',
+        'title': this.formatTitle('tables.colProduct'),
         'property': 'product.name',
         'default': 'N/A',
         'sortable': true,
@@ -258,7 +263,7 @@ class TabHistorical extends Component {
         }
       },
       {
-        'title': 'Predicción',
+        'title': this.formatTitle('tables.colForecast'),
         'property': 'prediction',
         'default': '0',
         'sortable': true,
@@ -267,13 +272,12 @@ class TabHistorical extends Component {
             let val = row.prediction.toFixed().replace(/./g, (c, i, a) => {
               return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
             })
-
             return this.state.prices ? '$' + val : val
           }
         }
       },
       {
-        'title': 'Ajuste',
+        'title': this.formatTitle('tables.colAdjustment'),
         'property': 'adjustment',
         'default': '0',
         'sortable': true,
@@ -288,7 +292,7 @@ class TabHistorical extends Component {
         }
       },
       {
-        'title': 'Venta',
+        'title': this.formatTitle('tables.colSales'),
         'property': 'sale',
         'default': '0',
         'sortable': true,
@@ -302,7 +306,7 @@ class TabHistorical extends Component {
         }
       },
       {
-        'title': 'Venta año anterior',
+        'title': this.formatTitle('tables.colLast'),
         'property': 'previousSale',
         'default': '0',
         'sortable': true,
@@ -334,7 +338,6 @@ class TabHistorical extends Component {
               mape = 0
             }
           }
-
 
           if (mape <= 7) {
             return <span className='has-text-success'>{mape.toFixed(2)}%</span>
@@ -411,14 +414,24 @@ class TabHistorical extends Component {
     if (Object.keys(this.selectedProjects).length === 0) {
       return (
         <center>
-          <h1 className='has-text-info'>Debes seleccionar al menos un proyecto</h1>
+          <h1 className='has-text-info'>
+            <FormattedMessage
+              id="dashboard.tableMsg"
+              defaultMessage={`Debes seleccionar al menos un proyecto`}
+            />
+          </h1>
         </center>
       )
     }
     else if (Object.keys(this.selectedProjects).length !== 0 && !this.state.noData) {
       return (
         <center>
-          <h1 className='has-text-info'>Cargando, un momento por favor</h1>
+          <h1 className='has-text-info'>
+            <FormattedMessage
+              id="dashboard.tableLoading"
+              defaultMessage={`Cargando, un momento por favor`}
+            />
+          </h1>
           <Loader />
         </center>
       )
@@ -457,7 +470,7 @@ class TabHistorical extends Component {
       })
     }
 
-    let min
+    let min = p[0]
     p.map(item => {
       if (item.year === 2018 && item.number === 1) {
         min = item
@@ -471,7 +484,6 @@ class TabHistorical extends Component {
     })
 
   }
-
 
   setMinPeriod(item) {
     let max = moment.utc([this.state.maxPeriod.year, this.state.maxPeriod.number - 1])
@@ -518,7 +530,6 @@ class TabHistorical extends Component {
     }
   }
 
-
   findName = (name) => {
     let find = ''
 
@@ -539,10 +550,11 @@ class TabHistorical extends Component {
         type: this.findName(key),
         objects: value,
         selectAll: true,
-        isOpen: true
+        isOpen: true,
+        slug: key
       }))
       .value()
-    
+
     this.setState({
       catalogItems: filters
     }, () => {
@@ -560,8 +572,8 @@ class TabHistorical extends Component {
       if (item.type === type) {
         for (const s of item.objects) {
           s.selected = value
-          if (value) { 
-            this.selectedItems[s.uuid] = s 
+          if (value) {
+            this.selectedItems[s.uuid] = s
           }
           else{
             delete this.selectedItems[s.uuid]
@@ -586,7 +598,7 @@ class TabHistorical extends Component {
 
     obj.selected = value
     item.selectAll = this.countItems(obj.type) === item.objects.length
-  
+
     this.getGraph()
     this.getProductTable()
     this.setState({
@@ -604,6 +616,14 @@ class TabHistorical extends Component {
     return count
   }
 
+  filterTitle(item) {
+    let title = item.type
+    if (this.findInCatalogs(item.slug)) {
+      title = this.formatTitle('catalogs.' + item.slug)
+    }
+    return title
+  }
+
   makeFilters() {
     return this.state.catalogItems.map(item => {
       if (item.type !== 'Producto' && item.type !== 'Precio'){
@@ -616,7 +636,7 @@ class TabHistorical extends Component {
                 <i className={item.isOpen
                   ? 'fa fa-plus' : 'fa fa-minus'} />
               </span>
-              {item.type} <strong>{item.objects && item.objects.length}</strong>
+              {this.filterTitle(item)} <strong>{item.objects && item.objects.length}</strong>
             </a>
           </div>
           <aside className={item.isOpen
@@ -624,7 +644,7 @@ class TabHistorical extends Component {
             <div>
               <Checkbox
                 checked={item.selectAll}
-                label={'Seleccionar Todos'}
+                label={this.formatTitle('dashboard.selectAll')}
                 handleCheckboxChange={(e, value) => {
                   this.checkAllItems(value, item.type)
                   this.getGraph()
@@ -640,7 +660,7 @@ class TabHistorical extends Component {
                   if (obj.selected === undefined) {
                     obj.selected = true
                   }
-                  let name = obj.name === 'Not identified' ? obj.externalId + ' (No identificado)' : obj.externalId + ' ' + obj.name
+                  let name = obj.name === 'Not identified' ? obj.externalId + ' ' + this.formatTitle('dashboard.unidentified') : obj.externalId + ' ' + obj.name
 
                   return (
                     <li key={obj.uuid}>
@@ -737,6 +757,20 @@ class TabHistorical extends Component {
     }
   }
 
+  formatTitle(id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
+  findInCatalogs(slug) {
+    let find = false
+    defaultCatalogs.map(item => {
+      if (item.value === slug) {
+        find = true
+      }
+    })
+    return find
+  }
+
   render() {
 
     const {
@@ -749,7 +783,7 @@ class TabHistorical extends Component {
 
     let callbackLabels = this.getCallback()
     let tooltipCallback = this.getTooltipCallback()
-    
+
     if(this.state.noFilters){
       return (
         <div className='section columns'>
@@ -769,24 +803,32 @@ class TabHistorical extends Component {
 
     const graph = [
       {
-        label: 'Predicción',
+        label: this.formatTitle('dashboard.perdictionTitle'),
         color: '#187FE6',
-        data: this.state.graphData ? this.state.graphData.map((item) => { return item.prediction !== 0 ? item.prediction : null }) : []
+        data: this.state.graphData ?
+          this.state.graphData.map((item) => { return item.prediction !== undefined ? item.prediction : null })
+          : []
       },
       {
-        label: 'Ajuste',
+        label: this.formatTitle('dashboard.adjustmentsTitle'),
         color: '#30C6CC',
-        data: this.state.graphData ? this.state.graphData.map((item) => { return item.adjustment !== 0 ? item.adjustment : null }) : []
+        data: this.state.graphData ?
+          this.state.graphData.map((item) => { return item.adjustment !== undefined ? item.adjustment : null })
+          : []
       },
       {
-        label: 'Venta',
+        label: this.formatTitle('dashboard.salesTitle'),
         color: '#0CB900',
-        data: this.state.graphData ? this.state.graphData.map((item) => { return item.sale !== 0 ? item.sale : null }) : []
+        data: this.state.graphData ?
+          this.state.graphData.map((item) => { return item.sale !== undefined ? item.sale : null })
+          : []
       },
       {
-        label: 'Venta año anterior',
+        label: this.formatTitle('dashboard.lastSalesTitle'),
         color: '#EF6950',
-        data: this.state.graphData ? this.state.graphData.map((item) => { return item.previousSale !== 0 ? item.previousSale : null}) : []
+        data: this.state.graphData ?
+          this.state.graphData.map((item) => { return item.previousSale !== undefined ? item.previousSale : null })
+          : []
       }
     ]
 
@@ -813,7 +855,11 @@ class TabHistorical extends Component {
                         <span className='icon'>
                           <i className='fa fa-filter' />
                         </span>
-                        Filtros</h1>
+                        <FormattedMessage
+                          id="dashboard.filtersTitle"
+                          defaultMessage={`Filtros`}
+                        />
+                      </h1>
                     </div>
                     <div className='card-content'>
 
@@ -826,75 +872,123 @@ class TabHistorical extends Component {
                       </ul>
                     </div>
                   </div>
-
                 </div>
               </div>
             </div>
 
             <div className='column dash-graph'>
               <div className='columns box'>
-                <div className='column is-3 is-2-widescreen is-paddingless'>
-                  <div className='notification is-info has-text-centered'>
-                    <h1 className='title is-2'>{this.state.mape.toFixed(2) || '0.00'}%</h1>
-                    <h2 className='subtitle has-text-weight-bold'>MAPE</h2>
+                {this.state.graphData && this.state.filteredData && this.state.graphData.length > 0 &&
+                  <div className='column is-3 is-2-widescreen is-paddingless'>
+                    <div className='notification is-info has-text-centered'>
+                    <h1 className={this.state.totalSale === 0 ? 'title is-4' : 'title is-2'}>{
+                      this.state.totalSale === 0 ?
+                        <FormattedMessage
+                          id="dashboard.notAvailable"
+                          defaultMessage={`No disponible`}
+                        /> : this.state.mape.toFixed(2) + '%' || '0.00%'}</h1>
+
+                      <h2 className='subtitle has-text-weight-bold'>MAPE</h2>
+                    </div>
+
+                    <div className='indicators'>
+                      <p className='indicators-title'>
+                      <FormattedMessage
+                        id="dashboard.salesTitle"
+                        defaultMessage={`Venta total`}
+                      />
+                      </p>
+                      <p className='indicators-number has-text-success'>
+                        {
+                          this.state.totalSale === 0
+                            ? <FormattedMessage
+                                id="dashboard.notAvailable"
+                                defaultMessage={`No disponible`}
+                              />
+                            : this.state.prices
+                              ? '$' +
+                                this.state.totalSale.toFixed().replace(/./g, (c, i, a) => {
+                                  return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                })
+                              : this.state.totalSale.toFixed().replace(/./g, (c, i, a) => {
+                                  return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                })
+                        }
+                      </p>
+                      <p className='indicators-title'>
+                      <FormattedMessage
+                        id="dashboard.lastSalesTitle"
+                        defaultMessage={`Venta año anterior`}
+                      />
+                      </p>
+                      <p className='indicators-number has-text-danger'>
+                        {
+                          this.state.totalPSale === 0
+                          ? <FormattedMessage
+                              id="dashboard.notAvailable"
+                              defaultMessage={`No disponible`}
+                            />
+                          : this.state.prices
+                            ? '$' +
+                              this.state.totalPSale.toFixed().replace(/./g, (c, i, a) => {
+                                return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                              })
+                            : this.state.totalPSale.toFixed().replace(/./g, (c, i, a) => {
+                                return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                              })
+                        }
+                      </p>
+
+                      <p className='indicators-title'>
+                      <FormattedMessage
+                        id="dashboard.adjustmentsTitle"
+                        defaultMessage={`Ajuste total`}
+                      />
+                      </p>
+                      <p className='indicators-number has-text-teal'>
+                        {
+                          this.state.totalAdjustment === 0
+                          ? <FormattedMessage
+                              id="dashboard.notAvailable"
+                              defaultMessage={`No disponible`}
+                            />
+                          : this.state.prices
+                            ? '$' +
+                              this.state.totalAdjustment.toFixed().replace(/./g, (c, i, a) => {
+                                return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                              })
+                            : this.state.totalAdjustment.toFixed().replace(/./g, (c, i, a) => {
+                                return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                              })
+                        }
+                      </p>
+
+                      <p className='indicators-title'>
+                      <FormattedMessage
+                        id="dashboard.perdictionTitle"
+                        defaultMessage={`Predicción total`}
+                      />
+                      </p>
+                      <p className='indicators-number has-text-info'>
+                        {
+                          this.state.totalPrediction === 0
+                          ? <FormattedMessage
+                              id="dashboard.notAvailable"
+                              defaultMessage={`No disponible`}
+                            />
+                          : this.state.prices
+                            ? '$' +
+                              this.state.totalPrediction.toFixed().replace(/./g, (c, i, a) => {
+                                return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                              })
+                            : this.state.totalPrediction.toFixed().replace(/./g, (c, i, a) => {
+                                return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                              })
+                        }
+                      </p>
+                    </div>
                   </div>
-
-                  <div className='indicators'>
-                    <p className='indicators-title'>Venta total</p>
-                    <p className='indicators-number has-text-success'>
-                      {
-                        this.state.prices ? '$' +
-                          this.state.totalSale.toFixed().replace(/./g, (c, i, a) => {
-                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                          })
-                          :
-                          this.state.totalSale.toFixed().replace(/./g, (c, i, a) => {
-                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                          })
-                      }
-                    </p>
-                    <p className='indicators-title'>Venta año anterior</p>
-                    <p className='indicators-number has-text-danger'>
-                      {
-                        this.state.prices ? '$' +
-                          this.state.totalPSale.toFixed().replace(/./g, (c, i, a) => {
-                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                          })
-                          : this.state.totalPSale.toFixed().replace(/./g, (c, i, a) => {
-                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                          })
-                      }
-                    </p>
-
-                    <p className='indicators-title'>Ajuste total</p>
-                    <p className='indicators-number has-text-teal'>
-                      {
-                        this.state.prices ? '$' +
-                          this.state.totalAdjustment.toFixed().replace(/./g, (c, i, a) => {
-                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                          })
-                          :
-                          this.state.totalAdjustment.toFixed().replace(/./g, (c, i, a) => {
-                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                          })
-                      }
-                    </p>
-
-                    <p className='indicators-title'>Predicción total</p>
-                    <p className='indicators-number has-text-info'>
-                      {
-                        this.state.prices ? '$' +
-                          this.state.totalPrediction.toFixed().replace(/./g, (c, i, a) => {
-                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                          })
-                          :
-                          this.state.totalPrediction.toFixed().replace(/./g, (c, i, a) => {
-                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                          })
-                      }
-                    </p>
-                  </div>
-                </div>
+                }
                 <div className='column card'>
                   {this.state.graphData && this.state.filteredData ?
                     this.state.graphData.length > 0 ?
@@ -996,7 +1090,12 @@ class TabHistorical extends Component {
                       />
                       : <section className='section has-30-margin-top'>
                         <center>
-                          <h1 className='has-text-info'>No hay datos que mostrar, intente con otro filtro</h1>
+                          <h1 className='has-text-info'>
+                            <FormattedMessage
+                              id="dashboard.graphEmptyMsg"
+                              defaultMessage={`No hay datos que mostrar, intente con otro filtro`}
+                            />
+                          </h1>
                         </center>
                       </section>
                     : <section className='section has-30-margin-top'>
@@ -1012,13 +1111,18 @@ class TabHistorical extends Component {
                   <div className='level-item'>
 
                     <div className='field'>
-                      <label className='label'>Búsqueda general</label>
+                      <label className='label'>
+                        <FormattedMessage
+                          id="dashboard.searchText"
+                          defaultMessage={`Búsqueda general`}
+                        />
+                      </label>
                       <div className='control has-icons-right'>
                         <input
                           className='input'
                           type='text'
                           value={this.state.searchTerm}
-                          onChange={this.searchOnChange} placeholder='Buscar' />
+                          onChange={this.searchOnChange} placeholder={this.formatTitle('dashboard.searchText')} />
 
                         <span className='icon is-small is-right'>
                           <i className='fa fa-search fa-xs' />
@@ -1029,7 +1133,12 @@ class TabHistorical extends Component {
 
                   <div className='level-item'>
                     <div className="field">
-                      <label className='label'>Mostrar por: </label>
+                      <label className='label'>
+                        <FormattedMessage
+                          id="dashboard.showBy"
+                          defaultMessage={`Mostrar por`}
+                        />:
+                      </label>
                       <div className='control'>
 
                         <div className="field is-grouped">
@@ -1044,7 +1153,12 @@ class TabHistorical extends Component {
                               disabled={this.state.waitingData}
                               onChange={() => this.showBy(false)} />
                             <label htmlFor='showByquantity'>
-                              <span title='Cantidad'>Cantidad</span>
+                              <span title='Cantidad'>
+                                <FormattedMessage
+                                  id="dashboard.units"
+                                  defaultMessage={`Unidades`}
+                                />
+                              </span>
                             </label>
                           </div>
 
@@ -1058,11 +1172,15 @@ class TabHistorical extends Component {
                               disabled={this.state.waitingData}
                               onChange={() => this.showBy(true)} />
                             <label htmlFor='showByprice'>
-                              <span title='Precio'>Precio</span>
+                              <span title='Precio'>
+                                <FormattedMessage
+                                  id="dashboard.price"
+                                  defaultMessage={`Precio`}
+                                />
+                              </span>
                             </label>
                           </div>
                         </div>
-
                       </div>
                     </div>
                   </div>
@@ -1072,7 +1190,12 @@ class TabHistorical extends Component {
                   {this.state.minPeriod &&
                     <div className='level-item'>
                     <div className='field'>
-                      <label className='label'>Mes inicial</label>
+                      <label className='label'>
+                        <FormattedMessage
+                          id="dashboard.initialMonth"
+                          defaultMessage={`Mes inicial`}
+                        />
+                      </label>
                       <div className='field is-grouped control'>
                         <div className={this.state.waitingData ? 'dropdown is-disabled' : 'dropdown is-hoverable'}>
                         <div className='dropdown-trigger'>
@@ -1099,7 +1222,7 @@ class TabHistorical extends Component {
                         </div>
                         </div>
                       </div>
-                      </div>
+                    </div>
                     </div>
                   }
 
@@ -1111,34 +1234,39 @@ class TabHistorical extends Component {
 
                   {this.state.maxPeriod &&
                     <div className='level-item'>
-                     <div className='field'>
-                        <label className='label'>Mes final</label>
+                      <div className='field'>
+                        <label className='label'>
+                        <FormattedMessage
+                          id="dashboard.lastMonth"
+                          defaultMessage={`Mes final`}
+                        />
+                        </label>
                         <div className='field is-grouped control'>
-                        <div className={this.state.waitingData ? 'dropdown is-disabled' : 'dropdown is-hoverable'}>
-                        <div className='dropdown-trigger'>
-                          <button className='button is-static is-capitalized' aria-haspopup='true' aria-controls='dropdown-menu4'>
-                            <span>{this.state.maxPeriod.name + ' ' + this.state.maxPeriod.year}</span>
-                            <span className='icon is-small'>
-                              <i className='fa fa-angle-down' aria-hidden='true'></i>
-                            </span>
-                          </button>
-                        </div>
-                        <div className='dropdown-menu' id='dropdown-menu4' role='menu'>
-                          <div className='dropdown-content'>
-                            {this.state.periods &&
-                                this.state.periods.slice(this.state.periods.indexOf(this.state.minPeriod), this.state.periods.length)
-                            .map((item, key) => {
-                              return (
-                                <a key={key} className={this.state.maxPeriod === item ? 'dropdown-item is-capitalized is-active' : 'dropdown-item is-capitalized'}
-                                  onClick={() => this.setMaxPeriod(item)}>
-                                  {item.name + ' ' + item.year}
-                                </a>
-                              )
-                            })}
+                          <div className={this.state.waitingData ? 'dropdown is-disabled' : 'dropdown is-hoverable'}>
+                            <div className='dropdown-trigger'>
+                              <button className='button is-static is-capitalized' aria-haspopup='true' aria-controls='dropdown-menu4'>
+                                <span>{this.state.maxPeriod.name + ' ' + this.state.maxPeriod.year}</span>
+                                <span className='icon is-small'>
+                                  <i className='fa fa-angle-down' aria-hidden='true'></i>
+                                </span>
+                              </button>
+                            </div>
+                            <div className='dropdown-menu' id='dropdown-menu4' role='menu'>
+                              <div className='dropdown-content'>
+                                {this.state.periods &&
+                                    this.state.periods.slice(this.state.periods.indexOf(this.state.minPeriod), this.state.periods.length)
+                                .map((item, key) => {
+                                  return (
+                                    <a key={key} className={this.state.maxPeriod === item ? 'dropdown-item is-capitalized is-active' : 'dropdown-item is-capitalized'}
+                                      onClick={() => this.setMaxPeriod(item)}>
+                                      {item.name + ' ' + item.year}
+                                    </a>
+                                  )
+                                })}
+                              </div>
+                            </div>
                           </div>
                         </div>
-                        </div>
-                      </div>
                       </div>
                     </div>
                   }
@@ -1162,7 +1290,12 @@ class TabHistorical extends Component {
                   </div>
                   : <section className='section'>
                     <center>
-                      <h1 className='has-text-info'>No hay productos que mostrar, intente con otro filtro</h1>
+                      <h1 className='has-text-info'>
+                        <FormattedMessage
+                          id="dashboard.productEmptyMsg"
+                          defaultMessage={`No hay productos que mostrar, intente con otro filtro`}
+                        />
+                      </h1>
                     </center>
                   </section>
                 : <section className='section'>
@@ -1176,4 +1309,4 @@ class TabHistorical extends Component {
     )
   }
 }
-export default TabHistorical
+export default injectIntl(TabHistorical)

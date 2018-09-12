@@ -3,7 +3,7 @@ const lov = require('lov')
 const crypto = require('crypto')
 const ObjectId = require('mongodb').ObjectID
 
-const {User, Role, Group, Project} = require('models')
+const { User, Role, Group, Project, Language } = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -41,6 +41,8 @@ module.exports = new Route({
       userData.role = currentRole._id
     }
 
+    userData.role = await Role.findOne({ uuid: userData.role })
+
     if (!userData.role) {
       let defaultRole = await Role.findOne({isDefault: true})
       if (!defaultRole) {
@@ -60,8 +62,8 @@ module.exports = new Route({
     }
 
     let orgObj = {
-      organization: ctx.state.organization,
-      role: userData.role
+      organization: ctx.state.organization._id,
+      role: userData.role._id
     }
 
     if (userData.project) {
@@ -70,25 +72,32 @@ module.exports = new Route({
       orgObj.defaultProject = project
     }
 
+    if (!userData.language) {
+      const language = await Language.findOne({ code: 'es-MX' })
+      userData.language = language
+    }
+
     userData.organizations = [orgObj]
 
     var group = userData.group
     userData.group = undefined
-    const user = await User.register(userData)
 
-    var currentRole
-    var currentOrganization
+    let user = await User.findOne({email: userData.email})
 
-    if (ctx.state.organization) {
-      currentOrganization = ctx.state.user.organizations.find(orgRel => {
-        return ctx.state.organization._id.equals(orgRel.organization._id)
+    if (user) {
+      let actualOrg = user.organizations.find(item => {
+        return String(item.organization) === String(ctx.state.organization._id)
       })
 
-      if (currentOrganization) {
-        const role = await Role.findOne({_id: currentOrganization.role})
-
-        currentRole = role
+      if (!actualOrg) {
+        user.organizations.push(orgObj)
+        user.markModified('organizations')
+        await user.save()
+      } else {
+        ctx.throw(400, 'Usuario existente!')
       }
+    } else {
+      user = await User.register(userData)
     }
 
     if (group) {
@@ -128,11 +137,17 @@ module.exports = new Route({
           }
         }
       ]
+
       var currentUserGroups = await User.aggregate(statement)
+
       for (let currentGroup of currentUserGroups) {
         if (!group || (group && String(group._id) !== String(currentGroup.infoGroup._id))) {
           user.groups.push(currentGroup.infoGroup)
-          await Group.findOneAndUpdate({'_id': currentGroup.infoGroup._id}, {$push: {'users': user._id}})
+
+          await Group.findOneAndUpdate(
+            {'_id': currentGroup.infoGroup._id},
+            {$push: {'users': user._id}}
+          )
         }
       }
     }

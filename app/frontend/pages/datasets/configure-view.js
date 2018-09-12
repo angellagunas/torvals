@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import Loader from '~base/components/spinner'
 import s from 'underscore.string'
+import { defaultCatalogs } from '~base/tools'
 
 class ConfigureViewDataset extends Component {
   constructor (props) {
@@ -15,6 +17,20 @@ class ConfigureViewDataset extends Component {
       },
       catalogColumns: []
     }
+  }
+
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
+  findInCatalogs (slug) {
+    let find = false
+    defaultCatalogs.map(item => {
+      if (item.value === slug) {
+        find = true
+      }
+    })
+    return find
   }
 
   componentWillMount () {
@@ -40,13 +56,17 @@ class ConfigureViewDataset extends Component {
     let rules = this.state.rules
 
     for (let col of rules.catalogs) {
+      let title = col.name
+      if (this.findInCatalogs(col.slug)) {
+        title = this.formatTitle('catalogs.' + col.slug)
+      }
       cols.push({
         id: {
-          label: `${col.name} Id *`,
+          label: `${title} Id *`,
           name: `is_${col.slug}_id`
         },
         name: {
-          label: `${col.name} Nombre`,
+          label: title + ' ' + this.formatTitle('datasets.name'),
           name: `is_${col.slug}_name`
         }
       })
@@ -104,40 +124,75 @@ class ConfigureViewDataset extends Component {
         }
         <div className='columns has-borders'>
           <div className='column'>
-            <p className='title is-7'>Fecha mínima</p>
+            <p className='title is-7'>
+              <FormattedMessage
+                id='datasets.minimumDate'
+                defaultMessage={`Fecha mínima`}
+              />
+            </p>
             <p className='subtitle is-7'>{this.props.fmin}</p>
           </div>
           <div className='column'>
-            <p className='title is-7'>Fecha máxima</p>
+            <p className='title is-7'>
+              <FormattedMessage
+                id='datasets.maximumDate'
+                defaultMessage={`Fecha máxima`}
+              />
+            </p>
             <p className='subtitle is-7'>{this.props.fmax}</p>
           </div>
         </div>
 
         <div className='columns has-borders'>
           <div className='column'>
-            <p className='title is-7'>Fecha*</p>
+            <p className='title is-7'>
+              <FormattedMessage
+                id='datasets.date'
+                defaultMessage={`Fecha`}
+              /> *
+            </p>
             <p className='subtitle is-7'>{this.getColumnForValue('isDate')}</p>
           </div>
           <div className='column'>
-            <p className='title is-7'>Análisis*</p>
+            <p className='title is-7'>
+              <FormattedMessage
+                id='datasets.analysis'
+                defaultMessage={`Análisis`}
+              /> *
+            </p>
             <p className='subtitle is-7'>{this.getColumnForValue('isAnalysis')}</p>
           </div>
         </div>
 
         <div className='columns has-borders'>
           <div className='column'>
-            <p className='title is-7'>Ajuste</p>
+            <p className='title is-7'>
+              <FormattedMessage
+                id='datasets.adjustment'
+                defaultMessage={`Ajuste`}
+              />
+            </p>
             <p className='subtitle is-7'>{this.getColumnForValue('isAdjustment')}</p>
           </div>
           <div className='column'>
-            <p className='title is-7'>Predicción</p>
+            <p className='title is-7'>
+              <FormattedMessage
+                id='datasets.prediction'
+                defaultMessage={`Predicción`}
+              />
+            </p>
             <p className='subtitle is-7'>{this.getColumnForValue('isPrediction')}</p>
           </div>
         </div>
 
         <div className='columns has-borders'>
           <div className='column'>
-            <p className='title is-7'>Venta</p>
+            <p className='title is-7'>
+              <FormattedMessage
+                id='datasets.sale'
+                defaultMessage={`Venta`}
+              />
+            </p>
             <p className='subtitle is-7'>{this.getColumnForValue('isSales')}</p>
           </div>
           <div className='column' />
@@ -165,7 +220,12 @@ class ConfigureViewDataset extends Component {
             <table className='table is-fullwidth'>
               <thead>
                 <tr>
-                  <th>Filtro de Operación</th>
+                  <th>
+                    <FormattedMessage
+                      id='datasets.operationFilter'
+                      defaultMessage={`Filtro de Operación`}
+                    />
+                  </th>
                 </tr>
               </thead>
               <tbody >
@@ -177,7 +237,12 @@ class ConfigureViewDataset extends Component {
             <table className='table is-fullwidth'>
               <thead>
                 <tr>
-                  <th>Filtro de Análisis</th>
+                  <th>
+                    <FormattedMessage
+                      id='datasets.analysisFilter'
+                      defaultMessage={`Filtro de Análisis`}
+                    />
+                  </th>
                 </tr>
               </thead>
               <tbody >
@@ -187,19 +252,44 @@ class ConfigureViewDataset extends Component {
           </div>
         </div>
 
-        <label className='label'>Agrupaciones</label>
+        <label className='label'>
+          <FormattedMessage
+            id='datasets.groupings'
+            defaultMessage={`Agrupaciones`}
+          />
+        </label>
         <table className='table is-fullwidth'>
           <thead>
             <tr>
-              <th>Columna</th>
-              <th>Valor 1</th>
-              <th colSpan='2'>Valor 2</th>
+              <th>
+                <FormattedMessage
+                  id='datasets.column'
+                  defaultMessage={`Columna`}
+                />
+              </th>
+              <th>
+                <FormattedMessage
+                  id='datasets.value1'
+                  defaultMessage={`Valor 1`}
+                />
+              </th>
+              <th colSpan='2'>
+                <FormattedMessage
+                  id='datasets.value2'
+                  defaultMessage={`Valor 2`}
+                />
+              </th>
             </tr>
           </thead>
           <tbody>
             {this.state.formData.groupings.length === 0 ? (
               <tr>
-                <td colSpan='4'>No hay agrupaciones que mostrar</td>
+                <td colSpan='4'>
+                  <FormattedMessage
+                    id='datasets.emptyGroups'
+                    defaultMessage={`No hay agrupaciones que mostrar`}
+                  />
+                </td>
               </tr>
             ) : (
               this.state.formData.groupings.map((item, key) => {
@@ -219,4 +309,4 @@ class ConfigureViewDataset extends Component {
   }
 }
 
-export default ConfigureViewDataset
+export default injectIntl(ConfigureViewDataset)

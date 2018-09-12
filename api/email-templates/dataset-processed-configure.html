@@ -1,0 +1,16 @@
+{% extends "./layout.html" %} 
+{% block content %}
+    <tr>
+      <td colSpan="2" class="body">
+        <p class="main">Dataset Procesado debes configurarlo</p>
+        <p>
+          <img src="{{ org_logo }}" width="100" height="auto" alt="Orax">
+        </p>
+        <p class="label">El archivo 
+          <strong>{{ dataset }} </strong> ha sido procesado, para continuar el proceso y generar un dataset para tu proyecto necesitas configurarlo.</p>
+        <p>
+          <a class="btn" href="{{ url }}" target="_blank">Configurar Dataset</a>
+        </p>
+      </td>
+    </tr>
+{% endblock %}

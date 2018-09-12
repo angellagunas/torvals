@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import moment from 'moment'
 import _ from 'lodash'
 import { toast } from 'react-toastify'
@@ -11,6 +12,7 @@ import { loggedIn } from '~base/middlewares/'
 import { BaseTable } from '~base/components/base-table'
 import Link from '~base/router/link'
 import classNames from 'classnames'
+import { defaultCatalogs } from '~base/tools'
 
 class StatusRepórt extends Component {
   constructor (props) {
@@ -49,6 +51,10 @@ class StatusRepórt extends Component {
 
     this.currentRole = tree.get('user').currentRole.slug
     this.rules = tree.get('rule')
+  }
+
+  formatTitle(id) {
+    return this.props.intl.formatMessage({ id: id })
   }
 
   componentWillMount () {
@@ -106,9 +112,12 @@ class StatusRepórt extends Component {
     try {
       let res = await api.get(url)
 
-      let cycles = _.orderBy(res.cycles, 'cycle', 'asc')
+      let cycles = _.orderBy(res.cycles, 'dateStart', 'asc')
       .map(item => {
-        return {...item, name: moment.utc(item.dateStart).format('MMMM') + ' - ' + item.cycle}
+        return {
+          ...item, 
+          name: moment.utc(item.dateStart).format('MMMM D') + ' - ' + moment.utc(item.dateEnd).format('MMMM D')
+        }
       })      
 
       cycles = _.orderBy(cycles, 'dateStart', 'asc')
@@ -120,7 +129,6 @@ class StatusRepórt extends Component {
         this.getTimeRemaining()
       }, 60000)
 
-      
       this.setState({
         filters: {
           ...this.state.filters,
@@ -142,14 +150,14 @@ class StatusRepórt extends Component {
         },
         error: true,
         filtersLoading: false,
-        errorMessage: '¡No se pudieron cargar los filtros!'
+        errorMessage: this.formatTitle('adjustments.noFilters')
       })
 
       this.notify(
-          'Ha habido un error al obtener los filtros! ' + e.message,
-          5000,
-          toast.TYPE.ERROR
-        )
+        this.formatTitle('adjustments.noFilters') + ' ' + e.message,
+        5000,
+        toast.TYPE.ERROR
+      )
     }
   }
 
@@ -209,7 +217,7 @@ class StatusRepórt extends Component {
 
     const url = '/app/reports/user'
     try {
-      
+
       let res = await api.post(
         url,
         {
@@ -229,7 +237,7 @@ class StatusRepórt extends Component {
         isLoading: '',
         selectedCheckboxes: new Set()
       })
-    } 
+    }
   }
 
   async getDataRows() {
@@ -276,9 +284,9 @@ class StatusRepórt extends Component {
       }
       else if (this.state.filterInactive) {
         users = this.state.users.inactiveUsers
-      } 
-      
-      
+      }
+
+
       let data = await api.post(
         url,
         {
@@ -303,13 +311,13 @@ class StatusRepórt extends Component {
         isLoading: '',
         selectedCheckboxes: new Set()
       })
-    } 
+    }
   }
 
   getColumns() {
     let cols = [
       {
-        'title': 'Usuario',
+        'title': this.formatTitle('tables.colUser'),
         'property': 'user.name',
         'default': 'N/A',
         'sortable': true,
@@ -318,31 +326,31 @@ class StatusRepórt extends Component {
         }
       },
       {
-        'title': 'Ajustes por periodo',
+        'title': this.formatTitle('tables.colAdjustmentsByPeriod'),
         'property': 'total',
         'default': '0',
         'sortable': true
       },
       {
-        'title': 'Aprobados',
+        'title': this.formatTitle('approve.approved'),
         'property': 'approved',
         'default': '0',
         'sortable': true
       },
       {
-        'title': 'Rechazados',
+        'title': this.formatTitle('approve.rejected'),
         'property': 'rejected',
         'default': '0',
         'sortable': true
       },
       {
-        'title': 'Pendientes',
+        'title': this.formatTitle('approve.pending'),
         'property': 'created',
         'default': '0',
         'sortable': true
       },
       {
-        'title': 'Acciones',
+        'title': this.formatTitle('tables.colActions'),
         formatter: (row) => {
             return (
               <a className='button is-primary' onClick={() => this.userDetail(row.user[0])}>
@@ -409,7 +417,7 @@ class StatusRepórt extends Component {
 
       return false
     })
-    
+
     await this.setState({
       filteredData: items
     })
@@ -431,7 +439,10 @@ class StatusRepórt extends Component {
     if (this.state.noSalesData === '') {
       return (
         <div className='is-fullwidth has-text-centered subtitle has-text-primary'>
-          Cargando, un momento por favor
+          <FormattedMessage
+            id="report.loadingMsg"
+            defaultMessage={`Cargando, un momento por favor`}
+          />
           <Loader />
         </div>
       )
@@ -456,7 +467,21 @@ class StatusRepórt extends Component {
     let find = ''
     this.rules.catalogs.map(item => {
       if (item.slug === name) {
-        find = item.name
+        find = item
+      }
+    })
+    let title = find.name
+    if (this.findInCatalogs(find.slug)) {
+      title = this.formatTitle('catalogs.' + find.slug)
+    }
+    return title
+  }
+
+  findInCatalogs(slug) {
+    let find = false
+    defaultCatalogs.map(item => {
+      if (item.value === slug) {
+        find = true
       }
     })
     return find
@@ -483,12 +508,12 @@ class StatusRepórt extends Component {
               label={this.findName(key)}
               name={key}
               value={this.state.formData[key]}
-              placeholder='Todas'
+              placeholder={this.formatTitle('anomalies.all')}
               optionValue='uuid'
               optionName='name'
               options={element}
               onChange={(name, value) => { this.filterChangeHandler(name, value) }}
-              disabled={this.state.filtersLoading}              
+              disabled={this.state.filtersLoading}
             />
           </div>
         )
@@ -510,7 +535,7 @@ class StatusRepórt extends Component {
 
     hours = hours - days * 24;
 
-    let minutes = parseInt(diff.asMinutes()); 
+    let minutes = parseInt(diff.asMinutes());
 
     minutes = minutes - (days * 24 * 60 + hours * 60);
 
@@ -558,14 +583,19 @@ class StatusRepórt extends Component {
     return (
       <div className='status-report'>
         <div className='section-header'>
-          <h2>Estado de proyecto </h2>
+          <h2>
+            <FormattedMessage
+              id="report.statusTitle"
+              defaultMessage={`Estado de proyecto`}
+            />
+          </h2>
         </div>
         <div className='section level selects'>
           <div className='level-left'>
             {this.state.projectSelected && this.state.projects &&
             <div className='level-item'>
               <Select
-                label='Proyecto'
+                label={this.formatTitle('projectConfig.project')}
                 name='project'
                 value={this.state.projectSelected.uuid}
                 optionValue='uuid'
@@ -578,7 +608,7 @@ class StatusRepórt extends Component {
             {this.state.filters.cycles.length > 0 &&
             <div className='level-item'>
               <Select
-                label='Ciclo'
+                label={this.formatTitle('adjustments.cycle')}
                 name='cycle'
                 value={this.state.formData.cycle}
                 optionValue='cycle'
@@ -593,20 +623,20 @@ class StatusRepórt extends Component {
             {this.state.filters.users.length > 0 &&
             <div className='level-item'>
               <Select
-                label='Usuarios'
+                label={this.formatTitle('import.users')}
                 name='user'
                 value={this.state.formData.user}
                 optionValue='uuid'
                 optionName='name'
-                placeholder='Todos'
+                placeholder={this.formatTitle('anomalies.all')}
                 options={this.state.filters.users}
                 onChange={(name, value) => { this.filterChangeHandler(name, value) }}
-                disabled={this.state.filtersLoading}                
+                disabled={this.state.filtersLoading}
               />
             </div>
             }
 
-            
+
             {this.state.filters &&
               this.makeFilters()
             }
@@ -615,9 +645,9 @@ class StatusRepórt extends Component {
         <div className='section columns is-padingless-top'>
           <div className='column is-3'>
             <div className={
-              classNames('notification is-success filter-widget', 
+              classNames('notification is-success filter-widget',
                 { 'filter-widget__active': this.state.filterReady })
-              } 
+              }
               onClick={() => { this.filterUsers(1) }}>
               <div className='level'>
                 <div className='level-left'>
@@ -628,7 +658,12 @@ class StatusRepórt extends Component {
                   </div>
                   <div className='level-item'>
                     <p><strong>{this.state.users.finishedUsers.length} Usuarios</strong></p>
-                    <p>Ajustes finalizados</p>
+                    <p>
+                      <FormattedMessage
+                        id="report.adjustmentFinished"
+                        defaultMessage={`Ajustes finalizados`}
+                      />
+                    </p>
                   </div>
                 </div>
               </div>
@@ -638,7 +673,7 @@ class StatusRepórt extends Component {
             <div className={
               classNames('notification is-info filter-widget',
                 { 'filter-widget__active': this.state.filterProgress })
-              } 
+              }
               onClick={() => { this.filterUsers(2) }}>
               <div className='level'>
                 <div className='level-left'>
@@ -649,7 +684,12 @@ class StatusRepórt extends Component {
                   </div>
                   <div className='level-item'>
                     <p><strong>{this.state.users.inProgressUsers.length} Usuarios</strong></p>
-                    <p>Ajustes en proceso</p>
+                    <p>
+                      <FormattedMessage
+                        id="report.adjustmentInProcess"
+                        defaultMessage={`Ajustes en proceso`}
+                      />
+                    </p>
                   </div>
                 </div>
               </div>
@@ -659,7 +699,7 @@ class StatusRepórt extends Component {
             <div className={
               classNames('notification is-danger filter-widget',
                 { 'filter-widget__active': this.state.filterInactive })
-              } 
+              }
               onClick={() => { this.filterUsers(3) }}>
               <div className='level'>
                 <div className='level-left'>
@@ -670,7 +710,12 @@ class StatusRepórt extends Component {
                   </div>
                   <div className='level-item'>
                     <p><strong>{this.state.users.inactiveUsers.length} Usuarios</strong></p>
-                    <p>Sin ajustes</p>
+                    <p>
+                      <FormattedMessage
+                        id="report.noAdjustment"
+                        defaultMessage={`Sin ajustes`}
+                      />
+                    </p>
                   </div>
                 </div>
               </div>
@@ -678,15 +723,30 @@ class StatusRepórt extends Component {
           </div>
           <div className='column is-narrow'>
             <div className='time has-text-centered'>
-              <p className='desc'>Tiempo restante para ajustar</p>
+              <p className='desc'>
+                <FormattedMessage
+                  id="report.adjustmentTimeLeft"
+                  defaultMessage={`Tiempo restante para ajustar`}
+                />
+              </p>
               <div className='level'>
                 <div className='level-item'>
-                  <p className='num'>{this.state.timeRemaining.days}</p> 
-                  <p className='desc'>Días</p>
+                  <p className='num'>{this.state.timeRemaining.days}</p>
+                  <p className='desc'>
+                    <FormattedMessage
+                      id="report.days"
+                      defaultMessage={`Días`}
+                    />
+                  </p>
                 </div>
                 <div className='level-item'>
                   <p className='num'>{this.state.timeRemaining.hours}</p>
-                  <p className='desc'>Horas</p>
+                  <p className='desc'>
+                    <FormattedMessage
+                      id="report.hours"
+                      defaultMessage={`Horas`}
+                    />
+                  </p>
                 </div>
                 <div className='level-item'>
                   <p className='num'>:</p>
@@ -694,7 +754,12 @@ class StatusRepórt extends Component {
                 </div>
                 <div className='level-item'>
                   <p className='num'>{this.state.timeRemaining.minutes}</p>
-                  <p className='desc'>Min.</p>
+                  <p className='desc'>
+                    <FormattedMessage
+                      id="report.minutes"
+                      defaultMessage={`Min.`}
+                    />
+                  </p>
                 </div>
               </div>
             </div>
@@ -706,13 +771,20 @@ class StatusRepórt extends Component {
             <div className='level-item'>
 
               <div className='field'>
-                <label className='label'>Búsqueda general</label>
+                <label className='label'>
+                  <FormattedMessage
+                      id="dashboard.searchText"
+                    defaultMessage={`Búsqueda general`}
+                  />
+                </label>
                 <div className='control has-icons-right'>
                   <input
                     className='input'
                     type='text'
                     value={this.state.searchTerm}
-                    onChange={this.searchOnChange} placeholder='Buscar' />
+                    onChange={this.searchOnChange}
+                    placeholder={this.formatTitle('dashboard.searchText')}
+                  />
 
                   <span className='icon is-small is-right'>
                     <i className='fa fa-search fa-xs' />
@@ -740,7 +812,12 @@ class StatusRepórt extends Component {
             </div>
             : <section className='section'>
               <center>
-                <h1 className='has-text-info'>No hay información que mostrar, intente con otro filtro</h1>
+                <h1 className='has-text-info'>
+                  <FormattedMessage
+                    id="report.noInfo"
+                    defaultMessage={`No hay información que mostrar, intente con otro filtro`}
+                  />
+                </h1>
               </center>
             </section>
           : <section className='section'>
@@ -757,8 +834,8 @@ export default Page({
   path: '/reports/status',
   exact: true,
   validate: loggedIn,
-  component: StatusRepórt,
+  component: injectIntl(StatusRepórt),
   title: 'Status de proyecto',
   icon: 'calendar-check-o',
-  roles: 'consultor-level-3, analyst, orgadmin, admin, consultor-level-2, manager-level-2, manager-level-3'  
+  roles: 'consultor-level-3, analyst, orgadmin, admin, consultor-level-2, manager-level-2, manager-level-3'
 })

@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
 import api from '~base/api'
@@ -54,10 +55,14 @@ class CreateDataSet extends Component {
     this.setState({ isLoading: '' })
   }
 
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
   render () {
     return (
       <BaseModal
-        title='Crear DataSet'
+        title={this.formatTitle('datasets.add')}
         className={this.props.className}
         hideModal={this.hideModal}
       >
@@ -75,12 +80,21 @@ class CreateDataSet extends Component {
               <button
                 className={'button is-info ' + this.state.isLoading}
                 disabled={!!this.state.isLoading}
-                type='submit'>
-                Crear
+                type='submit'
+              >
+                <FormattedMessage
+                  id='datasets.create'
+                  defaultMessage={`Crear`}
+                />
               </button>
             </div>
             <div className='control'>
-              <button className='button is-info is-outlined' onClick={this.hideModal} type='button'>Cancelar</button>
+              <button className='button is-info is-outlined' onClick={this.hideModal} type='button'>
+                <FormattedMessage
+                  id='datasets.btnCancel'
+                  defaultMessage={`Cancelar`}
+                />
+              </button>
             </div>
           </div>
         </CreateDatasetForm>
@@ -99,4 +113,4 @@ const BranchedCreateDataSet = branch((props, context) => {
   }
 }, CreateDataSet)
 
-export default BranchedCreateDataSet
+export default injectIntl(BranchedCreateDataSet)

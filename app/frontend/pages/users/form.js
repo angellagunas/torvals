@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import Loader from '~base/components/spinner'
 import tree from '~core/tree'
 
@@ -17,11 +18,30 @@ class UserForm extends Component {
     super(props)
 
     this.state = {
-      formData: this.props.initialState,
+      formData: this.getData(),
       apiCallMessage: 'is-hidden',
       apiCallErrorMessage: 'is-hidden',
       projects: []
     }
+  }
+
+  getData () {
+    let data = this.props.initialState
+
+    if (data.roleDetail.slug === 'manager-level-1') {
+      let org = tree.get('user').currentOrganization
+      data.organizations.map(item => {
+        if (item.organization.uuid === org.uuid) {
+          data.project = item.defaultProject.uuid
+        }
+      })
+    }
+
+    return data
+  }
+
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
   }
 
   errorHandler (e) {}
@@ -38,14 +58,47 @@ class UserForm extends Component {
     this.setState({
       apiCallMessage: 'is-hidden',
       apiCallErrorMessage: 'is-hidden',
-      formData: this.props.initialState
+      formData: this.getData()
     })
+  }
+
+  async updateStep () {
+    try {
+      let user = tree.get('user')
+      if (user.currentOrganization.wizardSteps.users) {
+        return
+      }
+      let url = '/app/organizations/' + user.currentOrganization.uuid + '/step'
+
+      let res = await api.post(url, {
+        step: {
+          name: 'users',
+          value: true
+        }
+      })
+
+      if (res) {
+        let me = await api.get('/user/me')
+        tree.set('user', me.user)
+        tree.set('organization', me.user.currentOrganization)
+        tree.set('rule', me.rule)
+        tree.set('role', me.user.currentRole)
+        tree.set('loggedIn', me.loggedIn)
+        tree.commit()
+        return true
+      } else {
+        return false
+      }
+    } catch (e) {
+      console.log(e)
+      return false
+    }
   }
 
   async submitHandler ({formData}) {
     if (!formData.role) {
       return this.setState({
-        error: '¡Se debe seleccionar un rol!',
+        error: this.formatTitle('user.formRoleErrorMsg'),
         apiCallErrorMessage: 'message is-danger'
       })
     }
@@ -63,6 +116,7 @@ class UserForm extends Component {
       if (this.props.finishUp) {
         this.props.finishUp(data.data)
       }
+      await this.updateStep()
       return
     } catch (e) {
       if (this.props.errorHandler) this.props.errorHandler(e)
@@ -84,11 +138,12 @@ class UserForm extends Component {
         'email'
       ],
       properties: {
-        name: {type: 'string', title: 'Nombre'},
-        email: {type: 'string', title: 'Email'},
+        // TODO: translate
+        name: {type: 'string', title: this.formatTitle('user.formName')},
+        email: {type: 'string', title: this.formatTitle('user.formEmail')},
         role: {
           type: 'string',
-          title: 'Rol',
+          title: this.formatTitle('user.formRole'),
           enum: [],
           enumNames: []
         }
@@ -105,7 +160,12 @@ class UserForm extends Component {
       let role = this.state.formData.roleDetail
 
       if (role && role.slug === 'manager-level-1') {
-        schema.properties['project'] = { type: 'string', title: 'Proyecto', enum: [], enumNames: [] }
+        schema.properties['project'] = {
+          type: 'string',
+          title: this.formatTitle('user.formProject'),
+          enum: [],
+          enumNames: []
+        }
         uiSchema['project'] = {'ui:widget': SelectWidget}
         schema.required.push('project')
       } else {
@@ -165,6 +225,11 @@ class UserForm extends Component {
       }
     }
 
+    const currentInfo = this.state.formData.organizations.find((info) => info.organization.uuid === currentUser.currentOrganization.uuid)
+    if (currentInfo.defaultProject) {
+      this.state.formData.project = currentInfo.defaultProject.uuid
+    }
+
     return (
       <div>
         <BaseForm
@@ -177,7 +242,10 @@ class UserForm extends Component {
         >
           <div className={this.state.apiCallMessage}>
             <div className='message-body is-size-7 has-text-centered'>
-              Los datos se han guardado correctamente
+              <FormattedMessage
+                id='user.saveMsg'
+                defaultMessage={`Los datos se han guardado correctamente`}
+              />
             </div>
           </div>
 
@@ -193,4 +261,4 @@ class UserForm extends Component {
   }
 }
 
-export default UserForm
+export default injectIntl(UserForm)
