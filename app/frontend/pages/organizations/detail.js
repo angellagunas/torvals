@@ -125,26 +125,27 @@ class OrganizationDetail extends Component {
             />
           </button>
         }
-        <h1>
-          {days} <FormattedMessage
-            id='organizations.daysLeftDays'
-            defaultMessage={`días restantes`}
-          />
-          <span className={color}>{msg}</span></h1>
-        <p>
-          <FormattedMessage
-            id='organizations.connector2'
-            defaultMessage={`Del`}
-          /> <strong>
-            {moment.utc(start).format('DD/MM/YYYY')}
-          </strong> <FormattedMessage
-            id='organizations.connector3'
-            defaultMessage={`al`}
-          /> <strong>
-            {moment.utc(end).format('DD/MM/YYYY')}
-          </strong>
-        </p>
-
+        {/*
+                <h1>
+                  {days} <FormattedMessage
+                    id='organizations.daysLeftDays'
+                    defaultMessage={`días restantes`}
+                  />
+                  <span className={color}>{msg}</span></h1>
+                <p>
+                  <FormattedMessage
+                    id='organizations.connector2'
+                    defaultMessage={`Del`}
+                  /> <strong>
+                    {moment.utc(start).format('DD/MM/YYYY')}
+                  </strong> <FormattedMessage
+                    id='organizations.connector3'
+                    defaultMessage={`al`}
+                  /> <strong>
+                    {moment.utc(end).format('DD/MM/YYYY')}
+                  </strong>
+                </p>
+        */ }
       </div>
     )
   }
@@ -232,7 +233,7 @@ class OrganizationDetail extends Component {
           </div>
         )
       },
-      {
+      { /*
         name: '1',
         title: this.formatTitle('organizations.tabFacturacionTitle'),
         hide: false,
@@ -243,7 +244,7 @@ class OrganizationDetail extends Component {
           </div>
         )
       },
-      {
+      { */
         name: '2',
         title: this.formatTitle('organizations.tabUsersTitle'),
         hide: false,
@@ -254,7 +255,7 @@ class OrganizationDetail extends Component {
           </div>
         )
       },
-      {
+      { /*
         name: '3',
         title: this.formatTitle('organizations.tabLabelsTitle'),
         hide: false,
@@ -275,7 +276,7 @@ class OrganizationDetail extends Component {
             <Alerts org={organization} />
           </div>
         )
-      }
+      */}
     ]
     return (
 

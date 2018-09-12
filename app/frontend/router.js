@@ -12,7 +12,7 @@ import env from '~base/env-variables'
 import NotFound from '~base/components/not-found'
 import AdminLayout from '~components/admin-layout'
 
-import LandPage from './pages//landing/land-page'
+import LogIn from './pages/log-in'
 import Dashboard from './pages/dashboard'
 import Profile from './pages/profile'
 import OrganizationDetail from './pages/organizations/detail'
@@ -75,7 +75,7 @@ class AppRouter extends Component {
         <AdminLayout>
           <div>
             <Switch>
-              {LandPage.asRouterItem()}
+              {LogIn.asRouterItem()}
               {ResetPassword.asRouterItem()}
               {EmailResetLanding.asRouterItem()}
               {EmailInviteLanding.asRouterItem()}

@@ -220,9 +220,6 @@ const task = new Task(
 
       while (tentativeCycleEndDate.isSameOrAfter(periodStartDate)) {
         if (periodEndDate.isAfter(tentativeCycleEndDate) && !takeStart) break
-        console.info('is in while')
-        console.info(utc(tentativeCycleEndDate))
-        console.info(utc(periodEndDate))
 
         let periodObj = {
           organization: organization._id,
@@ -234,9 +231,6 @@ const task = new Task(
 
         if (periodEndDate.isSameOrAfter(seasonEndDate)) {
           if(utc(periodEndDate).isAfter(utc(seasonEndDate))){
-          console.info('1111111111111111')
-            console.info(utc(periodEndDate))
-            console.info(utc(seasonEndDate))
             previousPeriodEndDate = subtract(utc(periodEndDate), periodDurationMoment).endOf('day')
             tentativeCycleEndDate = utc(previousPeriodEndDate)
             seasonEndDate = moment(previousPeriodEndDate).add(seasonDuration)
@@ -268,7 +262,6 @@ const task = new Task(
         periodEndDate = add(utc(previousPeriodEndDate), periodDurationMoment)
         periodNumber++
       }
-      console.info(utc(previousPeriodEndDate))
 
       await cycleInstance.set({dateEnd: utc(previousPeriodEndDate)}).save()
       tentativeCycleEndDate = add(utc(tentativeCycleEndDate), cycleDurationMoment)
