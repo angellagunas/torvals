@@ -213,14 +213,14 @@ class LogInButton extends Component {
       spinner = <Loader />
     }
 
-    var error
+    let error
     if (this.state.error) {
       error = <div>
         Error: {this.state.error}
       </div>
     }
 
-    var resetLink
+    let resetLink
     if (env.EMAIL_SEND) {
       resetLink = (
         <p>
@@ -259,7 +259,6 @@ class LogInButton extends Component {
     return (
       <div>
         <div className={'modal' + this.props.modalClass}>
-          <div className='modal-background' onClick={() => { this.props.hideModal() }} />
           <div className='modal-content land-login'>
             <section>
               <div className='card-image'>
@@ -292,19 +291,17 @@ class LogInButton extends Component {
                             type='submit'
                             disabled={!!error}
                           >
-                            {this.formatTitle('login.loginBtn')}
+                            { this.formatTitle('login.loginBtn') }
                           </button>
                         </div>
                       </BaseForm>
                     </div>
                   </div>
-                  {resetLink}
+                  { resetLink }
                 </div>
               </div>
             </section>
           </div>
-          <button className='modal-close login is-large has-text-dark' aria-label='close' onClick={() => { this.props.hideModal() }} />
-
         </div>
       </div>
     )
