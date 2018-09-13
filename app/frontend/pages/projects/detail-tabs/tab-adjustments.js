@@ -126,6 +126,8 @@ class TabAdjustment extends Component {
             }
           })
         }
+        cycles = cycles.filter(cycle => cycle.adjustmentRange !== 0)
+
         let formData = this.state.formData
         formData.cycle = cycles[0].cycle
         tree.set('selectedCycle', cycles[0])
@@ -155,7 +157,7 @@ class TabAdjustment extends Component {
         console.log(e)
         this.setState({
           error: true,
-          filtersLoading: false, 
+          filtersLoading: false,
           errorMessage: '¡'+ this.formatTitle('adjustments.noFilters') +'!'
         })
 
@@ -1108,11 +1110,11 @@ class TabAdjustment extends Component {
     for (const key in this.state.filters) {
       if (this.state.filters.hasOwnProperty(key)) {
         const element = this.state.filters[key];
-        
+
         if (unwantedList.includes(key)) {
           continue
         }
-        
+
         numfilters++
 
         if(element.length === 1){
