@@ -11,6 +11,7 @@ const cloneUpdateRulesMainDataset = require('./clone-update-rules-main-dataset')
 const reconfigureDataset = require('./reconfigure-dataset')
 const getAnomalies = require('./get-anomalies')
 const generateDownload = require('./generate-downloads')
+const migrateRowsToHistorical = require('./migrate-rows-to-historical')
 // #Requires
 
 module.exports = {
@@ -26,5 +27,6 @@ module.exports = {
   'clone-update-rules-main-dataset': cloneUpdateRulesMainDataset,
   'reconfigure-dataset': reconfigureDataset,
   'getAnomalies': getAnomalies,
+  'migrateRowsToHistorical': migrateRowsToHistorical,
   'generateDownload': generateDownload// #Exports
 }
