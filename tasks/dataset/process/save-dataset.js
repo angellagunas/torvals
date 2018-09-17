@@ -57,7 +57,7 @@ const task = new Task(
       const pages = Math.ceil(lineCount / batchSize)
 
       var headers = String(execSync(`sed -n '1p' ${filepath}`))
-      headers = headers.split('\n')[0].split(',')
+      headers = headers.split(/\r\n|\r|\n/g)[0].split(',')
 
       var predictionColumn = dataset.getPredictionColumn() || {name: ''}
       var adjustmentColumn = dataset.getAdjustmentColumn() || {name: ''}

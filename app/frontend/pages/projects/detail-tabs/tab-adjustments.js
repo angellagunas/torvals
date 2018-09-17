@@ -1565,7 +1565,7 @@ class TabAdjustment extends Component {
                           id='showByquantityAd'
                           type="radio"
                           name='showByAd'
-                          checked={!this.state.prices}
+                          checked={true}
                           disabled={this.state.waitingData}
                           onChange={() => this.showBy(false)} />
                         <label htmlFor='showByquantityAd'>
@@ -1584,8 +1584,8 @@ class TabAdjustment extends Component {
                           id='showBypriceAd'
                           type="radio"
                           name='showByAd'
-                          checked={this.state.prices}
-                          disabled={this.state.waitingData}
+                          checked={false}
+                          disabled="disabled"
                           onChange={() => this.showBy(true)} />
                         <label htmlFor='showBypriceAd'>
                           <span title='Precio'>
