@@ -12,6 +12,7 @@ const reconfigureDataset = require('./reconfigure-dataset')
 const getAnomalies = require('./get-anomalies')
 const generateDownload = require('./generate-downloads')
 const migrateRowsToHistorical = require('./migrate-rows-to-historical')
+const removeDuplicatedCatalogsInAnomalies = require('./remove-duplicated-catalogs-anomalies')
 // #Requires
 
 module.exports = {
@@ -28,5 +29,6 @@ module.exports = {
   'reconfigure-dataset': reconfigureDataset,
   'getAnomalies': getAnomalies,
   'migrateRowsToHistorical': migrateRowsToHistorical,
-  'generateDownload': generateDownload// #Exports
+  'generateDownload': generateDownload,
+  'removeDuplicatedCatalogsInAnomalies': removeDuplicatedCatalogsInAnomalies
 }
