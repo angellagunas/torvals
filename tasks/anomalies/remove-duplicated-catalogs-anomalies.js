@@ -30,12 +30,11 @@ const task = new Task(
             while(await anomalies.hasNext()) {
               const anomaly = await anomalies.next()
 	      try {
-		const catalogItems = Array.from(new Set(anomaly.catalogItems))
+		const catalogItems = Array.from(new Set(anomaly.catalogItems.map( (item) => String(item) )))
 
 		if(catalogItems.length != anomaly.catalogItems.length){
 		  log.call('Updating catalogItems of ' + anomaly.uuid)
-                  anomaly.catalogItems = catalogItems
-                  await anomaly.save()
+                  await Anomaly.update({_id: anomaly._id}, {'$set': {'catalogItems': catalogItems}})
 		}
 	      } catch(e){
 		log.call(e)
