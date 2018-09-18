@@ -9,7 +9,7 @@ import createBrowserHistory from 'history/createBrowserHistory'
 
 import env from '~base/env-variables'
 import NotFound from '~base/components/not-found'
-import { withTracker } from '~base/components/with-tracker'
+import { trackPage } from '~base/components/with-tracker'
 import AdminLayout from '~components/admin-layout'
 
 import LogIn from './pages/log-in'
@@ -53,6 +53,11 @@ import HowItWorks from './pages/landing/how-it-works'
 import Privacy from './pages/privacy'
 
 const history = createBrowserHistory()
+trackPage()
+
+history.listen(() => {
+  trackPage()
+})
 
 const NoMatch = () => {
   if (window.location.pathname === '/') {
@@ -124,7 +129,7 @@ class AppRouter extends Component {
 
               <CatalogRouter path={env.PREFIX + '/catalogs/'} />
 
-              <Route component={withTracker(NoMatch)} />
+              <Route component={NoMatch} />
             </Switch>
           </div>
         </AdminLayout>
