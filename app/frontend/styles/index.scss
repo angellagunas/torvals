@@ -19,6 +19,7 @@
 @import 'dashboards';
 @import 'reports';
 @import url('https://fonts.googleapis.com/css?family=Roboto:400,700');
+
 html,
 body {
   background-color: #FBFBFB;
@@ -32,6 +33,37 @@ h1 {
 
 h2 {
   font-size: 0.75rem;
+}
+
+.DateInput_input {
+  font-weight: 650;
+  font-size: 0.80rem;
+  line-height: 20px;
+  padding: 4px 4px 4px 10px;
+}
+
+.DateInput_input__focused {
+  border-bottom: 2px solid $info;
+}
+
+.CalendarDay__selected,
+.CalendarDay__selected:active,
+.CalendarDay__selected:hover {
+  background: $link;
+  border: 1px double $link;
+  color: #fff;
+}
+
+.CalendarDay__selected_span {
+  background: $info;
+  border: 1px double $info;
+  color: #fff;
+}
+
+.CalendarDay__selected_span:hover {
+  background: $link;
+  border: 1px double $link;
+  color: #fff;
 }
 
 .text {
