@@ -90,9 +90,13 @@ const hasCycle = async function (organization, rule, date) {
 }
 
 const getFirstDate = function (startDate, seasonDuration, firstStartDate, extraDate, periodDurationMoment, takeStart) {
-  const tentativeSeasonStartDate = subtract(utc(startDate), seasonDuration)
+  let tentativeSeasonStartDate = subtract(utc(startDate), seasonDuration)
 
-  while(!tentativeSeasonStartDate.isAfter(firstStartDate)){
+  while(tentativeSeasonStartDate.isAfter(extraDate)){
+    tentativeSeasonStartDate = subtract(utc(tentativeSeasonStartDate), seasonDuration)
+  }
+
+  while(!tentativeSeasonStartDate.isSameOrAfter(firstStartDate)){
     firstStartDate = subtract(utc(firstStartDate), periodDurationMoment)
   }
 
