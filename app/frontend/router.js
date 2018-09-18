@@ -6,10 +6,10 @@ import {
   Redirect
 } from 'react-router-dom'
 import createBrowserHistory from 'history/createBrowserHistory'
-import ReactGA from 'react-ga'
 
 import env from '~base/env-variables'
 import NotFound from '~base/components/not-found'
+import { withTracker } from '~base/components/with-tracker'
 import AdminLayout from '~components/admin-layout'
 
 import LogIn from './pages/log-in'
@@ -53,13 +53,6 @@ import HowItWorks from './pages/landing/how-it-works'
 import Privacy from './pages/privacy'
 
 const history = createBrowserHistory()
-
-ReactGA.initialize(env.ANALITYCS_ID)
-ReactGA.pageview(window.location.pathname + window.location.search)
-
-history.listen(location => {
-  ReactGA.pageview(window.location.pathname + window.location.search)
-})
 
 const NoMatch = () => {
   if (window.location.pathname === '/') {
@@ -131,7 +124,7 @@ class AppRouter extends Component {
 
               <CatalogRouter path={env.PREFIX + '/catalogs/'} />
 
-              <Route component={NoMatch} />
+              <Route component={withTracker(NoMatch)} />
             </Switch>
           </div>
         </AdminLayout>
