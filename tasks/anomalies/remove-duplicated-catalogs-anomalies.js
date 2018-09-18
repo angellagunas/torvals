@@ -8,30 +8,44 @@ const Logger = require('lib/utils/logger')
 const moment = require('moment')
 const sendSlackNotificacion = require('tasks/slack/send-message-to-channel')
 const Task = require('lib/task')
-const { Anomaly } = require('models')
+const { Anomaly, Project } = require('models')
 
 const task = new Task(
   async function (argv) {
     const log = new Logger('remove-duplicated-catalogs-in-anomalies')
     const batchSize = 10000
     log.call(`Start ==>  ${moment().format()}`)
+    const projects = await Project.find({})
 
-    const anomalies = await Anomaly.find({'catalogItems': {'$exists': true}}).cursor()
+    for(project of projects){
+      try{
+            log.call('migrating project => ' + project.uuid)
+	    const anomalies = await Anomaly.aggregate([
+              {'$match': {
+                'catalogItems': {'$exists': true},
+                project: project._id
+              }}
+            ]).allowDiskUse(true).cursor({batchSize: batchSize}).exec()
 
-    for (let anomaly = await anomalies.next(); anomaly != null; row = await anomalies.next()) {
-      try {
-        const catalogItems = Array.from(Set(anomaly.catalogItems))
+            while(await anomalies.hasNext()) {
+              const anomaly = await anomalies.next()
+	      try {
+		const catalogItems = Array.from(new Set(anomaly.catalogItems))
 
-        if(catalogItems.length != anomaly.catalogItems.length){
-          log.call('Updating catalogItems of ' + anomaly.uuid)
-          await Anomaly.update({'_id': anomaly._id}, {catalogItems: catalogItems})
-        }
-      } catch(e){
+		if(catalogItems.length != anomaly.catalogItems.length){
+		  log.call('Updating catalogItems of ' + anomaly.uuid)
+                  anomaly.catalogItems = catalogItems
+                  await anomaly.save()
+		}
+	      } catch(e){
+		log.call(e)
+		continue
+	      }
+	    }
+      }catch(e){
         log.call(e)
-        continue
       }
     }
-
     log.call(`End ==> ${moment().format()}`)
     return true
   },
