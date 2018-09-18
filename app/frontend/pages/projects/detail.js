@@ -102,22 +102,25 @@ class ProjectDetail extends Component {
 
     try {
       const body = await api.get(url)
+      const projectStatus = body.data.status
+      const currentRoleIsManagerLevel1 = currentRole === 'manager-level-1'
 
-      if (!tab && currentRole !== 'manager-level-1') {
-        if (body.data.status === 'empty') {
+      const projectStatusIsIn = (statuses) => _.includes(statuses, projectStatus)
+
+      if (!tab && !currentRoleIsManagerLevel1) {
+        if (projectStatus === 'empty') {
           tab = 'datasets'
         }
-        else if (body.data.status === 'pendingRows' || body.data.status === 'processing' || body.data.status === 'conciliating') {
+        else if (
+          projectStatusIsIn(['pendingRows', 'processing', 'conciliating','adjustment'])
+        ) {
           tab = 'ajustes'
         }
-        else if (body.data.status === 'adjustment') {
-          tab = 'graficos'
-        }
-        else if (body.data.status === 'pending-configuration') {
+        else if (projectStatus === 'pending-configuration') {
           this.datasetDetail = body.data.mainDataset
           tab = 'datasets'
         }
-        else if (body.data.status === 'updating-rules') {
+        else if (projectStatus === 'updating-rules') {
           tab = 'datasets'
         }
         else {
@@ -125,7 +128,7 @@ class ProjectDetail extends Component {
         }
       }
 
-      else if (!tab && currentRole === 'manager-level-1') {
+      else if (!tab && currentRoleIsManagerLevel1) {
         tab = 'ajustes'
       }
 
@@ -133,7 +136,7 @@ class ProjectDetail extends Component {
         currentRole !== 'manager-level-1' &&
         currentRole !== 'manager-level-2' &&
         body.data.outdated &&
-        body.data.status !== 'cloning' &&
+        projectStatus !== 'cloning' &&
         !this.state.project.uuid
       ) {
         this.showModalOutdated()
@@ -710,7 +713,7 @@ class ProjectDetail extends Component {
                   finishUp={this.finishUpClone.bind(this)}
                   canEdit={canEdit}
                   title={this.formatTitle('projectConfig.clone') + ' ' + this.formatTitle('projectConfig.project')}
-                  buttonText={this.formatTitle('projectConfig.clone')} 
+                  buttonText={this.formatTitle('projectConfig.clone')}
                 />
               }
               {canEdit &&
