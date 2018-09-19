@@ -96,8 +96,12 @@ const getFirstDate = function (startDate, seasonDuration, firstStartDate, extraD
     tentativeSeasonStartDate = subtract(utc(tentativeSeasonStartDate), seasonDuration)
   }
 
-  while(!tentativeSeasonStartDate.isSameOrAfter(firstStartDate)){
+  while(firstStartDate.isSameOrAfter(tentativeSeasonStartDate)){
     firstStartDate = subtract(utc(firstStartDate), periodDurationMoment)
+  }
+
+  if (tentativeSeasonStartDate.isAfter(firstStartDate)){
+   firstStartDate = add(utc(firstStartDate), periodDurationMoment)
   }
 
   if(!takeStart){
@@ -133,6 +137,14 @@ const getLastEndDate = async function (rule, extraDate) {
   return lastEndDate
 }
 
+const getSeasonEndDate = function(seasonEndDate, firstStartDate, seasonDuration){
+  while(seasonEndDate.isAfter(firstStartDate)){
+    seasonEndDate = subtract(utc(seasonEndDate), seasonDuration)
+  }
+
+  return add(utc(seasonEndDate), seasonDuration)
+}
+
 const task = new Task(
   async function (argv) {
     const log = new Logger('generate-cycles')
@@ -160,13 +172,15 @@ const task = new Task(
     let cycleDurationMoment = duration(cycleDuration, cycle)
     let periodDurationMoment = duration(periodDuration, period)
 
-    let firstStartDate = subtract(startDate, periodDurationMoment)
+    let firstStartDate = utc(startDate)
     const extraDate = argv.extraDate ? moment(argv.extraDate) : firstStartDate
 
     firstStartDate = getFirstDate(startDate, seasonDuration, firstStartDate, extraDate, periodDurationMoment, takeStart)
 
-    let seasonEndDate = add(subtract(firstStartDate, durationToSubtract), seasonDuration)
+    let seasonEndDate = subtract(add(startDate, seasonDuration), durationToSubtract)
+    seasonEndDate = getSeasonEndDate(seasonEndDate, firstStartDate, seasonDuration)
     seasonEndDate = utc(seasonEndDate).endOf('day')
+
     let lastEndDate = await getLastEndDate(rule, extraDate)
     lastEndDate = utc(lastEndDate).endOf('day')
 
@@ -187,7 +201,7 @@ const task = new Task(
 
       let cycleInstance = await Cycle.findOne(cycleObj)
       if (cycleInstance) {
-        log.call(`Updating cycle ${cycleStartDate}`)
+        log.call(`Updating cycle ${cycleStartDate} : ${cycleInstance.cycle}`)
         cycleStartDate = add(utc(cycleInstance.dateEnd), durationToSubtract)
         cycleStartDate = utc(cycleStartDate).startOf('day')
 
@@ -199,7 +213,7 @@ const task = new Task(
           cycleNumber = 1
           seasonEndDate = utc(seasonEndDate).add(seasonDuration)
           periodNumber = 1
-        } if(utc(cycleInstance.dateEnd).isAfter(utc(seasonEndDate))) {
+        } else if(utc(cycleInstance.dateEnd).isAfter(utc(seasonEndDate))) {
           seasonEndDate = subtract(utc(cycleInstance.dateEnd), cycleDurationMoment)
           seasonEndDate = add(utc(seasonEndDate), seasonDuration)
           cycleNumber = 1
@@ -235,9 +249,9 @@ const task = new Task(
 
         if (periodEndDate.isSameOrAfter(seasonEndDate)) {
           if(utc(periodEndDate).isAfter(utc(seasonEndDate))){
-            previousPeriodEndDate = subtract(utc(periodEndDate), periodDurationMoment).endOf('day')
-            tentativeCycleEndDate = utc(previousPeriodEndDate)
-            seasonEndDate = moment(previousPeriodEndDate).add(seasonDuration)
+            previousPeriodEndDate = utc(periodEndDate).endOf('day')
+            tentativeCycleEndDate = subtract(utc(periodEndDate), periodDurationMoment).endOf('day')
+            seasonEndDate = moment(seasonEndDate).add(seasonDuration)
             periodNumber = 1
             break
           }
@@ -246,13 +260,8 @@ const task = new Task(
           if (!await Period.findOne(periodObj)) await Period.create(periodObj)
 
           tentativeCycleEndDate = utc(periodEndDate)
-          /*
-           * if (utc(tentativeCycleEndDate).isAfter(utc(seasonEndDate))) {
-           *   tentativeCycleEndDate = utc(tentativeCycleEndDate).subtract(cycleDurationMoment)
-           * }
-           */
           previousPeriodEndDate = utc(periodEndDate).endOf('day')
-          seasonEndDate = add(utc(previousPeriodEndDate), seasonDuration)
+          seasonEndDate = add(utc(seasonEndDate), seasonDuration)
           periodNumber = 1
 
           break
