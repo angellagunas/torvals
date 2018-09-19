@@ -6,10 +6,10 @@ import {
   Redirect
 } from 'react-router-dom'
 import createBrowserHistory from 'history/createBrowserHistory'
-import ReactGA from 'react-ga'
 
 import env from '~base/env-variables'
 import NotFound from '~base/components/not-found'
+import { trackPage } from '~base/components/with-tracker'
 import AdminLayout from '~components/admin-layout'
 
 import LogIn from './pages/log-in'
@@ -53,12 +53,10 @@ import HowItWorks from './pages/landing/how-it-works'
 import Privacy from './pages/privacy'
 
 const history = createBrowserHistory()
+trackPage()
 
-ReactGA.initialize(env.ANALITYCS_ID)
-ReactGA.pageview(window.location.pathname + window.location.search)
-
-history.listen(location => {
-  ReactGA.pageview(window.location.pathname + window.location.search)
+history.listen(() => {
+  trackPage()
 })
 
 const NoMatch = () => {
