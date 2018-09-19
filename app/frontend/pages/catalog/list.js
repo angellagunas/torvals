@@ -3,6 +3,10 @@ import ListPage from '~base/list-page';
 import { loggedIn, verifyRole } from '~base/middlewares/';
 import { testRoles } from '~base/tools';
 import Link from '~base/router/link';
+import DeleteButton from '~base/components/base-deleteButton'
+import api from '~base/api'
+import { toast } from 'react-toastify'
+import tree from '~core/tree'
 import ImportCatalog from './import';
 import CreateCatalog from './create';
 
@@ -20,7 +24,8 @@ Catalog.opts = opt => {
     branchName: opt.branchName,
     titleSingular: opt.titleSingular,
     detailUrl: opt.detailUrl + '/',
-    filters: opt.filters,
+    pageLimit: 20,
+    filters: true,
     create: true,
     createComponent: CreateCatalog,
     import: true,
@@ -57,6 +62,31 @@ Catalog.opts = opt => {
         {
           title: 'Acciones',
           formatter: row => {
+            const deleteObject = async function () {
+              try {
+                const url = '/app/catalogItems/' + row.uuid
+                await api.del(url)
+
+                const cursor = tree.get(opt.branchName)
+                const res = await api.get(opt.baseUrl, { start: (20 * cursor.page) - 20, limit: 20, sort: cursor.sort })
+
+                tree.set(opt.branchName, {
+                  page: cursor.page,
+                  totalItems: res.total,
+                  items: res.data,
+                  pageLength: cursor.pageLength
+                })
+                tree.commit()
+              } catch (e) {
+                toast('Error: ' + e.message, {
+                  autoClose: 3000,
+                  type: toast.TYPE.ERROR,
+                  hideProgressBar: true,
+                  closeButton: false
+                })
+              }
+            }
+
             if (testRoles('consultor-level-3, consultor-level-2')) {
               return (
                 <Link
@@ -70,14 +100,28 @@ Catalog.opts = opt => {
               );
             } else {
               return (
-                <Link
-                  className="button is-primary"
-                  to={opt.detailUrl + '/' + row.uuid}
-                >
-                  <span className="icon is-small" title="Editar">
-                    <i className="fa fa-pencil" />
-                  </span>
-                </Link>
+                <div className='field is-grouped'>
+                  <div className='control'>
+                    <Link
+                      className="button is-primary"
+                      to={opt.detailUrl + '/' + row.uuid}
+                    >
+                      <span className="icon is-small" title="Editar">
+                        <i className="fa fa-pencil" />
+                      </span>
+                    </Link>
+                  </div>
+                  <div className='control'>
+                    <DeleteButton
+                      iconOnly
+                      icon='fa fa-trash'
+                      objectName='Usuario'
+                      objectDelete={deleteObject}
+                      //TODO: translate
+                      message={`¿Está seguro de querer desactivar a ${row.name} ?`}
+                    />
+                  </div>
+                </div>
               );
             }
           },

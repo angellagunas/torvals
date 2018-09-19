@@ -7,8 +7,10 @@ import tree from '~core/tree'
 
 import ListPage from '~base/list-page'
 import ImportPrices from './import'
-import {loggedIn, verifyRole} from '~base/middlewares/'
+import { loggedIn, verifyRole } from '~base/middlewares/'
 import Editable from '~base/components/base-editable'
+import DeleteButton from '~base/components/base-deleteButton'
+import Link from '~base/router/link'
 
 export default ListPage({
   translate: true,
@@ -54,6 +56,7 @@ export default ListPage({
   baseUrl: '/app/prices',
   branchName: 'prices',
   detailUrl: '/catalogs/prices/',
+  pageLimit: 20,
   filters: true,
   schema: {
     type: 'object',
@@ -187,6 +190,63 @@ export default ListPage({
             moment.utc(row.dateCreated).local().format('DD/MM/YYYY hh:mm a')
             )
           }
+        },
+        {
+          title: 'tables.colActions',
+          formatter: row => {
+            const deleteObject = async function () {
+              try {
+                const url = '/app/prices/' + row.uuid
+                await api.del(url)
+
+                const cursor = tree.get('prices')
+                const res = await api.get('/app/prices', { start: (20 * cursor.page) - 20, limit: 20, sort: cursor.sort })
+
+                tree.set('prices', {
+                  page: cursor.page,
+                  totalItems: res.total,
+                  items: res.data,
+                  pageLength: cursor.pageLength
+                })
+                tree.commit()
+              } catch (e) {
+                toast('Error: ' + e.message, {
+                  autoClose: 3000,
+                  type: toast.TYPE.ERROR,
+                  hideProgressBar: true,
+                  closeButton: false
+                })
+              }
+            }
+
+            if (testRoles('consultor-level-3, consultor-level-2')) {
+              return (
+                <Link
+                  className="button is-primary"
+                  to={'/catalogs/prices'}
+                >
+                  <span className="icon is-small" title="Editar">
+                    <i className="fa fa-pencil" />
+                  </span>
+                </Link>
+              )
+            }
+
+            return (
+              <div className='field is-grouped'>
+                <div className='control'>
+                  <DeleteButton
+                    iconOnly
+                    icon='fa fa-trash'
+                    objectName='Usuario'
+                    objectDelete={deleteObject}
+                    //TODO: translate
+                    message={`¿Está seguro de querer desactivar a ${row.name} ?`}
+                  />
+                </div>
+              </div>
+            )
+          },
         }
       ]
 
