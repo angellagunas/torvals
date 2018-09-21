@@ -94,30 +94,34 @@ class CreateForm extends Component {
       }
     }
 
-    return (<div>
-      <BaseForm schema={schema}
-        uiSchema={uiSchema}
-        formData={this.state.formData}
-        onChange={(e) => { this.changeHandler(e) }}
-        onSubmit={(e) => { this.submitHandler(e) }}
-        onError={(e) => { this.errorHandler(e) }}>
-        <div className={this.state.apiCallMessage}>
-          <div className='message-body is-size-7 has-text-centered'>
-            <FormattedMessage
-              id="catalog.savedMsg"
-              defaultMessage={`Los datos se han guardado correctamente`}
-            />
-          </div>
-          <div className={this.state.apiCallErrorMessage}>
-            <div className="message-body is-size-7 has-text-centered">
-              {error}
+    return (
+      <div>
+        <BaseForm
+          schema={schema}
+          uiSchema={uiSchema}
+          formData={this.state.formData}
+          onChange={(e) => { this.changeHandler(e) }}
+          onSubmit={(e) => { this.submitHandler(e) }}
+          onError={(e) => { this.errorHandler(e) }}
+        >
+          <div className={this.state.apiCallMessage}>
+            <div className='message-body is-size-7 has-text-centered'>
+              <FormattedMessage
+                id="catalog.savedMsg"
+                defaultMessage={`Los datos se han guardado correctamente`}
+              />
+            </div>
+            <div className={this.state.apiCallErrorMessage}>
+              <div className="message-body is-size-7 has-text-centered">
+                {error}
+              </div>
             </div>
           </div>
-          {canEdit && children}
-          {canCreate && children}
-          </div>
-      </BaseForm>
-    </div>
+          <br />
+          {canEdit && (children)}
+          {canCreate && (children)}
+        </BaseForm>
+      </div>
     );
   }
 }
