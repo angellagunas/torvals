@@ -108,7 +108,7 @@ class TabApprove extends Component {
           return String(row.product.externalId)
         }
       },
-      { 
+      {
         'title': this.formatTitle('tables.colProduct'),
         'property': 'product.name',
         'default': 'N/A',
@@ -117,7 +117,29 @@ class TabApprove extends Component {
           return String(row.product.name)
         }
       },
-      { 
+      {
+        'title': this.formatTitle('tables.colCeve'),
+        'property': 'catalogItems',
+        'default': 'N/A',
+        'sortable': true,
+        formatter: (row) => {
+          // TODO: This should take the information of all the items at catalogItems.
+          let ceve = row.catalogItems.find(item => item.type === 'centro-de-venta')
+          return String(ceve ? ceve.name : 'N/A')
+        }
+      },
+      {
+        'title': this.formatTitle('tables.colChannel'),
+        'property': 'catalogItems',
+        'default': 'N/A',
+        'sortable': true,
+        formatter: (row) => {
+          // TODO: This should take the information of all the items at catalogItems.
+          let channel = row.catalogItems.find(item => item.type === 'canal')
+          return String(channel ? channel.name : 'N/A')
+        }
+      },
+      {
         'title': this.formatTitle('adjustments.cycle'),
         'property': 'cycle.dateStart',
         'default': 'N/A',
@@ -149,7 +171,7 @@ class TabApprove extends Component {
           return String(row.datasetRow.data.prediction)
         }
       },
-      { 
+      {
         'title': this.formatTitle('tables.colAdjustment'),
         'property': 'newAdjustment',
         'default': 0,
@@ -162,7 +184,7 @@ class TabApprove extends Component {
           return row.newAdjustment
         }
       },
-      { 
+      {
         'title': this.formatTitle('tables.colRange'),
         'property': 'percentage',
         'default': 0,
@@ -176,7 +198,7 @@ class TabApprove extends Component {
           return Math.round(percentage) + ' %'
         }
       },
-      { 
+      {
         'title': this.formatTitle('tables.colCreated'),
         'property': 'dateRequested',
         'sortable': true,
@@ -207,7 +229,7 @@ class TabApprove extends Component {
           }
         }
       },
-      { 
+      {
         'title': this.formatTitle('tables.colState'),
         'property': 'statusLevel',
         'default': '',
@@ -395,7 +417,7 @@ class TabApprove extends Component {
             <div className='level-item'>
               <div className='saleCenter'>
                 <span>
-                  Total:&nbsp; 
+                  Total:&nbsp;
                 </span>
                 <span className='has-text-weight-bold is-capitalized'>{this.state.dataRows.length}
                 </span>
@@ -408,7 +430,7 @@ class TabApprove extends Component {
                   <FormattedMessage
                     id="approve.pending"
                     defaultMessage={`Pendientes: `}
-                  />:&nbsp; 
+                  />:&nbsp;
                 </span>
                 <span className='has-text-weight-bold is-capitalized'>{this.state.remainingItems}
                 </span>

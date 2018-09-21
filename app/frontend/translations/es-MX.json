@@ -81,6 +81,8 @@
     },
     "tables": {
       "colProduct": "Producto",
+      "colCeve": "Ceve",
+      "colChannel": "Canal",
       "colForecast": "Predicción",
       "colId": "Id",
       "colAdjustment": "Ajuste",
