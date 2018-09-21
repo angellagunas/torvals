@@ -13,10 +13,14 @@ const { DataSet, DataSetRow, HistoricalDatasetRow, Project } = require('models')
 const task = new Task(
   async function (argv) {
     const log = new Logger('migrate-rows-to-historical')
-    const batchSize = 10000
+    const batchSize = 100000
     log.call(`Start ==>  ${moment().format()}`)
 
     const projects = await Project.find({})
+    const rowsLength = await DataSetRow.find({}).count()
+    let counter = 1
+
+    log.call('Tentative total rows length => ' + rowsLength)
 
     for(project of projects){
       log.call('project => ' + project.uuid)
@@ -32,14 +36,26 @@ const task = new Task(
            * Old dataset rows
            */
           log.call('Obtaining rows to copy...')
-          const rows = await DataSetRow.find({ dataset: dataset._id }).cursor()
+          let sizeRows = await DataSetRow.find({}).count()
+
+          // const rows = await DataSetRow.find({ dataset: dataset._id }).cursor()
+
+          const rows = await DataSetRow.aggregate([
+              {'$match': {
+                dataset: dataset._id
+              }}
+            ]).allowDiskUse(true).cursor({batchSize: batchSize}).exec()
 
           log.call('Rows ready, transversing...')
 
-          const idsMigratedRows = []
+          let idsMigratedRows = []
           let bulkOpsNew = []
 
-          for (let row = await rows.next(); row != null; row = await rows.next()) {
+
+          // for (let row = await rows.next(); row != null; row = await rows.next()) {
+
+          while(await rows.hasNext()) {
+            const row = await rows.next()
             bulkOpsNew.push({
               'organization': project.organization,
               'project': project,
@@ -53,23 +69,35 @@ const task = new Task(
               'catalogItems': row.catalogItems
             })
 
-            idsMigratedRows.push(row._id)
+            idsMigratedRows.push(String(row._id))
 
             if (bulkOpsNew.length === batchSize) {
               /*
                * save the dataset rows on historical
                */
               await HistoricalDatasetRow.insertMany(bulkOpsNew)
+              sizeRows = sizeRows - batchSize
+              log.call('rows pending for this dataset => ' + sizeRows)
+              log.call('Another bulk saved => ' + (batchSize * counter))
+
+              log.call('Deleting rows from datasetrows => ' + idsMigratedRows.length)
+              await DataSetRow.deleteMany({ '_id': {'$in': idsMigratedRows}})
+              log.call('Deleted rows => ' + idsMigratedRows.length)
+              counter = counter + 1
               bulkOpsNew = []
+              idsMigratedRows = []
             }
           }
 
-          log.call('Deleting rows from datasetrows...')
-          log.call(JSON.stringify(idsMigratedRows))
-          await DataSetRow.deleteMany({ '_id': {'$in': idsMigratedRows}})
+          if (bulkOpsNew.length > 0) {
+            await HistoricalDatasetRow.insertMany(bulkOpsNew)
+            log.call('Deleting rows from datasetrows => ' + idsMigratedRows.length)
+            await DataSetRow.deleteMany({ '_id': {'$in': idsMigratedRows}})
+            log.call('Deleted rows => ' + idsMigratedRows.length)
+          }
+
 
           log.call(bulkOpsNew.length)
-          if (bulkOpsNew.length > 0) { await HistoricalDatasetRow.insertMany(bulkOpsNew)}
         } catch (e) {
           log.call(e)
           continue

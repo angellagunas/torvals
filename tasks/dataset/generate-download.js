@@ -3,7 +3,7 @@ require('../../config')
 require('lib/databases/mongo')
 
 const Task = require('lib/task')
-const { AdjustmentDownload, DataSet, DataSetRow } = require('models')
+const { AdjustmentDownload, Cycle, DataSet, DataSetRow } = require('models')
 const { aws } = require('../../config')
 const awsService = require('aws-sdk')
 const fs = require('fs-extra')
@@ -23,8 +23,41 @@ const task = new Task(async function (argv) {
     throw new Error('Dataset not found')
   }
 
-  const datasetRow = await DataSetRow.find({dataset: dataset})
-    .populate('organization product catalogItems newProduct').cursor()
+  const allCyclesInOrganization = await Cycle.find({
+    organization: dataset.organization,
+    rule: dataset.rule
+  })
+
+  const cyclesAvailable = dataset.rule.cyclesAvailable
+  const today = moment().format('YYYY-MM-DD')
+  const currentCycle = await Cycle.find({
+    organization: dataset.organization,
+    rule: dataset.rule,
+    dateStart: { $gte: today },
+    dateEnd: { $lte: today },
+    isDelete: false
+  })
+
+  const cyclesThatWeCanAdjustment = await Cycle
+    .find({
+        organization: dataset.organization,
+      rule: dataset.rule,
+      dateStart: { $gte: currentCycle.dateStart },
+      isDelete: false
+    })
+    .sort({ dateStart: 1 })
+    .skip(1)
+    .limit(cyclesAvailable)
+
+  const datasetRow = await DataSetRow
+    .find({
+      cycle: {
+        $in: _.map(cyclesThatWeCanAdjustment, '_id')
+      },
+      dataset: dataset._id
+    })
+    .populate('organization product catalogItems newProduct')
+    .cursor()
 
   let fileName = dataset.uuid + '.csv'
   const filePath = path.resolve('.', 'media', 'uploads', fileName)
