@@ -36,7 +36,7 @@ const task = new Task(
            * Old dataset rows
            */
           log.call('Obtaining rows to copy...')
-          let sizeRows = await DataSetRow.find({}).count()
+          let sizeRows = await DataSetRow.find({dataset: dataset._id}).count()
 
           // const rows = await DataSetRow.find({ dataset: dataset._id }).cursor()
 
