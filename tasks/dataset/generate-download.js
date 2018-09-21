@@ -10,6 +10,7 @@ const fs = require('fs-extra')
 const path = require('path')
 const moment = require('moment')
 const _ = require('lodash')
+const { getAdjustableCycles } = require('lib/get-cycles')
 
 const task = new Task(async function (argv) {
   console.log('Fetching Dataset...')
@@ -23,31 +24,10 @@ const task = new Task(async function (argv) {
     throw new Error('Dataset not found')
   }
 
-  const allCyclesInOrganization = await Cycle.find({
-    organization: dataset.organization,
-    rule: dataset.rule
-  })
-
-  const cyclesAvailable = dataset.rule.cyclesAvailable
-  const today = moment().format('YYYY-MM-DD')
-  const currentCycle = await Cycle.find({
-    organization: dataset.organization,
-    rule: dataset.rule,
-    dateStart: { $gte: today },
-    dateEnd: { $lte: today },
-    isDelete: false
-  })
-
-  const cyclesThatWeCanAdjustment = await Cycle
-    .find({
-        organization: dataset.organization,
-      rule: dataset.rule,
-      dateStart: { $gte: currentCycle.dateStart },
-      isDelete: false
-    })
-    .sort({ dateStart: 1 })
-    .skip(1)
-    .limit(cyclesAvailable)
+  const cyclesThatWeCanAdjustment = await getAdjustableCycles(
+    dataset.organization,
+    dataset.rule
+  )
 
   const datasetRow = await DataSetRow
     .find({
