@@ -3,13 +3,14 @@ require('../../config')
 require('lib/databases/mongo')
 
 const Task = require('lib/task')
-const { AdjustmentDownload, DataSet, DataSetRow } = require('models')
+const { AdjustmentDownload, Cycle, DataSet, DataSetRow } = require('models')
 const { aws } = require('../../config')
 const awsService = require('aws-sdk')
 const fs = require('fs-extra')
 const path = require('path')
 const moment = require('moment')
 const _ = require('lodash')
+const { getAdjustableCycles } = require('lib/get-cycles')
 
 const task = new Task(async function (argv) {
   console.log('Fetching Dataset...')
@@ -23,8 +24,20 @@ const task = new Task(async function (argv) {
     throw new Error('Dataset not found')
   }
 
-  const datasetRow = await DataSetRow.find({dataset: dataset})
-    .populate('organization product catalogItems newProduct').cursor()
+  const cyclesThatWeCanAdjustment = await getAdjustableCycles(
+    dataset.organization,
+    dataset.rule
+  )
+
+  const datasetRow = await DataSetRow
+    .find({
+      cycle: {
+        $in: _.map(cyclesThatWeCanAdjustment, '_id')
+      },
+      dataset: dataset._id
+    })
+    .populate('organization product catalogItems newProduct')
+    .cursor()
 
   let fileName = dataset.uuid + '.csv'
   const filePath = path.resolve('.', 'media', 'uploads', fileName)

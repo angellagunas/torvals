@@ -108,8 +108,8 @@ class OrganizationDetail extends Component {
     let days = moment.utc(end).diff(moment.utc(start), 'days')
 
     return (
-      <div className='organization-daysleft'>
-        <h2>
+      <div className='organization-daysleft is-clearfix'>
+        <h2 className="is-pulled-left">
           <FormattedMessage
             id='organizations.daysLeftAccount'
             defaultMessage={`Tu cuenta se encuentra`}
