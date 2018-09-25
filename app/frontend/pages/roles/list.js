@@ -33,7 +33,7 @@ export default ListPage({
   },
   sidePanel: false,
   sidePanelIcon: 'sitemap',
-  baseUrl: '/app/roles/?start=0&limit=0',
+  baseUrl: '/app/roles',
   branchName: 'roles',
   detailUrl: '/manage/roles/',
   filters: true,
