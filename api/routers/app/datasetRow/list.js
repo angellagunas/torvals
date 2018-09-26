@@ -1,3 +1,4 @@
+const moment = require('moment')
 const Route = require('lib/router/route')
 const {
   DataSetRow,
@@ -39,6 +40,9 @@ module.exports = new Route({
 
       currentRole = role.toPublic()
     }
+
+    let start = moment(ctx.request.query.date_start, 'YYYY-MM-DD').utc()
+    let end = moment(ctx.request.query.date_end, 'YYYY-MM-DD').utc()
 
     let filters = {}
     for (var filter in ctx.request.query) {
