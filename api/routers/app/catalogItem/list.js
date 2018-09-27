@@ -13,10 +13,13 @@ module.exports = new Route({
         continue
       }
 
-      if (!isNaN(parseInt(ctx.request.query[filter]))) {
+      if (filter === 'general') {
+        filters['$or'] = [
+          {name: new RegExp(ctx.request.query[filter], 'i')},
+          {externalId: new RegExp(ctx.request.query[filter], 'i') }
+        ]
+      } else if (!isNaN(parseInt(ctx.request.query[filter]))) {
         filters[filter] = parseInt(ctx.request.query[filter])
-      } else if (filter === 'general') {
-        continue
       } else {
         filters[filter] = ctx.request.query[filter]
       }
