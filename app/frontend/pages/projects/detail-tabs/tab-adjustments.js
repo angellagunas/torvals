@@ -16,7 +16,7 @@ import WeekTable from './week-table'
 import ProductTable from './product-table'
 import Select from './select'
 import Graph from '~base/components/graph'
-
+import DatePicker from '~base/components/date-picker'
 
 const FileSaver = require('file-saver')
 
@@ -141,7 +141,14 @@ class TabAdjustment extends Component {
             formData[fil] = res[fil][0].uuid
         }
 
+        const minDate = moment.utc(cycles[0].dateStart)
+        const maxDate = moment.utc(cycles[0].dateEnd)
+
         this.setState({
+          minDate,
+          startDate: minDate,
+          maxDate,
+          endDate: maxDate,
           filters: {
             ...this.state.filters,
             ...res,
@@ -176,7 +183,14 @@ class TabAdjustment extends Component {
         return item.cycle === value
       })
 
+      const minDate = moment.utc(cycle.dateStart)
+      const maxDate = moment.utc(cycle.dateEnd)
+
       this.setState({
+        minDate,
+        startDate: minDate,
+        maxDate,
+        endDate: maxDate,
         filters: {
           ...this.state.filters
         }
@@ -236,10 +250,12 @@ class TabAdjustment extends Component {
         url + this.props.project.activeDataset.uuid,
         {
           ...this.state.formData,
-          cycle: cycle.uuid
+          cycle: cycle.uuid,
+          date_start: this.state.startDate.toDate(),
+          date_end: this.state.maxDate.toDate(),
         }
       )
-
+      console.log(data)
       this.setState({
         dataRows: this.getEditedRows(data.data),
         isFiltered: true,
@@ -1233,6 +1249,16 @@ class TabAdjustment extends Component {
     return find
   }
 
+  onDatesChange = ({ startDate, endDate }) => {
+    this.setState({
+      startDate,
+      endDate
+    }, () => {
+      //this.getGraph()
+      //this.getProductTable()
+    })
+  }
+
   render () {
     let banner
     if (this.state.error) {
@@ -1432,6 +1458,39 @@ class TabAdjustment extends Component {
             {this.state.filters &&
               this.makeFilters()
             }
+
+            <div className='level-right'>
+              <div className='level-item'>
+                <div className='field'>
+
+                  <div className="is-clearfix">
+                    <label className='label is-pulled-left'>
+                      <FormattedMessage
+                        id="dashboard.initialMonth"
+                        defaultMessage={`Mes inicial`}
+                      />
+                    </label>
+                    <label className='label is-pulled-right'>
+                      <FormattedMessage
+                        id="dashboard.lastMonth"
+                        defaultMessage={`Mes final`}
+                      />
+                    </label>
+                  </div>
+
+                  <div className='field is-grouped control'>
+                    <DatePicker
+                      minDate={this.state.minDate}
+                      maxDate={this.state.maxDate}
+                      initialStartDate={this.state.startDate}
+                      initialEndDate={this.state.endDate}
+                      onChange={({ startDate, endDate }) => this.onDatesChange({ startDate, endDate })}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
 
