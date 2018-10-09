@@ -61,7 +61,7 @@ class TabAdjustment extends Component {
       errorMessage: '',
       showAdjusted: true,
       showNotAdjusted: true,
-      prices: true,
+      prices: false,
       totalPrevSale: 0,
       filteredData: [],
       prevData: []
@@ -1404,7 +1404,7 @@ class TabAdjustment extends Component {
       {
         label: this.formatTitle('tables.colLast'),
         color: '#EF6950',
-        data: this.state.prevData.map(item => item.sale.toFixed(2))
+        data: this.state.prevData.map(item => item.sale)
       }
     ]
 
@@ -1565,7 +1565,7 @@ class TabAdjustment extends Component {
                           id='showByquantityAd'
                           type="radio"
                           name='showByAd'
-                          checked={true}
+                          checked={!this.state.prices}
                           disabled={this.state.waitingData}
                           onChange={() => this.showBy(false)} />
                         <label htmlFor='showByquantityAd'>
@@ -1584,8 +1584,8 @@ class TabAdjustment extends Component {
                           id='showBypriceAd'
                           type="radio"
                           name='showByAd'
-                          checked={false}
-                          disabled="disabled"
+                          checked={this.state.prices}
+                          disabled={this.state.waitingData}
                           onChange={() => this.showBy(true)} />
                         <label htmlFor='showBypriceAd'>
                           <span title='Precio'>
