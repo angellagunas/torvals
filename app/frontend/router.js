@@ -6,6 +6,7 @@ import {
   Redirect
 } from 'react-router-dom'
 import createBrowserHistory from 'history/createBrowserHistory'
+import 'react-dates/initialize'
 
 import env from '~base/env-variables'
 import NotFound from '~base/components/not-found'
