@@ -255,7 +255,6 @@ class TabAdjustment extends Component {
           date_end: this.state.maxDate.toDate(),
         }
       )
-      console.log(data)
       this.setState({
         dataRows: this.getEditedRows(data.data),
         isFiltered: true,
@@ -1253,9 +1252,6 @@ class TabAdjustment extends Component {
     this.setState({
       startDate,
       endDate
-    }, () => {
-      //this.getGraph()
-      //this.getProductTable()
     })
   }
 
