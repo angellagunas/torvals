@@ -115,10 +115,11 @@ class StatusRepórt extends Component {
       let cycles = _.orderBy(res.cycles, 'dateStart', 'asc')
       .map(item => {
         return {
-          ...item, 
-          name: moment.utc(item.dateStart).format('MMMM D') + ' - ' + moment.utc(item.dateEnd).format('MMMM D')
+          ...item,
+          name: moment.utc(item.dateStart).format('MMMM D') + ' - ' + moment.utc(item.dateEnd).format('MMMM D'),
+          viewName: `Ciclo ${item.cycle} (Periodo ${item.periodStart} - Periodo ${item.periodEnd})`
         }
-      })      
+      })
 
       cycles = _.orderBy(cycles, 'dateStart', 'asc')
 
@@ -612,7 +613,7 @@ class StatusRepórt extends Component {
                 name='cycle'
                 value={this.state.formData.cycle}
                 optionValue='cycle'
-                optionName='name'
+                optionName='viewName'
                 type='integer'
                 options={this.state.filters.cycles}
                 onChange={(name, value) => { this.filterChangeHandler(name, value) }}
