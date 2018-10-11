@@ -1093,7 +1093,6 @@ class TabAdjustment extends Component {
   }
 
   getCycleName() {
-    console.log(this.state.filters.cycles)
     let cycle = this.state.filters.cycles.find(item => {
       return item.cycle === this.state.formData.cycle
     })
