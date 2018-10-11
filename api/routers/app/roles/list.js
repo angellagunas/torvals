@@ -37,7 +37,8 @@ module.exports = new Route({
       }
     }
 
-    if (currentRole.slug !== 'consultor-level-3' && currentRole.slug !== 'consultor-level-2') {
+    const validSlug = ['consultor-level-3', 'consultor-level-2', 'manager-level-2']
+    if (validSlug.includes(currentRole.slug)) {
       filters['priority'] = { $gt: currentRole.priority }
     }
 
