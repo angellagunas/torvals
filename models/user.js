@@ -37,9 +37,8 @@ const userSchema = new Schema({
   job: { type: String },
   phone: { type: String },
   isVerified: { type: Boolean, default: false },
-
   isDeleted: { type: Boolean, default: false },
-
+  isOperationalUser: { type: Boolean, default: true },
   uuid: { type: String, default: v4 },
   apiToken: { type: String, default: v4 }
 }, { usePushEach: true })
