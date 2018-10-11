@@ -114,7 +114,7 @@ class TabAdjustment extends Component {
               ...item,
               adjustmentRange: this.rules.rangesLvl2[key],
               name: moment.utc(item.dateStart).format('MMMM D') + ' - ' + moment.utc(item.dateEnd).format('MMMM D'),
-              viewName: `Ciclo ${item.cycle} (Periodo ${item.periodStart} - Periodo ${item.periodEnd})`
+              viewName: `Ciclo ${item.cycle} (Periodo ${item.periodStart} - ${item.periodEnd})`
             }
           })
         }
@@ -124,7 +124,7 @@ class TabAdjustment extends Component {
               ...item,
               adjustmentRange: this.rules.ranges[key],
               name: moment.utc(item.dateStart).format('MMMM D') + ' - ' + moment.utc(item.dateEnd).format('MMMM D'),
-              viewName: `Ciclo ${item.cycle} (Periodo ${item.periodStart} - Periodo ${item.periodEnd})`
+              viewName: `Ciclo ${item.cycle} (Periodo ${item.periodStart} - ${item.periodEnd})`
             }
           })
         }

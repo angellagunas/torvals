@@ -117,7 +117,7 @@ class StatusRepórt extends Component {
         return {
           ...item,
           name: moment.utc(item.dateStart).format('MMMM D') + ' - ' + moment.utc(item.dateEnd).format('MMMM D'),
-          viewName: `Ciclo ${item.cycle} (Periodo ${item.periodStart} - Periodo ${item.periodEnd})`
+          viewName: `Ciclo ${item.cycle} (Periodo ${item.periodStart} - ${item.periodEnd})`
         }
       })
 
