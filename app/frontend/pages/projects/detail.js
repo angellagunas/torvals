@@ -540,7 +540,6 @@ class ProjectDetail extends Component {
   }
 
   confirmMsg() {
-    console.log(this.state.counterAdjustments)
     return (
       <BaseModal
         title="Aun hay ajustes fuera de rango"
