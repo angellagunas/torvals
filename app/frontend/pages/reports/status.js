@@ -324,8 +324,6 @@ class StatusRepórt extends Component {
         }
       }
 
-      console.log(data.data)
-
       this.setState({
         dataRows: data.data,
         isFiltered: true,
@@ -631,7 +629,7 @@ class StatusRepórt extends Component {
   }
 
   download() {
-    console.log('download...')
+    // Here should be the action to download the report
   }
 
   render () {
