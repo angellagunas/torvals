@@ -97,7 +97,8 @@
       "colDate": "Fecha",
       "colPriority": "Prioridad",
       "colUser": "User",
-      "colAdjustmentsByPeriod": "Adjustments by period"
+      "colAdjustmentsByPeriod": "Ajustes por periodo",
+      "colGroups": "Grupos"
     },
     "adjustments": {
       "exercise": "Ejercicio",

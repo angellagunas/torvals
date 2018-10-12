@@ -116,8 +116,7 @@ class TabAdjustment extends Component {
               name: moment.utc(item.dateStart).format('MMMM D') + ' - ' + moment.utc(item.dateEnd).format('MMMM D')
             }
           })
-        }
-        else {
+        } else {
           cycles = cycles.map((item, key) => {
             return item = {
               ...item,
@@ -129,6 +128,7 @@ class TabAdjustment extends Component {
         cycles = cycles.filter(cycle => cycle.adjustmentRange !== 0)
 
         let formData = this.state.formData
+
         formData.cycle = cycles[0].cycle
         tree.set('selectedCycle', cycles[0])
         tree.commit()
@@ -1454,38 +1454,6 @@ class TabAdjustment extends Component {
             {this.state.filters &&
               this.makeFilters()
             }
-
-            <div className='level-right'>
-              <div className='level-item'>
-                <div className='field'>
-
-                  <div className="is-clearfix">
-                    <label className='label is-pulled-left'>
-                      <FormattedMessage
-                        id="dashboard.initialMonth"
-                        defaultMessage={`Mes inicial`}
-                      />
-                    </label>
-                    <label className='label is-pulled-right'>
-                      <FormattedMessage
-                        id="dashboard.lastMonth"
-                        defaultMessage={`Mes final`}
-                      />
-                    </label>
-                  </div>
-
-                  <div className='field is-grouped control'>
-                    <DatePicker
-                      minDate={this.state.minDate}
-                      maxDate={this.state.maxDate}
-                      initialStartDate={this.state.startDate}
-                      initialEndDate={this.state.endDate}
-                      onChange={({ startDate, endDate }) => this.onDatesChange({ startDate, endDate })}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
 
           </div>
         </div>

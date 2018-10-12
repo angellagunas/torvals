@@ -20,7 +20,13 @@ module.exports = new Route({
     }
 
     if (data.users) {
-      let users = await User.find({uuid: {$in: data.users}})
+      let users = await User.find({
+        isOperationalUser: true,
+        uuid: {
+          $in: data.users
+        }
+      }).populate('groups')
+
       let usersIds = users.map((item) => {
         return item._id
       })
@@ -178,7 +184,12 @@ module.exports = new Route({
     })
 
     let inactiveUsers = _.difference(data.users, foundUsers)
-    const inactives = await User.find({uuid: {$in: inactiveUsers}})
+    const inactives = await User.find({
+      isOperationalUser: true,
+      uuid: {
+        $in: inactiveUsers
+      }
+    }).populate('groups')
 
     if (inactives && inactives.length) {
       for (let inactive of inactives) {

@@ -286,7 +286,6 @@ class StatusRepórt extends Component {
         users = this.state.users.inactiveUsers
       }
 
-
       let data = await api.post(
         url,
         {
@@ -296,6 +295,36 @@ class StatusRepórt extends Component {
           projects: [this.state.projectSelected.uuid]
         }
       )
+      for (let activeUser of this.state.filters.users) {
+        const findUser = data.data.find(info => info.user[0].uuid === activeUser.uuid)
+        if (findUser) {
+          findUser.user[0].groups = activeUser.groups
+          continue
+        }
+
+        data.data.push({
+          approved: 0,
+          created: 0,
+          rejected: 0,
+          total: 0,
+          user: [activeUser],
+          _id: {
+            user: activeUser._id
+          }
+        })
+      }
+
+      for (let users of data.data) {
+        if (this.state.users.finishedUsers.includes(users.user[0].uuid)) {
+          users.status = 'Finalizado'
+        }
+        if (this.state.users.inProgressUsers.includes(users.user[0].uuid)) {
+          users.status = 'En proceso'
+        }
+      }
+
+      console.log(data.data)
+
       this.setState({
         dataRows: data.data,
         isFiltered: true,
@@ -327,9 +356,29 @@ class StatusRepórt extends Component {
       },
       {
         'title': this.formatTitle('tables.colAdjustmentsByPeriod'),
-        'property': 'total',
+        'property': 'user.total',
         'default': '0',
+        'sortable': true,
+        formatter: (row) => {
+          return row.total - (row.approved + row.created + row.rejected)
+        }
+      },
+      {
+        'title': 'Estatus',
+        'property': 'status',
+        'default': 'Sin ajustes',
         'sortable': true
+      },
+      {
+        'title': this.formatTitle('tables.colGroups'),
+        'property': 'user.groups',
+        'default': '',
+        'sortable': true,
+        formatter: (row) => {
+          return row.user[0].groups
+            .map(group => group.name)
+            .join(', ')
+        }
       },
       {
         'title': this.formatTitle('approve.approved'),
@@ -627,20 +676,6 @@ class StatusRepórt extends Component {
                     disabled={this.state.filtersLoading}
                   />
                 </div>
-                }
-                {this.state.filters.exercise.length > 0 &&
-                  <div className='level-item'>
-                    <Select
-                      label={this.formatTitle('adjustments.exercise')}
-                      name='exercise'
-                      value={this.state.formData.exercise}
-                      optionValue='uuid'
-                      optionName='name'
-                      options={this.state.filters.exercise}
-                      onChange={(name, value) => { this.filterChangeHandler(name, value) }}
-                      disabled={this.state.filtersLoading}
-                    />
-                  </div>
                 }
                 {this.state.filters.users.length > 0 &&
                 <div className='level-item'>

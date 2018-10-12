@@ -95,7 +95,8 @@
       "colDate": "Date",
       "colPriority": "Priority",
       "colUser": "User",
-      "colAdjustmentsByPeriod": "Adjustments by period"
+      "colAdjustmentsByPeriod": "Adjustments by period",
+      "colGroups": "Grupos"
     },
     "adjustments": {
       "cycle": "Cycle",
