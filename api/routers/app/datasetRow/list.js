@@ -46,7 +46,8 @@ module.exports = new Route({
 
     let filters = {}
     for (var filter in ctx.request.query) {
-      if (filter === 'limit' || filter === 'start' || filter === 'sort') {
+      filter_skip = ['limit', 'start', 'sort', 'date_start', 'date_end']
+      if (filter_skip.includes(filter)) {
         continue
       }
 

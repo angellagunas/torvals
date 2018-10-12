@@ -122,8 +122,7 @@ class TabAdjustment extends Component {
               viewName: `Ciclo ${item.cycle} (Periodo ${item.periodStart} - ${item.periodEnd})`
             }
           })
-        }
-        else {
+        } else {
           cycles = cycles.map((item, key) => {
             return item = {
               ...item,
@@ -136,6 +135,7 @@ class TabAdjustment extends Component {
         cycles = cycles.filter(cycle => cycle.adjustmentRange !== 0)
 
         let formData = this.state.formData
+
         formData.cycle = cycles[0].cycle
         tree.set('selectedCycle', cycles[0])
         tree.commit()
@@ -1502,7 +1502,6 @@ class TabAdjustment extends Component {
             {this.state.filters &&
               this.makeFilters()
             }
-
             <div className='column is-narrow'>
                 <div className='field'>
 
@@ -1580,7 +1579,6 @@ class TabAdjustment extends Component {
                 </div>
               </div>
             </div>
-
           </div>
         </div>
 

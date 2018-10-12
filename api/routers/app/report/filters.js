@@ -65,11 +65,9 @@ module.exports = new Route({
 
     const users = await User.find({
       isDeleted: false,
+      isOperationalUser: true,
       'organizations.organization': organization._id
-    })
-    users.data = users.map((item) => {
-      return item.toPublic()
-    })
+    }).populate('groups')
 
     const catalogItems = await CatalogItem.find({
       isDeleted: false,
@@ -83,7 +81,7 @@ module.exports = new Route({
 
     ctx.body = {
       cycles: cycles.data,
-      users: users.data,
+      users: users,
       catalogItems: catalogItems.data
     }
   }

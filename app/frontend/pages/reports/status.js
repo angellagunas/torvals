@@ -25,10 +25,12 @@ class StatusRepórt extends Component {
       isLoading: '',
       filters: {
         cycles: [],
-        users: []
+        users: [],
+        exercise: [{ uuid: '1', name: 'Test' }]
       },
       formData: {
         cycle: 1,
+        exercise: '',
         user: undefined
       },
       searchTerm: '',
@@ -180,8 +182,6 @@ class StatusRepórt extends Component {
       aux[name] = value
       this.setState({
         formData: aux
-      }, () => {
-        this.getDataRows()
       })
     }
   }
@@ -287,7 +287,6 @@ class StatusRepórt extends Component {
         users = this.state.users.inactiveUsers
       }
 
-
       let data = await api.post(
         url,
         {
@@ -297,6 +296,34 @@ class StatusRepórt extends Component {
           projects: [this.state.projectSelected.uuid]
         }
       )
+      for (let activeUser of this.state.filters.users) {
+        const findUser = data.data.find(info => info.user[0].uuid === activeUser.uuid)
+        if (findUser) {
+          findUser.user[0].groups = activeUser.groups
+          continue
+        }
+
+        data.data.push({
+          approved: 0,
+          created: 0,
+          rejected: 0,
+          total: 0,
+          user: [activeUser],
+          _id: {
+            user: activeUser._id
+          }
+        })
+      }
+
+      for (let users of data.data) {
+        if (this.state.users.finishedUsers.includes(users.user[0].uuid)) {
+          users.status = 'Finalizado'
+        }
+        if (this.state.users.inProgressUsers.includes(users.user[0].uuid)) {
+          users.status = 'En proceso'
+        }
+      }
+
       this.setState({
         dataRows: data.data,
         isFiltered: true,
@@ -328,9 +355,29 @@ class StatusRepórt extends Component {
       },
       {
         'title': this.formatTitle('tables.colAdjustmentsByPeriod'),
-        'property': 'total',
+        'property': 'user.total',
         'default': '0',
+        'sortable': true,
+        formatter: (row) => {
+          return row.total - (row.approved + row.created + row.rejected)
+        }
+      },
+      {
+        'title': 'Estatus',
+        'property': 'status',
+        'default': 'Sin ajustes',
         'sortable': true
+      },
+      {
+        'title': this.formatTitle('tables.colGroups'),
+        'property': 'user.groups',
+        'default': '',
+        'sortable': true,
+        formatter: (row) => {
+          return row.user[0].groups
+            .map(group => group.name)
+            .join(', ')
+        }
       },
       {
         'title': this.formatTitle('approve.approved'),
@@ -494,6 +541,7 @@ class StatusRepórt extends Component {
       if (this.state.filters.hasOwnProperty(key)) {
         const element = this.state.filters[key];
         if (key === 'cycles' ||
+          key === 'exercise' ||
           key === 'channels' ||
           key === 'salesCenters' ||
           key === 'categories' ||
@@ -580,6 +628,10 @@ class StatusRepórt extends Component {
     }
   }
 
+  download() {
+    // Here should be the action to download the report
+  }
+
   render () {
     return (
       <div className='status-report'>
@@ -637,91 +689,82 @@ class StatusRepórt extends Component {
             </div>
             }
 
-
-            {this.state.filters &&
-              this.makeFilters()
-            }
-          </div>
-        </div>
         <div className='section columns is-padingless-top'>
-          <div className='column is-3'>
-            <div className={
-              classNames('notification is-success filter-widget',
-                { 'filter-widget__active': this.state.filterReady })
-              }
-              onClick={() => { this.filterUsers(1) }}>
-              <div className='level'>
-                <div className='level-left'>
-                  <div className='level-item'>
-                    <span className='icon is-large'>
-                      <i className='fa fa-2x fa-check'></i>
-                    </span>
-                  </div>
-                  <div className='level-item'>
-                    <p><strong>{this.state.users.finishedUsers.length} Usuarios</strong></p>
-                    <p>
-                      <FormattedMessage
-                        id="report.adjustmentFinished"
-                        defaultMessage={`Ajustes finalizados`}
-                      />
-                    </p>
+          <div className='column'>
+            <div className='section level selects is-clearfix'>
+              <div className='level-left'>
+                {this.state.projectSelected && this.state.projects &&
+                <div className='level-item'>
+                  <Select
+                    label={this.formatTitle('projectConfig.project')}
+                    name='project'
+                    value={this.state.projectSelected.uuid}
+                    optionValue='uuid'
+                    optionName='name'
+                    options={this.state.projects}
+                    onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+                  />
+                </div>
+                }
+                {this.state.filters.cycles.length > 0 &&
+                <div className='level-item'>
+                  <Select
+                    label={this.formatTitle('adjustments.cycle')}
+                    name='cycle'
+                    value={this.state.formData.cycle}
+                    optionValue='cycle'
+                    optionName='name'
+                    type='integer'
+                    options={this.state.filters.cycles}
+                    onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+                    disabled={this.state.filtersLoading}
+                  />
+                </div>
+                }
+                {this.state.filters.users.length > 0 &&
+                <div className='level-item'>
+                  <Select
+                    label={this.formatTitle('import.users')}
+                    name='user'
+                    value={this.state.formData.user}
+                    optionValue='uuid'
+                    optionName='name'
+                    placeholder={this.formatTitle('anomalies.all')}
+                    options={this.state.filters.users}
+                    onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+                    disabled={this.state.filtersLoading}
+                  />
+                </div>
+                }
+
+
+                {this.state.filters &&
+                  this.makeFilters()
+                }
+
+                <div className='level-item'>
+                  <div className="field">
+                    <div className="label">
+                      <br />
+                    </div>
+                    <div className="control">
+                      <button className='button is-primary is-pulled-right'
+                        disabled={!!this.state.isLoading}
+                        onClick={() => this.getDataRows()}
+                      >
+                        <FormattedMessage
+                          id='dashboard.searchText'
+                          defaultMessage={`Buscar`}
+                        />
+                      </button>
+                    </div>
                   </div>
                 </div>
+
               </div>
             </div>
           </div>
-          <div className='column is-3'>
-            <div className={
-              classNames('notification is-info filter-widget',
-                { 'filter-widget__active': this.state.filterProgress })
-              }
-              onClick={() => { this.filterUsers(2) }}>
-              <div className='level'>
-                <div className='level-left'>
-                  <div className='level-item'>
-                    <span className='icon is-large'>
-                      <i className='fa fa-2x fa-cog'></i>
-                    </span>
-                  </div>
-                  <div className='level-item'>
-                    <p><strong>{this.state.users.inProgressUsers.length} Usuarios</strong></p>
-                    <p>
-                      <FormattedMessage
-                        id="report.adjustmentInProcess"
-                        defaultMessage={`Ajustes en proceso`}
-                      />
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className='column is-3'>
-            <div className={
-              classNames('notification is-danger filter-widget',
-                { 'filter-widget__active': this.state.filterInactive })
-              }
-              onClick={() => { this.filterUsers(3) }}>
-              <div className='level'>
-                <div className='level-left'>
-                  <div className='level-item'>
-                    <span className='icon is-large'>
-                      <i className='fa fa-2x fa-exclamation-circle'></i>
-                    </span>
-                  </div>
-                  <div className='level-item'>
-                    <p><strong>{this.state.users.inactiveUsers.length} Usuarios</strong></p>
-                    <p>
-                      <FormattedMessage
-                        id="report.noAdjustment"
-                        defaultMessage={`Sin ajustes`}
-                      />
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+
           <div className='column is-narrow'>
             <div className='time has-text-centered'>
               <p className='desc'>
@@ -794,6 +837,29 @@ class StatusRepórt extends Component {
               </div>
             </div>
           </div>
+
+          <div className='level-right'>
+            <div className='level-item'>
+
+              <div className='field'>
+                <label className='label'>
+                  <br />
+                </label>
+                <div className='control'>
+                  <button className='button is-primary is-pulled-right'
+                    disabled={!!this.state.isLoading}
+                    onClick={() => this.download()}
+                  >
+                    <span className='icon' title='Descargar'>
+                      <i className='fa fa-download' />
+                    </span>
+                  </button>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
         </div>
 
         {this.state.filteredData

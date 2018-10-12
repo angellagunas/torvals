@@ -75,8 +75,7 @@ const task = new Task(
         } else {
           rawLine = String(execSync(`sed '1,${i * batchSize}d;${(i * batchSize) + batchSize}q' ${filepath}`))
         }
-
-        let rows = rawLine.split('\n')
+        let rows = rawLine.split(/\r\n|\r|\n/g)
 
         for (let row of rows) {
           let obj = {}
