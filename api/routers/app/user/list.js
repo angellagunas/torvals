@@ -7,6 +7,15 @@ module.exports = new Route({
   path: '/',
   handler: async function (ctx) {
     var sortStatement = {}
+    let match = [{'$match': {}}]
+    let roleOrg = ctx.state.user.organizations.filter((item) => { return String(item.organization._id) == String(ctx.state.organization._id)})
+    if(String(roleOrg[0].role.slug) !== 'orgadmin'){
+      match = [{
+        '$match': {
+          'groups': {'$in': ctx.state.user.groups.map((item) => {return ObjectId(item)}) }
+        }
+      }]
+    }
 
     var columns = [
       {name: 'name', type: 'String'},
@@ -33,11 +42,7 @@ module.exports = new Route({
           'organizations.organization': ObjectId(ctx.state.organization._id)
         }
       },
-      {
-        '$match': {
-          'groups': {'$in': ctx.state.user.groups.map((item) => {return ObjectId(item)}) }
-        }
-      },
+      ...match,
       {
         '$unwind': {
           'path': '$infoRole'
