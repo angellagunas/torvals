@@ -34,6 +34,11 @@ module.exports = new Route({
         }
       },
       {
+        '$match': {
+          'groups': {'$in': ctx.state.user.groups.map((item) => {return ObjectId(item)}) }
+        }
+      },
+      {
         '$unwind': {
           'path': '$infoRole'
         }
