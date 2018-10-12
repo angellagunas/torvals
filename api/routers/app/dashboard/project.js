@@ -2,7 +2,7 @@ const Route = require('lib/router/route')
 const _ = require('lodash')
 const ObjectId = require('mongodb').ObjectID
 
-const { DataSetRow, Project, Role, CatalogItem, Rule } = require('models')
+const { DataSetRow, Project, Role, CatalogItem, Rule, Group } = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -11,6 +11,7 @@ module.exports = new Route({
     let data = ctx.request.query
     let projectsUuid = Object.values(data).map(item => { return item })
     const user = ctx.state.user
+    const groups = await Group.findOne({_id: {$in: user.groups.map((item) => {return ObjectId(item)})}})
 
     let filters = {
       organization: ctx.state.organization,
@@ -75,7 +76,7 @@ module.exports = new Route({
           user
         )
 
-      matchCond['$match']['catalogItems'] = { $in: catalogItems }
+      matchCond['$match']['catalogItems'] = { $in: groups.catalogItems }
     }
 
     let statement = [
@@ -125,7 +126,7 @@ module.exports = new Route({
     }
 
     const catalogs = datasetRow[0].catalogItems.filter(item => {
-      return matchCatalogs.indexOf(item.type) >= 0 && item.isDeleted === false
+      return groups.catalogItems.indexOf(item._id) >= 0 && item.isDeleted === false
     })
 
     ctx.body = {
