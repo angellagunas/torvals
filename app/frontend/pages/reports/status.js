@@ -27,7 +27,7 @@ class StatusRepórt extends Component {
         cycles: [],
         users: [],
         status: [
-          { uuid: 0, name: 'Todo' },
+          { uuid: 0, name: 'Todos' },
           { uuid: 1, name: 'Finalizado' },
           { uuid: 2, name: 'En proceso' },
           { uuid: 3, name: 'Inactivo' }
