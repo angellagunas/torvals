@@ -26,6 +26,12 @@ class StatusRepórt extends Component {
       filters: {
         cycles: [],
         users: [],
+        status: [
+          { uuid: 0, name: 'Todo' },
+          { uuid: 1, name: 'Finalizado' },
+          { uuid: 2, name: 'En proceso' },
+          { uuid: 3, name: 'Inactivo' }
+        ],
         exercise: [{ uuid: '1', name: 'Test' }]
       },
       formData: {
@@ -542,6 +548,7 @@ class StatusRepórt extends Component {
         const element = this.state.filters[key];
         if (key === 'cycles' ||
           key === 'exercise' ||
+          key === 'status' ||
           key === 'channels' ||
           key === 'salesCenters' ||
           key === 'categories' ||
@@ -648,47 +655,62 @@ class StatusRepórt extends Component {
             <div className='section level selects is-clearfix'>
               <div className='level-left'>
                 {this.state.projectSelected && this.state.projects &&
-                <div className='level-item'>
-                  <Select
-                    label={this.formatTitle('projectConfig.project')}
-                    name='project'
-                    value={this.state.projectSelected.uuid}
-                    optionValue='uuid'
-                    optionName='name'
-                    options={this.state.projects}
-                    onChange={(name, value) => { this.filterChangeHandler(name, value) }}
-                  />
-                </div>
+                  <div className='level-item'>
+                    <Select
+                      label={this.formatTitle('projectConfig.project')}
+                      name='project'
+                      value={this.state.projectSelected.uuid}
+                      optionValue='uuid'
+                      optionName='name'
+                      options={this.state.projects}
+                      onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+                    />
+                  </div>
                 }
                 {this.state.filters.cycles.length > 0 &&
-                <div className='level-item'>
-                  <Select
-                    label={this.formatTitle('adjustments.cycle')}
-                    name='cycle'
-                    value={this.state.formData.cycle}
-                    optionValue='cycle'
-                    optionName='name'
-                    type='integer'
-                    options={this.state.filters.cycles}
-                    onChange={(name, value) => { this.filterChangeHandler(name, value) }}
-                    disabled={this.state.filtersLoading}
-                  />
-                </div>
+                  <div className='level-item'>
+                    <Select
+                      label={this.formatTitle('adjustments.cycle')}
+                      name='cycle'
+                      value={this.state.formData.cycle}
+                      optionValue='cycle'
+                      optionName='name'
+                      type='integer'
+                      options={this.state.filters.cycles}
+                      onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+                      disabled={this.state.filtersLoading}
+                    />
+                  </div>
                 }
                 {this.state.filters.users.length > 0 &&
-                <div className='level-item'>
-                  <Select
-                    label={this.formatTitle('import.users')}
-                    name='user'
-                    value={this.state.formData.user}
-                    optionValue='uuid'
-                    optionName='name'
-                    placeholder={this.formatTitle('anomalies.all')}
-                    options={this.state.filters.users}
-                    onChange={(name, value) => { this.filterChangeHandler(name, value) }}
-                    disabled={this.state.filtersLoading}
-                  />
-                </div>
+                  <div className='level-item'>
+                    <Select
+                      label={this.formatTitle('import.users')}
+                      name='user'
+                      value={this.state.formData.user}
+                      optionValue='uuid'
+                      optionName='name'
+                      placeholder={this.formatTitle('anomalies.all')}
+                      options={this.state.filters.users}
+                      onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+                      disabled={this.state.filtersLoading}
+                    />
+                  </div>
+                }
+
+                {this.state.filters.status.length > 0 &&
+                  <div className='level-item'>
+                    <Select
+                      label={"Estatus"}
+                      name='status'
+                      value={this.state.formData.status}
+                      optionValue='uuid'
+                      optionName='name'
+                      options={this.state.filters.status}
+                      onChange={(name, value) => { this.filterUsers(value) }}
+                      disabled={this.state.filtersLoading}
+                    />
+                  </div>
                 }
 
 
