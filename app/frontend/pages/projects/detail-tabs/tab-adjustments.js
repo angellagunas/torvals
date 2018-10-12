@@ -113,7 +113,8 @@ class TabAdjustment extends Component {
             return item = {
               ...item,
               adjustmentRange: this.rules.rangesLvl2[key],
-              name: moment.utc(item.dateStart).format('MMMM D') + ' - ' + moment.utc(item.dateEnd).format('MMMM D')
+              name: moment.utc(item.dateStart).format('MMMM D') + ' - ' + moment.utc(item.dateEnd).format('MMMM D'),
+              viewName: `Ciclo ${item.cycle} (Periodo ${item.periodStart} - ${item.periodEnd})`
             }
           })
         }
@@ -122,7 +123,8 @@ class TabAdjustment extends Component {
             return item = {
               ...item,
               adjustmentRange: this.rules.ranges[key],
-              name: moment.utc(item.dateStart).format('MMMM D') + ' - ' + moment.utc(item.dateEnd).format('MMMM D')
+              name: moment.utc(item.dateStart).format('MMMM D') + ' - ' + moment.utc(item.dateEnd).format('MMMM D'),
+              viewName: `Ciclo ${item.cycle} (Periodo ${item.periodStart} - ${item.periodEnd})`
             }
           })
         }
@@ -1445,7 +1447,7 @@ class TabAdjustment extends Component {
                 name='cycle'
                 value={this.state.formData.cycle}
                 optionValue='cycle'
-                optionName='name'
+                optionName='viewName'
                 type='integer'
                 options={this.state.filters.cycles}
                 onChange={(name, value) => { this.filterChangeHandler(name, value) }}
