@@ -611,8 +611,6 @@ class StatusRepórt extends Component {
         filterReady: !this.state.filterReady,
         filterProgress: false,
         filterInactive: false
-      }, () => {
-        this.getDataRows()
       })
     }
     else if (type === 2) {
@@ -620,8 +618,6 @@ class StatusRepórt extends Component {
         filterReady: false,
         filterProgress: !this.state.filterProgress,
         filterInactive: false
-      }, () => {
-        this.getDataRows()
       })
     }
     else if (type === 3) {
@@ -629,8 +625,6 @@ class StatusRepórt extends Component {
         filterReady: false,
         filterProgress: false,
         filterInactive: !this.state.filterInactive
-      }, () => {
-        this.getDataRows()
       })
     }
   }
