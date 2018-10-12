@@ -688,7 +688,8 @@ class StatusRepórt extends Component {
               />
             </div>
             }
-
+          </div>
+        </div>
         <div className='section columns is-padingless-top'>
           <div className='column'>
             <div className='section level selects is-clearfix'>
@@ -810,88 +811,88 @@ class StatusRepórt extends Component {
           </div>
         </div>
         <div className='section search-section'>
-        <div className='level'>
-          <div className='level-left'>
-            <div className='level-item'>
+          <div className='level'>
+            <div className='level-left'>
+              <div className='level-item'>
 
-              <div className='field'>
-                <label className='label'>
-                  <FormattedMessage
-                      id="dashboard.searchText"
-                    defaultMessage={`Búsqueda general`}
-                  />
-                </label>
-                <div className='control has-icons-right'>
-                  <input
-                    className='input'
-                    type='text'
-                    value={this.state.searchTerm}
-                    onChange={this.searchOnChange}
-                    placeholder={this.formatTitle('dashboard.searchText')}
-                  />
+                <div className='field'>
+                  <label className='label'>
+                    <FormattedMessage
+                        id="dashboard.searchText"
+                      defaultMessage={`Búsqueda general`}
+                    />
+                  </label>
+                  <div className='control has-icons-right'>
+                    <input
+                      className='input'
+                      type='text'
+                      value={this.state.searchTerm}
+                      onChange={this.searchOnChange}
+                      placeholder={this.formatTitle('dashboard.searchText')}
+                    />
 
-                  <span className='icon is-small is-right'>
-                    <i className='fa fa-search fa-xs' />
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className='level-right'>
-            <div className='level-item'>
-
-              <div className='field'>
-                <label className='label'>
-                  <br />
-                </label>
-                <div className='control'>
-                  <button className='button is-primary is-pulled-right'
-                    disabled={!!this.state.isLoading}
-                    onClick={() => this.download()}
-                  >
-                    <span className='icon' title='Descargar'>
-                      <i className='fa fa-download' />
+                    <span className='icon is-small is-right'>
+                      <i className='fa fa-search fa-xs' />
                     </span>
-                  </button>
+                  </div>
                 </div>
-
               </div>
             </div>
+
+            <div className='level-right'>
+              <div className='level-item'>
+
+                <div className='field'>
+                  <label className='label'>
+                    <br />
+                  </label>
+                  <div className='control'>
+                    <button className='button is-primary is-pulled-right'
+                      disabled={!!this.state.isLoading}
+                      onClick={() => this.download()}
+                    >
+                      <span className='icon' title='Descargar'>
+                        <i className='fa fa-download' />
+                      </span>
+                    </button>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
           </div>
 
-        </div>
+          {this.state.filteredData
+            ? this.state.filteredData.length > 0
+              ? <div className='scroll-table'>
+                <div className='scroll-table-container'>
 
-        {this.state.filteredData
-          ? this.state.filteredData.length > 0
-            ? <div className='scroll-table'>
-              <div className='scroll-table-container'>
-
-                <BaseTable
-                  className='dash-table is-fullwidth status-table'
-                  data={this.state.filteredData}
-                  columns={this.getColumns()}
-                  handleSort={(e) => { this.handleSort(e) }}
-                  sortAscending={this.state.sortAscending}
-                  sortBy={this.state.sortBy}
-                />
-              </div>
-            </div>
-            : <section className='section'>
-              <center>
-                <h1 className='has-text-info'>
-                  <FormattedMessage
-                    id="report.noInfo"
-                    defaultMessage={`No hay información que mostrar, intente con otro filtro`}
+                  <BaseTable
+                    className='dash-table is-fullwidth status-table'
+                    data={this.state.filteredData}
+                    columns={this.getColumns()}
+                    handleSort={(e) => { this.handleSort(e) }}
+                    sortAscending={this.state.sortAscending}
+                    sortBy={this.state.sortBy}
                   />
-                </h1>
-              </center>
+                </div>
+              </div>
+              : <section className='section'>
+                <center>
+                  <h1 className='has-text-info'>
+                    <FormattedMessage
+                      id="report.noInfo"
+                      defaultMessage={`No hay información que mostrar, intente con otro filtro`}
+                    />
+                  </h1>
+                </center>
+              </section>
+            : <section className='section'>
+              {this.loadTable()}
             </section>
-          : <section className='section'>
-            {this.loadTable()}
-          </section>
-        }
-      </div>
+          }
+        </div>
       </div>
     )
   }
