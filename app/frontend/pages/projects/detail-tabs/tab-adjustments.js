@@ -193,10 +193,20 @@ class TabAdjustment extends Component {
     const adjustmentStart = '2018-10-18'
     const adjustmentEnd = '2018-10-25'
 
-    const now = moment(adjustmentStart).utc()
-    const then = moment(adjustmentEnd).utc();
+    const start = moment(adjustmentStart).utc()
+    const end = moment(adjustmentEnd).utc();
 
-    const diff = moment.duration(then.diff(now));
+    let now = moment().utc()
+
+    if (now.month() === end.month() && now.date() > end.date()) {
+      now = end
+    } else if (now.month() === start.month()) {
+      now = now.date() > start.date() ? now : start
+    } else {
+      now = end
+    }
+
+    const diff = moment.duration(end.diff(now));
     const days = parseInt(diff.asDays());
     let hours = parseInt(diff.asHours());
     let minutes = parseInt(diff.asMinutes());
