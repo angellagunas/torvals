@@ -1,5 +1,13 @@
 const Route = require('lib/router/route')
-const {Project, User, Organization, CatalogItem, Cycle, Rule} = require('models')
+const {
+  Project,
+  User,
+  Organization,
+  CatalogItem,
+  Cycle,
+  Rule,
+  Period
+} = require('models')
 const moment = require('moment')
 
 module.exports = new Route({
@@ -41,9 +49,19 @@ module.exports = new Route({
 
     }).sort({dateStart: 1}).limit(rule.cyclesAvailable)
 
-    cycles.data = cycles.map((item) => {
-      return item.toPublic()
+    cycles.data = cycles.map(async item => {
+      const periods = await Period.find({
+        cycle: item._id
+      })
+
+      return {
+        ...item.toPublic(),
+        periodStart: (periods[0] || {}).period,
+        periodEnd: (periods[periods.length - 1] || {}).period
+      }
     })
+
+    cycles.data = await Promise.all(cycles.data)
 
     const users = await User.find({
       isDeleted: false,

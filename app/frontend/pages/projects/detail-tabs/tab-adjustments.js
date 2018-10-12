@@ -46,6 +46,7 @@ class TabAdjustment extends Component {
       formData: {
         cycle: 1
       },
+      timeRemaining: {},
       disableButtons: true,
       selectedCheckboxes: new Set(),
       searchTerm: '',
@@ -97,6 +98,10 @@ class TabAdjustment extends Component {
     }
   }
 
+  componentWillUnmount(){
+    clearInterval(this.interval)
+  }
+
   async getFilters() {
     if (this.props.project.activeDataset && this.props.project.status === 'adjustment') {
       this.setState({ filtersLoading:true })
@@ -113,7 +118,8 @@ class TabAdjustment extends Component {
             return item = {
               ...item,
               adjustmentRange: this.rules.rangesLvl2[key],
-              name: moment.utc(item.dateStart).format('MMMM D') + ' - ' + moment.utc(item.dateEnd).format('MMMM D')
+              name: moment.utc(item.dateStart).format('MMMM D') + ' - ' + moment.utc(item.dateEnd).format('MMMM D'),
+              viewName: `Ciclo ${item.cycle} (Periodo ${item.periodStart} - ${item.periodEnd})`
             }
           })
         } else {
@@ -121,7 +127,8 @@ class TabAdjustment extends Component {
             return item = {
               ...item,
               adjustmentRange: this.rules.ranges[key],
-              name: moment.utc(item.dateStart).format('MMMM D') + ' - ' + moment.utc(item.dateEnd).format('MMMM D')
+              name: moment.utc(item.dateStart).format('MMMM D') + ' - ' + moment.utc(item.dateEnd).format('MMMM D'),
+              viewName: `Ciclo ${item.cycle} (Periodo ${item.periodStart} - ${item.periodEnd})`
             }
           })
         }
@@ -159,6 +166,13 @@ class TabAdjustment extends Component {
           filtersLoaded: true
         }, () => {
           this.getDataRows()
+          this.getTimeRemaining()
+
+          if (!this.interval) {
+            this.interval = setInterval(() => {
+              this.getTimeRemaining()
+            }, 60000)
+          }
         })
       } catch (e) {
         console.log(e)
@@ -175,6 +189,40 @@ class TabAdjustment extends Component {
         )
       }
     }
+  }
+
+  getTimeRemaining() {
+    const adjustmentStart = '2018-10-18'
+    const adjustmentEnd = '2018-10-25'
+
+    const start = moment(adjustmentStart).utc()
+    const end = moment(adjustmentEnd).utc();
+
+    let now = moment().utc()
+
+    if (now.month() === end.month() && now.date() > end.date()) {
+      now = end
+    } else if (now.month() === start.month()) {
+      now = now.date() > start.date() ? now : start
+    } else {
+      now = end
+    }
+
+    const diff = moment.duration(end.diff(now));
+    const days = parseInt(diff.asDays());
+    let hours = parseInt(diff.asHours());
+    let minutes = parseInt(diff.asMinutes());
+
+    hours = hours - days * 24;
+    minutes = minutes - (days * 24 * 60 + hours * 60);
+
+    this.setState({
+      timeRemaining: {
+        days,
+        hours,
+        minutes
+      }
+    })
   }
 
   async filterChangeHandler (name, value) {
@@ -1445,7 +1493,7 @@ class TabAdjustment extends Component {
                 name='cycle'
                 value={this.state.formData.cycle}
                 optionValue='cycle'
-                optionName='name'
+                optionName='viewName'
                 type='integer'
                 options={this.state.filters.cycles}
                 onChange={(name, value) => { this.filterChangeHandler(name, value) }}
@@ -1454,7 +1502,83 @@ class TabAdjustment extends Component {
             {this.state.filters &&
               this.makeFilters()
             }
+            <div className='column is-narrow'>
+                <div className='field'>
 
+                  <div className="is-clearfix">
+                    <label className='label is-pulled-left'>
+                      <FormattedMessage
+                        id="dashboard.initialMonth"
+                        defaultMessage={`Mes inicial`}
+                      />
+                    </label>
+                    <label className='label is-pulled-right'>
+                      <FormattedMessage
+                        id="dashboard.lastMonth"
+                        defaultMessage={`Mes final`}
+                      />
+                    </label>
+                  </div>
+
+                  <div className='field is-grouped control'>
+                    <DatePicker
+                      minDate={this.state.minDate}
+                      maxDate={this.state.maxDate}
+                      initialStartDate={this.state.startDate}
+                      initialEndDate={this.state.endDate}
+                      onChange={({ startDate, endDate }) => this.onDatesChange({ startDate, endDate })}
+                    />
+                  </div>
+
+              </div>
+            </div>
+
+            <div className='column is-narrow is-pulled-right'>
+              <div className='time has-text-centered'>
+                <b className='desc'>
+                  <FormattedMessage
+                    id="report.adjustmentTimeLeft"
+                    defaultMessage={`Tiempo restante para ajustar`}
+                  />
+                </b>
+                <div className='level'>
+                  <div className='level-item'>
+                    <b className='num'>{this.state.timeRemaining.days}</b>
+                    <b className='desc'>
+                      &nbsp;
+                      <FormattedMessage
+                        id="report.days"
+                        defaultMessage={`Días`}
+                      />
+                    </b>
+                  </div>
+                  <div className='level-item'>
+                    <b className='num'>{this.state.timeRemaining.hours}</b>
+                    <b className='desc'>
+                      &nbsp;
+                      <FormattedMessage
+                        id="report.hours"
+                        defaultMessage={`Horas`}
+                      />
+                    </b>
+                  </div>
+                  <div className='level-item'>
+                    <b className='num'>:</b>
+                    <b className='desc'>&nbsp;</b>
+                  </div>
+                  <div className='level-item'>
+                    <b className='num'>{this.state.timeRemaining.minutes}</b>
+                    <b className='desc'>
+                      &nbsp;
+                      <FormattedMessage
+                        id="report.minutes"
+                        defaultMessage={`Min.`}
+                      />
+                    </b>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
