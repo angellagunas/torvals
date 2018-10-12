@@ -1,4 +1,5 @@
 const Route = require('lib/router/route')
+const ObjectId = require('mongodb').ObjectID
 const { DataSetRow, User, Project, CatalogItem, Cycle, AdjustmentRequest } = require('models')
 const _ = require('lodash')
 
@@ -7,6 +8,8 @@ module.exports = new Route({
   path: '/adjustments/',
   handler: async function (ctx) {
     var data = ctx.request.body
+    let usersInGroup = await User.find({groups: {$in: ctx.state.user.groups.map((item) => {return Object(item)})}})
+    let validUsersIds = usersInGroup.map((item) => {return ObjectId(item._id)})
 
     let initialMatch = {}
     let midMatch = {}
@@ -45,6 +48,11 @@ module.exports = new Route({
       midMatch['$or'] = [
         {'adjustmentRequest.requestedBy': {$in: usersIds}},
         {updatedBy: {'$in': usersIds}, 'adjustmentRequest.requestedBy': null}
+      ]
+    } else {
+      midMatch['$or'] = [
+        {'adjustmentRequest.requestedBy': {$in: validUsersIds}},
+        {updatedBy: {'$in': validUsersIds}, 'adjustmentRequest.requestedBy': null}
       ]
     }
 
