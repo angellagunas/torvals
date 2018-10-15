@@ -356,7 +356,20 @@ class StatusRepórt extends Component {
         'default': 'N/A',
         'sortable': true,
         formatter: (row) => {
-          return row.user[0].name
+            return (
+              <a className='' onClick={() => this.userDetail(row.user[0])}>
+                { row.user[0].name }
+              </a>
+            )
+        }
+      },
+      {
+        'title': 'Rol',
+        'property': 'role.name',
+        'default': '',
+        'sortable': true,
+        formatter: (row) => {
+          return row.user[0].organizations[0].role.name
         }
       },
       {
@@ -380,9 +393,34 @@ class StatusRepórt extends Component {
         'default': '',
         'sortable': true,
         formatter: (row) => {
-          return row.user[0].groups
-            .map(group => group.name)
-            .join(', ')
+          if (row.user[0].groups.length > 2) {
+            return (
+              <div>
+                {row.user[0].groups[0].name}
+                <br />
+                {row.user[0].groups[1].name}
+                <br />
+                {row.user[0].groups.length - 2} <FormattedMessage
+                  id="user.detailMore"
+                  defaultMessage={`más`}
+                />
+              </div>
+            )
+          } else if (row.user[0].groups.length > 1) {
+            return (
+              <div>
+                {row.user[0].groups[0].name}
+                <br />
+                {row.user[0].groups[1].name}
+              </div>
+            )
+          } else if (row.user[0].groups.length > 0) {
+            return (
+              <div>
+                {row.user[0].groups[0].name}
+              </div>
+            )
+          }
         }
       },
       {
@@ -402,18 +440,6 @@ class StatusRepórt extends Component {
         'property': 'created',
         'default': '0',
         'sortable': true
-      },
-      {
-        'title': this.formatTitle('tables.colActions'),
-        formatter: (row) => {
-            return (
-              <a className='button is-primary' onClick={() => this.userDetail(row.user[0])}>
-                <span className='icon is-small' title='Visualizar'>
-                  <i className='fa fa-eye' />
-                </span>
-              </a>
-            )
-        }
       }
     ]
 
