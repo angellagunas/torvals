@@ -17,6 +17,7 @@ import ProductTable from './product-table'
 import Select from './select'
 import Graph from '~base/components/graph'
 import DatePicker from '~base/components/date-picker'
+import { Timer } from '~base/components/timer'
 
 const FileSaver = require('file-saver')
 
@@ -98,10 +99,6 @@ class TabAdjustment extends Component {
     }
   }
 
-  componentWillUnmount(){
-    clearInterval(this.interval)
-  }
-
   async getFilters() {
     if (this.props.project.activeDataset && this.props.project.status === 'adjustment') {
       this.setState({ filtersLoading:true })
@@ -166,13 +163,6 @@ class TabAdjustment extends Component {
           filtersLoaded: true
         }, () => {
           this.getDataRows()
-          this.getTimeRemaining()
-
-          if (!this.interval) {
-            this.interval = setInterval(() => {
-              this.getTimeRemaining()
-            }, 60000)
-          }
         })
       } catch (e) {
         console.log(e)
@@ -189,40 +179,6 @@ class TabAdjustment extends Component {
         )
       }
     }
-  }
-
-  getTimeRemaining() {
-    const adjustmentStart = '2018-10-18'
-    const adjustmentEnd = '2018-10-25'
-
-    const start = moment(adjustmentStart).utc()
-    const end = moment(adjustmentEnd).utc();
-
-    let now = moment().utc()
-
-    if (now.month() === end.month() && now.date() > end.date()) {
-      now = end
-    } else if (now.month() === start.month()) {
-      now = now.date() > start.date() ? now : start
-    } else {
-      now = end
-    }
-
-    const diff = moment.duration(end.diff(now));
-    const days = parseInt(diff.asDays());
-    let hours = parseInt(diff.asHours());
-    let minutes = parseInt(diff.asMinutes());
-
-    hours = hours - days * 24;
-    minutes = minutes - (days * 24 * 60 + hours * 60);
-
-    this.setState({
-      timeRemaining: {
-        days,
-        hours,
-        minutes
-      }
-    })
   }
 
   async filterChangeHandler (name, value) {
@@ -1533,52 +1489,8 @@ class TabAdjustment extends Component {
               </div>
             </div>
 
-            <div className='column is-narrow is-pulled-right'>
-              <div className='time has-text-centered'>
-                <b className='desc'>
-                  <FormattedMessage
-                    id="report.adjustmentTimeLeft"
-                    defaultMessage={`Tiempo restante para ajustar`}
-                  />
-                </b>
-                <div className='level'>
-                  <div className='level-item'>
-                    <b className='num'>{this.state.timeRemaining.days}</b>
-                    <b className='desc'>
-                      &nbsp;
-                      <FormattedMessage
-                        id="report.days"
-                        defaultMessage={`Días`}
-                      />
-                    </b>
-                  </div>
-                  <div className='level-item'>
-                    <b className='num'>{this.state.timeRemaining.hours}</b>
-                    <b className='desc'>
-                      &nbsp;
-                      <FormattedMessage
-                        id="report.hours"
-                        defaultMessage={`Horas`}
-                      />
-                    </b>
-                  </div>
-                  <div className='level-item'>
-                    <b className='num'>:</b>
-                    <b className='desc'>&nbsp;</b>
-                  </div>
-                  <div className='level-item'>
-                    <b className='num'>{this.state.timeRemaining.minutes}</b>
-                    <b className='desc'>
-                      &nbsp;
-                      <FormattedMessage
-                        id="report.minutes"
-                        defaultMessage={`Min.`}
-                      />
-                    </b>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <Timer />
+
           </div>
         </div>
 

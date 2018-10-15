@@ -13,6 +13,7 @@ import { BaseTable } from '~base/components/base-table'
 import Link from '~base/router/link'
 import classNames from 'classnames'
 import { defaultCatalogs } from '~base/tools'
+import { Timer } from '~base/components/timer'
 
 class StatusRepórt extends Component {
   constructor (props) {
@@ -67,10 +68,6 @@ class StatusRepórt extends Component {
 
   componentWillMount () {
     this.getProjects()
-  }
-
-  componentWillUnmount(){
-    clearInterval(this.interval)
   }
 
   async getProjects() {
@@ -133,10 +130,6 @@ class StatusRepórt extends Component {
 
       let formData = this.state.formData
       formData.cycle = cycles[0].cycle
-
-      this.interval = setInterval(() => {
-        this.getTimeRemaining()
-      }, 60000)
 
       this.setState({
         filters: {
@@ -252,8 +245,6 @@ class StatusRepórt extends Component {
       this.notify('¡Se debe filtrar por ciclo!', 5000, toast.TYPE.ERROR)
       return
     }
-
-    this.getTimeRemaining()
 
     await this.getUsers()
 
@@ -578,33 +569,6 @@ class StatusRepórt extends Component {
     return filters
   }
 
-  getTimeRemaining(){
-    let cycle = this.state.filters.cycles.find(item => {
-      return item.cycle === this.state.formData.cycle
-    })
-    let now = moment.utc()
-    let then = moment.utc(cycle.dateEnd);
-    let diff = moment.duration(then.diff(now));
-    let days = parseInt(diff.asDays());
-
-    let hours = parseInt(diff.asHours());
-
-    hours = hours - days * 24;
-
-    let minutes = parseInt(diff.asMinutes());
-
-    minutes = minutes - (days * 24 * 60 + hours * 60);
-
-    this.setState({
-      timeRemaining: {
-        days,
-        hours,
-        minutes
-      }
-    })
-  }
-
-
   filterUsers(type){
     if(type === 1){
       this.setState({
@@ -668,7 +632,7 @@ class StatusRepórt extends Component {
                       name='cycle'
                       value={this.state.formData.cycle}
                       optionValue='cycle'
-                      optionName='name'
+                      optionName='viewName'
                       type='integer'
                       options={this.state.filters.cycles}
                       onChange={(name, value) => { this.filterChangeHandler(name, value) }}
@@ -735,49 +699,8 @@ class StatusRepórt extends Component {
             </div>
           </div>
 
-          <div className='column is-narrow'>
-            <div className='time has-text-centered'>
-              <p className='desc'>
-                <FormattedMessage
-                  id="report.adjustmentTimeLeft"
-                  defaultMessage={`Tiempo restante para ajustar`}
-                />
-              </p>
-              <div className='level'>
-                <div className='level-item'>
-                  <p className='num'>{this.state.timeRemaining.days}</p>
-                  <p className='desc'>
-                    <FormattedMessage
-                      id="report.days"
-                      defaultMessage={`Días`}
-                    />
-                  </p>
-                </div>
-                <div className='level-item'>
-                  <p className='num'>{this.state.timeRemaining.hours}</p>
-                  <p className='desc'>
-                    <FormattedMessage
-                      id="report.hours"
-                      defaultMessage={`Horas`}
-                    />
-                  </p>
-                </div>
-                <div className='level-item'>
-                  <p className='num'>:</p>
-                  <p className='desc'>&nbsp;</p>
-                </div>
-                <div className='level-item'>
-                  <p className='num'>{this.state.timeRemaining.minutes}</p>
-                  <p className='desc'>
-                    <FormattedMessage
-                      id="report.minutes"
-                      defaultMessage={`Min.`}
-                    />
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+          <Timer />
+
         </div>
         <div className='section search-section'>
         <div className='level'>
