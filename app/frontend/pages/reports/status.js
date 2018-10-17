@@ -830,23 +830,23 @@ class StatusRepórt extends Component {
               </div>
             </div>
 
-          <div className='level-right'>
-            <div className='level-item'>
+            <div className='level-right'>
+              <div className='level-item'>
 
-              <div className='field'>
-                <label className='label'>
-                  <br />
-                </label>
-                <div className='control'>
-                  <button className='button is-primary'
-                    disabled={!!this.state.isLoading}
-                    onClick={() => this.download()}
-                  >
-                    <span className='icon' title='Descargar'>
-                      <i className='fa fa-download' />
-                    </span>
-                  </button>
-                </div>
+                <div className='field'>
+                  <label className='label'>
+                    <br />
+                  </label>
+                  <div className='control'>
+                    <button className='button is-primary'
+                      disabled={!!this.state.isLoading}
+                      onClick={() => this.download()}
+                    >
+                      <span className='icon' title='Descargar'>
+                        <i className='fa fa-download' />
+                      </span>
+                    </button>
+                  </div>
 
                 </div>
               </div>
