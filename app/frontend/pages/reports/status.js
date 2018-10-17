@@ -628,7 +628,7 @@ class StatusRepórt extends Component {
             />
           </h2>
         </div>
-        <div className='section columns is-padingless-top'>
+        <div className='section columns is-multiline is-padingless-top'>
           <div className='column'>
             <div className='section level selects is-clearfix'>
               <div className='level-left'>
@@ -702,7 +702,7 @@ class StatusRepórt extends Component {
                       <br />
                     </div>
                     <div className="control">
-                      <button className='button is-primary is-pulled-right'
+                      <button className='button is-primary'
                         disabled={!!this.state.isLoading}
                         onClick={() => this.getDataRows()}
                       >
@@ -759,7 +759,7 @@ class StatusRepórt extends Component {
                   <br />
                 </label>
                 <div className='control'>
-                  <button className='button is-primary is-pulled-right'
+                  <button className='button is-primary'
                     disabled={!!this.state.isLoading}
                     onClick={() => this.download()}
                   >
