@@ -68,6 +68,7 @@ module.exports = new Route({
       isOperationalUser: true,
       'organizations.organization': organization._id
     }).populate('groups')
+      .populate('organizations.role')
 
     const catalogItems = await CatalogItem.find({
       isDeleted: false,

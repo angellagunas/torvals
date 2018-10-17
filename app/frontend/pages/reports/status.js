@@ -352,7 +352,20 @@ class StatusRepórt extends Component {
         'default': 'N/A',
         'sortable': true,
         formatter: (row) => {
-          return row.user[0].name
+            return (
+              <a className='' onClick={() => this.userDetail(row.user[0])}>
+                { row.user[0].name }
+              </a>
+            )
+        }
+      },
+      {
+        'title': 'Rol',
+        'property': 'role.name',
+        'default': '',
+        'sortable': true,
+        formatter: (row) => {
+          return row.user[0].organizations[0].role.name
         }
       },
       {
@@ -376,9 +389,34 @@ class StatusRepórt extends Component {
         'default': '',
         'sortable': true,
         formatter: (row) => {
-          return row.user[0].groups
-            .map(group => group.name)
-            .join(', ')
+          if (row.user[0].groups.length > 2) {
+            return (
+              <div>
+                {row.user[0].groups[0].name}
+                <br />
+                {row.user[0].groups[1].name}
+                <br />
+                {row.user[0].groups.length - 2} <FormattedMessage
+                  id="user.detailMore"
+                  defaultMessage={`más`}
+                />
+              </div>
+            )
+          } else if (row.user[0].groups.length > 1) {
+            return (
+              <div>
+                {row.user[0].groups[0].name}
+                <br />
+                {row.user[0].groups[1].name}
+              </div>
+            )
+          } else if (row.user[0].groups.length > 0) {
+            return (
+              <div>
+                {row.user[0].groups[0].name}
+              </div>
+            )
+          }
         }
       },
       {
@@ -398,18 +436,6 @@ class StatusRepórt extends Component {
         'property': 'created',
         'default': '0',
         'sortable': true
-      },
-      {
-        'title': this.formatTitle('tables.colActions'),
-        formatter: (row) => {
-            return (
-              <a className='button is-primary' onClick={() => this.userDetail(row.user[0])}>
-                <span className='icon is-small' title='Visualizar'>
-                  <i className='fa fa-eye' />
-                </span>
-              </a>
-            )
-        }
       }
     ]
 
@@ -615,6 +641,59 @@ class StatusRepórt extends Component {
 
   download() {
     // Here should be the action to download the report
+    let csv = [];
+    let rows = document.querySelectorAll('table tr');
+
+    for (let i = 0; i < rows.length; i++) {
+      if (i === 0) {
+        csv.push('Usuario,Rol,Ajustes por periodo,Estatus,Grupos,Aprobado,Rechazado,Pendientes');
+        continue
+      }
+      let row = [], cols = rows[i].querySelectorAll('td, th');
+
+      for (let j = 0; j < cols.length; j++) {
+        if (cols[j].querySelectorAll('div').length > 0) {
+          let divData = []
+          for (let item of cols[j].querySelectorAll('div')) {
+            divData.push(item.innerText.replace('<br>', ' ').replace('<span>', '').replace(/(?:\r\n|\r|\n)/g, ' '))
+          }
+          row.push(divData.join(' '));
+        } else {
+          row.push(cols[j].innerText);
+        }
+      }
+
+      csv.push(row.join(','));
+    }
+
+    // Download CSV file
+    this.downloadCSV(csv.join("\n"), 'reporte-actividad.csv');
+  }
+
+  downloadCSV(csv, filename) {
+    let csvFile;
+    let downloadLink;
+
+    // CSV file
+    csvFile = new Blob([csv], {type: "text/csv"});
+
+    // Download link
+    downloadLink = document.createElement("a");
+
+    // File name
+    downloadLink.download = filename;
+
+    // Create a link to the file
+    downloadLink.href = window.URL.createObjectURL(csvFile);
+
+    // Hide download link
+    downloadLink.style.display = "none";
+
+    // Add the link to DOM
+    document.body.appendChild(downloadLink);
+
+    // Click download link
+    downloadLink.click();
   }
 
   render () {
@@ -723,33 +802,33 @@ class StatusRepórt extends Component {
 
         </div>
         <div className='section search-section'>
-        <div className='level'>
-          <div className='level-left'>
-            <div className='level-item'>
+          <div className='level'>
+            <div className='level-left'>
+              <div className='level-item'>
 
-              <div className='field'>
-                <label className='label'>
-                  <FormattedMessage
-                      id="dashboard.searchText"
-                    defaultMessage={`Búsqueda general`}
-                  />
-                </label>
-                <div className='control has-icons-right'>
-                  <input
-                    className='input'
-                    type='text'
-                    value={this.state.searchTerm}
-                    onChange={this.searchOnChange}
-                    placeholder={this.formatTitle('dashboard.searchText')}
-                  />
+                <div className='field'>
+                  <label className='label'>
+                    <FormattedMessage
+                        id="dashboard.searchText"
+                      defaultMessage={`Búsqueda general`}
+                    />
+                  </label>
+                  <div className='control has-icons-right'>
+                    <input
+                      className='input'
+                      type='text'
+                      value={this.state.searchTerm}
+                      onChange={this.searchOnChange}
+                      placeholder={this.formatTitle('dashboard.searchText')}
+                    />
 
-                  <span className='icon is-small is-right'>
-                    <i className='fa fa-search fa-xs' />
-                  </span>
+                    <span className='icon is-small is-right'>
+                      <i className='fa fa-search fa-xs' />
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
           <div className='level-right'>
             <div className='level-item'>
@@ -769,42 +848,42 @@ class StatusRepórt extends Component {
                   </button>
                 </div>
 
+                </div>
               </div>
             </div>
+
           </div>
 
-        </div>
+          {this.state.filteredData
+            ? this.state.filteredData.length > 0
+              ? <div className='scroll-table'>
+                <div className='scroll-table-container'>
 
-        {this.state.filteredData
-          ? this.state.filteredData.length > 0
-            ? <div className='scroll-table'>
-              <div className='scroll-table-container'>
-
-                <BaseTable
-                  className='dash-table is-fullwidth status-table'
-                  data={this.state.filteredData}
-                  columns={this.getColumns()}
-                  handleSort={(e) => { this.handleSort(e) }}
-                  sortAscending={this.state.sortAscending}
-                  sortBy={this.state.sortBy}
-                />
-              </div>
-            </div>
-            : <section className='section'>
-              <center>
-                <h1 className='has-text-info'>
-                  <FormattedMessage
-                    id="report.noInfo"
-                    defaultMessage={`No hay información que mostrar, intente con otro filtro`}
+                  <BaseTable
+                    className='dash-table is-fullwidth status-table'
+                    data={this.state.filteredData}
+                    columns={this.getColumns()}
+                    handleSort={(e) => { this.handleSort(e) }}
+                    sortAscending={this.state.sortAscending}
+                    sortBy={this.state.sortBy}
                   />
-                </h1>
-              </center>
+                </div>
+              </div>
+              : <section className='section'>
+                <center>
+                  <h1 className='has-text-info'>
+                    <FormattedMessage
+                      id="report.noInfo"
+                      defaultMessage={`No hay información que mostrar, intente con otro filtro`}
+                    />
+                  </h1>
+                </center>
+              </section>
+            : <section className='section'>
+              {this.loadTable()}
             </section>
-          : <section className='section'>
-            {this.loadTable()}
-          </section>
-        }
-      </div>
+          }
+        </div>
       </div>
     )
   }
