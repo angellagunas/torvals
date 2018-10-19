@@ -219,7 +219,7 @@ class WeekTable extends Component {
     ].concat(this.getWeekCols())
   }
 
-  getWeekCols(){
+  getWeekCols() {
     let data = this.state.filteredDataByWeek
     let cols = []
     let maxWeeks = data.map(item => {return item.weeks.length})
@@ -232,22 +232,10 @@ class WeekTable extends Component {
 
 
     for (let j = 0; j < periods.length; j++){
-      let period = periods[j].period
-      let title = ' '
-      let classP = ''
-      if (moment.utc(periods[j].products[0].period.dateStart).format('MMM D') === 
-          moment.utc(periods[j].products[0].period.dateEnd).format('MMM D')){
-          title += moment.utc(periods[j].products[0].period.dateStart).format('MMM D')
-          classP = 'single'
-        }
-        else{
-        title += moment.utc(periods[j].products[0].period.dateStart).format('MMM D')
-          + ' - ' + moment.utc(periods[j].products[0].period.dateEnd).format('MMM D')
-        }
       cols.push(
-        { 
-          group: <strong className={classP}>{this.splitWords(this.formatTitle('adjustments.period') + ' '   
-          + title
+        {
+          group: <strong className="single">{this.splitWords(this.formatTitle('adjustments.period') + ' '
+          + periods[j].period
           + '_' + this.formatTitle('adjustments.adjustmentRange') + ' ')}<span className='has-text-info'>{this.state.range}</span></strong>,
           title: this.formatTitle('tables.colForecast'),
           property: 'prediction_' + j,
@@ -266,7 +254,7 @@ class WeekTable extends Component {
         },
         {
           group: ' ',
-          title: this.formatTitle('dates.locale') === 'en' ? 
+          title: this.formatTitle('dates.locale') === 'en' ?
           this.splitWords(this.formatTitle('adjustments.last') + '_' + this.formatTitle('tables.colAdjustment') + ' ')
           :
           this.splitWords(this.formatTitle('tables.colAdjustment') + '_' + this.formatTitle('adjustments.last') + ' ')
@@ -291,7 +279,7 @@ class WeekTable extends Component {
         },
         {
           group: ' ',
-          title: this.formatTitle('tables.colAdjustment'), 
+          title: this.formatTitle('tables.colAdjustment'),
            property: 'adjustmentForDisplay_' + j,
            default: '',
            sortable: true,
@@ -333,7 +321,7 @@ class WeekTable extends Component {
         },
         {
           group: ' ',
-          title: this.formatTitle('dates.locale') === 'en' ? 
+          title: this.formatTitle('dates.locale') === 'en' ?
           this.splitWords(this.formatTitle('adjustments.adjusted') + '_' + this.formatTitle('adjustments.range'))
           :
           this.splitWords(this.formatTitle('adjustments.range') + '_' + this.formatTitle('adjustments.adjusted'))

@@ -13,6 +13,7 @@ import { BaseTable } from '~base/components/base-table'
 import Link from '~base/router/link'
 import classNames from 'classnames'
 import { defaultCatalogs } from '~base/tools'
+import { Timer } from '~base/components/timer'
 
 class StatusRepórt extends Component {
   constructor (props) {
@@ -67,10 +68,6 @@ class StatusRepórt extends Component {
 
   componentWillMount () {
     this.getProjects()
-  }
-
-  componentWillUnmount(){
-    clearInterval(this.interval)
   }
 
   async getProjects() {
@@ -133,10 +130,6 @@ class StatusRepórt extends Component {
 
       let formData = this.state.formData
       formData.cycle = cycles[0].cycle
-
-      this.interval = setInterval(() => {
-        this.getTimeRemaining()
-      }, 60000)
 
       this.setState({
         filters: {
@@ -248,17 +241,17 @@ class StatusRepórt extends Component {
   }
 
   async getDataRows() {
-     if (!this.state.formData.cycle) {
+    const { formData, filters } = this.state
+
+     if (!formData.cycle) {
       this.notify('¡Se debe filtrar por ciclo!', 5000, toast.TYPE.ERROR)
       return
     }
 
-    this.getTimeRemaining()
-
     await this.getUsers()
 
-    var cycle = this.state.filters.cycles.find(item => {
-      return item.cycle === this.state.formData.cycle
+    var cycle = filters.cycles.find(item => {
+      return item.cycle === formData.cycle
     })
 
     this.setState({
@@ -271,9 +264,9 @@ class StatusRepórt extends Component {
     const url = '/app/reports/adjustments'
     try {
       let catalogItems = []
-      for (const key in this.state.formData) {
-        if (this.state.formData.hasOwnProperty(key)) {
-          const element = this.state.formData[key];
+      for (const key in formData) {
+        if (formData.hasOwnProperty(key)) {
+          const element = formData[key];
           if(key !== 'cycle' && key !== 'user'){
             catalogItems.push(element)
           }
@@ -282,8 +275,8 @@ class StatusRepórt extends Component {
 
       catalogItems = catalogItems.filter(item => item)
 
-      let users = this.state.formData.user ? [this.state.formData.user] : undefined
-      if(this.state.filterReady){
+      let users = formData.user ? [formData.user] : undefined
+      if(this.state.filterReady) {
         users = this.state.users.finishedUsers
       }
       else if (this.state.filterProgress) {
@@ -302,12 +295,15 @@ class StatusRepórt extends Component {
           projects: [this.state.projectSelected.uuid]
         }
       )
-      for (let activeUser of this.state.filters.users) {
+
+      for (let activeUser of filters.users) {
         const findUser = data.data.find(info => info.user[0].uuid === activeUser.uuid)
         if (findUser) {
           findUser.user[0].groups = activeUser.groups
           continue
         }
+
+        if (users || formData['centro-de-venta'] || formData.canal) continue
 
         data.data.push({
           approved: 0,
@@ -481,21 +477,23 @@ class StatusRepórt extends Component {
   }
 
   async searchDatarows() {
-    if (this.state.searchTerm === '') {
+    const searchTerm = this.state.searchTerm.trim()
+
+    if (searchTerm === '') {
       this.setState({
         filteredData: this.state.dataRows
       })
       return
     }
 
-    const items = this.state.dataRows.filter((item) => {
-      const regEx = new RegExp(this.state.searchTerm, 'gi')
-      const searchStr = `${item.productName} ${item.salesCenter}`
+    const items = this.state.dataRows.filter(item => {
+      const user = item.user[0] || {}
+      const groups = (user.groups || []).map(group => group.name || '').join(' ')
+      const searchStr = `${user.name} ${groups}`
 
-      if (regEx.test(searchStr))
-        return true
+      const regEx = new RegExp(searchTerm, 'gi')
 
-      return false
+      return regEx.test(searchStr)
     })
 
     await this.setState({
@@ -604,54 +602,40 @@ class StatusRepórt extends Component {
     return filters
   }
 
-  getTimeRemaining(){
-    let cycle = this.state.filters.cycles.find(item => {
-      return item.cycle === this.state.formData.cycle
-    })
-    let now = moment.utc()
-    let then = moment.utc(cycle.dateEnd);
-    let diff = moment.duration(then.diff(now));
-    let days = parseInt(diff.asDays());
-
-    let hours = parseInt(diff.asHours());
-
-    hours = hours - days * 24;
-
-    let minutes = parseInt(diff.asMinutes());
-
-    minutes = minutes - (days * 24 * 60 + hours * 60);
-
-    this.setState({
-      timeRemaining: {
-        days,
-        hours,
-        minutes
-      }
-    })
-  }
-
-
-  filterUsers(type){
-    if(type === 1){
-      this.setState({
-        filterReady: !this.state.filterReady,
-        filterProgress: false,
-        filterInactive: false
-      })
+  filterUsers(type) {
+    const baseFilter = {
+      filterReady: false,
+      filterProgress: false,
+      filterInactive: false
     }
-    else if (type === 2) {
-      this.setState({
-        filterReady: false,
-        filterProgress: !this.state.filterProgress,
-        filterInactive: false
-      })
-    }
-    else if (type === 3) {
-      this.setState({
-        filterReady: false,
-        filterProgress: false,
-        filterInactive: !this.state.filterInactive
-      })
+
+    switch (type) {
+      case '1':
+        this.setState({
+          ...baseFilter,
+          filterReady: true
+        })
+      break
+
+      case '2':
+        this.setState({
+          ...baseFilter,
+          filterProgress: true
+        })
+      break
+
+      case '3':
+        this.setState({
+          ...baseFilter,
+          filterInactive: true
+        })
+      break
+
+      default:
+        this.setState({
+          ...baseFilter
+        })
+      break
     }
   }
 
@@ -723,7 +707,7 @@ class StatusRepórt extends Component {
             />
           </h2>
         </div>
-        <div className='section columns is-padingless-top'>
+        <div className='section columns is-multiline is-padingless-top'>
           <div className='column'>
             <div className='section level selects is-clearfix'>
               <div className='level-left'>
@@ -747,7 +731,7 @@ class StatusRepórt extends Component {
                       name='cycle'
                       value={this.state.formData.cycle}
                       optionValue='cycle'
-                      optionName='name'
+                      optionName='viewName'
                       type='integer'
                       options={this.state.filters.cycles}
                       onChange={(name, value) => { this.filterChangeHandler(name, value) }}
@@ -797,7 +781,7 @@ class StatusRepórt extends Component {
                       <br />
                     </div>
                     <div className="control">
-                      <button className='button is-primary is-pulled-right'
+                      <button className='button is-primary'
                         disabled={!!this.state.isLoading}
                         onClick={() => this.getDataRows()}
                       >
@@ -814,49 +798,8 @@ class StatusRepórt extends Component {
             </div>
           </div>
 
-          <div className='column is-narrow'>
-            <div className='time has-text-centered'>
-              <p className='desc'>
-                <FormattedMessage
-                  id="report.adjustmentTimeLeft"
-                  defaultMessage={`Tiempo restante para ajustar`}
-                />
-              </p>
-              <div className='level'>
-                <div className='level-item'>
-                  <p className='num'>{this.state.timeRemaining.days}</p>
-                  <p className='desc'>
-                    <FormattedMessage
-                      id="report.days"
-                      defaultMessage={`Días`}
-                    />
-                  </p>
-                </div>
-                <div className='level-item'>
-                  <p className='num'>{this.state.timeRemaining.hours}</p>
-                  <p className='desc'>
-                    <FormattedMessage
-                      id="report.hours"
-                      defaultMessage={`Horas`}
-                    />
-                  </p>
-                </div>
-                <div className='level-item'>
-                  <p className='num'>:</p>
-                  <p className='desc'>&nbsp;</p>
-                </div>
-                <div className='level-item'>
-                  <p className='num'>{this.state.timeRemaining.minutes}</p>
-                  <p className='desc'>
-                    <FormattedMessage
-                      id="report.minutes"
-                      defaultMessage={`Min.`}
-                    />
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+          <Timer />
+
         </div>
         <div className='section search-section'>
           <div className='level'>
@@ -895,7 +838,7 @@ class StatusRepórt extends Component {
                     <br />
                   </label>
                   <div className='control'>
-                    <button className='button is-primary is-pulled-right'
+                    <button className='button is-primary'
                       disabled={!!this.state.isLoading}
                       onClick={() => this.download()}
                     >
