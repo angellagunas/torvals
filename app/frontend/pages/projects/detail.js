@@ -87,14 +87,14 @@ class ProjectDetail extends Component {
     this.intervalCounter = setInterval(() => {
       if (this.state.project.status !== 'adjustment') return
       this.countAdjustmentRequests()
-    }, 10000)
+    }, 10000 * 20)
 
     if (
       currentRole !== 'consultor-level-3' &&
       !this.intervalConciliate &&
       this.state.project.status === 'adjustment'
     ) {
-      this.intervalConciliate = setInterval(() => { this.getModifiedCount() }, 10000)
+      this.intervalConciliate = setInterval(() => { this.getModifiedCount() }, 10000 * 20)
     }
   }
 
