@@ -1035,24 +1035,22 @@ class TabAdjustment extends Component {
   async downloadReport () {
     this.setState({isDownloading: ' is-loading'})
 
-    let min
-    let max
     let url = '/app/rows/download/' + this.props.project.uuid
 
     let cycle = this.state.filters.cycles.find(item => {
       return item.cycle === this.state.formData.cycle
     })
 
-    min = cycle.dateStart
-    max = cycle.dateEnd
+    let min = cycle.dateStart
+    let max = cycle.dateEnd
 
     try {
       let formFilters = Object.assign({}, this.state.formData)
       delete formFilters.cycle
 
       let res = await api.post(url, {
-        start_date: moment(min).format('YYYY-MM-DD'),
-        end_date:  moment(max).format('YYYY-MM-DD'),
+        start_date: moment.utc(min).format('YYYY-MM-DD'),
+        end_date:  moment.utc(max).format('YYYY-MM-DD'),
         showAdjusted: this.state.showAdjusted,
         showNotAdjusted: this.state.showNotAdjusted,
         searchTerm: this.state.searchTerm,
