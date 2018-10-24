@@ -47,8 +47,6 @@ Catalog.opts = opt => {
       general: { 'ui:widget': 'SearchFilter' },
     },
     getColumns: () => {
-      const cursor = tree.get(opt.branchName)
-      console.log(cursor)
       return [
         {
           title: 'Id',
