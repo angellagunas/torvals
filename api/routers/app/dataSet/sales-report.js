@@ -118,13 +118,12 @@ module.exports = new Route({
         },
         {
           '$unwind': {
-            'path': '$prices',
-            'includeArrayIndex': 'arrayIndex'
+            'path': '$prices'
           }
         },
         {
           '$match': {
-            'arrayIndex': {'$in': [0, null]}
+            'prices.isDeleted': false
           }
         },
         {
