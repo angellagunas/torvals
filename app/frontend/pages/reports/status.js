@@ -683,42 +683,50 @@ class StatusRepórt extends Component {
   }
 
   async download() {
-    // Here should be the action to download the report
-    let csv = ['Usuario,Rol,Ajustes por periodo,Estatus,Grupos,Aprobado,Rechazado,Pendientes,Ciclo'];
+    try {
+      // Here should be the action to download the report
+      let csv = ['Usuario,Rol,Ajustes por periodo,Estatus,Grupos,Aprobado,Rechazado,Pendientes,Ciclo'];
 
-    const cycles = await Promise.all(this.state.filters.cycles.map(async cycleItem => {
+      const cycles = await Promise.all(this.state.filters.cycles.map(async cycleItem => {
+        this.setState({
+          isDownloading: true,
+          downloadCycle: cycleItem.viewName,
+        })
+
+        const dataRows = await this.getDataRows(false, cycleItem.cycle)
+        return {
+          viewName: cycleItem.viewName,
+          dataRows
+        }
+      }))
+
+      for (let cycleItem of cycles) {
+        for (let row of cycleItem.dataRows) {
+          const csvRow = [
+            row.user[0].name || '',
+            row.user[0].organizations[0].role.name || '',
+            row.total - (row.approved + row.created + row.rejected),
+            row.status || 'Sin Ajustes',
+            (row.user[0].groups || []).map(group => group.name || '').join(' '),
+            row.approved,
+            row.rejected,
+            row.created,
+            cycleItem.viewName
+          ]
+
+          csv.push(csvRow.join(','))
+        }
+      }
+
+      // Download CSV file
+      this.downloadCSV(csv.join("\n"), 'reporte-actividad.csv');
+    } catch (error) {
+      console.log(error)
       this.setState({
-        isDownloading: true,
-        downloadCycle: cycleItem.viewName,
+        isDownloading: false,
       })
-
-      const dataRows = await this.getDataRows(false, cycleItem.cycle)
-      return {
-        viewName: cycleItem.viewName,
-        dataRows
-      }
-    }))
-
-    for (let cycleItem of cycles) {
-      for (let row of cycleItem.dataRows) {
-        const csvRow = [
-          row.user[0].name || '',
-          row.user[0].organizations[0].role.name || '',
-          row.total - (row.approved + row.created + row.rejected),
-          row.status || 'Sin Ajustes',
-          (row.user[0].groups || []).map(group => group.name || '').join(' '),
-          row.approved,
-          row.rejected,
-          row.created,
-          cycleItem.viewName
-        ]
-
-        csv.push(csvRow.join(','))
-      }
+      this.notify('¡No se pudo completar la descarga!', 5000, toast.TYPE.ERROR)
     }
-
-    // Download CSV file
-    this.downloadCSV(csv.join("\n"), 'reporte-actividad.csv');
   }
 
   downloadCSV(csv, filename) {
