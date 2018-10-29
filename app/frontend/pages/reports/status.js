@@ -686,14 +686,21 @@ class StatusRepórt extends Component {
     // Here should be the action to download the report
     let csv = ['Usuario,Rol,Ajustes por periodo,Estatus,Grupos,Aprobado,Rechazado,Pendientes,Ciclo'];
 
-    for (let cycleItem of this.state.filters.cycles) {
+    const cycles = await Promise.all(this.state.filters.cycles.map(async cycleItem => {
       this.setState({
         isDownloading: true,
         downloadCycle: cycleItem.viewName,
       })
-      const dataRows = await this.getDataRows(false, cycleItem.cycle)
 
-      for (let row of dataRows) {
+      const dataRows = await this.getDataRows(false, cycleItem.cycle)
+      return {
+        viewName: cycleItem.viewName,
+        dataRows
+      }
+    }))
+
+    for (let cycleItem of cycles) {
+      for (let row of cycleItem.dataRows) {
         const csvRow = [
           row.user[0].name || '',
           row.user[0].organizations[0].role.name || '',
