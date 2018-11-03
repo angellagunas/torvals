@@ -1,0 +1,15 @@
+FROM python:3.6
+MAINTAINER Angel Lagunas <alagunas@grupoabraxas.com>
+
+RUN apt-get update && apt-get install -y python-pip python-dev libxml2-dev libxslt1-dev libffi-dev build-essential libssl-dev curl git --no-install-recommends && rm -rf /var/lib/apt/lists/*
+RUN pip install --upgrade pip
+
+RUN mkdir /pythia-kore
+ADD . /pythia-kore
+WORKDIR /pythia-kore
+
+RUN pip install -r src/requirements/base.txt
+
+EXPOSE 8000
+
+ENTRYPOINT uwsgi -T --http :8000 --chdir /pythia-kore/src --module orax.wsgi
