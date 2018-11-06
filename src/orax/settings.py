@@ -134,6 +134,7 @@ SHOW_DOCUMENTATION = True
 TITLE_DOCUMENTATION = "Orax Docs"
 
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = '{0}/media'.format(BASE_DIR)
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (

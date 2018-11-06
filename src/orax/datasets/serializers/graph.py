@@ -1,8 +1,17 @@
+import json
+
 from rest_framework import serializers
 
 from bson.objectid import ObjectId
+from bson.json_util import dumps
 
 from orax.utils.connections import Mongo
+
+
+
+class DatasetGraphRetrieveSerializer(serializers.Serializer):
+    def validate(self, data):
+        return data
 
 
 class DatasetGraphSerializer(serializers.Serializer):
@@ -12,23 +21,19 @@ class DatasetGraphSerializer(serializers.Serializer):
     prices = serializers.BooleanField(default=False)
 
     def validate(self, data):
-        print('serializers validate!!')
         request = self.context.get('request')
         organization = request.user.get_current_org(request)
         #
         # validar que los acatalog items que manda el usuario esten en sus
         # grupos
         #
-        print('serializers validate endddd!!')
         return data
 
     def create(self, data):
-        print('in creae!!!!!!!!!!!!!1')
         kwargs = self.context.get('view').kwargs
         cycle = Mongo().cycles.find_one({'uuid': data.get('cycle')})
         dataset = Mongo().datasets.find_one({'uuid': kwargs.get('uuid')})
         prices = data.get('prices')
-        print('22222222222222222222')
 
         catalog_items = Mongo().catalogitems.find({
             'uuid': {'$in': [
@@ -36,7 +41,6 @@ class DatasetGraphSerializer(serializers.Serializer):
                 data.get('centro_de_venta')
             ]}
         })
-        print('333333333333333')
 
         pipeline = [
             {
@@ -56,7 +60,6 @@ class DatasetGraphSerializer(serializers.Serializer):
                 }
             }
         ]
-        print('4444444444444444444444')
 
         if prices:
             pipeline = pipeline + [
@@ -124,8 +127,12 @@ class DatasetGraphSerializer(serializers.Serializer):
             }
         ]
 
-        print(pipeline)
-
-        indicators = Mongo().datasetrows.aggregate(pipeline)
-
+        try:
+            indicators = json.loads(dumps(Mongo().datasetrows.aggregate(pipeline)))
+            print('************************************')
+            print(indicators)
+            print('************************************')
+        except Exception as e:
+            print(e)
+        
         return indicators
