@@ -8,6 +8,7 @@ from soft_drf.routing.v1.routers import router
 
 from orax.datasets.serializers import graph
 from orax.utils.connections import Mongo
+from orax.utils.cache import Cache
 
 
 class DatasetGraphViewSet(mixins.CreateModelMixin, GenericViewSet):
@@ -19,6 +20,13 @@ class DatasetGraphViewSet(mixins.CreateModelMixin, GenericViewSet):
 
     def create(self, request, *args, **kwargs):
         self._validate(request, *args, **kwargs)
+
+        key_cache = Cache.get_key_from_request(request, *args, **kwargs)
+
+        if(Cache.exists(key_cache)):
+            print('encontro en cache')
+            return Response(Cache.get(key_cache))
+
         create_serializer = self.get_serializer(
             data=request.data,
             action='create'
@@ -27,15 +35,9 @@ class DatasetGraphViewSet(mixins.CreateModelMixin, GenericViewSet):
 
         try:
             data = create_serializer.save()
-            print('in apiiiiiii')
-            print(data)
-            data_response = []
+            Cache.set(key_cache, data)
 
-            indicators = {
-                'data': [],
-                'bla': data
-            }
-            return Response(indicators)
+            return Response(data)
         except Exception as e:
             print(e)
             return Response({})

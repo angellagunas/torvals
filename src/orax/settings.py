@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'py8t-$h^5@g*ihu5-(#+%k%70i87fr-3ju$jc^ez_*#!$7w1@a'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = int(os.environ['DEBUG']) == 1 if os.environ['DEBUG'] else True
+DEBUG = int(os.environ['DEBUG']) == 1 if hasattr(os.environ, 'DEBUG') else True
 
 ALLOWED_HOSTS = ['*']
 
@@ -88,8 +88,6 @@ DATABASES = {
         'PORT': int(os.environ['MONGO_PORT']) if not DEBUG else 27017
     }
 }
-
-print(DATABASES['mongo'])
 
 
 # Password validation
@@ -158,4 +156,19 @@ REST_FRAMEWORK = {
         'rest_framework.pagination.LimitOffsetPagination'
     ),
     'PAGE_SIZE': 50
+}
+
+REDIS_HOST = os.environ['REDIS_HOST'] if not DEBUG else 'localhost'
+REDIS_PORT = int(os.environ['REDIS_PORT']) if not DEBUG else 6379
+
+CACHE_URL = 'redis://{0}:{1}/1'.format(REDIS_HOST, REDIS_PORT)
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": CACHE_URL,
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
 }

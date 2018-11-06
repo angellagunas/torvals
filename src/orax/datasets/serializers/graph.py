@@ -129,10 +129,7 @@ class DatasetGraphSerializer(serializers.Serializer):
 
         try:
             indicators = json.loads(dumps(Mongo().datasetrows.aggregate(pipeline)))
-            print('************************************')
-            print(indicators)
-            print('************************************')
         except Exception as e:
             print(e)
         
-        return indicators
+        return {'data' :indicators}

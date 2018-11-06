@@ -13,4 +13,7 @@ package-lock.json
 
 /data
 .env
+__pycache__
+*.pyc
+
 pio-code
