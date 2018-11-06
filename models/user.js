@@ -247,10 +247,10 @@ userSchema.methods.uploadProfilePicture = async function (file) {
 
 userSchema.virtual('profileUrl').get(function () {
   if (this.profilePicture && this.profilePicture.url) {
-    return 'https://s3.' + this.profilePicture.region + '.amazonaws.com/' + this.profilePicture.bucket + '/' + this.profilePicture.url
+    return `${aws.s3CDN}/${this.profilePicture.url}`
   }
 
-  return 'https://s3.us-east-1.amazonaws.com/abraxas-orax-statics/avatars/default.jpg'
+  return `${aws.s3CDN}/avatars/default.jpg`
 })
 
 userSchema.methods.sendActivationEmail = async function () {
