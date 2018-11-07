@@ -61,6 +61,15 @@ module.exports = new Route({
     }).sort('-dateStart')
 
     cycles = cycles.map(async item => {
+
+      if (String(dataset.project) === '5b5ba0ac83afa00038095701' || String(dataset.project) === '5b3e3cbf7fecc8004a81cd26') {
+        return {
+        uuid: item.uuid,
+        dateStart: item.dateStart,
+        dateEnd: item.dateEnd
+        }
+      }
+
       const periods = await Period.find({
         cycle: item._id
       })
@@ -96,6 +105,7 @@ module.exports = new Route({
     for (let item of catalogItems) {
       await item.populate('catalog').execPopulate()
       if (!catalogsResponse[item.catalog.slug]) continue
+      if (catalogsResponse[item.catalog.slug].find(same => same.externalId === item.externalId)) continue
       catalogsResponse[item.catalog.slug].push(item)
     }
 

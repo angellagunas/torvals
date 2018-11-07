@@ -8,7 +8,10 @@ module.exports = new Route({
   path: '/adjustments/',
   handler: async function (ctx) {
     var data = ctx.request.body
-    let usersInGroup = await User.find({groups: {$in: ctx.state.user.groups.map((item) => {return Object(item)})}})
+    let invalidCatalogs = ['5b71e9abc2eb13002b7a700b', '5b71ea41e8ca55002673973c', '5b71ea8be8ca55002673973d']
+    let groupIds = ctx.state.user.groups.filter((item) => {return !invalidCatalogs.includes(String(item)) })
+
+    let usersInGroup = await User.find({groups: {$in: groupIds.map((item) => {return Object(item)})}})
     let validUsersIds = usersInGroup.map((item) => {return ObjectId(item._id)})
 
     let initialMatch = {}
@@ -82,6 +85,8 @@ module.exports = new Route({
       }
     }
 
+    console.log(initialMatch)
+    console.log(midMatch)
     var statement = [
       {
         '$match': {
@@ -210,6 +215,7 @@ module.exports = new Route({
         })
       }
     }
+    console.log(stats)
     ctx.body = {
       data: stats
     }

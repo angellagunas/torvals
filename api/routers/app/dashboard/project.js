@@ -126,6 +126,9 @@ module.exports = new Route({
     }
 
     const catalogs = datasetRow[0].catalogItems.filter(item => {
+      if (currentRole.slug === 'orgadmin') {
+        return item.isDeleted === false
+      }
       return groups.catalogItems.indexOf(item._id) >= 0 && item.isDeleted === false
     })
 
