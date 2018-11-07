@@ -576,7 +576,7 @@ dataSetSchema.virtual('url').get(function () {
     return 'https://s3.' + this.path.region + '.amazonaws.com/' + this.path.bucket + '/' + this.path.url
   }
 
-  return 'https://s3.us-west-2.amazonaws.com/pythia-kore-dev/avatars/default.jpg'
+  return 'https://s3.us-east-1.amazonaws.com/abraxas-orax-statics/avatars/default.jpg'
 })
 
 dataSetSchema.methods.getProductColumn = function () {

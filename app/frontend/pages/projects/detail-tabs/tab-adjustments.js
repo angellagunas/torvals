@@ -1191,14 +1191,14 @@ class TabAdjustment extends Component {
   getCallback() {
     if (this.state.prices) {
       return function (label, index, labels) {
-        return '$' + label.toFixed(2).replace(/./g, (c, i, a) => {
+        return '$' + label.toFixed(0).replace(/./g, (c, i, a) => {
           return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
         })
       }
     }
     else {
       return function (label, index, labels) {
-        return label.toFixed(2).replace(/./g, (c, i, a) => {
+        return label.toFixed(0).replace(/./g, (c, i, a) => {
           return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
         })
       }
@@ -1214,7 +1214,7 @@ class TabAdjustment extends Component {
         if (label) {
           label += ': '
         }
-        let yVal = '$' + tooltipItem.yLabel.toFixed(2).replace(/./g, (c, i, a) => {
+        let yVal = '$' + tooltipItem.yLabel.toFixed(0).replace(/./g, (c, i, a) => {
           return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
         })
         return label + yVal
@@ -1228,7 +1228,7 @@ class TabAdjustment extends Component {
         if (label) {
           label += ': '
         }
-        let yVal = tooltipItem.yLabel.toFixed(2).replace(/./g, (c, i, a) => {
+        let yVal = tooltipItem.yLabel.toFixed(0).replace(/./g, (c, i, a) => {
           return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
         })
         return label + yVal
@@ -1418,12 +1418,12 @@ class TabAdjustment extends Component {
       {
         label: this.formatTitle('tables.colForecast'),
         color: '#187FE6',
-        data: this.state.salesTable.map((item, key) => { return item.prediction.toFixed(2) })
+        data: this.state.salesTable.map((item, key) => { return item.prediction.toFixed(0) })
       },
       {
         label: this.formatTitle('tables.colAdjustment'),
         color: '#30C6CC',
-        data: this.state.salesTable.map((item, key) => { return item.adjustment.toFixed(2) })
+        data: this.state.salesTable.map((item, key) => { return item.adjustment.toFixed(0) })
       },
       {
         label: this.formatTitle('tables.colLast'),
@@ -1518,11 +1518,11 @@ class TabAdjustment extends Component {
               <h1 className='num has-text-weight-bold'>
                 {this.state.totalPrediction ?
                   this.state.prices ?
-                    '$' + this.state.totalPrediction.toFixed(2).replace(/./g, (c, i, a) => {
+                    '$' + this.state.totalPrediction.toFixed(0).replace(/./g, (c, i, a) => {
                       return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                     })
                     :
-                    this.state.totalPrediction.toFixed(2).replace(/./g, (c, i, a) => {
+                    this.state.totalPrediction.toFixed(0).replace(/./g, (c, i, a) => {
                       return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                     })
                   : null
@@ -1544,11 +1544,11 @@ class TabAdjustment extends Component {
               <h1 className='num has-text-weight-bold'>
                 {this.state.totalAdjustment ?
                   this.state.prices ?
-                    '$' + this.state.totalAdjustment.toFixed(2).replace(/./g, (c, i, a) => {
+                    '$' + this.state.totalAdjustment.toFixed(0).replace(/./g, (c, i, a) => {
                       return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                     })
                     :
-                    this.state.totalAdjustment.toFixed(2).replace(/./g, (c, i, a) => {
+                    this.state.totalAdjustment.toFixed(0).replace(/./g, (c, i, a) => {
                       return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                     })
                   : null
@@ -1573,11 +1573,11 @@ class TabAdjustment extends Component {
               <h1 className='num has-text-weight-bold'>
                 {this.state.totalPrevSale ?
                   this.state.prices ?
-                    '$' + this.state.totalPrevSale.toFixed(2).replace(/./g, (c, i, a) => {
+                    '$' + this.state.totalPrevSale.toFixed(0).replace(/./g, (c, i, a) => {
                       return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                     })
                     :
-                    this.state.totalPrevSale.toFixed(2).replace(/./g, (c, i, a) => {
+                    this.state.totalPrevSale.toFixed(0).replace(/./g, (c, i, a) => {
                       return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                     })
                   : null
@@ -1711,17 +1711,17 @@ class TabAdjustment extends Component {
                                   {item.period[0]}
                                 </td>
                                 <td className='has-text-centered'>
-                                  {this.state.prices && '$'} {item.prediction.toFixed(2).replace(/./g, (c, i, a) => {
+                                  {this.state.prices && '$'} {item.prediction.toFixed(0).replace(/./g, (c, i, a) => {
                                     return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                                   })}
                                 </td>
                                 <td className='has-text-centered'>
-                                  {this.state.prices && '$'} {item.adjustment.toFixed(2).replace(/./g, (c, i, a) => {
+                                  {this.state.prices && '$'} {item.adjustment.toFixed(0).replace(/./g, (c, i, a) => {
                                     return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                                   })}
                                 </td>
                                 <td className='has-text-centered'>
-                                  {this.state.prices && '$'} {((this.state.prevData[key] || {}).sale || 0).toFixed(2).replace(/./g, (c, i, a) => {
+                                  {this.state.prices && '$'} {((this.state.prevData[key] || {}).sale || 0).toFixed(0).replace(/./g, (c, i, a) => {
                                     return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                                   })}
                                 </td>
@@ -1738,17 +1738,17 @@ class TabAdjustment extends Component {
                               />
                             </th>
                             <th className='has-text-info has-text-centered'>
-                              {this.state.prices && '$'} {this.state.totalPrediction.toFixed(2).replace(/./g, (c, i, a) => {
+                              {this.state.prices && '$'} {this.state.totalPrediction.toFixed(0).replace(/./g, (c, i, a) => {
                                 return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                               })}
                             </th>
                             <th className='has-text-teal has-text-centered'>
-                              {this.state.prices && '$'} {this.state.totalAdjustment.toFixed(2).replace(/./g, (c, i, a) => {
+                              {this.state.prices && '$'} {this.state.totalAdjustment.toFixed(0).replace(/./g, (c, i, a) => {
                                 return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                               })}
                             </th>
                             <th className='has-text-danger has-text-centered'>
-                              {this.state.prices && '$'} {this.state.totalPrevSale.toFixed(2).replace(/./g, (c, i, a) => {
+                              {this.state.prices && '$'} {this.state.totalPrevSale.toFixed(0).replace(/./g, (c, i, a) => {
                                 return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                               })}
                             </th>

@@ -10,8 +10,8 @@ import Loader from '~base/components/spinner'
 import Page from '~base/page'
 import { loggedIn } from '~base/middlewares/'
 import { BaseTable } from '~base/components/base-table'
-import Link from '~base/router/link'
-import classNames from 'classnames'
+import BaseModal from '~base/components/base-modal'
+import Spinner from '~base/components/spinner'
 import { defaultCatalogs } from '~base/tools'
 import { Timer } from '~base/components/timer'
 
@@ -24,6 +24,11 @@ class StatusRepórt extends Component {
       filtersLoaded: false,
       filtersLoading: false,
       isLoading: '',
+      isDownloading: false,
+      downloadCycle: '',
+      showModal: false,
+      userName: '',
+      userGroup: [],
       filters: {
         cycles: [],
         users: [],
@@ -209,10 +214,10 @@ class StatusRepórt extends Component {
     }
   }
 
-  async getUsers(){
-
-    var cycle = this.state.filters.cycles.find(item => {
-      return item.cycle === this.state.formData.cycle
+  async getUsers(isState=true, dataCycle){
+    const formCycle = dataCycle || this.state.formData.cycle
+    const cycle = this.state.filters.cycles.find(item => {
+      return item.cycle === formCycle
     })
 
     const url = '/app/reports/user'
@@ -226,40 +231,49 @@ class StatusRepórt extends Component {
           projects: [this.state.projectSelected.uuid]
         }
       )
-      this.setState({
-        users: res.data
-      })
+      if (isState) {
+        this.setState({
+          users: res.data
+        })
+      }
+      return res.data
     } catch (e) {
       console.log(e)
-      this.setState({
-        dataRows: [],
-        isFiltered: true,
-        isLoading: '',
-        selectedCheckboxes: new Set()
-      })
+      if (isState) {
+        this.setState({
+          dataRows: [],
+          isFiltered: true,
+          isLoading: '',
+          selectedCheckboxes: new Set()
+        })
+      }
+      return []
     }
   }
 
-  async getDataRows() {
+  async getDataRows(isState=true, dataCycle) {
     const { formData, filters } = this.state
+    const formCycle = dataCycle || formData.cycle
 
-     if (!formData.cycle) {
+     if (!formCycle) {
       this.notify('¡Se debe filtrar por ciclo!', 5000, toast.TYPE.ERROR)
       return
     }
 
-    await this.getUsers()
+    const apiUsers = await this.getUsers(isState, dataCycle)
 
-    var cycle = filters.cycles.find(item => {
-      return item.cycle === formData.cycle
+    const cycle = filters.cycles.find(item => {
+      return item.cycle === formCycle
     })
 
-    this.setState({
-      isLoading: ' is-loading',
-      isFiltered: false,
-      salesTable: [],
-      noSalesData: ''
-    })
+    if (isState) {
+      this.setState({
+        isLoading: ' is-loading',
+        isFiltered: false,
+        salesTable: [],
+        noSalesData: ''
+      })
+    }
 
     const url = '/app/reports/adjustments'
     try {
@@ -276,14 +290,16 @@ class StatusRepórt extends Component {
       catalogItems = catalogItems.filter(item => item)
 
       let users = formData.user ? [formData.user] : undefined
+      const userList = apiUsers || this.state.users
+
       if(this.state.filterReady) {
-        users = this.state.users.finishedUsers
+        users = userList.finishedUsers
       }
       else if (this.state.filterProgress) {
-        users = this.state.users.inProgressUsers
+        users = userList.inProgressUsers
       }
       else if (this.state.filterInactive) {
-        users = this.state.users.inactiveUsers
+        users = userList.inactiveUsers
       }
 
       let data = await api.post(
@@ -318,29 +334,35 @@ class StatusRepórt extends Component {
       }
 
       for (let users of data.data) {
-        if (this.state.users.finishedUsers.includes(users.user[0].uuid)) {
+        if (userList.finishedUsers.includes(users.user[0].uuid)) {
           users.status = 'Finalizado'
         }
-        if (this.state.users.inProgressUsers.includes(users.user[0].uuid)) {
+        if (userList.inProgressUsers.includes(users.user[0].uuid)) {
           users.status = 'En proceso'
         }
       }
 
-      this.setState({
-        dataRows: data.data,
-        isFiltered: true,
-        isLoading: '',
-        selectedCheckboxes: new Set()
-      })
-      this.clearSearch()
+      if (isState) {
+        this.setState({
+          dataRows: data.data,
+          isFiltered: true,
+          isLoading: '',
+          selectedCheckboxes: new Set()
+        })
+        this.clearSearch()
+      }
+      return data.data
     } catch (e) {
       console.log(e)
-      this.setState({
-        dataRows: [],
-        isFiltered: true,
-        isLoading: '',
-        selectedCheckboxes: new Set()
-      })
+      if (isState) {
+        this.setState({
+          dataRows: [],
+          isFiltered: true,
+          isLoading: '',
+          selectedCheckboxes: new Set()
+        })
+      }
+      return []
     }
   }
 
@@ -352,11 +374,11 @@ class StatusRepórt extends Component {
         'default': 'N/A',
         'sortable': true,
         formatter: (row) => {
-            return (
-              <a className='' onClick={() => this.userDetail(row.user[0])}>
-                { row.user[0].name }
-              </a>
-            )
+          return (
+            <a className='' onClick={() => this.userDetail(row.user[0])}>
+              { row.user[0].name }
+            </a>
+          )
         }
       },
       {
@@ -389,31 +411,43 @@ class StatusRepórt extends Component {
         'default': '',
         'sortable': true,
         formatter: (row) => {
-          if (row.user[0].groups.length > 2) {
+          const groups = row.user[0].groups
+          if (groups.length > 2) {
             return (
               <div>
-                {row.user[0].groups[0].name}
+                {groups[0].name}
                 <br />
-                {row.user[0].groups[1].name}
+                {groups[1].name}
                 <br />
-                {row.user[0].groups.length - 2} <FormattedMessage
-                  id="user.detailMore"
-                  defaultMessage={`más`}
-                />
+                <button
+                  className="button is-small is-white"
+                  onClick={() => {
+                    this.setState({
+                      showModal: true,
+                      userName: row.user[0].name,
+                      userGroup: groups
+                    })
+                  }}
+                >
+                  {groups.length - 2} &nbsp; <FormattedMessage
+                    id="user.detailMore"
+                    defaultMessage={`más`}
+                  />
+                </button>
               </div>
             )
-          } else if (row.user[0].groups.length > 1) {
+          } else if (groups.length > 1) {
             return (
               <div>
-                {row.user[0].groups[0].name}
+                {groups[0].name}
                 <br />
-                {row.user[0].groups[1].name}
+                {groups[1].name}
               </div>
             )
-          } else if (row.user[0].groups.length > 0) {
+          } else if (groups.length > 0) {
             return (
               <div>
-                {row.user[0].groups[0].name}
+                {groups[0].name}
               </div>
             )
           }
@@ -442,8 +476,17 @@ class StatusRepórt extends Component {
     return cols
   }
 
+  getGroupColumns() {
+    return [
+      {
+        'title': 'Grupo',
+        'property': 'name',
+        'default': 'N/A'
+      }
+    ]
+  }
 
-  userDetail(user){
+  userDetail(user) {
     tree.set('userDetail', user)
     tree.commit()
     this.props.history.push('/manage/users-groups')
@@ -639,35 +682,51 @@ class StatusRepórt extends Component {
     }
   }
 
-  download() {
-    // Here should be the action to download the report
-    let csv = [];
-    let rows = document.querySelectorAll('table tr');
+  async download() {
+    try {
+      // Here should be the action to download the report
+      let csv = ['Usuario,Rol,Ajustes por periodo,Estatus,Grupos,Aprobado,Rechazado,Pendientes,Ciclo'];
 
-    for (let i = 0; i < rows.length; i++) {
-      if (i === 0) {
-        csv.push('Usuario,Rol,Ajustes por periodo,Estatus,Grupos,Aprobado,Rechazado,Pendientes');
-        continue
-      }
-      let row = [], cols = rows[i].querySelectorAll('td, th');
+      const cycles = await Promise.all(this.state.filters.cycles.map(async cycleItem => {
+        this.setState({
+          isDownloading: true,
+          downloadCycle: cycleItem.viewName,
+        })
 
-      for (let j = 0; j < cols.length; j++) {
-        if (cols[j].querySelectorAll('div').length > 0) {
-          let divData = []
-          for (let item of cols[j].querySelectorAll('div')) {
-            divData.push(item.innerText.replace('<br>', ' ').replace('<span>', '').replace(/(?:\r\n|\r|\n)/g, ' '))
-          }
-          row.push(divData.join(' '));
-        } else {
-          row.push(cols[j].innerText);
+        const dataRows = await this.getDataRows(false, cycleItem.cycle)
+        return {
+          viewName: cycleItem.viewName,
+          dataRows
+        }
+      }))
+
+      for (let cycleItem of cycles) {
+        for (let row of cycleItem.dataRows) {
+          const csvRow = [
+            row.user[0].name || '',
+            row.user[0].organizations[0].role.name || '',
+            row.total - (row.approved + row.created + row.rejected),
+            row.status || 'Sin Ajustes',
+            (row.user[0].groups || []).map(group => group.name || '').join(' '),
+            row.approved,
+            row.rejected,
+            row.created,
+            cycleItem.viewName
+          ]
+
+          csv.push(csvRow.join(','))
         }
       }
 
-      csv.push(row.join(','));
+      // Download CSV file
+      this.downloadCSV(csv.join("\n"), 'reporte-actividad.csv');
+    } catch (error) {
+      console.log(error)
+      this.setState({
+        isDownloading: false,
+      })
+      this.notify('¡No se pudo completar la descarga!', 5000, toast.TYPE.ERROR)
     }
-
-    // Download CSV file
-    this.downloadCSV(csv.join("\n"), 'reporte-actividad.csv');
   }
 
   downloadCSV(csv, filename) {
@@ -675,7 +734,7 @@ class StatusRepórt extends Component {
     let downloadLink;
 
     // CSV file
-    csvFile = new Blob([csv], {type: "text/csv"});
+    csvFile = new Blob(['\ufeff', csv], {type: "text/csv"});
 
     // Download link
     downloadLink = document.createElement("a");
@@ -694,6 +753,10 @@ class StatusRepórt extends Component {
 
     // Click download link
     downloadLink.click();
+
+    this.setState({
+      isDownloading: false
+    })
   }
 
   render () {
@@ -884,6 +947,34 @@ class StatusRepórt extends Component {
             </section>
           }
         </div>
+        {this.state.isDownloading && <BaseModal
+            title={`Descargando`}
+            className="is-active"
+            hideModal={() => {}}
+          >
+            <div>
+              <h4>Obteniendo datos para {this.state.downloadCycle}...</h4>
+              <br />
+              <Spinner />
+            </div>
+          </BaseModal>
+        }
+        {this.state.showModal && <BaseModal
+            title={`Grupos de ${this.state.userName}`}
+            className="is-active"
+            hideModal={() => this.setState({ showModal: false })}
+          >
+            <div className='scroll-table'>
+              <div className='scroll-table-container'>
+                <BaseTable
+                  className='dash-table is-fullwidth status-table'
+                  data={this.state.userGroup}
+                  columns={this.getGroupColumns()}
+                />
+              </div>
+            </div>
+          </BaseModal>
+        }
       </div>
     )
   }

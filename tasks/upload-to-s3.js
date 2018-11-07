@@ -8,12 +8,14 @@ const Task = require('lib/task')
 
 const task = new Task(async function (argv) {
   let s3path
-  let bucket = 'pythia-kore-dev'
   let file
   const {
     S3_ACCESS_KEY,
-    S3_SECRET
+    S3_SECRET,
+    S3_BUCKET,
+    S3_REGION
   } = process.env
+  let bucket = S3_BUCKET
 
   if (!argv.s3path || !argv.file) {
     throw new Error('s3path, bucket and file to upload are required')
@@ -37,7 +39,7 @@ const task = new Task(async function (argv) {
       accessKeyId: S3_ACCESS_KEY,
       secretAccessKey: S3_SECRET
     },
-    region: 'us-west-2'
+    region: S3_REGION
   })
 
   var params = {Bucket: bucket, Key: s3path, Body: file, ACL: 'public-read'}

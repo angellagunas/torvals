@@ -250,7 +250,7 @@ userSchema.virtual('profileUrl').get(function () {
     return 'https://s3.' + this.profilePicture.region + '.amazonaws.com/' + this.profilePicture.bucket + '/' + this.profilePicture.url
   }
 
-  return 'https://s3.us-west-2.amazonaws.com/pythia-kore-dev/avatars/default.jpg'
+  return 'https://s3.us-east-1.amazonaws.com/abraxas-orax-statics/avatars/default.jpg'
 })
 
 userSchema.methods.sendActivationEmail = async function () {
