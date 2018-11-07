@@ -40,6 +40,7 @@ class ProjectDetail extends Component {
       datasetClassName: '',
       cloneClassName: '',
       outdatedClassName: '',
+      modalClassName: '',
       isUpdating: '',
       roles: 'admin, orgadmin, analyst, manager-level-3',
       canEdit: false,
@@ -86,14 +87,14 @@ class ProjectDetail extends Component {
     this.intervalCounter = setInterval(() => {
       if (this.state.project.status !== 'adjustment') return
       this.countAdjustmentRequests()
-    }, 10000)
+    }, 10000 * 20)
 
     if (
       currentRole !== 'consultor-level-3' &&
       !this.intervalConciliate &&
       this.state.project.status === 'adjustment'
     ) {
-      this.intervalConciliate = setInterval(() => { this.getModifiedCount() }, 10000)
+      this.intervalConciliate = setInterval(() => { this.getModifiedCount() }, 10000 * 20)
     }
   }
 
@@ -417,14 +418,23 @@ class ProjectDetail extends Component {
     })
   }
 
-  async handleAllAdjustmentRequest(showMessage=true) {
+
+
+  async handleAllAdjustmentRequest(showMessage=true, isConfirmed=false) {
+    if (this.state.counterAdjustments > 0 && !isConfirmed) {
+      this.showModal()
+      return
+    }
+
     this.setState({
       isConciliating: ' is-loading'
     })
-    let { pendingDataRows } = this.state
-    let pendingDataRowsArray = Object.values(pendingDataRows)
-    let finishAdjustments = true
-    await this.handleAdjustmentRequest(pendingDataRowsArray, showMessage, finishAdjustments)
+
+    const { pendingDataRows } = this.state
+    const pendingDataRowsArray = Object.values(pendingDataRows)
+
+    await this.handleAdjustmentRequest(pendingDataRowsArray, showMessage, true)
+
     this.setState({
       isConciliating: ''
     })
@@ -515,6 +525,61 @@ class ProjectDetail extends Component {
     }
 
     this.setState({ isUpdating: '' })
+  }
+
+  showModal() {
+    this.setState({
+      modalClassName: ' is-active'
+    })
+  }
+
+  hideModal() {
+    this.setState({
+      modalClassName: ''
+    })
+  }
+
+  confirmMsg() {
+    return (
+      <BaseModal
+        title="Aun hay ajustes fuera de rango"
+        className={'modal-confirm' + this.state.modalClassName}
+        hideModal={() => { this.hideModal() }}
+      >
+        <center>
+          <h3>
+            Seguro de guardar los ajustes establecidas?
+            <p>
+              <strong>
+                Los ajustes fuera de rango se perderan
+              </strong>
+            </p>
+          </h3>
+          <br />
+          <div className='buttons org-rules__modal'>
+            <button
+              className={'button is-pulled-right is-success ' + this.state.isLoading}
+              disabled={!!this.state.isLoading}
+              onClick={() => this.handleAllAdjustmentRequest(true, true)}
+            >
+              <FormattedMessage
+                id='orgRules.confirmModalBtnSave'
+                defaultMessage={`Sí, guardar`}
+              />
+            </button>
+            <button
+              className='button is-primary is-inverted is-pulled-right'
+              onClick={() => this.hideModal()}
+            >
+              <FormattedMessage
+                id='orgRules.confirmModalBtnCancel'
+                defaultMessage={`No, regresar`}
+              />
+            </button>
+          </div>
+        </center>
+      </BaseModal>
+    )
   }
 
   render () {
@@ -951,6 +1016,7 @@ class ProjectDetail extends Component {
           </div>
         </BaseModal>
 
+        {this.confirmMsg()}
       </div>
     )
   }

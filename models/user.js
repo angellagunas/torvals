@@ -37,9 +37,8 @@ const userSchema = new Schema({
   job: { type: String },
   phone: { type: String },
   isVerified: { type: Boolean, default: false },
-
   isDeleted: { type: Boolean, default: false },
-
+  isOperationalUser: { type: Boolean, default: true },
   uuid: { type: String, default: v4 },
   apiToken: { type: String, default: v4 }
 }, { usePushEach: true })
@@ -251,7 +250,7 @@ userSchema.virtual('profileUrl').get(function () {
     return 'https://s3.' + this.profilePicture.region + '.amazonaws.com/' + this.profilePicture.bucket + '/' + this.profilePicture.url
   }
 
-  return 'https://s3.us-west-2.amazonaws.com/pythia-kore-dev/avatars/default.jpg'
+  return 'https://s3.us-east-1.amazonaws.com/abraxas-orax-statics/avatars/default.jpg'
 })
 
 userSchema.methods.sendActivationEmail = async function () {

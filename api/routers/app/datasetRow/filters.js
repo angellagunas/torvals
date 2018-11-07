@@ -6,7 +6,8 @@ const {
   DataSet,
   CatalogItem,
   Role,
-  Cycle
+  Cycle,
+  Period
 } = require('models')
 
 module.exports = new Route({
@@ -59,14 +60,22 @@ module.exports = new Route({
       dateStart: {$lte: moment.utc(dataset.dateMax), $gte: moment.utc(dataset.dateMin).subtract(1, 'days')}
     }).sort('-dateStart')
 
-    cycles = cycles.map(item => {
+    cycles = cycles.map(async item => {
+      const periods = await Period.find({
+        cycle: item._id
+      })
+
       return {
         cycle: item.cycle,
         uuid: item.uuid,
         dateStart: item.dateStart,
-        dateEnd: item.dateEnd
+        dateEnd: item.dateEnd,
+        periodStart: (periods[0] || {}).period,
+        periodEnd: (periods[periods.length - 1] || {}).period
       }
     })
+
+    cycles = await Promise.all(cycles)
 
     catalogItems = await CatalogItem.find({
       _id: { $in: catalogItems },

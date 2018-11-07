@@ -46,31 +46,8 @@ module.exports = new Route({
 
     let filters = {}
     for (var filter in ctx.request.query) {
-      if (filter === 'limit' || filter === 'start' || filter === 'sort') {
-        continue
-      }
-
-      if (filter === 'product') {
-        // filters[filter] = await Product.findOne({
-        //   'uuid': ctx.request.query[filter],
-        //   organization: dataset.organization
-        // })
-        continue
-      }
-
-      if (filter === 'channel') {
-        // filters[filter] = await Channel.findOne({
-        //   'uuid': ctx.request.query[filter],
-        //   organization: dataset.organization
-        // })
-        continue
-      }
-
-      if (filter === 'salesCenter') {
-        // filters[filter] = await SalesCenter.findOne({
-        //   'uuid': ctx.request.query[filter],
-        //   organization: dataset.organization
-        // })
+      filter_skip = ['limit', 'start', 'sort', 'date_start', 'date_end']
+      if (filter_skip.includes(filter)) {
         continue
       }
 
@@ -114,13 +91,14 @@ module.exports = new Route({
 
     filters['dataset'] = dataset._id
 
-    if (
-      currentRole.slug === 'manager-level-1' ||
-      currentRole.slug === 'manager-level-2' ||
-      currentRole.slug === 'consultor-level-2' ||
-      currentRole.slug === 'consultor-level-3' ||
-      currentRole.slug === 'manager-level-3'
-    ) {
+    const permissionsList = [
+      'manager-level-1',
+      'manager-level-2',
+      'manager-level-3',
+      'consultor-level-2',
+      'consultor-level-3'
+    ]
+    if (permissionsList.includes(currentRole.slug)) {
       if (catalogItemsFilters.length === 0) {
         let catalogItems = await CatalogItem.filterByUserRole(
           { },

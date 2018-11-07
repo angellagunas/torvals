@@ -200,7 +200,7 @@ class Sidebar extends Component {
               icon: 'book',
               to: '/catalogs',
               roles:
-                'consultor-level-3, analyst, orgadmin, admin, consultor-level-2, manager-level-2, manager-level-3',
+                'analyst, orgadmin, admin',
               openedLvl2: false,
               dropdown: [
                 this.formatTitle('sideMenu.prices', Prices),

@@ -26,6 +26,7 @@ Catalog.opts = opt => {
     detailUrl: opt.detailUrl + '/',
     pageLimit: 20,
     filters: true,
+    lengthList: true,
     create: true,
     createComponent: CreateCatalog,
     import: true,
@@ -68,7 +69,10 @@ Catalog.opts = opt => {
                 await api.del(url)
 
                 const cursor = tree.get(opt.branchName)
-                const res = await api.get(opt.baseUrl, { start: (20 * cursor.page) - 20, limit: 20, sort: cursor.sort })
+                const res = await api.get(opt.baseUrl, {
+                  start: (cursor.pageLength * cursor.page) - cursor.pageLength,
+                  limit: cursor.pageLength, sort: cursor.sort
+                })
 
                 tree.set(opt.branchName, {
                   page: cursor.page,

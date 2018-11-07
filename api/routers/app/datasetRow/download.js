@@ -17,9 +17,11 @@ module.exports = new Route({
   }),
   handler: async function (ctx) {
     const data = ctx.request.body
-    const project = await Project.findOne({uuid: ctx.params.uuid})
-      .populate('organization')
-      .populate('activeDataset mainDataset')
+    const project = await Project.findOne({
+      isDeleted: false,
+      uuid: ctx.params.uuid
+    })
+      .populate('activeDataset')
 
     ctx.assert(project, 404, 'Proyecto no encontrado')
 
@@ -28,7 +30,7 @@ module.exports = new Route({
     }
 
     let cycles = await Cycle.getBetweenDates(
-      project.organization._id,
+      project.organization,
       project.rule,
       moment.utc(data.start_date, 'YYYY-MM-DD').toDate(),
       moment.utc(data.end_date, 'YYYY-MM-DD').toDate()
@@ -39,29 +41,23 @@ module.exports = new Route({
       }
     }
 
-    var otherFilters = {
-      showAdjusted: data.showAdjusted,
-      showNotAdjusted: data.showNotAdjusted,
-      searchTerm: data.searchTerm
-    }
-
-    delete data.showAdjusted
-    delete data.showNotAdjusted
-    delete data.searchTerm
-
-    catalogItems = []
+    let catalogItems = []
     for (let filter of Object.keys(data)) {
       const unwantedKeys = [
         'start_date',
         'end_date',
         'salesCenter',
         'channel',
-        'product'
+        'product',
+        'showAdjusted',
+        'showNotAdjusted',
+        'searchTerm'
       ]
       if (unwantedKeys.includes(filter)) {
         continue
       }
       const catalogItem = await CatalogItem.findOne({
+        isDeleted: false,
         uuid: data[filter]
       }).populate('catalog')
       catalogItems.push(catalogItem)
@@ -75,6 +71,7 @@ module.exports = new Route({
       isDeleted: false,
       ...filters
     }).populate('newProduct')
+      .populate('period')
 
     let rowsCsv = ''
     let names = []
@@ -83,7 +80,7 @@ module.exports = new Route({
       names.push(`"${item.catalog.slug}_id"`, `"${item.catalog.slug}_name"`)
       rowBeginning += `"${item.externalId}","${item.name}",`
     }
-    names.push('"producto_id"', '"producto_name"', '"fecha"', '"prediccion"', '"ajuste"')
+    names.push('"producto_id"', '"producto_name"', '"fecha"', '"periodo"', '"prediccion"', '"ajuste"')
 
     rowsCsv = `${names.join()}\r\n`
 
@@ -91,11 +88,13 @@ module.exports = new Route({
     for (let row of rows) {
       let rowsString = rowBeginning
 
-      rowsString += `"${row.newProduct.externalId}","${row.newProduct.name}",`
+      rowsString += `"${ row.newProduct.externalId}","${row.newProduct.name }",`
 
-      rowsString += `"${moment.utc(row.data.forecastDate, 'YYYY-MM-DD').format("YYYY-MM-DD")}",`
+      rowsString += `"${ moment.utc(row.data.forecastDate, 'YYYY-MM-DD').format("YYYY-MM-DD") }",`
 
-      rowsString += `"${row.data.prediction}","${row.data.adjustment}"\r\n`
+      rowsString += `"${ row.period.period }",`
+
+      rowsString += `"${ row.data.prediction}","${row.data.adjustment }"\r\n`
 
       rowsCsv += rowsString
     }

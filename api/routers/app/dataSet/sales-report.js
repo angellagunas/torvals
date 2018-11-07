@@ -28,6 +28,7 @@ module.exports = new Route({
 
     let match = {
       'dataset': dataset._id,
+      'isDeleted': false,
       'data.adjustment': {
         '$ne': null
       },
@@ -51,6 +52,7 @@ module.exports = new Route({
 
     let matchPreviousSale = {
       'dataset': dataset.project.mainDataset,
+      'isDeleted': false,
       'data.sale': {
         '$ne': null
       },
@@ -117,6 +119,11 @@ module.exports = new Route({
         {
           '$unwind': {
             'path': '$prices'
+          }
+        },
+        {
+          '$match': {
+            'prices.isDeleted': false
           }
         },
         {

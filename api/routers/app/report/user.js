@@ -82,8 +82,9 @@ module.exports = new Route({
       report[stat._id.status] = stat.count
     }
 
+    const groups = ctx.state.user.groups.map((group) => {return String(group)})
     if (!data.users) {
-      let users = await User.find({'organizations.organization': ctx.state.organization})
+      let users = await User.find({'organizations.organization': ctx.state.organization, groups: {$in: groups}})
       data.users = users.map((item) => {
         return item.uuid
       })

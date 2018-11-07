@@ -3,7 +3,13 @@ const Route = require('lib/router/route')
 const moment = require('moment')
 const _ = require('lodash')
 
-const {DataSet, AdjustmentRequest, Role, CatalogItem, Cycle} = require('models')
+const {
+  AdjustmentRequest,
+  CatalogItem,
+  Cycle,
+  DataSet,
+  Role
+} = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -50,7 +56,7 @@ module.exports = new Route({
     if (catalogs) { catalogs = catalogs[0].catalogs }
 
     let catalogItemsFilters = []
-    var filters = {}
+    let filters = {}
     for (var filter in ctx.request.query) {
       if (filter === 'limit' || filter === 'start' || filter === 'sort') {
         continue
@@ -74,7 +80,7 @@ module.exports = new Route({
     }
 
     const user = ctx.state.user
-    var currentRole
+    let currentRole
     const currentOrganization = user.organizations.find(orgRel => {
       return ctx.state.organization._id.equals(orgRel.organization._id)
     })
@@ -94,9 +100,14 @@ module.exports = new Route({
       filters['catalogItems'] = { '$all': catalogItems }
     }
 
-    if (
-      currentRole.slug === 'consultor-level-3' || currentRole.slug === 'manager-level-3'
-    ) {
+    const permissionsList = [
+      'manager-level-1',
+      'manager-level-2',
+      'manager-level-3',
+      'consultor-level-2',
+      'consultor-level-3'
+    ]
+    if (permissionsList.includes(currentRole.slug)) {
       if (catalogItemsFilters.length === 0) {
         let catalogItems = await CatalogItem.filterByUserRole(
           { },

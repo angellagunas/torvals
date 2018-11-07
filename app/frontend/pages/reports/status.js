@@ -10,9 +10,10 @@ import Loader from '~base/components/spinner'
 import Page from '~base/page'
 import { loggedIn } from '~base/middlewares/'
 import { BaseTable } from '~base/components/base-table'
-import Link from '~base/router/link'
-import classNames from 'classnames'
+import BaseModal from '~base/components/base-modal'
+import Spinner from '~base/components/spinner'
 import { defaultCatalogs } from '~base/tools'
+import { Timer } from '~base/components/timer'
 
 class StatusRepórt extends Component {
   constructor (props) {
@@ -23,12 +24,25 @@ class StatusRepórt extends Component {
       filtersLoaded: false,
       filtersLoading: false,
       isLoading: '',
+      isDownloading: false,
+      downloadCycle: '',
+      showModal: false,
+      userName: '',
+      userGroup: [],
       filters: {
         cycles: [],
-        users: []
+        users: [],
+        status: [
+          { uuid: 0, name: 'Todos' },
+          { uuid: 1, name: 'Finalizado' },
+          { uuid: 2, name: 'En proceso' },
+          { uuid: 3, name: 'Inactivo' }
+        ],
+        exercise: [{ uuid: '1', name: 'Test' }]
       },
       formData: {
         cycle: 1,
+        exercise: '',
         user: undefined
       },
       searchTerm: '',
@@ -59,10 +73,6 @@ class StatusRepórt extends Component {
 
   componentWillMount () {
     this.getProjects()
-  }
-
-  componentWillUnmount(){
-    clearInterval(this.interval)
   }
 
   async getProjects() {
@@ -115,19 +125,16 @@ class StatusRepórt extends Component {
       let cycles = _.orderBy(res.cycles, 'dateStart', 'asc')
       .map(item => {
         return {
-          ...item, 
-          name: moment.utc(item.dateStart).format('MMMM D') + ' - ' + moment.utc(item.dateEnd).format('MMMM D')
+          ...item,
+          name: moment.utc(item.dateStart).format('MMMM D') + ' - ' + moment.utc(item.dateEnd).format('MMMM D'),
+          viewName: `Ciclo ${item.cycle} (Periodo ${item.periodStart} - ${item.periodEnd})`
         }
-      })      
+      })
 
       cycles = _.orderBy(cycles, 'dateStart', 'asc')
 
       let formData = this.state.formData
       formData.cycle = cycles[0].cycle
-
-      this.interval = setInterval(() => {
-        this.getTimeRemaining()
-      }, 60000)
 
       this.setState({
         filters: {
@@ -179,8 +186,6 @@ class StatusRepórt extends Component {
       aux[name] = value
       this.setState({
         formData: aux
-      }, () => {
-        this.getDataRows()
       })
     }
   }
@@ -209,10 +214,10 @@ class StatusRepórt extends Component {
     }
   }
 
-  async getUsers(){
-
-    var cycle = this.state.filters.cycles.find(item => {
-      return item.cycle === this.state.formData.cycle
+  async getUsers(isState=true, dataCycle){
+    const formCycle = dataCycle || this.state.formData.cycle
+    const cycle = this.state.filters.cycles.find(item => {
+      return item.cycle === formCycle
     })
 
     const url = '/app/reports/user'
@@ -226,47 +231,56 @@ class StatusRepórt extends Component {
           projects: [this.state.projectSelected.uuid]
         }
       )
-      this.setState({
-        users: res.data
-      })
+      if (isState) {
+        this.setState({
+          users: res.data
+        })
+      }
+      return res.data
     } catch (e) {
       console.log(e)
-      this.setState({
-        dataRows: [],
-        isFiltered: true,
-        isLoading: '',
-        selectedCheckboxes: new Set()
-      })
+      if (isState) {
+        this.setState({
+          dataRows: [],
+          isFiltered: true,
+          isLoading: '',
+          selectedCheckboxes: new Set()
+        })
+      }
+      return []
     }
   }
 
-  async getDataRows() {
-     if (!this.state.formData.cycle) {
+  async getDataRows(isState=true, dataCycle) {
+    const { formData, filters } = this.state
+    const formCycle = dataCycle || formData.cycle
+
+     if (!formCycle) {
       this.notify('¡Se debe filtrar por ciclo!', 5000, toast.TYPE.ERROR)
       return
     }
 
-    this.getTimeRemaining()
+    const apiUsers = await this.getUsers(isState, dataCycle)
 
-    await this.getUsers()
-
-    var cycle = this.state.filters.cycles.find(item => {
-      return item.cycle === this.state.formData.cycle
+    const cycle = filters.cycles.find(item => {
+      return item.cycle === formCycle
     })
 
-    this.setState({
-      isLoading: ' is-loading',
-      isFiltered: false,
-      salesTable: [],
-      noSalesData: ''
-    })
+    if (isState) {
+      this.setState({
+        isLoading: ' is-loading',
+        isFiltered: false,
+        salesTable: [],
+        noSalesData: ''
+      })
+    }
 
     const url = '/app/reports/adjustments'
     try {
       let catalogItems = []
-      for (const key in this.state.formData) {
-        if (this.state.formData.hasOwnProperty(key)) {
-          const element = this.state.formData[key];
+      for (const key in formData) {
+        if (formData.hasOwnProperty(key)) {
+          const element = formData[key];
           if(key !== 'cycle' && key !== 'user'){
             catalogItems.push(element)
           }
@@ -275,17 +289,18 @@ class StatusRepórt extends Component {
 
       catalogItems = catalogItems.filter(item => item)
 
-      let users = this.state.formData.user ? [this.state.formData.user] : undefined
-      if(this.state.filterReady){
-        users = this.state.users.finishedUsers
+      let users = formData.user ? [formData.user] : undefined
+      const userList = apiUsers || this.state.users
+
+      if(this.state.filterReady) {
+        users = userList.finishedUsers
       }
       else if (this.state.filterProgress) {
-        users = this.state.users.inProgressUsers
+        users = userList.inProgressUsers
       }
       else if (this.state.filterInactive) {
-        users = this.state.users.inactiveUsers
+        users = userList.inactiveUsers
       }
-
 
       let data = await api.post(
         url,
@@ -296,21 +311,58 @@ class StatusRepórt extends Component {
           projects: [this.state.projectSelected.uuid]
         }
       )
-      this.setState({
-        dataRows: data.data,
-        isFiltered: true,
-        isLoading: '',
-        selectedCheckboxes: new Set()
-      })
-      this.clearSearch()
+
+      for (let activeUser of filters.users) {
+        const findUser = data.data.find(info => info.user[0].uuid === activeUser.uuid)
+        if (findUser) {
+          findUser.user[0].groups = activeUser.groups
+          continue
+        }
+
+        if (users || formData['centro-de-venta'] || formData.canal) continue
+
+        data.data.push({
+          approved: 0,
+          created: 0,
+          rejected: 0,
+          total: 0,
+          user: [activeUser],
+          _id: {
+            user: activeUser._id
+          }
+        })
+      }
+
+      for (let users of data.data) {
+        if (userList.finishedUsers.includes(users.user[0].uuid)) {
+          users.status = 'Finalizado'
+        }
+        if (userList.inProgressUsers.includes(users.user[0].uuid)) {
+          users.status = 'En proceso'
+        }
+      }
+
+      if (isState) {
+        this.setState({
+          dataRows: data.data,
+          isFiltered: true,
+          isLoading: '',
+          selectedCheckboxes: new Set()
+        })
+        this.clearSearch()
+      }
+      return data.data
     } catch (e) {
       console.log(e)
-      this.setState({
-        dataRows: [],
-        isFiltered: true,
-        isLoading: '',
-        selectedCheckboxes: new Set()
-      })
+      if (isState) {
+        this.setState({
+          dataRows: [],
+          isFiltered: true,
+          isLoading: '',
+          selectedCheckboxes: new Set()
+        })
+      }
+      return []
     }
   }
 
@@ -322,14 +374,84 @@ class StatusRepórt extends Component {
         'default': 'N/A',
         'sortable': true,
         formatter: (row) => {
-          return row.user[0].name
+          return (
+            <a className='' onClick={() => this.userDetail(row.user[0])}>
+              { row.user[0].name }
+            </a>
+          )
+        }
+      },
+      {
+        'title': 'Rol',
+        'property': 'role.name',
+        'default': '',
+        'sortable': true,
+        formatter: (row) => {
+          return row.user[0].organizations[0].role.name
         }
       },
       {
         'title': this.formatTitle('tables.colAdjustmentsByPeriod'),
-        'property': 'total',
+        'property': 'user.total',
         'default': '0',
+        'sortable': true,
+        formatter: (row) => {
+          return row.total - (row.approved + row.created + row.rejected)
+        }
+      },
+      {
+        'title': 'Estatus',
+        'property': 'status',
+        'default': 'Sin ajustes',
         'sortable': true
+      },
+      {
+        'title': this.formatTitle('tables.colGroups'),
+        'property': 'user.groups',
+        'default': '',
+        'sortable': true,
+        formatter: (row) => {
+          const groups = row.user[0].groups
+          if (groups.length > 2) {
+            return (
+              <div>
+                {groups[0].name}
+                <br />
+                {groups[1].name}
+                <br />
+                <button
+                  className="button is-small is-white"
+                  onClick={() => {
+                    this.setState({
+                      showModal: true,
+                      userName: row.user[0].name,
+                      userGroup: groups
+                    })
+                  }}
+                >
+                  {groups.length - 2} &nbsp; <FormattedMessage
+                    id="user.detailMore"
+                    defaultMessage={`más`}
+                  />
+                </button>
+              </div>
+            )
+          } else if (groups.length > 1) {
+            return (
+              <div>
+                {groups[0].name}
+                <br />
+                {groups[1].name}
+              </div>
+            )
+          } else if (groups.length > 0) {
+            return (
+              <div>
+                {groups[0].name}
+              </div>
+            )
+          }
+        }
       },
       {
         'title': this.formatTitle('approve.approved'),
@@ -348,26 +470,23 @@ class StatusRepórt extends Component {
         'property': 'created',
         'default': '0',
         'sortable': true
-      },
-      {
-        'title': this.formatTitle('tables.colActions'),
-        formatter: (row) => {
-            return (
-              <a className='button is-primary' onClick={() => this.userDetail(row.user[0])}>
-                <span className='icon is-small' title='Visualizar'>
-                  <i className='fa fa-eye' />
-                </span>
-              </a>
-            )
-        }
       }
     ]
 
     return cols
   }
 
+  getGroupColumns() {
+    return [
+      {
+        'title': 'Grupo',
+        'property': 'name',
+        'default': 'N/A'
+      }
+    ]
+  }
 
-  userDetail(user){
+  userDetail(user) {
     tree.set('userDetail', user)
     tree.commit()
     this.props.history.push('/manage/users-groups')
@@ -401,21 +520,23 @@ class StatusRepórt extends Component {
   }
 
   async searchDatarows() {
-    if (this.state.searchTerm === '') {
+    const searchTerm = this.state.searchTerm.trim()
+
+    if (searchTerm === '') {
       this.setState({
         filteredData: this.state.dataRows
       })
       return
     }
 
-    const items = this.state.dataRows.filter((item) => {
-      const regEx = new RegExp(this.state.searchTerm, 'gi')
-      const searchStr = `${item.productName} ${item.salesCenter}`
+    const items = this.state.dataRows.filter(item => {
+      const user = item.user[0] || {}
+      const groups = (user.groups || []).map(group => group.name || '').join(' ')
+      const searchStr = `${user.name} ${groups}`
 
-      if (regEx.test(searchStr))
-        return true
+      const regEx = new RegExp(searchTerm, 'gi')
 
-      return false
+      return regEx.test(searchStr)
     })
 
     await this.setState({
@@ -493,6 +614,8 @@ class StatusRepórt extends Component {
       if (this.state.filters.hasOwnProperty(key)) {
         const element = this.state.filters[key];
         if (key === 'cycles' ||
+          key === 'exercise' ||
+          key === 'status' ||
           key === 'channels' ||
           key === 'salesCenters' ||
           key === 'categories' ||
@@ -522,61 +645,118 @@ class StatusRepórt extends Component {
     return filters
   }
 
-  getTimeRemaining(){
-    let cycle = this.state.filters.cycles.find(item => {
-      return item.cycle === this.state.formData.cycle
-    })
-    let now = moment.utc()
-    let then = moment.utc(cycle.dateEnd);
-    let diff = moment.duration(then.diff(now));
-    let days = parseInt(diff.asDays());
+  filterUsers(type) {
+    const baseFilter = {
+      filterReady: false,
+      filterProgress: false,
+      filterInactive: false
+    }
 
-    let hours = parseInt(diff.asHours());
+    switch (type) {
+      case '1':
+        this.setState({
+          ...baseFilter,
+          filterReady: true
+        })
+      break
 
-    hours = hours - days * 24;
+      case '2':
+        this.setState({
+          ...baseFilter,
+          filterProgress: true
+        })
+      break
 
-    let minutes = parseInt(diff.asMinutes());
+      case '3':
+        this.setState({
+          ...baseFilter,
+          filterInactive: true
+        })
+      break
 
-    minutes = minutes - (days * 24 * 60 + hours * 60);
-
-    this.setState({
-      timeRemaining: {
-        days,
-        hours,
-        minutes
-      }
-    })
+      default:
+        this.setState({
+          ...baseFilter
+        })
+      break
+    }
   }
 
+  async download() {
+    try {
+      // Here should be the action to download the report
+      let csv = ['Usuario,Rol,Ajustes por periodo,Estatus,Grupos,Aprobado,Rechazado,Pendientes,Ciclo'];
 
-  filterUsers(type){
-    if(type === 1){
+      const cycles = await Promise.all(this.state.filters.cycles.map(async cycleItem => {
+        this.setState({
+          isDownloading: true,
+          downloadCycle: cycleItem.viewName,
+        })
+
+        const dataRows = await this.getDataRows(false, cycleItem.cycle)
+        return {
+          viewName: cycleItem.viewName,
+          dataRows
+        }
+      }))
+
+      for (let cycleItem of cycles) {
+        for (let row of cycleItem.dataRows) {
+          const csvRow = [
+            row.user[0].name || '',
+            row.user[0].organizations[0].role.name || '',
+            row.total - (row.approved + row.created + row.rejected),
+            row.status || 'Sin Ajustes',
+            (row.user[0].groups || []).map(group => group.name || '').join(' '),
+            row.approved,
+            row.rejected,
+            row.created,
+            cycleItem.viewName
+          ]
+
+          csv.push(csvRow.join(','))
+        }
+      }
+
+      // Download CSV file
+      this.downloadCSV(csv.join("\n"), 'reporte-actividad.csv');
+    } catch (error) {
+      console.log(error)
       this.setState({
-        filterReady: !this.state.filterReady,
-        filterProgress: false,
-        filterInactive: false
-      }, () => {
-        this.getDataRows()
+        isDownloading: false,
       })
+      this.notify('¡No se pudo completar la descarga!', 5000, toast.TYPE.ERROR)
     }
-    else if (type === 2) {
-      this.setState({
-        filterReady: false,
-        filterProgress: !this.state.filterProgress,
-        filterInactive: false
-      }, () => {
-        this.getDataRows()
-      })
-    }
-    else if (type === 3) {
-      this.setState({
-        filterReady: false,
-        filterProgress: false,
-        filterInactive: !this.state.filterInactive
-      }, () => {
-        this.getDataRows()
-      })
-    }
+  }
+
+  downloadCSV(csv, filename) {
+    let csvFile;
+    let downloadLink;
+
+    // CSV file
+    csvFile = new Blob(['\ufeff', csv], {type: "text/csv"});
+
+    // Download link
+    downloadLink = document.createElement("a");
+
+    // File name
+    downloadLink.download = filename;
+
+    // Create a link to the file
+    downloadLink.href = window.URL.createObjectURL(csvFile);
+
+    // Hide download link
+    downloadLink.style.display = "none";
+
+    // Add the link to DOM
+    document.body.appendChild(downloadLink);
+
+    // Click download link
+    downloadLink.click();
+
+    this.setState({
+      isDownloading: false
+    })
   }
 
   render () {
@@ -590,241 +770,211 @@ class StatusRepórt extends Component {
             />
           </h2>
         </div>
-        <div className='section level selects'>
-          <div className='level-left'>
-            {this.state.projectSelected && this.state.projects &&
-            <div className='level-item'>
-              <Select
-                label={this.formatTitle('projectConfig.project')}
-                name='project'
-                value={this.state.projectSelected.uuid}
-                optionValue='uuid'
-                optionName='name'
-                options={this.state.projects}
-                onChange={(name, value) => { this.filterChangeHandler(name, value) }}
-              />
-            </div>
-            }
-            {this.state.filters.cycles.length > 0 &&
-            <div className='level-item'>
-              <Select
-                label={this.formatTitle('adjustments.cycle')}
-                name='cycle'
-                value={this.state.formData.cycle}
-                optionValue='cycle'
-                optionName='name'
-                type='integer'
-                options={this.state.filters.cycles}
-                onChange={(name, value) => { this.filterChangeHandler(name, value) }}
-                disabled={this.state.filtersLoading}
-              />
-            </div>
-            }
-            {this.state.filters.users.length > 0 &&
-            <div className='level-item'>
-              <Select
-                label={this.formatTitle('import.users')}
-                name='user'
-                value={this.state.formData.user}
-                optionValue='uuid'
-                optionName='name'
-                placeholder={this.formatTitle('anomalies.all')}
-                options={this.state.filters.users}
-                onChange={(name, value) => { this.filterChangeHandler(name, value) }}
-                disabled={this.state.filtersLoading}
-              />
-            </div>
-            }
+        <div className='section columns is-multiline is-padingless-top'>
+          <div className='column'>
+            <div className='section level selects is-clearfix'>
+              <div className='level-left'>
+                {this.state.projectSelected && this.state.projects &&
+                  <div className='level-item'>
+                    <Select
+                      label={this.formatTitle('projectConfig.project')}
+                      name='project'
+                      value={this.state.projectSelected.uuid}
+                      optionValue='uuid'
+                      optionName='name'
+                      options={this.state.projects}
+                      onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+                    />
+                  </div>
+                }
+                {this.state.filters.cycles.length > 0 &&
+                  <div className='level-item'>
+                    <Select
+                      label={this.formatTitle('adjustments.cycle')}
+                      name='cycle'
+                      value={this.state.formData.cycle}
+                      optionValue='cycle'
+                      optionName='viewName'
+                      type='integer'
+                      options={this.state.filters.cycles}
+                      onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+                      disabled={this.state.filtersLoading}
+                    />
+                  </div>
+                }
+                {this.state.filters.users.length > 0 &&
+                  <div className='level-item'>
+                    <Select
+                      label={this.formatTitle('import.users')}
+                      name='user'
+                      value={this.state.formData.user}
+                      optionValue='uuid'
+                      optionName='name'
+                      placeholder={this.formatTitle('anomalies.all')}
+                      options={this.state.filters.users}
+                      onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+                      disabled={this.state.filtersLoading}
+                    />
+                  </div>
+                }
+
+                {this.state.filters.status.length > 0 &&
+                  <div className='level-item'>
+                    <Select
+                      label={"Estatus"}
+                      name='status'
+                      value={this.state.formData.status}
+                      optionValue='uuid'
+                      optionName='name'
+                      options={this.state.filters.status}
+                      onChange={(name, value) => { this.filterUsers(value) }}
+                      disabled={this.state.filtersLoading}
+                    />
+                  </div>
+                }
 
 
-            {this.state.filters &&
-              this.makeFilters()
-            }
-          </div>
-        </div>
-        <div className='section columns is-padingless-top'>
-          <div className='column is-3'>
-            <div className={
-              classNames('notification is-success filter-widget',
-                { 'filter-widget__active': this.state.filterReady })
-              }
-              onClick={() => { this.filterUsers(1) }}>
-              <div className='level'>
-                <div className='level-left'>
-                  <div className='level-item'>
-                    <span className='icon is-large'>
-                      <i className='fa fa-2x fa-check'></i>
-                    </span>
-                  </div>
-                  <div className='level-item'>
-                    <p><strong>{this.state.users.finishedUsers.length} Usuarios</strong></p>
-                    <p>
-                      <FormattedMessage
-                        id="report.adjustmentFinished"
-                        defaultMessage={`Ajustes finalizados`}
-                      />
-                    </p>
+                {this.state.filters &&
+                  this.makeFilters()
+                }
+
+                <div className='level-item'>
+                  <div className="field">
+                    <div className="label">
+                      <br />
+                    </div>
+                    <div className="control">
+                      <button className='button is-primary'
+                        disabled={!!this.state.isLoading}
+                        onClick={() => this.getDataRows()}
+                      >
+                        <FormattedMessage
+                          id='dashboard.searchText'
+                          defaultMessage={`Buscar`}
+                        />
+                      </button>
+                    </div>
                   </div>
                 </div>
+
               </div>
             </div>
           </div>
-          <div className='column is-3'>
-            <div className={
-              classNames('notification is-info filter-widget',
-                { 'filter-widget__active': this.state.filterProgress })
-              }
-              onClick={() => { this.filterUsers(2) }}>
-              <div className='level'>
-                <div className='level-left'>
-                  <div className='level-item'>
-                    <span className='icon is-large'>
-                      <i className='fa fa-2x fa-cog'></i>
-                    </span>
-                  </div>
-                  <div className='level-item'>
-                    <p><strong>{this.state.users.inProgressUsers.length} Usuarios</strong></p>
-                    <p>
-                      <FormattedMessage
-                        id="report.adjustmentInProcess"
-                        defaultMessage={`Ajustes en proceso`}
-                      />
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className='column is-3'>
-            <div className={
-              classNames('notification is-danger filter-widget',
-                { 'filter-widget__active': this.state.filterInactive })
-              }
-              onClick={() => { this.filterUsers(3) }}>
-              <div className='level'>
-                <div className='level-left'>
-                  <div className='level-item'>
-                    <span className='icon is-large'>
-                      <i className='fa fa-2x fa-exclamation-circle'></i>
-                    </span>
-                  </div>
-                  <div className='level-item'>
-                    <p><strong>{this.state.users.inactiveUsers.length} Usuarios</strong></p>
-                    <p>
-                      <FormattedMessage
-                        id="report.noAdjustment"
-                        defaultMessage={`Sin ajustes`}
-                      />
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className='column is-narrow'>
-            <div className='time has-text-centered'>
-              <p className='desc'>
-                <FormattedMessage
-                  id="report.adjustmentTimeLeft"
-                  defaultMessage={`Tiempo restante para ajustar`}
-                />
-              </p>
-              <div className='level'>
-                <div className='level-item'>
-                  <p className='num'>{this.state.timeRemaining.days}</p>
-                  <p className='desc'>
-                    <FormattedMessage
-                      id="report.days"
-                      defaultMessage={`Días`}
-                    />
-                  </p>
-                </div>
-                <div className='level-item'>
-                  <p className='num'>{this.state.timeRemaining.hours}</p>
-                  <p className='desc'>
-                    <FormattedMessage
-                      id="report.hours"
-                      defaultMessage={`Horas`}
-                    />
-                  </p>
-                </div>
-                <div className='level-item'>
-                  <p className='num'>:</p>
-                  <p className='desc'>&nbsp;</p>
-                </div>
-                <div className='level-item'>
-                  <p className='num'>{this.state.timeRemaining.minutes}</p>
-                  <p className='desc'>
-                    <FormattedMessage
-                      id="report.minutes"
-                      defaultMessage={`Min.`}
-                    />
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+
+          <Timer />
+
         </div>
         <div className='section search-section'>
-        <div className='level'>
-          <div className='level-left'>
-            <div className='level-item'>
+          <div className='level'>
+            <div className='level-left'>
+              <div className='level-item'>
 
-              <div className='field'>
-                <label className='label'>
-                  <FormattedMessage
-                      id="dashboard.searchText"
-                    defaultMessage={`Búsqueda general`}
-                  />
-                </label>
-                <div className='control has-icons-right'>
-                  <input
-                    className='input'
-                    type='text'
-                    value={this.state.searchTerm}
-                    onChange={this.searchOnChange}
-                    placeholder={this.formatTitle('dashboard.searchText')}
-                  />
+                <div className='field'>
+                  <label className='label'>
+                    <FormattedMessage
+                        id="dashboard.searchText"
+                      defaultMessage={`Búsqueda general`}
+                    />
+                  </label>
+                  <div className='control has-icons-right'>
+                    <input
+                      className='input'
+                      type='text'
+                      value={this.state.searchTerm}
+                      onChange={this.searchOnChange}
+                      placeholder={this.formatTitle('dashboard.searchText')}
+                    />
 
-                  <span className='icon is-small is-right'>
-                    <i className='fa fa-search fa-xs' />
-                  </span>
+                    <span className='icon is-small is-right'>
+                      <i className='fa fa-search fa-xs' />
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
+
+            <div className='level-right'>
+              <div className='level-item'>
+
+                <div className='field'>
+                  <label className='label'>
+                    <br />
+                  </label>
+                  <div className='control'>
+                    <button className='button is-primary'
+                      disabled={!!this.state.isLoading}
+                      onClick={() => this.download()}
+                    >
+                      <span className='icon' title='Descargar'>
+                        <i className='fa fa-download' />
+                      </span>
+                    </button>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
           </div>
+
+          {this.state.filteredData
+            ? this.state.filteredData.length > 0
+              ? <div className='scroll-table'>
+                <div className='scroll-table-container'>
+
+                  <BaseTable
+                    className='dash-table is-fullwidth status-table'
+                    data={this.state.filteredData}
+                    columns={this.getColumns()}
+                    handleSort={(e) => { this.handleSort(e) }}
+                    sortAscending={this.state.sortAscending}
+                    sortBy={this.state.sortBy}
+                  />
+                </div>
+              </div>
+              : <section className='section'>
+                <center>
+                  <h1 className='has-text-info'>
+                    <FormattedMessage
+                      id="report.noInfo"
+                      defaultMessage={`No hay información que mostrar, intente con otro filtro`}
+                    />
+                  </h1>
+                </center>
+              </section>
+            : <section className='section'>
+              {this.loadTable()}
+            </section>
+          }
         </div>
-
-        {this.state.filteredData
-          ? this.state.filteredData.length > 0
-            ? <div className='scroll-table'>
+        {this.state.isDownloading && <BaseModal
+            title={`Descargando`}
+            className="is-active"
+            hideModal={() => {}}
+          >
+            <div>
+              <h4>Obteniendo datos para {this.state.downloadCycle}...</h4>
+              <br />
+              <Spinner />
+            </div>
+          </BaseModal>
+        }
+        {this.state.showModal && <BaseModal
+            title={`Grupos de ${this.state.userName}`}
+            className="is-active"
+            hideModal={() => this.setState({ showModal: false })}
+          >
+            <div className='scroll-table'>
               <div className='scroll-table-container'>
-
                 <BaseTable
                   className='dash-table is-fullwidth status-table'
-                  data={this.state.filteredData}
-                  columns={this.getColumns()}
-                  handleSort={(e) => { this.handleSort(e) }}
-                  sortAscending={this.state.sortAscending}
-                  sortBy={this.state.sortBy}
+                  data={this.state.userGroup}
+                  columns={this.getGroupColumns()}
                 />
               </div>
             </div>
-            : <section className='section'>
-              <center>
-                <h1 className='has-text-info'>
-                  <FormattedMessage
-                    id="report.noInfo"
-                    defaultMessage={`No hay información que mostrar, intente con otro filtro`}
-                  />
-                </h1>
-              </center>
-            </section>
-          : <section className='section'>
-            {this.loadTable()}
-          </section>
+          </BaseModal>
         }
-      </div>
       </div>
     )
   }
