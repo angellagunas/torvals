@@ -1,4 +1,5 @@
 const Route = require('lib/router/route')
+const ObjectId = require('mongodb').ObjectID
 const { DataSetRow, User, Project, CatalogItem, Cycle, AdjustmentRequest } = require('models')
 const _ = require('lodash')
 
@@ -7,6 +8,8 @@ module.exports = new Route({
   path: '/adjustments/',
   handler: async function (ctx) {
     var data = ctx.request.body
+    let usersInGroup = await User.find({groups: {$in: ctx.state.user.groups.map((item) => {return Object(item)})}})
+    let validUsersIds = usersInGroup.map((item) => {return ObjectId(item._id)})
 
     let initialMatch = {}
     let midMatch = {}
@@ -20,7 +23,13 @@ module.exports = new Route({
     }
 
     if (data.users) {
-      let users = await User.find({uuid: {$in: data.users}})
+      let users = await User.find({
+        isOperationalUser: true,
+        uuid: {
+          $in: data.users
+        }
+      }).populate('groups')
+
       let usersIds = users.map((item) => {
         return item._id
       })
@@ -45,6 +54,11 @@ module.exports = new Route({
       midMatch['$or'] = [
         {'adjustmentRequest.requestedBy': {$in: usersIds}},
         {updatedBy: {'$in': usersIds}, 'adjustmentRequest.requestedBy': null}
+      ]
+    } else {
+      midMatch['$or'] = [
+        {'adjustmentRequest.requestedBy': {$in: validUsersIds}},
+        {updatedBy: {'$in': validUsersIds}, 'adjustmentRequest.requestedBy': null}
       ]
     }
 
@@ -178,7 +192,12 @@ module.exports = new Route({
     })
 
     let inactiveUsers = _.difference(data.users, foundUsers)
-    const inactives = await User.find({uuid: {$in: inactiveUsers}})
+    const inactives = await User.find({
+      isOperationalUser: true,
+      uuid: {
+        $in: inactiveUsers
+      }
+    }).populate('groups')
 
     if (inactives && inactives.length) {
       for (let inactive of inactives) {

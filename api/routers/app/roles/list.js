@@ -11,7 +11,12 @@ module.exports = new Route({
         continue
       }
 
-      if (!isNaN(parseInt(ctx.request.query[filter]))) {
+      if (filter === 'general') {
+        filters['$or'] = [
+          {name: new RegExp(ctx.request.query[filter], 'i')},
+          {$where : `/^${ctx.request.query[filter]}.*/.test(this.priority)` }
+        ]
+      } else if (!isNaN(parseInt(ctx.request.query[filter]))) {
         filters[filter] = parseInt(ctx.request.query[filter])
       } else {
         filters[filter] = ctx.request.query[filter]
@@ -32,13 +37,16 @@ module.exports = new Route({
       }
     }
 
-    if (currentRole.slug !== 'consultor-level-3' && currentRole.slug !== 'consultor-level-2') {
+    const rolesWithPrivileges = ['consultor-level-3', 'consultor-level-2', 'manager-level-2']
+    const currentUserHasPrivileges = rolesWithPrivileges.includes(currentRole.slug)
+
+    if (currentUserHasPrivileges) {
       filters['priority'] = { $gt: currentRole.priority }
     }
 
     var role = await Role.dataTables({
       limit: ctx.request.query.limit || 20,
-      skip: ctx.request.query.start,
+      skip: ctx.request.query.start || 0,
       find: {isDeleted: false, ...filters},
       sort: ctx.request.query.sort || 'priority'
     })

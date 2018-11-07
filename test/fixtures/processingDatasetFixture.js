@@ -12,7 +12,7 @@ module.exports = {
     "products" : [],
     "salesCenters" : [],
     "groupings" : [],
-    "columns" : [ 
+    "columns" : [
         {
             "name" : "agencia_id",
             "isDate" : false,
@@ -30,7 +30,7 @@ module.exports = {
             "is_canal_name" : false,
             "is_producto_id" : false,
             "is_producto_name" : false
-        }, 
+        },
         {
             "name" : "ajuste",
             "isDate" : false,
@@ -48,7 +48,7 @@ module.exports = {
             "is_canal_name" : false,
             "is_producto_id" : false,
             "is_producto_name" : false
-        }, 
+        },
         {
             "name" : "canal_id",
             "isDate" : false,
@@ -66,7 +66,7 @@ module.exports = {
             "is_canal_name" : false,
             "is_producto_id" : false,
             "is_producto_name" : false
-        }, 
+        },
         {
             "name" : "canal_nombre",
             "isDate" : false,
@@ -84,7 +84,7 @@ module.exports = {
             "is_canal_name" : true,
             "is_producto_id" : false,
             "is_producto_name" : false
-        }, 
+        },
         {
             "name" : "clasificacion",
             "isDate" : false,
@@ -102,7 +102,7 @@ module.exports = {
             "is_canal_name" : false,
             "is_producto_id" : false,
             "is_producto_name" : false
-        }, 
+        },
         {
             "name" : "fecha",
             "isDate" : true,
@@ -120,7 +120,7 @@ module.exports = {
             "is_canal_name" : false,
             "is_producto_id" : false,
             "is_producto_name" : false
-        }, 
+        },
         {
             "name" : "modelo",
             "isDate" : false,
@@ -138,7 +138,7 @@ module.exports = {
             "is_canal_name" : false,
             "is_producto_id" : false,
             "is_producto_name" : false
-        }, 
+        },
         {
             "name" : "month",
             "isDate" : false,
@@ -156,7 +156,7 @@ module.exports = {
             "is_canal_name" : false,
             "is_producto_id" : false,
             "is_producto_name" : false
-        }, 
+        },
         {
             "name" : "prediccion",
             "isDate" : false,
@@ -174,7 +174,7 @@ module.exports = {
             "is_canal_name" : false,
             "is_producto_id" : false,
             "is_producto_name" : false
-        }, 
+        },
         {
             "name" : "producto_id",
             "isDate" : false,
@@ -192,7 +192,7 @@ module.exports = {
             "is_canal_name" : false,
             "is_producto_id" : true,
             "is_producto_name" : false
-        }, 
+        },
         {
             "name" : "producto_nombre",
             "isDate" : false,
@@ -210,7 +210,7 @@ module.exports = {
             "is_canal_name" : false,
             "is_producto_id" : false,
             "is_producto_name" : true
-        }, 
+        },
         {
             "name" : "semana_bimbo",
             "isDate" : false,
@@ -228,7 +228,7 @@ module.exports = {
             "is_canal_name" : false,
             "is_producto_id" : false,
             "is_producto_name" : false
-        }, 
+        },
         {
             "name" : "venta",
             "isDate" : false,
@@ -246,7 +246,7 @@ module.exports = {
             "is_canal_name" : false,
             "is_producto_id" : false,
             "is_producto_name" : false
-        }, 
+        },
         {
             "name" : "venta_uni",
             "isDate" : false,
@@ -264,7 +264,7 @@ module.exports = {
             "is_canal_name" : false,
             "is_producto_id" : false,
             "is_producto_name" : false
-        }, 
+        },
         {
             "name" : "year",
             "isDate" : false,
@@ -297,57 +297,57 @@ module.exports = {
     "type" : "univariable-time-series",
     "path" : {
         "savedToDisk" : false,
-        "bucket" : "pythia-kore-dev",
-        "region" : "us-west-2",
+        "bucket" : "abraxas-orax-statics",
+        "region" : "us-east-1",
         "url" : "datasets/b12ade3e-e137-47ab-a468-cea78b9e6c9c/58f1c63d-0d24-4bdc-a649-6dad4b74da5a.csv"
     },
     "__v" : 4,
     "apiData" : {
-        "products" : [ 
+        "products" : [
             {
                 "_id" : "122928",
                 "name" : "Pecositas 70P 9 8G Ric"
-            }, 
+            },
             {
                 "_id" : "123110",
                 "name" : "Runners 58G Co2 Bar"
-            }, 
+            },
             {
                 "_id" : "123109",
                 "name" : "Takis Fuego 62G Co2 Bar"
             }
         ],
-        "salesCenters" : [ 
+        "salesCenters" : [
             {
                 "_id" : "12837"
-            }, 
+            },
             {
                 "_id" : "12604"
             }
         ],
-        "channels" : [ 
+        "channels" : [
             {
                 "_id" : "2",
                 "name" : "autoservicio"
-            }, 
+            },
             {
                 "_id" : "4",
                 "name" : "conveniencia"
-            }, 
+            },
             {
                 "_id" : "1",
                 "name" : "detalle"
             }
         ],
-        "producto" : [ 
+        "producto" : [
             {
                 "_id" : "122928",
                 "name" : "Pecositas 70P 9 8G Ric"
-            }, 
+            },
             {
                 "_id" : "123110",
                 "name" : "Runners 58G Co2 Bar"
-            }, 
+            },
             {
                 "_id" : "123109",
                 "name" : "Takis Fuego 62G Co2 Bar"

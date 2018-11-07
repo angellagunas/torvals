@@ -3,7 +3,13 @@ const Route = require('lib/router/route')
 const moment = require('moment')
 const _ = require('lodash')
 
-const {DataSet, AdjustmentRequest, Role, SalesCenter, Channel, Cycle} = require('models')
+const {
+  AdjustmentRequest,
+  CatalogItem,
+  Cycle,
+  DataSet,
+  Role
+} = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -25,7 +31,7 @@ module.exports = new Route({
     }
 
     const user = ctx.state.user
-    var currentRole
+    let currentRole
     const currentOrganization = user.organizations.find(orgRel => {
       return ctx.state.organization._id.equals(orgRel.organization._id)
     })
@@ -36,27 +42,20 @@ module.exports = new Route({
       currentRole = role.toPublic()
     }
 
-    if (
-      currentRole.slug === 'consultor-level-3' || currentRole.slug === 'manager-level-3'
-    ) {
-      var groups = user.groups
-      var salesCenters = []
-
-      salesCenters = await SalesCenter.find({
-        groups: {$in: groups},
-        organization: ctx.state.organization._id
-      })
-
-      filters['salesCenter'] = {$in: salesCenters}
-
-      var channels = []
-
-      channels = await Channel.find({
-        groups: { $in: groups },
-        organization: ctx.state.organization._id
-      })
-
-      filters['channel'] = {$in: channels}
+    const permissionsList = [
+      'manager-level-1',
+      'manager-level-2',
+      'manager-level-3',
+      'consultor-level-2',
+      'consultor-level-3'
+    ]
+    if (permissionsList.includes(currentRole.slug)) {
+      let catalogItems = await CatalogItem.filterByUserRole(
+        { },
+        currentRole.slug,
+        user
+      )
+      filters['catalogItems'] = { '$in': catalogItems }
     }
 
     let adjustmentRequests = await AdjustmentRequest.find(filters).populate('datasetRow')

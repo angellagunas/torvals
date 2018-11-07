@@ -97,9 +97,11 @@
       "colDate": "Fecha",
       "colPriority": "Prioridad",
       "colUser": "User",
-      "colAdjustmentsByPeriod": "Adjustments by period"
+      "colAdjustmentsByPeriod": "Ajustes por periodo",
+      "colGroups": "Grupos"
     },
     "adjustments": {
+      "exercise": "Ejercicio",
       "cycle": "Ciclo",
       "indicators": "Indicadores",
       "total": "Total",
@@ -109,7 +111,7 @@
       "modifyQuantity": "Modificar por cantidad",
       "modifyPercentage": "Modificar por porcentaje",
       "adjusted": "Ajustado",
-      "notAdjusted": "No adjustado",
+      "notAdjusted": "No ajustado",
       "periodView": "Vista Periodo",
       "productView": "Vista Producto",
       "adjustmentRange": "Rango permitido",

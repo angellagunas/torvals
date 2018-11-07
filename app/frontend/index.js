@@ -6,6 +6,7 @@ import en from 'react-intl/locale-data/en'
 import es from 'react-intl/locale-data/es'
 import { translations, flattenMessages } from './translations'
 import CurrentLanguage from '~base/utils/current-language'
+import 'react-dates/lib/css/_datepicker.css'
 import './styles/index.scss'
 
 addLocaleData([...en, ...es])

@@ -58,6 +58,7 @@ export default ListPage({
   detailUrl: '/catalogs/prices/',
   pageLimit: 20,
   filters: true,
+  lengthList: true,
   schema: {
     type: 'object',
     required: [],

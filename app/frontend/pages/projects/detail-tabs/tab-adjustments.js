@@ -16,7 +16,8 @@ import WeekTable from './week-table'
 import ProductTable from './product-table'
 import Select from './select'
 import Graph from '~base/components/graph'
-
+import DatePicker from '~base/components/date-picker'
+import { Timer } from '~base/components/timer'
 
 const FileSaver = require('file-saver')
 
@@ -46,6 +47,7 @@ class TabAdjustment extends Component {
       formData: {
         cycle: 1
       },
+      timeRemaining: {},
       disableButtons: true,
       selectedCheckboxes: new Set(),
       searchTerm: '',
@@ -61,7 +63,7 @@ class TabAdjustment extends Component {
       errorMessage: '',
       showAdjusted: true,
       showNotAdjusted: true,
-      prices: true,
+      prices: false,
       totalPrevSale: 0,
       filteredData: [],
       prevData: []
@@ -113,22 +115,24 @@ class TabAdjustment extends Component {
             return item = {
               ...item,
               adjustmentRange: this.rules.rangesLvl2[key],
-              name: moment.utc(item.dateStart).format('MMMM D') + ' - ' + moment.utc(item.dateEnd).format('MMMM D')
+              name: moment.utc(item.dateStart).format('MMMM D') + ' - ' + moment.utc(item.dateEnd).format('MMMM D'),
+              viewName: `Ciclo ${item.cycle} (Periodo ${item.periodStart} - ${item.periodEnd})`
             }
           })
-        }
-        else {
+        } else {
           cycles = cycles.map((item, key) => {
             return item = {
               ...item,
               adjustmentRange: this.rules.ranges[key],
-              name: moment.utc(item.dateStart).format('MMMM D') + ' - ' + moment.utc(item.dateEnd).format('MMMM D')
+              name: moment.utc(item.dateStart).format('MMMM D') + ' - ' + moment.utc(item.dateEnd).format('MMMM D'),
+              viewName: `Ciclo ${item.cycle} (Periodo ${item.periodStart} - ${item.periodEnd})`
             }
           })
         }
         cycles = cycles.filter(cycle => cycle.adjustmentRange !== 0)
 
         let formData = this.state.formData
+
         formData.cycle = cycles[0].cycle
         tree.set('selectedCycle', cycles[0])
         tree.commit()
@@ -141,7 +145,14 @@ class TabAdjustment extends Component {
             formData[fil] = res[fil][0].uuid
         }
 
+        const minDate = moment.utc(cycles[0].dateStart)
+        const maxDate = moment.utc(cycles[0].dateEnd)
+
         this.setState({
+          minDate,
+          startDate: minDate,
+          maxDate,
+          endDate: maxDate,
           filters: {
             ...this.state.filters,
             ...res,
@@ -176,7 +187,14 @@ class TabAdjustment extends Component {
         return item.cycle === value
       })
 
+      const minDate = moment.utc(cycle.dateStart)
+      const maxDate = moment.utc(cycle.dateEnd)
+
       this.setState({
+        minDate,
+        startDate: minDate,
+        maxDate,
+        endDate: maxDate,
         filters: {
           ...this.state.filters
         }
@@ -236,10 +254,11 @@ class TabAdjustment extends Component {
         url + this.props.project.activeDataset.uuid,
         {
           ...this.state.formData,
-          cycle: cycle.uuid
+          cycle: cycle.uuid,
+          date_start: this.state.startDate.toDate(),
+          date_end: this.state.maxDate.toDate(),
         }
       )
-
       this.setState({
         dataRows: this.getEditedRows(data.data),
         isFiltered: true,
@@ -1016,24 +1035,22 @@ class TabAdjustment extends Component {
   async downloadReport () {
     this.setState({isDownloading: ' is-loading'})
 
-    let min
-    let max
     let url = '/app/rows/download/' + this.props.project.uuid
 
     let cycle = this.state.filters.cycles.find(item => {
       return item.cycle === this.state.formData.cycle
     })
 
-    min = cycle.dateStart
-    max = cycle.dateEnd
+    let min = cycle.dateStart
+    let max = cycle.dateEnd
 
     try {
       let formFilters = Object.assign({}, this.state.formData)
       delete formFilters.cycle
 
       let res = await api.post(url, {
-        start_date: moment(min).format('YYYY-MM-DD'),
-        end_date:  moment(max).format('YYYY-MM-DD'),
+        start_date: moment.utc(min).format('YYYY-MM-DD'),
+        end_date:  moment.utc(max).format('YYYY-MM-DD'),
         showAdjusted: this.state.showAdjusted,
         showNotAdjusted: this.state.showNotAdjusted,
         searchTerm: this.state.searchTerm,
@@ -1174,14 +1191,14 @@ class TabAdjustment extends Component {
   getCallback() {
     if (this.state.prices) {
       return function (label, index, labels) {
-        return '$' + label.toFixed(2).replace(/./g, (c, i, a) => {
+        return '$' + label.toFixed(0).replace(/./g, (c, i, a) => {
           return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
         })
       }
     }
     else {
       return function (label, index, labels) {
-        return label.toFixed(2).replace(/./g, (c, i, a) => {
+        return label.toFixed(0).replace(/./g, (c, i, a) => {
           return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
         })
       }
@@ -1197,7 +1214,7 @@ class TabAdjustment extends Component {
         if (label) {
           label += ': '
         }
-        let yVal = '$' + tooltipItem.yLabel.toFixed(2).replace(/./g, (c, i, a) => {
+        let yVal = '$' + tooltipItem.yLabel.toFixed(0).replace(/./g, (c, i, a) => {
           return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
         })
         return label + yVal
@@ -1211,7 +1228,7 @@ class TabAdjustment extends Component {
         if (label) {
           label += ': '
         }
-        let yVal = tooltipItem.yLabel.toFixed(2).replace(/./g, (c, i, a) => {
+        let yVal = tooltipItem.yLabel.toFixed(0).replace(/./g, (c, i, a) => {
           return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
         })
         return label + yVal
@@ -1231,6 +1248,13 @@ class TabAdjustment extends Component {
       }
     })
     return find
+  }
+
+  onDatesChange = ({ startDate, endDate }) => {
+    this.setState({
+      startDate,
+      endDate
+    })
   }
 
   render () {
@@ -1394,17 +1418,17 @@ class TabAdjustment extends Component {
       {
         label: this.formatTitle('tables.colForecast'),
         color: '#187FE6',
-        data: this.state.salesTable.map((item, key) => { return item.prediction.toFixed(2) })
+        data: this.state.salesTable.map((item, key) => { return item.prediction.toFixed(0) })
       },
       {
         label: this.formatTitle('tables.colAdjustment'),
         color: '#30C6CC',
-        data: this.state.salesTable.map((item, key) => { return item.adjustment.toFixed(2) })
+        data: this.state.salesTable.map((item, key) => { return item.adjustment.toFixed(0) })
       },
       {
         label: this.formatTitle('tables.colLast'),
         color: '#EF6950',
-        data: this.state.prevData.map(item => item.sale.toFixed(2))
+        data: this.state.prevData.map(item => item.sale)
       }
     ]
 
@@ -1423,7 +1447,7 @@ class TabAdjustment extends Component {
                 name='cycle'
                 value={this.state.formData.cycle}
                 optionValue='cycle'
-                optionName='name'
+                optionName='viewName'
                 type='integer'
                 options={this.state.filters.cycles}
                 onChange={(name, value) => { this.filterChangeHandler(name, value) }}
@@ -1432,6 +1456,39 @@ class TabAdjustment extends Component {
             {this.state.filters &&
               this.makeFilters()
             }
+            <div className='column is-narrow'>
+                <div className='field'>
+
+                  <div className="is-clearfix">
+                    <label className='label is-pulled-left'>
+                      <FormattedMessage
+                        id="dashboard.initialMonth"
+                        defaultMessage={`Mes inicial`}
+                      />
+                    </label>
+                    <label className='label is-pulled-right'>
+                      <FormattedMessage
+                        id="dashboard.lastMonth"
+                        defaultMessage={`Mes final`}
+                      />
+                    </label>
+                  </div>
+
+                  <div className='field is-grouped control'>
+                    <DatePicker
+                      minDate={this.state.minDate}
+                      maxDate={this.state.maxDate}
+                      initialStartDate={this.state.startDate}
+                      initialEndDate={this.state.endDate}
+                      onChange={({ startDate, endDate }) => this.onDatesChange({ startDate, endDate })}
+                    />
+                  </div>
+
+              </div>
+            </div>
+
+            <Timer />
+
           </div>
         </div>
 
@@ -1461,11 +1518,11 @@ class TabAdjustment extends Component {
               <h1 className='num has-text-weight-bold'>
                 {this.state.totalPrediction ?
                   this.state.prices ?
-                    '$' + this.state.totalPrediction.toFixed(2).replace(/./g, (c, i, a) => {
+                    '$' + this.state.totalPrediction.toFixed(0).replace(/./g, (c, i, a) => {
                       return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                     })
                     :
-                    this.state.totalPrediction.toFixed(2).replace(/./g, (c, i, a) => {
+                    this.state.totalPrediction.toFixed(0).replace(/./g, (c, i, a) => {
                       return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                     })
                   : null
@@ -1487,11 +1544,11 @@ class TabAdjustment extends Component {
               <h1 className='num has-text-weight-bold'>
                 {this.state.totalAdjustment ?
                   this.state.prices ?
-                    '$' + this.state.totalAdjustment.toFixed(2).replace(/./g, (c, i, a) => {
+                    '$' + this.state.totalAdjustment.toFixed(0).replace(/./g, (c, i, a) => {
                       return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                     })
                     :
-                    this.state.totalAdjustment.toFixed(2).replace(/./g, (c, i, a) => {
+                    this.state.totalAdjustment.toFixed(0).replace(/./g, (c, i, a) => {
                       return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                     })
                   : null
@@ -1516,11 +1573,11 @@ class TabAdjustment extends Component {
               <h1 className='num has-text-weight-bold'>
                 {this.state.totalPrevSale ?
                   this.state.prices ?
-                    '$' + this.state.totalPrevSale.toFixed(2).replace(/./g, (c, i, a) => {
+                    '$' + this.state.totalPrevSale.toFixed(0).replace(/./g, (c, i, a) => {
                       return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                     })
                     :
-                    this.state.totalPrevSale.toFixed(2).replace(/./g, (c, i, a) => {
+                    this.state.totalPrevSale.toFixed(0).replace(/./g, (c, i, a) => {
                       return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                     })
                   : null
@@ -1565,7 +1622,7 @@ class TabAdjustment extends Component {
                           id='showByquantityAd'
                           type="radio"
                           name='showByAd'
-                          checked={true}
+                          checked={!this.state.prices}
                           disabled={this.state.waitingData}
                           onChange={() => this.showBy(false)} />
                         <label htmlFor='showByquantityAd'>
@@ -1584,8 +1641,8 @@ class TabAdjustment extends Component {
                           id='showBypriceAd'
                           type="radio"
                           name='showByAd'
-                          checked={false}
-                          disabled="disabled"
+                          checked={this.state.prices}
+                          disabled={this.state.waitingData}
                           onChange={() => this.showBy(true)} />
                         <label htmlFor='showBypriceAd'>
                           <span title='Precio'>
@@ -1654,17 +1711,17 @@ class TabAdjustment extends Component {
                                   {item.period[0]}
                                 </td>
                                 <td className='has-text-centered'>
-                                  {this.state.prices && '$'} {item.prediction.toFixed(2).replace(/./g, (c, i, a) => {
+                                  {this.state.prices && '$'} {item.prediction.toFixed(0).replace(/./g, (c, i, a) => {
                                     return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                                   })}
                                 </td>
                                 <td className='has-text-centered'>
-                                  {this.state.prices && '$'} {item.adjustment.toFixed(2).replace(/./g, (c, i, a) => {
+                                  {this.state.prices && '$'} {item.adjustment.toFixed(0).replace(/./g, (c, i, a) => {
                                     return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                                   })}
                                 </td>
                                 <td className='has-text-centered'>
-                                  {this.state.prices && '$'} {((this.state.prevData[key] || {}).sale || 0).toFixed(2).replace(/./g, (c, i, a) => {
+                                  {this.state.prices && '$'} {((this.state.prevData[key] || {}).sale || 0).toFixed(0).replace(/./g, (c, i, a) => {
                                     return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                                   })}
                                 </td>
@@ -1681,17 +1738,17 @@ class TabAdjustment extends Component {
                               />
                             </th>
                             <th className='has-text-info has-text-centered'>
-                              {this.state.prices && '$'} {this.state.totalPrediction.toFixed(2).replace(/./g, (c, i, a) => {
+                              {this.state.prices && '$'} {this.state.totalPrediction.toFixed(0).replace(/./g, (c, i, a) => {
                                 return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                               })}
                             </th>
                             <th className='has-text-teal has-text-centered'>
-                              {this.state.prices && '$'} {this.state.totalAdjustment.toFixed(2).replace(/./g, (c, i, a) => {
+                              {this.state.prices && '$'} {this.state.totalAdjustment.toFixed(0).replace(/./g, (c, i, a) => {
                                 return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                               })}
                             </th>
                             <th className='has-text-danger has-text-centered'>
-                              {this.state.prices && '$'} {this.state.totalPrevSale.toFixed(2).replace(/./g, (c, i, a) => {
+                              {this.state.prices && '$'} {this.state.totalPrevSale.toFixed(0).replace(/./g, (c, i, a) => {
                                 return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                               })}
                             </th>

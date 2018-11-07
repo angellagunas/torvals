@@ -58,12 +58,14 @@ class UserDetail extends Component {
     var url = '/app/users/' + this.props.user.uuid
     try {
       const body = await api.get(url)
+      const role = tree._data.user.currentRole.slug
+      const groups = role == 'orgadmin' ? body.data.groups : body.data.groups.filter(item => tree._data.user.groups.includes(item._id))
 
       await this.setState({
         loading: false,
         loaded: true,
         user: body.data,
-        selectedGroups: [...body.data.groups]
+        selectedGroups: groups
       })
     } catch (e) {
       await this.setState({
@@ -76,6 +78,7 @@ class UserDetail extends Component {
 
   async loadGroups () {
     var url = '/app/groups/'
+    const role = tree._data.user.currentRole.slug
     const body = await api.get(
       url,
       {
@@ -85,9 +88,11 @@ class UserDetail extends Component {
       }
     )
 
+    const groups = role == 'orgadmin' ? body.data : body.data.filter(item => tree._data.user.groups.includes(item._id))
+
     this.setState({
       ...this.state,
-      groups: body.data
+      groups: groups
     })
   }
 

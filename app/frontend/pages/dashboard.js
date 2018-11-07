@@ -18,6 +18,7 @@ import { toast } from 'react-toastify'
 import Wizard from './wizard/wizard';
 import Empty from '~base/components/empty'
 import { defaultCatalogs } from '~base/tools'
+import DatePicker from '~base/components/date-picker'
 
 class Dashboard extends Component {
   constructor (props) {
@@ -175,9 +176,10 @@ class Dashboard extends Component {
         this.setState({
           waitingData: true
         })
+
         let res = await api.post(url, {
-          date_start: moment.utc([this.state.minPeriod.year, this.state.minPeriod.number - 1]).startOf('month').format('YYYY-MM-DD'),
-          date_end: moment.utc([this.state.maxPeriod.year, this.state.maxPeriod.number - 1]).endOf('month').format('YYYY-MM-DD'),
+          date_start: this.state.startDate,
+          date_end: this.state.endDate,
           projects: Object.values(this.selectedProjects).map(p => p.uuid),
           catalogItems: Object.keys(this.selectedItems),
           prices: this.state.prices
@@ -258,8 +260,8 @@ class Dashboard extends Component {
     try {
       let url = '/app/organizations/local/table'
       let res = await api.post(url, {
-        date_start: moment.utc([this.state.minPeriod.year, this.state.minPeriod.number - 1 ]).startOf('month').format('YYYY-MM-DD'),
-        date_end: moment.utc([this.state.maxPeriod.year, this.state.maxPeriod.number - 1]).endOf('month').format('YYYY-MM-DD'),
+        date_start: this.state.startDate,
+        date_end: this.state.endDate,
         projects: Object.values(this.selectedProjects).map(p => p.uuid),
         catalogItems: Object.keys(this.selectedItems),
         prices: this.state.prices
@@ -550,13 +552,29 @@ class Dashboard extends Component {
         min = item
       }
     })
+    min = min || { number: 1, name: "enero", year: 2018 }
+    const maxPeriod = p[p.length - 1]
+    const maxDate = moment.utc([maxPeriod.year, maxPeriod.number - 1]).endOf('month')
 
     this.setState({
       periods: p,
-      minPeriod: min || { number: 1, name: "enero", year: 2018 },
-      maxPeriod: p[p.length - 1]
+      minPeriod: min,
+      minDate: moment.utc([p[0].year, p[0].number - 1]).startOf('month'),
+      startDate: moment.utc([min.year, min.number - 1]).startOf('month'),
+      maxPeriod,
+			maxDate,
+			endDate: maxDate
     })
+  }
 
+  onDatesChange = ({ startDate, endDate }) => {
+    this.setState({
+      startDate,
+      endDate
+    }, () => {
+      this.getGraph()
+      this.getProductTable()
+    })
   }
 
   setMinPeriod(item) {
@@ -1325,88 +1343,36 @@ class Dashboard extends Component {
                 </div>
 
                 <div className='level-right'>
-
-                  {this.state.minPeriod &&
-                    <div className='level-item'>
-                    <div className='field'>
-                      <label className='label'>
-                        <FormattedMessage
-                          id="dashboard.initialMonth"
-                          defaultMessage={`Mes inicial`}
-                        />
-                      </label>
-                      <div className='field is-grouped control'>
-                        <div className={this.state.waitingData ? 'dropdown is-disabled' : 'dropdown is-hoverable'}>
-                        <div className='dropdown-trigger'>
-                          <button className='button is-static is-capitalized' aria-haspopup='true' aria-controls='dropdown-menu4'>
-                            <span>{this.state.minPeriod.name + ' ' + this.state.minPeriod.year}</span>
-                            <span className='icon is-small'>
-                              <i className='fa fa-angle-down' aria-hidden='true'></i>
-                            </span>
-                          </button>
+                  {
+                    this.state.minPeriod && <div className='level-item'>
+                      <div className='field'>
+                      
+                        <div className="is-clearfix">
+                          <label className='label is-pulled-left'>
+                            <FormattedMessage
+                              id="dashboard.initialMonth"
+                              defaultMessage={`Mes inicial`}
+                            />
+                          </label>
+                          <label className='label is-pulled-right'>
+                            <FormattedMessage
+                              id="dashboard.lastMonth"
+                              defaultMessage={`Mes final`}
+                            />
+                          </label>
                         </div>
-                        <div className='dropdown-menu' id='dropdown-menu4' role='menu'>
-                          <div className='dropdown-content'>
-                            {this.state.periods && this.state.periods.map((item, key) => {
-                              return (
-                                <a key={key} className={this.state.minPeriod.number === item.number &&
-                                  this.state.minPeriod.name === item.name &&
-                                  this.state.minPeriod.year === item.year ? 'dropdown-item is-capitalized is-active' : 'dropdown-item is-capitalized'}
-                                  onClick={() => this.setMinPeriod(item)}>
-                                  {item.name + ' ' + item.year}
-                                </a>
-                              )
-                            })}
-                          </div>
-                        </div>
-                      </div>
-                      </div>
-                    </div>
-                    </div>
-                  }
 
-                    <div className='level-item date-drop'>
-                      <span className='icon'>
-                        <i className='fa fa-minus' />
-                      </span>
-                    </div>
-
-                  {this.state.maxPeriod &&
-                    <div className='level-item'>
-                     <div className='field'>
-                        <label className='label'>
-                          <FormattedMessage
-                            id="dashboard.lastMonth"
-                            defaultMessage={`Mes final`}
-                          />
-                        </label>
                         <div className='field is-grouped control'>
-                        <div className={this.state.waitingData ? 'dropdown is-disabled' : 'dropdown is-hoverable'}>
-                        <div className='dropdown-trigger'>
-                          <button className='button is-static is-capitalized' aria-haspopup='true' aria-controls='dropdown-menu4'>
-                            <span>{this.state.maxPeriod.name + ' ' + this.state.maxPeriod.year}</span>
-                            <span className='icon is-small'>
-                              <i className='fa fa-angle-down' aria-hidden='true'></i>
-                            </span>
-                          </button>
+                          <DatePicker
+                            minDate={this.state.minDate}
+                            maxDate={this.state.maxDate}
+                            initialStartDate={this.state.startDate}
+                            initialEndDate={this.state.endDate}
+                            onChange={({ startDate, endDate }) => this.onDatesChange({ startDate, endDate })}
+                          />
                         </div>
-                        <div className='dropdown-menu' id='dropdown-menu4' role='menu'>
-                          <div className='dropdown-content'>
-                            {this.state.periods &&
-                                this.state.periods.slice(this.state.periods.indexOf(this.state.minPeriod), this.state.periods.length)
-                            .map((item, key) => {
-                              return (
-                                <a key={key} className={this.state.maxPeriod === item ? 'dropdown-item is-capitalized is-active' : 'dropdown-item is-capitalized'}
-                                  onClick={() => this.setMaxPeriod(item)}>
-                                  {item.name + ' ' + item.year}
-                                </a>
-                              )
-                            })}
-                          </div>
-                        </div>
+
                       </div>
-                      </div>
-                    </div>
                     </div>
                   }
                 </div>

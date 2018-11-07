@@ -21,18 +21,14 @@ module.exports = new Route({
 
     if (currentOrganization) {
       const role = await Role.findOne({ _id: currentOrganization.role })
-
       currentRole = role.toPublic()
     }
     const cycle = await Cycle.findOne({ organization: ctx.state.organization, uuid: data.cycle })
     const periods = await Period.find({ cycle: cycle._id })
 
-    const periodsIds = periods.map(item => {
-      return item._id
-    })
-
     let match = {
       'dataset': dataset._id,
+      'isDeleted': false,
       'data.adjustment': {
         '$ne': null
       },
@@ -40,7 +36,7 @@ module.exports = new Route({
         '$ne': null
       },
       'period': {
-        '$in': periodsIds
+        '$in': periods.map(item => { return item._id })
       }
     }
 
@@ -56,8 +52,12 @@ module.exports = new Route({
 
     let matchPreviousSale = {
       'dataset': dataset.project.mainDataset,
+      'isDeleted': false,
       'data.sale': {
         '$ne': null
+      },
+      "data.sale":{
+        "$ne": 0
       },
       'period': {
         $in: previousPeriods.map(item => { return item._id })
@@ -106,7 +106,6 @@ module.exports = new Route({
     }
 
     let conditions = []
-    let group = []
     if (data.prices) {
       conditions = [
         {
@@ -120,6 +119,11 @@ module.exports = new Route({
         {
           '$unwind': {
             'path': '$prices'
+          }
+        },
+        {
+          '$match': {
+            'prices.isDeleted': false
           }
         },
         {
@@ -137,66 +141,24 @@ module.exports = new Route({
           }
         }
       ]
-
-      group = [
-        {
-          '$group': {
-            '_id': { 'period': '$period', 'product': '$newProduct' },
-            'prediction': {
-              '$sum': '$data.prediction'
-            },
-            'adjustment': {
-              '$sum': '$data.adjustment'
-            },
-            'sale': {
-              '$sum': '$data.sale'
-            }
-          }
-        }
-      ]
-    } else {
-      group = [
-        {
-          '$group': {
-            '_id': '$period',
-            'prediction': {
-              '$sum': '$data.prediction'
-            },
-            'adjustment': {
-              '$sum': '$data.adjustment'
-            },
-            'sale': {
-              '$sum': '$data.sale'
-            }
-          }
-        }
-      ]
     }
 
-    const statement = [
-      {
-        '$match': match
-      },
-      ...conditions,
-      ...group,
-      {
-        '$project': {
-          'period': '$_id',
-          'prediction': 1,
-          'adjustment': 1
-        }
-      },
-      {
-        '$sort': {
-          'period': 1
+    const group = [{
+      '$group': {
+        '_id': '$period',
+        'prediction': {
+          '$sum': data.prices ? { $multiply: ['$data.prediction', '$prices.price'] } : '$data.prediction'
+        },
+        'adjustment': {
+          '$sum': data.prices ? { $multiply: ['$data.adjustment', '$prices.price'] } : '$data.adjustment'
+        },
+        'sale': {
+          '$sum': data.prices ? { $multiply: ['$data.sale', '$prices.price'] } : '$data.sale'
         }
       }
-    ]
+    }]
 
-    const previousStatement = [
-      {
-        '$match': matchPreviousSale
-      },
+    const statement = [
       ...conditions,
       ...group,
       {
@@ -214,8 +176,8 @@ module.exports = new Route({
       }
     ]
 
-    const res = await DataSetRow.aggregate(statement)
-    const previous = await DataSetRow.aggregate(previousStatement)
+    const res = await DataSetRow.aggregate([ { '$match': match }, ...statement ])
+    const previous = await DataSetRow.aggregate([ { '$match': matchPreviousSale }, ...statement ])
 
     for (let r of res) {
       let period = periods.find(item => {
