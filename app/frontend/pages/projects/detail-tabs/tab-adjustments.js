@@ -925,7 +925,7 @@ class TabAdjustment extends Component {
   }
 
   async getSalesTable() {
-    let url = '/app/datasets/sales/' + this.props.project.activeDataset.uuid
+    let url = '/v2/datasets/sales/' + this.props.project.activeDataset.uuid
     let cycle = this.state.filters.cycles.find(item => {
       return item.cycle === this.state.formData.cycle
     })

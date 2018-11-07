@@ -22,7 +22,7 @@ class Cache(object):
         return result is None or result > 0
 
     @classmethod
-    def set(self, key, value, timeout=200):
+    def set(self, key, value, timeout=None):
         """Set or create a new value on redis"""
         #
         # You can set a item with 3 timeouts:
