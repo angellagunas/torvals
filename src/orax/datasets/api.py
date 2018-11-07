@@ -27,8 +27,12 @@ class DatasetGraphViewSet(mixins.CreateModelMixin, GenericViewSet):
             print('encontro en cache')
             return Response(Cache.get(key_cache))
 
+        data = request.data
+        data['centro_de_venta'] = data['centro-de-venta']
+        del data['centro-de-venta']
+
         create_serializer = self.get_serializer(
-            data=request.data,
+            data=data,
             action='create'
         )
         create_serializer.is_valid(raise_exception=True)
