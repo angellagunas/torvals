@@ -35,11 +35,11 @@ class DatasetGraphSerializer(serializers.Serializer):
         prices = data.get('prices')
         cycle = Mongo().cycles.find_one({'uuid': data.get('cycle')})
         cycle_year = cycle.get('dateStart').year
-        cycle_past_season = Mongo().cycles.aggregate([
+        cycle_past_season = list(Mongo().cycles.aggregate([
             {"$redact": {
                 "$cond": [
                     {"$and": [
-                        {"$eq": ["$rule", ObjectId(cycle.get('_id'))]},
+                        {"$eq": ["$rule", ObjectId(cycle.get('rule'))]},
                         {"$eq": [{"$year": "$dateStart"}, int(cycle_year - 1)]},
                         {"$eq": ["$cycle", int(cycle.get('cycle'))]}
                     ]},
@@ -47,7 +47,7 @@ class DatasetGraphSerializer(serializers.Serializer):
                     "$$PRUNE"
                 ]
             }}
-        ])[0]
+        ]))[0]
 
         catalog_items = Mongo().catalogitems.find({
             'uuid': {'$in': [
@@ -150,13 +150,28 @@ class DatasetGraphSerializer(serializers.Serializer):
         periods_past_season = Mongo().periods.find({
             'cycle': ObjectId(cycle_past_season.get('_id'))
         })
-        print(periods)
-        print('-----------------------')
-        print(periods_past_season)
 
         try:
             indicators = json.loads(dumps(Mongo().datasetrows.aggregate(pipeline)))
         except Exception as e:
             print(e)
+
+        data = []
+        past_sales = []
+
+        for indicator in indicators:
+            for period in periods:
+                if indicator.get('_id').get('$oid') == period.get('_id'):
+                    indicator['period'] = [period.get('period')]
+                    data.append(indicator)
+
+        for indicator in indicators:
+            for period in periods_past_season:
+                if indicator.get('_id').get('$oid') == period.get('_id'):
+                    indicator['period'] = [period.get('period')]
+                    past_sales.append(indicator)
         
-        return {'data': indicators}
+        return {
+            'data': data,
+            'previous': past_sales
+        }
