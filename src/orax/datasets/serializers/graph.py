@@ -31,9 +31,23 @@ class DatasetGraphSerializer(serializers.Serializer):
 
     def create(self, data):
         kwargs = self.context.get('view').kwargs
-        cycle = Mongo().cycles.find_one({'uuid': data.get('cycle')})
         dataset = Mongo().datasets.find_one({'uuid': kwargs.get('uuid')})
         prices = data.get('prices')
+        cycle = Mongo().cycles.find_one({'uuid': data.get('cycle')})
+        cycle_year = cycle.get('dateStart').year
+        cycle_past_season = Mongo().cycles.aggregate([
+            {"$redact": {
+                "$cond": [
+                    {"$and": [
+                        {"$eq": ["$rule", ObjectId(cycle.get('_id'))]},
+                        {"$eq": [{"$year": "$dateStart"}, int(cycle_year - 1)]},
+                        {"$eq": ["$cycle", int(cycle.get('cycle'))]}
+                    ]},
+                    "$$KEEP",
+                    "$$PRUNE"
+                ]
+            }}
+        ])[0]
 
         catalog_items = Mongo().catalogitems.find({
             'uuid': {'$in': [
@@ -53,7 +67,12 @@ class DatasetGraphSerializer(serializers.Serializer):
                     'data.prediction': {
                         '$ne': None
                     },
-                    'cycle': ObjectId(cycle.get('_id')),
+                    'cycle': {
+                        '$in': [
+                            ObjectId(cycle.get('_id')),
+                            ObjectId(cycle_past_season.get('_id'))
+                        ]
+                    },
                     'catalogItems': {
                         '$in': [ObjectId(item['_id']) for item in catalog_items]
                     }
@@ -127,9 +146,17 @@ class DatasetGraphSerializer(serializers.Serializer):
             }
         ]
 
+        periods = Mongo().periods.find({'cycle': ObjectId(cycle.get('_id'))})
+        periods_past_season = Mongo().periods.find({
+            'cycle': ObjectId(cycle_past_season.get('_id'))
+        })
+        print(periods)
+        print('-----------------------')
+        print(periods_past_season)
+
         try:
             indicators = json.loads(dumps(Mongo().datasetrows.aggregate(pipeline)))
         except Exception as e:
             print(e)
         
-        return {'data' :indicators}
+        return {'data': indicators}
