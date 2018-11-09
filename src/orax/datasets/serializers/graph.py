@@ -32,6 +32,9 @@ class DatasetGraphSerializer(serializers.Serializer):
     def create(self, data):
         kwargs = self.context.get('view').kwargs
         dataset = Mongo().datasets.find_one({'uuid': kwargs.get('uuid')})
+        project = Mongo().projects.find_one({
+            '_id': ObjectId(dataset.get('project'))
+        })
         prices = data.get('prices')
         cycle = Mongo().cycles.find_one({'uuid': data.get('cycle')})
         cycle_year = cycle.get('dateStart').year
@@ -59,7 +62,12 @@ class DatasetGraphSerializer(serializers.Serializer):
         pipeline = [
             {
                 '$match': {
-                    'dataset': ObjectId(dataset.get('_id')),
+                    'dataset': {
+                        '$in': [
+                            ObjectId(dataset.get('_id')),
+                            ObjectId(project.get('mainDataset'))
+                        ]
+                    },
                     'isDeleted': False,
                     'data.adjustment': {
                         '$ne': None
@@ -146,10 +154,14 @@ class DatasetGraphSerializer(serializers.Serializer):
             }
         ]
 
-        periods = Mongo().periods.find({'cycle': ObjectId(cycle.get('_id'))})
-        periods_past_season = Mongo().periods.find({
-            'cycle': ObjectId(cycle_past_season.get('_id'))
-        })
+        periods = list(
+            Mongo().periods.find({'cycle': ObjectId(cycle.get('_id'))})
+        )
+        periods_past_season = list(
+            Mongo().periods.find({
+                'cycle': ObjectId(cycle_past_season.get('_id'))
+            })
+        )
 
         try:
             indicators = json.loads(dumps(Mongo().datasetrows.aggregate(pipeline)))
@@ -161,13 +173,13 @@ class DatasetGraphSerializer(serializers.Serializer):
 
         for indicator in indicators:
             for period in periods:
-                if indicator.get('_id').get('$oid') == period.get('_id'):
+                if indicator.get('_id').get('$oid') == str(period.get('_id')):
                     indicator['period'] = [period.get('period')]
                     data.append(indicator)
 
         for indicator in indicators:
             for period in periods_past_season:
-                if indicator.get('_id').get('$oid') == period.get('_id'):
+                if indicator.get('_id').get('$oid') == str(period.get('_id')):
                     indicator['period'] = [period.get('period')]
                     past_sales.append(indicator)
         
