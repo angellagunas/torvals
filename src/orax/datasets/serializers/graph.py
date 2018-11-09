@@ -6,7 +6,7 @@ from bson.objectid import ObjectId
 from bson.json_util import dumps
 
 from orax.utils.connections import Mongo
-from orax.datasets import DatasetUtils
+from orax.datasets.utils import DatasetUtils
 
 
 
@@ -32,7 +32,7 @@ class DatasetGraphSerializer(serializers.Serializer):
 
     def create(self, data):
         kwargs = self.context.get('view').kwargs
-        indicators = DatasetUtils.get_indicators(
+        indicators = DatasetUtils().get_indicators(
             dataset_uuid=kwargs.get('uuid'),
             cycle_uuid=data.get('cycle'),
             channel_uuid=data.get('canal'),

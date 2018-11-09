@@ -1,30 +1,30 @@
 import json
 
-from bson.objectid import ObjectId
 from bson.json_util import dumps
 
-from orax.utils.connections import Mongo
+from orax.utils import _id
+from orax.utils.connections import MongoCollection
 
 
-class DatasetUtils(object):
+class DatasetUtils(MongoCollection):
     @classmethod
     def get_indicators(
             self, dataset_uuid, cycle_uuid,
             channel_uuid, sale_center_uuid, prices=False):
 
-        dataset = Mongo().datasets.find_one({'uuid': dataset_uuid})
-        project = Mongo().projects.find_one({
-            '_id': ObjectId(dataset.get('project'))
+        dataset = self.db.datasets.find_one({'uuid': dataset_uuid})
+        project = self.db.projects.find_one({
+            '_id': _id(dataset['project'])
         })
-        cycle = Mongo().cycles.find_one({'uuid': cycle_uuid})
-        cycle_year = cycle.get('dateStart').year
-        cycle_past_season = list(Mongo().cycles.aggregate([
+        cycle = self.db.cycles.find_one({'uuid': cycle_uuid})
+        cycle_year = cycle['dateStart'].year
+        cycle_past_season = list(self.db.cycles.aggregate([
             {"$redact": {
                 "$cond": [
                     {"$and": [
-                        {"$eq": ["$rule", ObjectId(cycle.get('rule'))]},
-                        {"$eq": [{"$year": "$dateStart"}, int(cycle_year - 1)]},
-                        {"$eq": ["$cycle", int(cycle.get('cycle'))]}
+                        {"$eq": ["$rule", _id(cycle['rule'])]},
+                        {"$eq": [{"$year": "$dateStart"}, cycle_year]},
+                        {"$eq": ["$cycle", int(cycle['cycle'])]}
                     ]},
                     "$$KEEP",
                     "$$PRUNE"
@@ -32,7 +32,7 @@ class DatasetUtils(object):
             }}
         ]))[0]
 
-        catalog_items = Mongo().catalogitems.find({
+        catalog_items = self.db.catalogitems.find({
             'uuid': {'$in': [channel_uuid, sale_center_uuid]}
         })
 
@@ -41,8 +41,8 @@ class DatasetUtils(object):
                 '$match': {
                     'dataset': {
                         '$in': [
-                            ObjectId(dataset.get('_id')),
-                            ObjectId(project.get('mainDataset'))
+                            _id(dataset['_id']),
+                            _id(project['mainDataset'])
                         ]
                     },
                     'isDeleted': False,
@@ -54,12 +54,12 @@ class DatasetUtils(object):
                     },
                     'cycle': {
                         '$in': [
-                            ObjectId(cycle.get('_id')),
-                            ObjectId(cycle_past_season.get('_id'))
+                            _id(cycle['_id']),
+                            _id(cycle_past_season['_id'])
                         ]
                     },
                     'catalogItems': {
-                        '$in': [ObjectId(item['_id']) for item in catalog_items]
+                        '$in': [_id(item['_id']) for item in catalog_items]
                     }
                 }
             }
@@ -132,16 +132,16 @@ class DatasetUtils(object):
         ]
 
         periods = list(
-            Mongo().periods.find({'cycle': ObjectId(cycle.get('_id'))})
+            self.db.periods.find({'cycle': _id(cycle['_id'])})
         )
         periods_past_season = list(
-            Mongo().periods.find({
-                'cycle': ObjectId(cycle_past_season.get('_id'))
+            self.db.periods.find({
+                'cycle': _id(cycle_past_season['_id'])
             })
         )
 
         try:
-            indicators = json.loads(dumps(Mongo().datasetrows.aggregate(pipeline)))
+            indicators = json.loads(dumps(self.db.datasetrows.aggregate(pipeline)))
         except Exception as e:
             print(e)
 
@@ -150,14 +150,14 @@ class DatasetUtils(object):
 
         for indicator in indicators:
             for period in periods:
-                if indicator.get('_id').get('$oid') == str(period.get('_id')):
-                    indicator['period'] = [period.get('period')]
+                if indicator['_id']['$oid'] == str(period['_id']):
+                    indicator['period'] = [period['period']]
                     data.append(indicator)
 
         for indicator in indicators:
             for period in periods_past_season:
-                if indicator.get('_id').get('$oid') == str(period.get('_id')):
-                    indicator['period'] = [period.get('period')]
+                if indicator['_id']['$oid'] == str(period['_id']):
+                    indicator['period'] = [period['period']]
                     past_sales.append(indicator)
         
         return {

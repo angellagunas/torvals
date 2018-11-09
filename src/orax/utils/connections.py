@@ -15,3 +15,8 @@ class Mongo(object):
             print(e)
 
         return client[DATABASES['mongo']['NAME']]
+
+
+class MongoCollection(object):
+    def __init__(self):
+        self.db = Mongo()
