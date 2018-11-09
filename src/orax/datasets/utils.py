@@ -7,7 +7,6 @@ from orax.utils.connections import MongoCollection
 
 
 class DatasetUtils(MongoCollection):
-    @classmethod
     def get_indicators(
             self, dataset_uuid, cycle_uuid,
             channel_uuid, sale_center_uuid, prices=False):
