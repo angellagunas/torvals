@@ -6,6 +6,7 @@ from bson.objectid import ObjectId
 from bson.json_util import dumps
 
 from orax.utils.connections import Mongo
+from orax.datasets import DatasetUtils
 
 
 
@@ -31,159 +32,12 @@ class DatasetGraphSerializer(serializers.Serializer):
 
     def create(self, data):
         kwargs = self.context.get('view').kwargs
-        dataset = Mongo().datasets.find_one({'uuid': kwargs.get('uuid')})
-        project = Mongo().projects.find_one({
-            '_id': ObjectId(dataset.get('project'))
-        })
-        prices = data.get('prices')
-        cycle = Mongo().cycles.find_one({'uuid': data.get('cycle')})
-        cycle_year = cycle.get('dateStart').year
-        cycle_past_season = list(Mongo().cycles.aggregate([
-            {"$redact": {
-                "$cond": [
-                    {"$and": [
-                        {"$eq": ["$rule", ObjectId(cycle.get('rule'))]},
-                        {"$eq": [{"$year": "$dateStart"}, int(cycle_year - 1)]},
-                        {"$eq": ["$cycle", int(cycle.get('cycle'))]}
-                    ]},
-                    "$$KEEP",
-                    "$$PRUNE"
-                ]
-            }}
-        ]))[0]
-
-        catalog_items = Mongo().catalogitems.find({
-            'uuid': {'$in': [
-                data.get('canal'),
-                data.get('centro_de_venta')
-            ]}
-        })
-
-        pipeline = [
-            {
-                '$match': {
-                    'dataset': {
-                        '$in': [
-                            ObjectId(dataset.get('_id')),
-                            ObjectId(project.get('mainDataset'))
-                        ]
-                    },
-                    'isDeleted': False,
-                    'data.adjustment': {
-                        '$ne': None
-                    },
-                    'data.prediction': {
-                        '$ne': None
-                    },
-                    'cycle': {
-                        '$in': [
-                            ObjectId(cycle.get('_id')),
-                            ObjectId(cycle_past_season.get('_id'))
-                        ]
-                    },
-                    'catalogItems': {
-                        '$in': [ObjectId(item['_id']) for item in catalog_items]
-                    }
-                }
-            }
-        ]
-
-        if prices:
-            pipeline = pipeline + [
-                {
-                    '$lookup': {
-                        'from': 'prices',
-                        'localField': 'newProduct',
-                        'foreignField': 'product',
-                        'as': 'prices'
-                    }
-                },
-                {
-                    '$unwind': {
-                        'path': '$prices'
-                    }
-                },
-                {
-                    '$match': {
-                        'prices.isDeleted': False
-                    }
-                },
-                {
-                    '$redact': {
-                        '$cond': [
-                            {
-                                '$setIsSubset': [
-                                    '$prices.catalogItems',
-                                    '$catalogItems'
-                                ]
-                            },
-                            '$$KEEP',
-                            '$$PRUNE'
-                        ]
-                    }
-                }
-            ]
-
-        pipeline = pipeline + [
-            {
-                '$group': {
-                    '_id': '$period',
-                    'prediction': {
-                        '$sum': { '$multiply': ['$data.prediction', '$prices.price'] } if prices else '$data.prediction'
-                    },
-                    'adjustment': {
-                        '$sum': { '$multiply': ['$data.adjustment', '$prices.price'] } if prices else '$data.adjustment'
-                    },
-                    'sale': {
-                        '$sum': { '$multiply': ['$data.sale', '$prices.price'] } if prices else '$data.sale'
-                    }
-                }
-            },
-            {
-                '$project': {
-                    'period': '$_id',
-                    'prediction': 1,
-                    'adjustment': 1,
-                    'sale': 1
-                }
-            },
-            {
-                '$sort': {
-                    'period': 1
-                }
-            }
-        ]
-
-        periods = list(
-            Mongo().periods.find({'cycle': ObjectId(cycle.get('_id'))})
-        )
-        periods_past_season = list(
-            Mongo().periods.find({
-                'cycle': ObjectId(cycle_past_season.get('_id'))
-            })
+        indicators = DatasetUtils.get_indicators(
+            dataset_uuid=kwargs.get('uuid'),
+            cycle_uuid=data.get('cycle'),
+            channel_uuid=data.get('canal'),
+            sale_center_uuid=data.get('centro_de_venta'),
+            prices=data.get('prices')
         )
 
-        try:
-            indicators = json.loads(dumps(Mongo().datasetrows.aggregate(pipeline)))
-        except Exception as e:
-            print(e)
-
-        data = []
-        past_sales = []
-
-        for indicator in indicators:
-            for period in periods:
-                if indicator.get('_id').get('$oid') == str(period.get('_id')):
-                    indicator['period'] = [period.get('period')]
-                    data.append(indicator)
-
-        for indicator in indicators:
-            for period in periods_past_season:
-                if indicator.get('_id').get('$oid') == str(period.get('_id')):
-                    indicator['period'] = [period.get('period')]
-                    past_sales.append(indicator)
-        
-        return {
-            'data': data,
-            'previous': past_sales
-        }
+        return indicators
