@@ -16,7 +16,7 @@ class DatasetUtils(MongoCollection):
             '_id': _id(dataset['project'])
         })
         cycle = self.db.cycles.find_one({'uuid': cycle_uuid})
-        cycle_year = cycle['dateStart'].year
+        cycle_year = cycle['dateStart'].year - 1
         cycle_past_season = list(self.db.cycles.aggregate([
             {"$redact": {
                 "$cond": [
