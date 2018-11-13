@@ -131,7 +131,14 @@ class StatusRepórt extends Component {
         }
       })
 
-      cycles = _.orderBy(cycles, 'dateStart', 'asc')
+      cycles = _.orderBy(cycles, 'dateStart', 'asc').slice(0, 4)
+      cycles = [
+        {
+          cycle: -1, // Todos
+          viewName: `Todos (Periodo ${cycles[0].periodStart} - ${cycles[cycles.length - 1].periodEnd})`
+        },
+        ...cycles
+      ]
 
       let formData = this.state.formData
       formData.cycle = cycles[0].cycle
@@ -258,6 +265,11 @@ class StatusRepórt extends Component {
      if (!formCycle) {
       this.notify('¡Se debe filtrar por ciclo!', 5000, toast.TYPE.ERROR)
       return
+    }
+
+    // Todos
+    if (formCycle === -1) {
+      return this.getAllDataRows()
     }
 
     const apiUsers = await this.getUsers(isState, dataCycle)
@@ -473,6 +485,19 @@ class StatusRepórt extends Component {
       }
     ]
 
+    // Todos
+    if (this.state.formData.cycle === -1) {
+      cols = [
+        {
+          'title': 'Ciclo',
+          'property': 'cycleName',
+          'default': 'N/A',
+          'sortable': true
+        },
+        ...cols
+      ]
+    }
+
     return cols
   }
 
@@ -682,44 +707,77 @@ class StatusRepórt extends Component {
     }
   }
 
-  async download() {
+  async getAllDataRows() {
     try {
-      // Here should be the action to download the report
-      let csv = ['Usuario,Rol,Ajustes por periodo,Estatus,Grupos,Aprobado,Rechazado,Pendientes,Ciclo'];
+      this.setState({
+        isLoading: ' is-loading',
+        isFiltered: false,
+        salesTable: [],
+        noSalesData: ''
+      })
 
-      const cycles = await Promise.all(this.state.filters.cycles.map(async cycleItem => {
-        this.setState({
-          isDownloading: true,
-          downloadCycle: cycleItem.viewName,
-        })
+      const cycles = [...this.state.filters.cycles]
+      cycles.shift()
 
-        const dataRows = await this.getDataRows(false, cycleItem.cycle)
-        return {
-          viewName: cycleItem.viewName,
-          dataRows
+      const allData = await Promise.all(cycles.map(async cycleItem => {
+        const data = await this.getDataRows(false, cycleItem.cycle)
+        const dataRows = []
+        for (let item of data) {
+          dataRows.push({
+            cycleName: cycleItem.viewName,
+            ...item
+          })
         }
+        return dataRows
       }))
 
-      for (let cycleItem of cycles) {
-        for (let row of cycleItem.dataRows) {
-          const csvRow = [
-            row.user[0].name || '',
-            row.user[0].organizations[0].role.name || '',
-            row.total - (row.approved + row.created + row.rejected),
-            row.status || 'Sin Ajustes',
-            (row.user[0].groups || []).map(group => group.name || '').join(' '),
-            row.approved,
-            row.rejected,
-            row.created,
-            cycleItem.viewName
-          ]
+      let allDataRows = []
+      for (let item of allData) {
+        allDataRows = [...allDataRows, ...item]
+      }
 
-          csv.push(csvRow.join(','))
-        }
+      this.setState({
+        dataRows: allDataRows,
+        isFiltered: true,
+        isLoading: '',
+        selectedCheckboxes: new Set()
+      })
+      this.clearSearch()
+    } catch (error) {
+      console.log(error)
+      this.setState({
+        dataRows: [],
+        isFiltered: true,
+        isLoading: '',
+        selectedCheckboxes: new Set()
+      })
+      this.notify('¡Algo salio mal al cargar los datos!', 5000, toast.TYPE.ERROR)
+    }
+  }
+
+  async download() {
+    try {
+      const { dataRows, projectSelected, filters, formData } = this.state
+      const cycle = filters.cycles.find(item => item.cycle === formData.cycle) || {}
+      const csv = ['Usuario,Rol,Ajustes por periodo,Estatus,Grupos,Aprobado,Rechazado,Pendientes,Ciclo']
+
+      for (let row of dataRows) {
+        csv.push([
+          row.user[0].name || '',
+          row.user[0].organizations[0].role.name || '',
+          row.total - (row.approved + row.created + row.rejected),
+          row.status || 'Sin Ajustes',
+          (row.user[0].groups || []).map(group => group.name || '').join(' '),
+          row.approved || 0,
+          row.rejected || 0,
+          row.created|| 0,
+          row.cycleName || cycle.viewName
+        ].join(','))
       }
 
       // Download CSV file
-      this.downloadCSV(csv.join("\n"), 'reporte-actividad.csv');
+      const project = projectSelected.name || ''
+      this.downloadCSV(csv.join('\n'), `reporte-actividad-Proyecto (${project})-${cycle.viewName || ''}.csv`)
     } catch (error) {
       console.log(error)
       this.setState({
@@ -730,29 +788,26 @@ class StatusRepórt extends Component {
   }
 
   downloadCSV(csv, filename) {
-    let csvFile;
-    let downloadLink;
-
     // CSV file
-    csvFile = new Blob(['\ufeff', csv], {type: "text/csv"});
+    const csvFile = new Blob(['\ufeff', csv], {type: 'text/csv'})
 
     // Download link
-    downloadLink = document.createElement("a");
+    let downloadLink = document.createElement('a')
 
     // File name
-    downloadLink.download = filename;
+    downloadLink.download = filename
 
     // Create a link to the file
-    downloadLink.href = window.URL.createObjectURL(csvFile);
+    downloadLink.href = window.URL.createObjectURL(csvFile)
 
     // Hide download link
-    downloadLink.style.display = "none";
+    downloadLink.style.display = 'none'
 
     // Add the link to DOM
-    document.body.appendChild(downloadLink);
+    document.body.appendChild(downloadLink)
 
     // Click download link
-    downloadLink.click();
+    downloadLink.click()
 
     this.setState({
       isDownloading: false
