@@ -45,7 +45,7 @@ const task = new Task(
               {'$match': {
                 dataset: dataset._id
               }}
-            ]).allowDiskUse(true).cursor({batchSize: batchSize}).exec()
+            ]).cursor({batchSize: batchSize}).exec()
 
           log.call('Rows ready, transversing...')
           let bulkOpsNew = []
