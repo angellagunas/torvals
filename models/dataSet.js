@@ -573,10 +573,10 @@ dataSetSchema.virtual('url').get(function () {
   }
 
   if (this.path && this.path.url) {
-    return 'https://s3.' + this.path.region + '.amazonaws.com/' + this.path.bucket + '/' + this.path.url
+    return `${aws.s3CDN}/${this.path.url}`
   }
 
-  return 'https://s3.us-west-2.amazonaws.com/pythia-kore-dev/avatars/default.jpg'
+  return `${aws.s3CDN}/avatars/default.jpg`
 })
 
 dataSetSchema.methods.getProductColumn = function () {

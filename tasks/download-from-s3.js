@@ -8,7 +8,7 @@ const Task = require('lib/task')
 
 const task = new Task(async function (argv) {
   let s3path
-  let bucket = 'pythia-kore-dev'
+  let bucket = aws.s3Bucket
   let file
 
   if (!argv.s3path || !argv.file) {
@@ -25,7 +25,7 @@ const task = new Task(async function (argv) {
       accessKeyId: aws.s3AccessKey,
       secretAccessKey: aws.s3Secret
     },
-    region: 'us-west-2'
+    region: aws.s3Region
   })
 
   var params = {Bucket: bucket, Key: s3path}
