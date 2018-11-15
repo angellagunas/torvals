@@ -23,7 +23,7 @@ class TabAprove extends Component {
       selectedCheckboxes: new Set(),
       searchTerm: '',
       sortAscending: true,
-      sortBy: 'statusLevel' 
+      sortBy: 'statusLevel'
     }
   }
 
@@ -48,7 +48,7 @@ class TabAprove extends Component {
       this.handleSort(this.state.sortBy)
     }
   }
-  
+
   getColumns () {
     return [
       {
@@ -119,23 +119,23 @@ class TabAprove extends Component {
         'property': 'percentage',
         'default': 0,
         'type': 'number',
-        'sortable': true,        
+        'sortable': true,
         formatter: (row) => {
-          let percentage = ((row.newAdjustment - row.datasetRow.data.prediction) 
+          let percentage = ((row.newAdjustment - row.datasetRow.data.prediction)
                             / row.datasetRow.data.prediction) * 100
-          row.percentage = percentage                  
+          row.percentage = percentage
           return Math.round(percentage) + ' %'
         }
       },
       {
         'title': 'Creado',
         'property': 'dateRequested',
-        'sortable': true,        
+        'sortable': true,
         formatter: (row) => {
           return (
-            <span title={'Creado por ' + row.requestedBy.name }> 
+            <span title={'Creado por ' + row.requestedBy.name }>
               { moment.utc(row.dateRequested).local().format('DD/MM/YYYY hh:mm a') }
-            </span>  
+            </span>
           )
         }
       },
@@ -144,7 +144,7 @@ class TabAprove extends Component {
         formatter: (row) => {
           if (row.dateRejected) {
             return (
-              <span title={'Rechazado por ' + row.rejectedBy.name }> 
+              <span title={'Rechazado por ' + row.rejectedBy.name }>
                 { moment.utc(row.dateRejected).local().format('DD/MM/YYYY hh:mm a') }
               </span>
             )
@@ -163,7 +163,7 @@ class TabAprove extends Component {
         'property': 'statusLevel',
         'default': '',
         'centered': true,
-        'sortable': true,                
+        'sortable': true,
         formatter: (row) => {
           if (row.status === 'created') {
             row.statusLevel = 0
@@ -251,7 +251,7 @@ class TabAprove extends Component {
       }
       else {
         this.state.selectedCheckboxes.add(row)
-        row.selected = true        
+        row.selected = true
       }
       this.toggleButtons()
     }
@@ -273,13 +273,13 @@ class TabAprove extends Component {
       endDate: date
     }, () => this.filterbyDate())
 
-    
+
   }
 
   filterbyDate() {
     if (this.state.startDate && this.state.endDate) {
       this.uncheckAll()
-      
+
       if (this.state.startDate > this.state.endDate) {
         this.notify('Rango de fechas inválido', 5000, toast.TYPE.ERROR)
         return
@@ -333,7 +333,7 @@ class TabAprove extends Component {
               </div>
             </div>
           </div>
-        </div>  
+        </div>
         <div className='columns is-marginless is-paddingless'>
         <div className='column'>
           <div className='field is-grouped'>
@@ -346,7 +346,7 @@ class TabAprove extends Component {
             <div className='control'>
               <div className='field has-addons'>
                 <div className='control'>
-                  <input 
+                  <input
                     className='input'
                     type='text'
                     value={this.state.searchTerm}
@@ -454,7 +454,7 @@ class TabAprove extends Component {
 
   searchOnChange = (e) => {
     this.uncheckAll()
-    
+
     this.setState({
       searchTerm: e.target.value
     }, () => this.searchDatarows())
@@ -462,15 +462,15 @@ class TabAprove extends Component {
 
   clearSearch = () => {
     this.uncheckAll()
-    
+
     this.setState({
       searchTerm: ''
     }, () => this.searchDatarows())
   }
-  
+
   clearSearchDate = () => {
     this.uncheckAll()
-    
+
     this.setState({
       searchDate: false,
       startDate: undefined,
@@ -489,7 +489,7 @@ class TabAprove extends Component {
         row.status = res.data.status
         row.approvedBy = res.data.approvedBy
         row.dateApproved = res.data.dateApproved
-        await this.handleChange(row)      
+        await this.handleChange(row)
       }
     }
   }
@@ -505,7 +505,7 @@ class TabAprove extends Component {
         row.status = res.data.status
         row.rejectedBy = res.data.rejectedBy
         row.dateRejected = res.data.dateRejected
-        await this.handleChange(row)      
+        await this.handleChange(row)
       }
     }
   }
@@ -513,7 +513,7 @@ class TabAprove extends Component {
   toggleButtons () {
     let disable = true
 
-    if (this.state.selectedCheckboxes.size > 0) 
+    if (this.state.selectedCheckboxes.size > 0)
       disable = false
 
     this.setState({
@@ -533,10 +533,10 @@ class TabAprove extends Component {
     })
 
     if (obj.status === 'approved') {
-      this.notify('Ajuste aprobado', 5000, toast.TYPE.SUCCESS) 
+      this.notify('Ajuste aprobado', 5000, toast.TYPE.SUCCESS)
     }
     else if (obj.status === 'rejected') {
-      this.notify('Ajuste rechazado', 5000, toast.TYPE.ERROR) 
+      this.notify('Ajuste rechazado', 5000, toast.TYPE.ERROR)
     }
 
     this.state.selectedCheckboxes.delete(obj)
@@ -588,19 +588,19 @@ class TabAprove extends Component {
             sorted.sort((a, b) => { return parseFloat(a.datasetRow.product.externalId) - parseFloat(b.datasetRow.product.externalId) })
           }
           else{
-            sorted.sort((a, b) => { return parseFloat(b.datasetRow.product.externalId) - parseFloat(a.datasetRow.product.externalId) })                        
+            sorted.sort((a, b) => { return parseFloat(b.datasetRow.product.externalId) - parseFloat(a.datasetRow.product.externalId) })
           }
     }
     else{
       if (this.state.sortAscending){
         sorted = _.orderBy(sorted,[e], ['asc'])
-              
+
       }
       else{
-        sorted = _.orderBy(sorted,[e], ['desc'])    
+        sorted = _.orderBy(sorted,[e], ['desc'])
       }
     }
-    
+
     this.setState({
       filteredData: sorted,
       sortAscending: !this.state.sortAscending,
