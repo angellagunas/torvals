@@ -11,6 +11,7 @@ import Checkbox from '~base/components/base-checkbox'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import CustomDate from './custom-date'
+import Select from './select'
 
 const generalAdjustment = 0.1
 var currentRole
@@ -25,6 +26,8 @@ class TabApprove extends Component {
       disableButtons: true,
       selectedCheckboxes: new Set(),
       searchTerm: '',
+      salesCenters: [],
+      salesCenter: {},
       sortAscending: true,
       sortBy: 'statusLevel'
     }
@@ -32,12 +35,26 @@ class TabApprove extends Component {
   }
 
   componentWillMount() {
-    this.getAdjustmentRequests()
+    this.getFilters()
   }
 
 
   componentWillUnmount() {
     this.props.setAlert('is-white', ' ')
+  }
+
+  async getFilters() {
+    const url = '/app/rows/filters/dataset/'
+
+    try {
+      const res = await api.get(url + this.props.project.activeDataset.uuid)
+      this.setState({
+        salesCenters: res['centro-de-venta'],
+        salesCenter: (res['centro-de-venta'][0] || {}).uuid
+      }, () => this.getAdjustmentRequests())
+    } catch(error) {
+      console.error(error)
+    }
   }
 
   async getAdjustmentRequests() {
@@ -47,10 +64,11 @@ class TabApprove extends Component {
         let data = await api.get(url)
         this.setState({
           dataRows: data.data
+        }, () => {
+          this.getRemainingItems()
+          this.clearSearch()
+          this.handleSort(this.state.sortBy)
         })
-        this.getRemainingItems()
-        this.clearSearch()
-        this.handleSort(this.state.sortBy)
       } catch (e) {
         console.log(e)
       }
@@ -358,6 +376,19 @@ class TabApprove extends Component {
 
           <div className='level-item'>
             <div className='field is-grouped'>
+            <div className='field control'>
+                <div className='control'>
+                  <Select
+                    label="Centor de venta"
+                    name="salesCenter"
+                    value={this.state.salesCenter}
+                    optionValue="uuid"
+                    optionName="name"
+                    options={this.state.salesCenters}
+                    onChange={(name, value) => this.setSalesCenter(value)}
+                  />
+                </div>
+              </div>
               <div className='field control'>
                 <label className='label'>
                   <FormattedMessage
@@ -471,6 +502,30 @@ class TabApprove extends Component {
     )
   }
 
+  setSalesCenter(value) {
+    this.setState({
+      salesCenter: value
+    }, () => this.clearSearch())
+  }
+
+  filterBySalesCenter(dataRows) {
+    const rows = dataRows || this.state.dataRows
+    const data = []
+
+    for (let row of rows) {
+      const catalog = row.catalogItems.find(item => item.type === 'centro-de-venta')
+      if (!catalog) continue
+
+      if (catalog.uuid === this.state.salesCenter) {
+        data.push(row)
+      }
+    }
+
+    this.setState({
+      filteredData: data
+    })
+  }
+
   searchDatarows() {
     const items = this.state.dataRows.map((item) => {
       if (this.state.searchTerm === '' && !this.state.searchDate) {
@@ -510,9 +565,7 @@ class TabApprove extends Component {
     })
       .filter(function (item) { return item != null });
 
-    this.setState({
-      filteredData: items
-    })
+    this.filterBySalesCenter(items)
   }
 
   uncheckAll() {
@@ -717,7 +770,8 @@ class TabApprove extends Component {
               columns={this.getColumns()}
               sortAscending={this.state.sortAscending}
               sortBy={this.state.sortBy}
-              handleSort={(e) => this.handleSort(e)} />
+              handleSort={(e) => this.handleSort(e)}
+            />
           }
         </section>
       </div>
