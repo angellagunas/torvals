@@ -1,3 +1,3 @@
 module.exports = {
-  id: process.env.ANALITYCS_ID || 'UA-000000-01'
+  id: process.env.ANALYTICS_ID || 'UA-000000-01'
 }
