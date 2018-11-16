@@ -95,7 +95,10 @@ Catalog.opts = opt => {
               return (
                 <Link
                   className="button is-primary"
-                  to={opt.detailUrl + '/' + row.uuid}
+                  to={{
+                    pathname: opt.detailUrl + '/' + row.uuid,
+                    state: { prevPath: opt.detailUrl }
+                  }}
                 >
                   <span className="icon is-small" title="Visualizar">
                     <i className="fa fa-eye" />
@@ -108,7 +111,10 @@ Catalog.opts = opt => {
                   <div className='control'>
                     <Link
                       className="button is-primary"
-                      to={opt.detailUrl + '/' + row.uuid}
+                      to={{
+                        pathname: opt.detailUrl + '/' + row.uuid,
+                        state: { prevPath: opt.detailUrl }
+                      }}
                     >
                       <span className="icon is-small" title="Editar">
                         <i className="fa fa-pencil" />

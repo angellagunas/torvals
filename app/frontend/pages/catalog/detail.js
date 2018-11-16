@@ -8,6 +8,7 @@ import { loggedIn, verifyRole } from '~base/middlewares/'
 import Loader from '~base/components/spinner'
 import ChannelForm from '../channel/create-form'
 import DeleteButton from '~base/components/base-deleteButton'
+import Link from '~base/router/link'
 import Breadcrumb from '~base/components/base-breadcrumb'
 import NotFound from '~base/components/not-found'
 import FontAwesome from 'react-fontawesome'
@@ -327,6 +328,14 @@ class CatalogDetail extends Component {
             </div>
           </div>
           <div className='level-right'>
+            <div className="level-item">
+              <button
+                className="button"
+                onClick={() => this.props.history.goBack()}
+              >
+                Regresar
+              </button>
+            </div>
             <div className='level-item'>
               {canEdit && (
                 <DeleteButton
