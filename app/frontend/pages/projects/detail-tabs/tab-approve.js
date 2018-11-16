@@ -770,7 +770,8 @@ class TabApprove extends Component {
               columns={this.getColumns()}
               sortAscending={this.state.sortAscending}
               sortBy={this.state.sortBy}
-              handleSort={(e) => this.handleSort(e)} />
+              handleSort={(e) => this.handleSort(e)}
+            />
           }
         </section>
       </div>
