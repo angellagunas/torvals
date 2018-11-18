@@ -42,6 +42,28 @@ services:
     volumes:
       - /data/db:/data/db
       - /data/media/uploads:/app/media/uploads
+  python:
+    restart: always
+    build:
+      context: .
+      dockerfile: DockerfilePython
+    ports:
+     - "8000:8000"
+    links:
+      - mongodb
+      - redisdb
+    depends_on:
+      - mongodb
+      - redisdb
+    cpu_shares: 200
+    cpus: 2
+    mem_limit: 6000M
+    mem_reservation: 2000m
+    env_file:
+      - .env
+    volumes:
+      - /data/db:/data/db
+      - /data/media/uploads:/app/media/uploads
   queues:
     restart: always
     build:

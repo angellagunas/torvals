@@ -13,5 +13,8 @@ package-lock.json
 
 /data
 .env
+
 pio-code
 ddagent-install.log
+__pycache__
+*.pyc

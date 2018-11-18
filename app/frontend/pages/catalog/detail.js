@@ -327,6 +327,14 @@ class CatalogDetail extends Component {
             </div>
           </div>
           <div className='level-right'>
+            <div className="level-item">
+              <button
+                className="button"
+                onClick={() => this.props.history.goBack()}
+              >
+                Regresar
+              </button>
+            </div>
             <div className='level-item'>
               {canEdit && (
                 <DeleteButton
