@@ -1,4 +1,4 @@
-// node tasks/dataset/migrate-rows-to-historical.js
+// node tasks/dataset/restore-rows-from-historical.js --project uuid
 require('../../config')
 require('lib/databases/mongo')
 const _ = require('lodash')
@@ -11,11 +11,19 @@ const { DataSet, DataSetRow, HistoricalDatasetRow, Project } = require('models')
 
 const task = new Task(
   async function (argv) {
-    const log = new Logger('migrate-rows-to-historical')
+    const log = new Logger('restore-rows-from-historical')
+
+    if (!argv.project) {
+      throw new Error('You need to provide a project!')
+    }
+
     const batchSize = 100000
     log.call(`Start ==>  ${moment().format()}`)
 
-    const projects = await Project.find({isDeleted: false})
+    const projects = await Project.find({
+        isDeleted: false,
+        uuid: project
+    })
     const rowsLength = await DataSetRow.find({
       project: {'$in': projects.map(item => Object(item._id))}
     }).count()
@@ -24,7 +32,7 @@ const task = new Task(
     log.call('Tentative total rows length => ' + rowsLength)
 
     for(project of projects){
-      log.call('Migrating project => ' + project.uuid)
+      log.call('Restoring project => ' + project.uuid)
       const includeFilters = []
 
       if(project.mainDataset){ includeFilters.push(project.mainDataset) }
@@ -36,12 +44,12 @@ const task = new Task(
       })
 
       for(dataset of datasets){
-        log.call('Migrating dataset => ' + dataset.uuid)
+        log.call('Restoring dataset => ' + dataset.uuid)
         try {
           log.call('Obtaining rows to copy...')
-          let sizeRows = await DataSetRow.find({dataset: dataset._id}).count()
+          let sizeRows = await HistoricalDatasetRow.find({dataset: dataset._id}).count()
 
-          const rows = await DataSetRow.aggregate([
+          const rows = await HistoricalDatasetRow.aggregate([
               {'$match': {
                 dataset: dataset._id
               }}
@@ -66,7 +74,7 @@ const task = new Task(
             })
 
             if (bulkOpsNew.length === batchSize) {
-              await HistoricalDatasetRow.insertMany(bulkOpsNew)
+              await DataSetRow.insertMany(bulkOpsNew)
               sizeRows = sizeRows - batchSize
               log.call('rows pending for this dataset => ' + sizeRows)
               counter = counter + 1
@@ -75,7 +83,7 @@ const task = new Task(
           }
 
           if (bulkOpsNew.length > 0) {
-            await HistoricalDatasetRow.insertMany(bulkOpsNew)
+            await DataSetRow.insertMany(bulkOpsNew)
           }
 
           log.call('last bulk saved for this dataset => ' + bulkOpsNew.length)
@@ -92,13 +100,13 @@ const task = new Task(
   async (argv) => {
     sendSlackNotificacion.run({
       channel: 'all',
-      message: "The migration of rows is working."
+      message: "The restore of rows is working."
     })
   },
   async (argv) => {
     sendSlackNotificacion.run({
       channel: 'all',
-      message: "the migration of rows was Successfully"
+      message: "the restore of rows was Successfully"
     })
   }
 )
