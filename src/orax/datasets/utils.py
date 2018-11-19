@@ -29,7 +29,14 @@ class DatasetUtils(MongoCollection):
                     "$$PRUNE"
                 ]
             }}
-        ]))[0]
+        ]))
+
+        cycle_past_season = cycle_past_season[0] if len(cycle_past_season) > 0 else  None
+
+        cycles = [_id(cycle['_id'])]
+
+        if cycle_past_season is not None:
+            cycles.append(_id(cycle_past_season['_id']))
 
         catalog_items = self.db.catalogitems.find({
             'uuid': {'$in': [channel_uuid, sale_center_uuid]}
@@ -52,10 +59,7 @@ class DatasetUtils(MongoCollection):
                         '$ne': None
                     },
                     'cycle': {
-                        '$in': [
-                            _id(cycle['_id']),
-                            _id(cycle_past_season['_id'])
-                        ]
+                        '$in': cycles,
                     },
                     'catalogItems': {
                         '$in': [_id(item['_id']) for item in catalog_items]
@@ -133,11 +137,14 @@ class DatasetUtils(MongoCollection):
         periods = list(
             self.db.periods.find({'cycle': _id(cycle['_id'])})
         )
-        periods_past_season = list(
-            self.db.periods.find({
-                'cycle': _id(cycle_past_season['_id'])
-            })
-        )
+
+        periods_past_season = []
+        if cycle_past_season is not None:
+            periods_past_season = list(
+                self.db.periods.find({
+                    'cycle': _id(cycle_past_season['_id'])
+                })
+            )
 
         try:
             indicators = json.loads(dumps(self.db.datasetrows.aggregate(pipeline)))

@@ -46,11 +46,11 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'orax.utils.middlewares.AuthenticationMiddlewareJWT'
+    'orax.utils.middlewares.AuthenticationMiddlewareJWT',
+    'orax.utils.middlewares.DisableCsrfCheck',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware'
 ]
 
 ROOT_URLCONF = 'orax.urls'
@@ -157,6 +157,8 @@ REST_FRAMEWORK = {
     ),
     'PAGE_SIZE': 50
 }
+
+JWT_AUTH_HEADER_PREFIX = 'Bearer'
 
 REDIS_HOST = os.environ['REDIS_HOST'] if not DEBUG else 'localhost'
 REDIS_PORT = int(os.environ['REDIS_PORT']) if not DEBUG else 6379

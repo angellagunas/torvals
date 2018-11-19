@@ -1,5 +1,5 @@
 from rest_framework import status
-from rest_framework.exceptions import NotFound
+from rest_framework.exceptions import NotFound, ValidationError
 from rest_framework.response import Response
 
 from soft_drf.api import mixins
@@ -21,10 +21,9 @@ class DatasetGraphViewSet(mixins.CreateModelMixin, GenericViewSet):
     def create(self, request, *args, **kwargs):
         self._validate(request, *args, **kwargs)
 
-        key_cache = Cache.get_key_from_request(request, *args, **kwargs)
+        key_cache = str(Cache.get_key_from_request(request, *args, **kwargs))
 
         if(Cache.exists(key_cache)):
-            print('encontro en cache')
             return Response(Cache.get(key_cache))
 
         data = request.data
@@ -54,6 +53,9 @@ class DatasetGraphViewSet(mixins.CreateModelMixin, GenericViewSet):
 
         if dataset is None:
             raise NotFound()
+
+        if 'centro-de-venta' not in request.data:
+            raise ValidationError({'centro-de-venta': ['This field is required.']})
 
 
 router.register(
