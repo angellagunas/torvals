@@ -14,13 +14,19 @@ const task = new Task(
     const log = new Logger('restore-rows-from-historical')
 
     if (!argv.dataset) {
-      throw new Error('You need to provide a project!')
+      throw new Error('You need to provide a dataset!')
     }
 
     const batchSize = 100000
     log.call(`Start ==>  ${moment().format()}`)
 
-    const dataset = await DataSet.find({'uuid': argv.dataset})
+    const dataset = await DataSet.findOne({'uuid': argv.dataset})
+    const project = await Project.findOne({'_id': dataset.project})
+
+    if (!dataset) {
+      throw new Error('You need to provide a valid dataset!')
+    }
+
     log.call('Restoring dataset => ' + dataset.uuid)
     try {
       log.call('Obtaining rows to copy...')
@@ -65,7 +71,6 @@ const task = new Task(
       log.call('last bulk saved for this dataset => ' + bulkOpsNew.length)
     } catch (e) {
       log.call(e)
-      continue
     }
 
     log.call(`End ==> ${moment().format()}`)
