@@ -4,12 +4,24 @@ from bson.json_util import dumps
 
 from orax.utils import _id
 from orax.utils.connections import MongoCollection
+from orax.utils.cache import Cache
 
 
 class DatasetUtils(MongoCollection):
     def get_indicators(
             self, dataset_uuid, cycle_uuid,
             channel_uuid, sale_center_uuid, prices=False):
+        """
+        Calculate the indicators (sum or sum/multiply) by each case
+        (period, channel, sale_center).
+
+        parameters:
+          - dataset_uuid: the active adjustment dataset
+          - cycle_uuid: the cycle to make the indicators
+          - channel_uuid: catalog item with channel as type
+          - sale_center_uuid: catalog item with centro-de-ventas as type
+          - prices: if is True then multiply each row by its prices
+        """
 
         dataset = self.db.datasets.find_one({'uuid': dataset_uuid})
         project = self.db.projects.find_one({
@@ -170,3 +182,75 @@ class DatasetUtils(MongoCollection):
             'data': data,
             'previous': past_sales
         }
+
+    def _full_indicators(self, project_uuid, cycle_uuid, prices):
+        """
+        Calculate all indicators for an specific project and set it to cache.
+
+        parameters:
+          - project_uuid: the project from which will be calculate the
+            indicators.
+          - cycle_uuid: cycle which group the periods which will be calculate.
+          - prices: define if the indicators should be calculated taking the
+            prices
+        """
+        project = self.db.projects.find_one({'uuid': project_uuid})
+
+        active_dataset = self.db.datasets.find_one({
+            '_id': _id(project['activeDataset'])
+        },{
+            'uuid': 1
+        })
+
+        channels = self.db.catalogitems.find({
+            'organization': _id(project['organization']),
+            'isDeleted': False,
+            'type': 'canal'
+        }, {
+            'uuid': 1
+        })
+
+        sale_centers = self.db.catalogitems.find({
+            'organization': _id(project['organization']),
+            'isDeleted': False,
+            'type': 'centro-de-venta'
+        })
+
+        key = "uuid::{0}:cycle::{1}:centro-de-venta::{2}:canal::{3}:prices::{4}:"
+
+        for channel in channels:
+            for sale_center in sale_centers:
+                cache_key = key.format(
+                    active_dataset['uuid'],
+                    cycle_uuid,
+                    sale_center['uuid'],
+                    channel['uuid'],
+                    prices
+                )
+
+                print('calculating value for: {0}'.format(cache_key))
+
+                indicators = self.get_indicators(
+                    active_dataset['uuid'],
+                    cycle_uuid,
+                    channel['uuid'],
+                    sale_center['uuid'],
+                    prices
+                )
+
+                Cache.set(cache_key, indicators)
+
+    def calculate_indicadors_by_project(self, project_uuid, cycle_uuid):
+        """
+        Calculate all indicators for an specific project and set it to cache.
+
+        parameters:
+          - project_uuid: the project from which will be calculate the
+            indicators.
+          - cycle_uuid: cycle which group the periods which will be calculate.
+        """
+        print('Calculating indicatores WITHOUT prices')
+        self._full_indicators(project_uuid, cycle_uuid, False)
+
+        print('Calculating indicatores WITH prices')
+        self._full_indicators(project_uuid, cycle_uuid, True)
