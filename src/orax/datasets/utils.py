@@ -268,7 +268,7 @@ class DatasetUtils(MongoCollection):
         self._full_indicators(project_uuid, cycle_uuid, True)
 
     def run_async(self, project_uuid, cycle_uuid):
-        function = self.calculate_indicadors_by_project()
+        function = self.calculate_indicadors_by_project
         t = threading.Thread(
             name='calculatin cache',
             target=function,
