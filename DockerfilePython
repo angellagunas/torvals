@@ -8,9 +8,7 @@ RUN mkdir /pythia-kore
 ADD . /pythia-kore
 WORKDIR /pythia-kore
 
-RUN rm /etc/supervisor/conf.d/supervisord.conf
-
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY supervisord.conf /etc/supervisor/conf.d/orax.conf
 
 RUN pip install -r src/requirements/base.txt
 
@@ -18,4 +16,4 @@ EXPOSE 8000
 
 # ENTRYPOINT uwsgi -T --enable-threads --process 4 --master --http :8000 --chdir /pythia-kore/src --module orax.wsgi
 
-CMD ["/usr/bin/supervisord", "-c", supervisord.conf]
+ENTRYPOINT supervisord -c /etc/supervisor/supervisord.conf -n
