@@ -1,4 +1,5 @@
 import json
+import threading
 
 from bson.json_util import dumps
 
@@ -207,13 +208,17 @@ class DatasetUtils(MongoCollection):
             'isDeleted': False,
             'type': 'canal'
         }, {
-            'uuid': 1
+            'uuid': 1,
+            'name': 1
         })
 
         sale_centers = self.db.catalogitems.find({
             'organization': _id(project['organization']),
             'isDeleted': False,
             'type': 'centro-de-venta'
+        }, {
+            'uuid': 1,
+            'name': 1
         })
 
         key = "uuid::{0}:cycle::{1}:centro-de-venta::{2}:canal::{3}:prices::{4}:"
@@ -228,7 +233,14 @@ class DatasetUtils(MongoCollection):
                     prices
                 )
 
-                print('calculating value for: {0}'.format(cache_key))
+                msg = key.format(
+                    active_dataset['uuid'],
+                    cycle_uuid,
+                    sale_center['name'],
+                    channel['name'],
+                    prices
+                )
+                print('calculating value for: {0}'.format(msg))
 
                 indicators = self.get_indicators(
                     active_dataset['uuid'],
@@ -254,3 +266,12 @@ class DatasetUtils(MongoCollection):
 
         print('Calculating indicatores WITH prices')
         self._full_indicators(project_uuid, cycle_uuid, True)
+
+    def run_async(self, project_uuid, cycle_uuid):
+        function = self.calculate_indicadors_by_project()
+        t = threading.Thread(
+            name='calculatin cache',
+            target=function,
+            args=(project_uuid, cycle_uuid)
+        )
+        t.start()
