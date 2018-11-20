@@ -18,4 +18,4 @@ EXPOSE 8000
 
 # ENTRYPOINT uwsgi -T --enable-threads --process 4 --master --http :8000 --chdir /pythia-kore/src --module orax.wsgi
 
-CMD ["/usr/bin/supervisord"]
+CMD ["/usr/bin/supervisord", "-c", supervisord.conf]
