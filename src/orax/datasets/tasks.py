@@ -1,6 +1,8 @@
-from celery import shared_task
+from celery import task
 
 
-@shared_task
+@task
 def test(param):
-    return 'The test task executed with argument "%s" ' % param
+    msg = 'The test task executed with argument "%s" ' % param
+    print(msg)
+    return msg
