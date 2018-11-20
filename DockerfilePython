@@ -8,6 +8,8 @@ RUN mkdir /pythia-kore
 ADD . /pythia-kore
 WORKDIR /pythia-kore
 
+RUN rm /etc/supervisor/conf.d/supervisord.conf
+
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 RUN pip install -r src/requirements/base.txt
