@@ -16,7 +16,7 @@ const task = new Task(async function (argv) {
   for (let org of organizations) {
     const orgAdminRole = await Role.findOne({slug: 'orgadmin'})
     let orgAdmin = await User.findOne({'organizations.organization': org._id, 'organizations.role': orgAdminRole})
-    let defaultOwner = await User.findOne({email: 'luis@commonsense.io'})
+    let defaultOwner = await User.findOne({email: 'jpedraza@grupoabraxas.com'})
 
     if (orgAdmin) {
       org.set({
