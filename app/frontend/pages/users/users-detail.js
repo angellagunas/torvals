@@ -19,6 +19,42 @@ class UsersDetail extends Component {
     }
   }
 
+  async resetOnClick () {
+    await this.setState({
+      resetLoading: true,
+      resetText: this.formatTitle('user.resetText1'),
+      resetClass: 'button is-info'
+    })
+
+    var url = '/user/reset-password'
+
+    try {
+      await api.post(url, {email: this.state.user.email})
+      setTimeout(() => {
+        this.setState({
+          resetLoading: true,
+          resetText: this.formatTitle('user.resetText2'),
+          resetClass: 'button is-success'
+        })
+      }, 3000)
+    } catch (e) {
+      await this.setState({
+        resetLoading: true,
+        resetText: this.formatTitle('user.resetText3'),
+        resetClass: 'button is-danger'
+      })
+    }
+
+    setTimeout(() => {
+      this.setState({
+        resetLoading: false,
+        resetText: this.formatTitle('user.resetText'),
+        resetClass: 'button is-danger'
+      })
+    }, 10000)
+    console.log("Password Reset")
+  }
+
   formatTitle (id) {
     return this.props.intl.formatMessage({ id: id })
   }
@@ -162,6 +198,13 @@ class UsersDetail extends Component {
                     </span>
                   </a>
               }
+              </div>
+              <div className='control'>
+                <a className='button is-warning' onClick={() => this.resetOnClick()}>
+                  <span className='icon is-small' title="Reset Password">
+                    <i className='fa fa-envelope has-text-white' />
+                  </span>
+                </a>
               </div>
               <div className='control'>
                 {currentUser.uuid !== row.uuid && !disabledActions && (
