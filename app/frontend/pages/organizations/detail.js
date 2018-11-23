@@ -303,7 +303,7 @@ class OrganizationDetail extends Component {
                 />
               </button>
             }
-            {this.daysLeft(organization)}
+            {/* this.daysLeft(organization) */}
           </div>
         </div>
 
