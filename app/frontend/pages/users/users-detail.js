@@ -7,6 +7,7 @@ import tree from '~core/tree'
 import UserDetail from './detail'
 import CreateUser from './create'
 import { testRoles } from '~base/tools'
+import env from '~base/env-variables'
 
 class UsersDetail extends Component {
   constructor (props) {
@@ -19,7 +20,7 @@ class UsersDetail extends Component {
     }
   }
 
-  async resetOnClick () {
+  async resetOnClick (email) {
     await this.setState({
       resetLoading: true,
       resetText: this.formatTitle('user.resetText1'),
@@ -27,9 +28,9 @@ class UsersDetail extends Component {
     })
 
     var url = '/user/reset-password'
-
+    console.log(email)
     try {
-      await api.post(url, {email: this.state.user.email})
+      await api.post(url, {email})
       setTimeout(() => {
         this.setState({
           resetLoading: true,
@@ -200,11 +201,13 @@ class UsersDetail extends Component {
               }
               </div>
               <div className='control'>
-                <a className='button is-warning' onClick={() => this.resetOnClick()}>
+              {env.EMAIL_SEND && (
+                <a className='button is-warning' onClick={() => this.resetOnClick(row.email)}>
                   <span className='icon is-small' title="Reset Password">
                     <i className='fa fa-envelope has-text-white' />
                   </span>
                 </a>
+              )}
               </div>
               <div className='control'>
                 {currentUser.uuid !== row.uuid && !disabledActions && (
