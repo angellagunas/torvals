@@ -20,11 +20,35 @@ services:
     cpu_shares: 50
     mem_limit: 1000M
     mem_reservation: 500m
+    env_file:
+      - .env
   api:
     restart: always
     build: .
     ports:
      - "3000:3000"
+    links:
+      - mongodb
+      - redisdb
+    depends_on:
+      - mongodb
+      - redisdb
+    cpu_shares: 400
+    cpus: 4
+    mem_limit: 16000M
+    mem_reservation: 4000m
+    env_file:
+      - .env
+    volumes:
+      - /data/db:/data/db
+      - /data/media/uploads:/app/media/uploads
+  python:
+    restart: always
+    build:
+      context: .
+      dockerfile: DockerfilePython
+    ports:
+     - "8000:8000"
     links:
       - mongodb
       - redisdb
@@ -38,8 +62,8 @@ services:
     env_file:
       - .env
     volumes:
-      - /www/data/db:/data/db
-      - /www/media/uploads:/app/media/uploads
+      - /data/db:/data/db
+      - /data/media/uploads:/app/media/uploads
   queues:
     restart: always
     build:
@@ -58,8 +82,8 @@ services:
     env_file:
       - .env
     volumes:
-      - /www/data/db:/data/db
-      - /www/media/uploads:/app/media/uploads
+      - /data/db:/data/db
+      - /data/media/uploads:/app/media/uploads
   redisdb:
     restart: always
     image: "redis:alpine"
@@ -70,48 +94,15 @@ services:
     mem_reservation: 1000m
   mongodb:
     restart: always
-    image: mongo:latest
+    image: mongo:3.6.3
     container_name: "mongodb"
     environment:
       - MONGO_DATA_DIR=/data/db
       - MONGO_LOG_DIR=/dev/null
     volumes:
-      - /www/data/db:/data/db
+      - /data/db:/data/db
     ports:
         - 27017:27017
-    mem_limit: 30000M
+    mem_limit: 50000M
     mem_reservation: 8000m
     command: mongod --smallfiles --logpath=/dev/null --wiredTigerCacheSizeGB 24 # --quiet
-  pio:
-    build:
-      context: .
-      dockerfile: DockerfilePIO
-    env_file:
-      - .env
-    volumes:
-      - ./pio-code/data:/data
-      - /www/media/jsons:/app/media/jsons
-    ports:
-      - "7070:7070"
-      - "9001:9000"
-      - "8000-8070:8000-8070"
-    links:
-      - mongodb
-      - redisdb
-    depends_on:
-      - mongodb
-      - redisdb
-    tty: true
-#  neo4j:
-#    image: 'neo4j:3.2.1'
-#    ports:
-#      - "7474:7474"
-#      - "7687:7687"
-#    restart:
-#      always
-#    volumes:
-#      - $HOME/neo4j/data:/data
-#      - $HOME/neo4j/logs:/logs
-#    cpu_shares: 300
-#    mem_limit: 30000M
-#    mem_reservation: 30000M

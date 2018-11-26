@@ -252,6 +252,7 @@ class TabAdjustment extends Component {
 
     const url = '/app/rows/dataset/'
     try{
+      this.getSalesTable()
       let data = await api.get(
         url + this.props.project.activeDataset.uuid,
         {
@@ -268,7 +269,6 @@ class TabAdjustment extends Component {
         selectedCheckboxes: new Set()
       })
       this.clearSearch()
-      this.getSalesTable()
     }catch(e){
       console.log(e)
       this.setState({
@@ -930,7 +930,7 @@ class TabAdjustment extends Component {
     this.setState({
       loadingIndicators: true
     })
-    let url = '/app/datasets/sales/' + this.props.project.activeDataset.uuid
+    let url = '/v2/datasets/sales/' + this.props.project.activeDataset.uuid
     let cycle = this.state.filters.cycles.find(item => {
       return item.cycle === this.state.formData.cycle
     })

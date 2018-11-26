@@ -63,10 +63,15 @@ module.exports = new Route({
 
     cycles.data = await Promise.all(cycles.data)
 
+    let invalidCatalogs = ['5b71e9abc2eb13002b7a700b', '5b71ea41e8ca55002673973c', '5b71ea8be8ca55002673973d']
+    let groupIds = ctx.state.user.groups.filter((item) => {return !invalidCatalogs.includes(String(item)) })
+    const groups = groupIds.map((group) => {return String(group)})
+    
     const users = await User.find({
       isDeleted: false,
       isOperationalUser: true,
-      'organizations.organization': organization._id
+      'organizations.organization': organization._id,
+      groups: {$in: groups}
     }).populate('groups')
       .populate('organizations.role')
 

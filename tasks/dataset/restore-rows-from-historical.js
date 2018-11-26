@@ -13,85 +13,64 @@ const task = new Task(
   async function (argv) {
     const log = new Logger('restore-rows-from-historical')
 
-    if (!argv.project) {
-      throw new Error('You need to provide a project!')
+    if (!argv.dataset) {
+      throw new Error('You need to provide a dataset!')
     }
 
     const batchSize = 100000
     log.call(`Start ==>  ${moment().format()}`)
 
-    const projects = await Project.find({
-        isDeleted: false,
-        uuid: project
-    })
-    const rowsLength = await DataSetRow.find({
-      project: {'$in': projects.map(item => Object(item._id))}
-    }).count()
-    let counter = 1
+    const dataset = await DataSet.findOne({'uuid': argv.dataset})
+    const project = await Project.findOne({'_id': dataset.project})
 
-    log.call('Tentative total rows length => ' + rowsLength)
+    if (!dataset) {
+      throw new Error('You need to provide a valid dataset!')
+    }
 
-    for(project of projects){
-      log.call('Restoring project => ' + project.uuid)
-      const includeFilters = []
+    log.call('Restoring dataset => ' + dataset.uuid)
+    try {
+      log.call('Obtaining rows to copy...')
+      let sizeRows = await HistoricalDatasetRow.find({dataset: dataset._id}).count()
 
-      if(project.mainDataset){ includeFilters.push(project.mainDataset) }
-      if(project.activeDataset){ includeFilters.push(project.activeDataset) }
+      const rows = await HistoricalDatasetRow.aggregate([
+          {'$match': {
+            dataset: dataset._id
+          }}
+        ]).cursor({batchSize: batchSize}).exec()
 
-      const datasets = await DataSet.find({
-        'project': project._id,
-        '_id': { '$in': includeFilters }
-      })
+      log.call('Rows ready, transversing...')
+      let bulkOpsNew = []
 
-      for(dataset of datasets){
-        log.call('Restoring dataset => ' + dataset.uuid)
-        try {
-          log.call('Obtaining rows to copy...')
-          let sizeRows = await HistoricalDatasetRow.find({dataset: dataset._id}).count()
+      while(await rows.hasNext()) {
+        const row = await rows.next()
+        bulkOpsNew.push({
+          'organization': project.organization,
+          'project': project,
+          'dataset': dataset._id,
+          'product': row.product,
+          'newProduct': row.newProduct,
+          'cycle': row.cycle,
+          'period': row.period,
+          'data': row.data,
+          'apiData': row.apiData,
+          'catalogItems': row.catalogItems
+        })
 
-          const rows = await HistoricalDatasetRow.aggregate([
-              {'$match': {
-                dataset: dataset._id
-              }}
-            ]).cursor({batchSize: batchSize}).exec()
-
-          log.call('Rows ready, transversing...')
-          let bulkOpsNew = []
-
-          while(await rows.hasNext()) {
-            const row = await rows.next()
-            bulkOpsNew.push({
-              'organization': project.organization,
-              'project': project,
-              'dataset': dataset._id,
-              'product': row.product,
-              'newProduct': row.newProduct,
-              'cycle': row.cycle,
-              'period': row.period,
-              'data': row.data,
-              'apiData': row.apiData,
-              'catalogItems': row.catalogItems
-            })
-
-            if (bulkOpsNew.length === batchSize) {
-              await DataSetRow.insertMany(bulkOpsNew)
-              sizeRows = sizeRows - batchSize
-              log.call('rows pending for this dataset => ' + sizeRows)
-              counter = counter + 1
-              bulkOpsNew = []
-            }
-          }
-
-          if (bulkOpsNew.length > 0) {
-            await DataSetRow.insertMany(bulkOpsNew)
-          }
-
-          log.call('last bulk saved for this dataset => ' + bulkOpsNew.length)
-        } catch (e) {
-          log.call(e)
-          continue
+        if (bulkOpsNew.length === batchSize) {
+          await DataSetRow.insertMany(bulkOpsNew)
+          sizeRows = sizeRows - batchSize
+          log.call('rows pending for this dataset => ' + sizeRows)
+          bulkOpsNew = []
         }
       }
+
+      if (bulkOpsNew.length > 0) {
+        await DataSetRow.insertMany(bulkOpsNew)
+      }
+
+      log.call('last bulk saved for this dataset => ' + bulkOpsNew.length)
+    } catch (e) {
+      log.call(e)
     }
 
     log.call(`End ==> ${moment().format()}`)

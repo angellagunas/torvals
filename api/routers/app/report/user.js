@@ -68,6 +68,7 @@ module.exports = new Route({
     ]
 
     const stats = await UserReport.aggregate(statement)
+    console.info(JSON.stringify(statement))
     let finishedUsers = []
     let inProgressUsers = []
     let report = {}
@@ -82,7 +83,10 @@ module.exports = new Route({
       report[stat._id.status] = stat.count
     }
 
-    const groups = ctx.state.user.groups.map((group) => {return String(group)})
+    let invalidCatalogs = ['5b71e9abc2eb13002b7a700b', '5b71ea41e8ca55002673973c', '5b71ea8be8ca55002673973d']
+    let groupIds = ctx.state.user.groups.filter((item) => {return !invalidCatalogs.includes(String(item)) })
+    const groups = groupIds.map((group) => {return String(group)})
+
     if (!data.users) {
       let users = await User.find({'organizations.organization': ctx.state.organization, groups: {$in: groups}})
       data.users = users.map((item) => {
