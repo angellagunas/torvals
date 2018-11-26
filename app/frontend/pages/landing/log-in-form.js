@@ -5,6 +5,7 @@ import env from '~base/env-variables'
 import Link from '~base/router/link'
 import cookies from '~base/cookies'
 import Loader from '~base/components/spinner'
+import tree from '~core/tree'
 import { injectIntl } from 'react-intl'
 
 import { BaseForm, PasswordWidget, EmailWidget } from '~components/base-form'
@@ -84,6 +85,10 @@ class LogInButton extends Component {
         jwt: data.jwt,
         shouldSelectOrg: true
       })
+
+      cookies.set('jwt', data.jwt)
+      cookies.set('organization', user.organizations[0].organization.slug)
+      tree.set('jwt', data.jwt)
     } else {
       const hostname = window.location.hostname
       const hostnameSplit = hostname.split('.')
