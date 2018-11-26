@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
 import { FormattedMessage, injectIntl } from 'react-intl'
 import FontAwesome from 'react-fontawesome'
 import moment from 'moment'
@@ -11,6 +11,7 @@ import api from '~base/api'
 import Loader from '~base/components/spinner'
 import Editable from '~base/components/base-editable'
 import Checkbox from '~base/components/base-checkbox'
+import Spinner from '~base/components/spinner'
 
 import WeekTable from './week-table'
 import ProductTable from './product-table'
@@ -34,6 +35,7 @@ class TabAdjustment extends Component {
       filtersLoaded: false,
       filtersLoading: false,
       isLoading: '',
+      loadingIndicators: false,
       isLoadingButtons: '',
       modified: 0,
       pending: 0,
@@ -250,6 +252,7 @@ class TabAdjustment extends Component {
 
     const url = '/app/rows/dataset/'
     try{
+      this.getSalesTable()
       let data = await api.get(
         url + this.props.project.activeDataset.uuid,
         {
@@ -266,7 +269,6 @@ class TabAdjustment extends Component {
         selectedCheckboxes: new Set()
       })
       this.clearSearch()
-      this.getSalesTable()
     }catch(e){
       console.log(e)
       this.setState({
@@ -925,7 +927,10 @@ class TabAdjustment extends Component {
   }
 
   async getSalesTable() {
-    let url = '/app/datasets/sales/' + this.props.project.activeDataset.uuid
+    this.setState({
+      loadingIndicators: true
+    })
+    let url = '/v2/datasets/sales/' + this.props.project.activeDataset.uuid
     let cycle = this.state.filters.cycles.find(item => {
       return item.cycle === this.state.formData.cycle
     })
@@ -963,6 +968,7 @@ class TabAdjustment extends Component {
           noSalesData: res.data.length === 0 ? this.formatTitle('dashboard.productEmptyMsg') : ''
         }, () => {
             this.setState({
+              loadingIndicators: false,
               reloadGraph: false
             })
         })
@@ -1182,10 +1188,11 @@ class TabAdjustment extends Component {
   }
 
   showBy(prices) {
-    this.setState({ prices },
-      () => {
-        this.getSalesTable()
-      })
+    this.setState({
+      prices
+    }, () => {
+      this.getSalesTable()
+    })
   }
 
   getCallback() {
@@ -1660,167 +1667,172 @@ class TabAdjustment extends Component {
               </div>
           </div>
           <div className='columns'>
-            <div className='column is-6-desktop is-4-widescreen is-5-fullhd is-offset-1-fullhd is-offset-1-desktop'>
-              <div className='panel sales-table'>
-                <div className='panel-heading'>
-                  <h2 className='is-capitalized'>
-                    <FormattedMessage
-                      id="adjustments.total"
-                      defaultMessage={`Totales`}
-                    /> {this.getCycleName()}
-                  </h2>
-                </div>
-                <div className='panel-block'>
-                  {
-                    currentRole !== 'consultor-level-3' &&
-                      this.state.salesTable.length > 0 ?
-                      <table className='table is-fullwidth is-hoverable'>
-                        <thead>
-                          <tr>
-                            <th className='has-text-centered'>
-                              <FormattedMessage
-                                id="adjustments.period"
-                                defaultMessage={`Periodo`}
-                              />
-                            </th>
-                            <th className='has-text-info has-text-centered'>
-                              <FormattedMessage
-                                id="tables.colForecast"
-                                defaultMessage={`Predicción`}
-                              />
-                            </th>
-                            <th className='has-text-teal has-text-centered'>
-                              <FormattedMessage
-                                id="tables.colAdjustment"
-                                defaultMessage={`Ajustes`}
-                              />
-                            </th>
-                            <th className='has-text-danger has-text-centered'>
-                              <FormattedMessage
-                                id="tables.colLast"
-                                defaultMessage={`Venta año anterior`}
-                              />
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {this.state.salesTable.map((item, key) => {
-                            return (
-                              <tr key={key}>
-                                <td className='has-text-centered'>
-                                  {item.period[0]}
-                                </td>
-                                <td className='has-text-centered'>
-                                  {this.state.prices && '$'} {item.prediction.toFixed(0).replace(/./g, (c, i, a) => {
-                                    return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                                  })}
-                                </td>
-                                <td className='has-text-centered'>
-                                  {this.state.prices && '$'} {item.adjustment.toFixed(0).replace(/./g, (c, i, a) => {
-                                    return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                                  })}
-                                </td>
-                                <td className='has-text-centered'>
-                                  {this.state.prices && '$'} {((this.state.prevData[key] || {}).sale || 0).toFixed(0).replace(/./g, (c, i, a) => {
-                                    return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                                  })}
-                                </td>
-                              </tr>
-                            )
-                          })
-                          }
+            {
+              this.state.loadingIndicators ?
+                <Spinner />
+              : <Fragment>
+                  <div className='column is-6-desktop is-4-widescreen is-5-fullhd is-offset-1-fullhd is-offset-1-desktop'>
+                    <div className='panel sales-table'>
+                      <div className='panel-heading'>
+                        <h2 className='is-capitalized'>
+                          <FormattedMessage
+                            id="adjustments.total"
+                            defaultMessage={`Totales`}
+                          /> {this.getCycleName()}
+                        </h2>
+                      </div>
+                      <div className='panel-block'>
+                        {
+                          currentRole !== 'consultor-level-3' &&
+                            this.state.salesTable.length > 0 ?
+                            <table className='table is-fullwidth is-hoverable'>
+                              <thead>
+                                <tr>
+                                  <th className='has-text-centered'>
+                                    <FormattedMessage
+                                      id="adjustments.period"
+                                      defaultMessage={`Periodo`}
+                                    />
+                                  </th>
+                                  <th className='has-text-info has-text-centered'>
+                                    <FormattedMessage
+                                      id="tables.colForecast"
+                                      defaultMessage={`Predicción`}
+                                    />
+                                  </th>
+                                  <th className='has-text-teal has-text-centered'>
+                                    <FormattedMessage
+                                      id="tables.colAdjustment"
+                                      defaultMessage={`Ajustes`}
+                                    />
+                                  </th>
+                                  <th className='has-text-danger has-text-centered'>
+                                    <FormattedMessage
+                                      id="tables.colLast"
+                                      defaultMessage={`Venta año anterior`}
+                                    />
+                                  </th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {this.state.salesTable.map((item, key) => {
+                                  return (
+                                    <tr key={key}>
+                                      <td className='has-text-centered'>
+                                        {item.period[0]}
+                                      </td>
+                                      <td className='has-text-centered'>
+                                        {this.state.prices && '$'} {item.prediction.toFixed(0).replace(/./g, (c, i, a) => {
+                                          return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                        })}
+                                      </td>
+                                      <td className='has-text-centered'>
+                                        {this.state.prices && '$'} {item.adjustment.toFixed(0).replace(/./g, (c, i, a) => {
+                                          return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                        })}
+                                      </td>
+                                      <td className='has-text-centered'>
+                                        {this.state.prices && '$'} {((this.state.prevData[key] || {}).sale || 0).toFixed(0).replace(/./g, (c, i, a) => {
+                                          return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                        })}
+                                      </td>
+                                    </tr>
+                                  )
+                                })
+                                }
 
-                          <tr className='totals'>
-                            <th className='has-text-centered'>
-                              <FormattedMessage
-                                id="adjustments.total"
-                                defaultMessage={`Total`}
-                              />
-                            </th>
-                            <th className='has-text-info has-text-centered'>
-                              {this.state.prices && '$'} {this.state.totalPrediction.toFixed(0).replace(/./g, (c, i, a) => {
-                                return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                              })}
-                            </th>
-                            <th className='has-text-teal has-text-centered'>
-                              {this.state.prices && '$'} {this.state.totalAdjustment.toFixed(0).replace(/./g, (c, i, a) => {
-                                return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                              })}
-                            </th>
-                            <th className='has-text-danger has-text-centered'>
-                              {this.state.prices && '$'} {this.state.totalPrevSale.toFixed(0).replace(/./g, (c, i, a) => {
-                                return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                              })}
-                            </th>
-                          </tr>
-                        </tbody>
-                      </table>
-                      :
-                      this.loadTable()
-                  }
-                </div>
-              </div>
-            </div>
-
-            <div className='column is-5-tablet is-5-desktop is-4-widescreen is-offset-1-widescreen is-narrow-fullhd is-offset-1-fullhd'>
-              <div className='panel sales-graph'>
-                <div className='panel-heading'>
-                  <h2 className='is-capitalized'>
-                    <FormattedMessage
-                      id="adjustments.report"
-                      defaultMessage={`Reporte`}
-                    /> {this.getCycleName()}
-                  </h2>
-                </div>
-                <div className='panel-block'>
-                  {
-                    currentRole !== 'consultor-level-3' &&
-                      this.state.salesTable.length > 0 ?
-                      <Graph
-                        data={graphData}
-                        maintainAspectRatio={false}
-                        responsive={true}
-                        reloadGraph={this.state.reloadGraph}
-                        labels={this.state.salesTable.map((item, key) => { return this.formatTitle('adjustments.period') + ' ' + item.period[0] })}
-                        tooltips={{
-                          mode: 'index',
-                          intersect: true,
-                          titleFontFamily: "'Roboto', sans-serif",
-                          bodyFontFamily: "'Roboto', sans-serif",
-                          bodyFontStyle: 'bold',
-                          callbacks: {
-                            label: tooltipCallback
-                          }
-                        }}
-                        scales={
-                          {
-                            xAxes:[{
-                              gridLines: {
-                                display: false
-                              }
-                            }],
-                            yAxes: [
-                              {
-                                gridLines: {
-                                  display: false
-                                },
-                                ticks: {
-                                  callback: labelCallback,
-                                  fontSize: 11
-                                },
-                                display: true
-                              }
-                            ]
-                          }
+                                <tr className='totals'>
+                                  <th className='has-text-centered'>
+                                    <FormattedMessage
+                                      id="adjustments.total"
+                                      defaultMessage={`Total`}
+                                    />
+                                  </th>
+                                  <th className='has-text-info has-text-centered'>
+                                    {this.state.prices && '$'} {this.state.totalPrediction.toFixed(0).replace(/./g, (c, i, a) => {
+                                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                    })}
+                                  </th>
+                                  <th className='has-text-teal has-text-centered'>
+                                    {this.state.prices && '$'} {this.state.totalAdjustment.toFixed(0).replace(/./g, (c, i, a) => {
+                                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                    })}
+                                  </th>
+                                  <th className='has-text-danger has-text-centered'>
+                                    {this.state.prices && '$'} {this.state.totalPrevSale.toFixed(0).replace(/./g, (c, i, a) => {
+                                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                    })}
+                                  </th>
+                                </tr>
+                              </tbody>
+                            </table>
+                            :
+                            this.loadTable()
                         }
-                      />
-                      :
-                      this.loadTable()
-                  }
-                </div>
-              </div>
-            </div>
+                      </div>
+                    </div>
+                  </div>
 
+                  <div className='column is-5-tablet is-5-desktop is-4-widescreen is-offset-1-widescreen is-narrow-fullhd is-offset-1-fullhd'>
+                    <div className='panel sales-graph'>
+                      <div className='panel-heading'>
+                        <h2 className='is-capitalized'>
+                          <FormattedMessage
+                            id="adjustments.report"
+                            defaultMessage={`Reporte`}
+                          /> {this.getCycleName()}
+                        </h2>
+                      </div>
+                      <div className='panel-block'>
+                        {
+                          currentRole !== 'consultor-level-3' &&
+                            this.state.salesTable.length > 0 ?
+                            <Graph
+                              data={graphData}
+                              maintainAspectRatio={false}
+                              responsive={true}
+                              reloadGraph={this.state.reloadGraph}
+                              labels={this.state.salesTable.map((item, key) => { return this.formatTitle('adjustments.period') + ' ' + item.period[0] })}
+                              tooltips={{
+                                mode: 'index',
+                                intersect: true,
+                                titleFontFamily: "'Roboto', sans-serif",
+                                bodyFontFamily: "'Roboto', sans-serif",
+                                bodyFontStyle: 'bold',
+                                callbacks: {
+                                  label: tooltipCallback
+                                }
+                              }}
+                              scales={
+                                {
+                                  xAxes:[{
+                                    gridLines: {
+                                      display: false
+                                    }
+                                  }],
+                                  yAxes: [
+                                    {
+                                      gridLines: {
+                                        display: false
+                                      },
+                                      ticks: {
+                                        callback: labelCallback,
+                                        fontSize: 11
+                                      },
+                                      display: true
+                                    }
+                                  ]
+                                }
+                              }
+                            />
+                            :
+                            this.loadTable()
+                        }
+                      </div>
+                    </div>
+                  </div>
+              </Fragment>
+            }
           </div>
         </div>
 

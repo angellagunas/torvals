@@ -232,8 +232,8 @@ class OrganizationDetail extends Component {
             />
           </div>
         )
-      },
-      { /*
+      }
+      /* {
         name: '1',
         title: this.formatTitle('organizations.tabFacturacionTitle'),
         hide: false,
@@ -244,7 +244,7 @@ class OrganizationDetail extends Component {
           </div>
         )
       },
-      { */
+      {
         name: '2',
         title: this.formatTitle('organizations.tabUsersTitle'),
         hide: false,
@@ -255,7 +255,7 @@ class OrganizationDetail extends Component {
           </div>
         )
       },
-      { /*
+      {
         name: '3',
         title: this.formatTitle('organizations.tabLabelsTitle'),
         hide: false,
@@ -276,7 +276,7 @@ class OrganizationDetail extends Component {
             <Alerts org={organization} />
           </div>
         )
-      */}
+      } */
     ]
     return (
 
@@ -303,7 +303,7 @@ class OrganizationDetail extends Component {
                 />
               </button>
             }
-            {this.daysLeft(organization)}
+            {/* this.daysLeft(organization) */}
           </div>
         </div>
 

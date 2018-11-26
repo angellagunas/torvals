@@ -114,19 +114,19 @@ class DataSetDetail extends Component {
 
   getColumns() {
     return [
-      { 
+      {
         'title': this.formatTitle('tables.colName'),
         'property': 'name',
         'default': 'N/A',
         'sortable': true
       },
-      { 
+      {
         'title': this.formatTitle('tables.colEmail'),
         'property': 'email',
         'default': 'N/A',
         'sortable': true
       },
-      { 
+      {
         'title': this.formatTitle('tables.colActions'),
         formatter: (row) => {
           return <Link className='button' to={'/manage/users/' + row.uuid}>
@@ -804,7 +804,7 @@ class DataSetDetail extends Component {
       }))
 
       if (res.success > 0) {
-        this.notify( 
+        this.notify(
           this.formatTitle('datasets.successObj') + res.success + ' ' + type,
           5000,
           toast.TYPE.SUCCESS
@@ -812,7 +812,7 @@ class DataSetDetail extends Component {
       }
 
       if (res.error > 0) {
-        this.notify( 
+        this.notify(
           this.formatTitle('datasets.errorObj') + res.error + ' ' + type,
           5000,
           toast.TYPE.ERROR
@@ -1152,6 +1152,19 @@ renderUnidentified(){
                       <FormattedMessage
                         id="datasets.btnBack"
                         defaultMessage={`Regresar`}
+                      />
+                    </a>
+                  </div>
+                  <div className='control'>
+                    <a
+                      className='button is-info'
+                      download={this.state.dataset.name}
+                      href={this.state.dataset.url}
+                      target="_blank"
+                    >
+                      <FormattedMessage
+                        id="datasets.btnDownload"
+                        defaultMessage={`Descargar`}
                       />
                     </a>
                   </div>

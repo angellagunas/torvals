@@ -92,12 +92,17 @@ module.exports = new Route({
     }
 
     if (catalogItemsFilters.length > 0) {
+      let groups = ctx.state.user.groups.map((item) => {return Object(item)})
       let catalogItems = await CatalogItem.filterByUserRole(
-        { _id: { $in: catalogItemsFilters } },
+        {
+          _id: { $in: catalogItemsFilters },
+          type: { $ne: 'canal'},
+          groups: { $in: groups }
+        },
         currentRole.slug,
         user
       )
-      filters['catalogItems'] = { '$all': catalogItems }
+      filters['catalogItems'] = { '$in': catalogItems }
     }
 
     const permissionsList = [
@@ -109,8 +114,12 @@ module.exports = new Route({
     ]
     if (permissionsList.includes(currentRole.slug)) {
       if (catalogItemsFilters.length === 0) {
+        let groups = ctx.state.user.groups.map((item) => {return Object(item)})
         let catalogItems = await CatalogItem.filterByUserRole(
-          { },
+          {
+            type: { $ne: 'canal'},
+            groups: { $in: groups }
+          },
           currentRole.slug,
           user
         )

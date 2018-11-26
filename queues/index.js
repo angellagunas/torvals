@@ -12,7 +12,9 @@ const reconfigureDataset = require('./reconfigure-dataset')
 const getAnomalies = require('./get-anomalies')
 const generateDownload = require('./generate-downloads')
 const migrateRowsToHistorical = require('./migrate-rows-to-historical')
+const restoreRowsFromHistorical = require('./restore-rows-from-historical')
 const removeDuplicatedCatalogsInAnomalies = require('./remove-duplicated-catalogs-anomalies')
+const removeDuplicatedCatalogsInRows = require('./remove-duplicated-catalogs-rows')
 // #Requires
 
 module.exports = {
@@ -30,5 +32,7 @@ module.exports = {
   'getAnomalies': getAnomalies,
   'migrateRowsToHistorical': migrateRowsToHistorical,
   'generateDownload': generateDownload,
-  'removeDuplicatedCatalogsInAnomalies': removeDuplicatedCatalogsInAnomalies
+  'removeDuplicatedCatalogsInAnomalies': removeDuplicatedCatalogsInAnomalies,
+  'removeDuplicatedCatalogsInRows': removeDuplicatedCatalogsInRows,
+  'restoreRowsFromHistorical': restoreRowsFromHistorical
 }

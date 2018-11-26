@@ -229,7 +229,7 @@ class Sidebar extends Component {
           opened: false,
           dropdown: [
             this.formatTitle('sideMenu.reportStatus', StatusReport),
-            this.formatTitle('sideMenu.reportHistoric', HistoricReport),
+            // this.formatTitle('sideMenu.reportHistoric', HistoricReport),
             this.formatTitle('sideMenu.reportDownloads', DownloadReport)
           ]
         }
