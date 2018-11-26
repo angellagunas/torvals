@@ -151,19 +151,19 @@ h2 {
   position: relative;
   span {
     position: absolute;
-    top: 1px;
-    right: -14px;
+    top: -4px;
+    right: -12px;
     transform: translate(0, -100%);
     padding: 1px;
     color: white;
     border-radius: 100px;
     background: $warning;
-    font-size: .8rem;
+    font-size: .75rem;
     font-weight: bold;
-    width: 1.3rem;
-    height: 1.3rem;
+    width: 1.8rem;
+    height: 1.5rem;
     text-align: center;
-    line-height: 1.3rem;
+    line-height: 1.5rem;
   }
 }
 
