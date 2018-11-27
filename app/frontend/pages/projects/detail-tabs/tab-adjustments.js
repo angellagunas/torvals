@@ -8,6 +8,7 @@ import { toast } from 'react-toastify'
 import { defaultCatalogs } from '~base/tools'
 
 import api from '~base/api'
+import { validateRegText } from '~base/tools'
 import Loader from '~base/components/spinner'
 import Editable from '~base/components/base-editable'
 import Checkbox from '~base/components/base-checkbox'
@@ -841,7 +842,7 @@ class TabAdjustment extends Component {
     }
 
     const items = this.state.dataRows.filter((item) => {
-      const regEx = new RegExp(this.state.searchTerm, 'gi')
+      const regEx = new RegExp(validateRegText(this.state.searchTerm), 'gi')
       const searchStr = `${item.productName} ${item.productId} ${item.channel} ${item.salesCenter}`
 
       if (regEx.test(searchStr))

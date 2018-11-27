@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { FormattedMessage, injectIntl } from 'react-intl'
 import api from '~base/api'
+import { validateRegText } from '~base/tools'
 import tree from '~core/tree'
 import moment from 'moment'
 import { EditableTable } from '~base/components/base-editableTable'
@@ -537,7 +538,7 @@ class TabApprove extends Component {
         if (d >= this.state.startDate && d <= this.state.endDate) {
 
           if (this.state.searchTerm !== '') {
-            const regEx = new RegExp(this.state.searchTerm, 'gi')
+            const regEx = new RegExp(validateRegText(this.state.searchTerm), 'gi')
 
             if (regEx.test(item.product.name) ||
               regEx.test(item.product.externalId))
@@ -554,7 +555,7 @@ class TabApprove extends Component {
           return null
       }
       else if (this.state.searchTerm !== '' && !this.state.searchDate) {
-        const regEx = new RegExp(this.state.searchTerm, 'gi')
+        const regEx = new RegExp(validateRegText(this.state.searchTerm), 'gi')
 
         if (regEx.test(item.product.name) ||
           regEx.test(item.product.externalId))
