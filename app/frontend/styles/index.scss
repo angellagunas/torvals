@@ -42,6 +42,10 @@ h2 {
   padding: 4px 4px 4px 10px;
 }
 
+#endDate {
+  text-align: right;
+}
+
 .DateInput_input__focused {
   border-bottom: 2px solid $info;
 }
