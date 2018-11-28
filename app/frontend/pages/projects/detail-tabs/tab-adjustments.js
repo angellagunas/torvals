@@ -1667,9 +1667,10 @@ class TabAdjustment extends Component {
               </div>
           </div>
           <div className='columns'>
-            {
-              this.state.loadingIndicators ?
-                <Spinner />
+            {this.state.loadingIndicators ?
+            <div className="column is-centered">
+                <Spinner /> 
+            </div>
               : <Fragment>
                   <div className='column is-6-desktop is-4-widescreen is-5-fullhd is-offset-1-fullhd is-offset-1-desktop'>
                     <div className='panel sales-table'>
