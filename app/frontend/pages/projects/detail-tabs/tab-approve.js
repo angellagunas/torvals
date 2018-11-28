@@ -379,7 +379,7 @@ class TabApprove extends Component {
             <div className='field control'>
                 <div className='control'>
                   <Select
-                    label="Centor de venta"
+                    label="Centro de venta"
                     name="salesCenter"
                     value={this.state.salesCenter}
                     optionValue="uuid"
