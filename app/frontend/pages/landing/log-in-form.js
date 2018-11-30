@@ -28,6 +28,11 @@ class LogInButton extends Component {
     }
   }
 
+  componentDidMount() {
+    console.log(tree.get('jwt'))
+  }
+
+
   errorHandler (e) { }
 
   changeHandler ({ formData }) {
