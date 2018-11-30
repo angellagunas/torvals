@@ -242,12 +242,6 @@ class ProjectDetail extends Component {
     })
   }
 
-  hideModalOutdated() {
-    this.setState({
-      outdatedClassName: ''
-    })
-  }
-
   finishUpClone (object) {
     this.setState({
       cloneClassName: ''
@@ -498,7 +492,6 @@ class ProjectDetail extends Component {
     try {
       await api.post(url, { ...this.state.project })
       await this.load()
-      this.hideModalOutdated()
     } catch (e) {
       toast('Error: ' + e.message, {
         autoClose: 5000,
