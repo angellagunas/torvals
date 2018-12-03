@@ -62,17 +62,39 @@ class TabApprove extends Component {
       let url = '/app/adjustmentRequests/dataset/' + this.props.project.activeDataset.uuid
       try {
         let data = await api.get(url)
+        console.log({data})
         this.setState({
           dataRows: data.data
         }, () => {
           this.getRemainingItems()
           this.clearSearch()
           this.handleSort(this.state.sortBy)
+          this.salesCentersReq()
         })
       } catch (e) {
         console.log(e)
       }
     }
+  }
+
+  salesCentersReq() {
+    const salesCenters = []
+    const approveReqs = {}
+
+    for (let row of this.state.dataRows) {
+      const saleCenter = row.catalogItems.find(item => item.type === 'centro-de-venta')
+
+      approveReqs[saleCenter.uuid] = (approveReqs[saleCenter.uuid] || 0) + 1
+    }
+
+    for (let saleCenter of this.state.salesCenters) {
+      salesCenters.push({
+        ...saleCenter,
+        name: `${saleCenter.name} (${(approveReqs[saleCenter.uuid] || 0)})`
+      })
+    }
+
+    this.setState({ salesCenters })
   }
 
   getColumns() {
