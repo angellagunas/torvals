@@ -142,7 +142,7 @@ class StatusRepórt extends Component {
       ]
 
       let formData = this.state.formData
-      formData.cycle = cycles[0].cycle
+      formData.cycle = cycles[1].cycle
 
       this.setState({
         filters: {
@@ -973,7 +973,8 @@ class StatusRepórt extends Component {
 
           </div>
 
-          {this.state.filteredData
+          {this.state.isLoading ? <Spinner />
+            : this.state.filteredData
             ? this.state.filteredData.length > 0
               ? <div className='scroll-table'>
                 <div className='scroll-table-container'>
