@@ -28,7 +28,6 @@ class UsersDetail extends Component {
     })
 
     var url = '/user/reset-password'
-    console.log(email)
     try {
       await api.post(url, {email})
       setTimeout(() => {
@@ -53,7 +52,6 @@ class UsersDetail extends Component {
         resetClass: 'button is-danger'
       })
     }, 10000)
-    console.log("Password Reset")
   }
 
   formatTitle (id) {
