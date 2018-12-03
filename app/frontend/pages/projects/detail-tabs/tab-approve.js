@@ -22,6 +22,7 @@ class TabApprove extends Component {
     super(props)
     this.state = {
       dataRows: [],
+      filteredData: [],
       isLoading: '',
       selectedAll: false,
       disableButtons: true,
@@ -753,7 +754,7 @@ class TabApprove extends Component {
       <div>
         <section>
           {this.getModifyButtons()}
-          {this.state.dataRows.length === 0 ?
+          {this.state.filteredData.length === 0 ?
             <section className='section'>
               <center>
                 <h2 className='subtitle has-text-primary'>
