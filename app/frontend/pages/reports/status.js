@@ -6,6 +6,7 @@ import { toast } from 'react-toastify'
 import tree from '~core/tree'
 import Select from '../projects/detail-tabs/select'
 import api from '~base/api'
+import { validateRegText } from '~base/tools'
 import Loader from '~base/components/spinner'
 import Page from '~base/page'
 import { loggedIn } from '~base/middlewares/'
@@ -559,7 +560,7 @@ class StatusRepórt extends Component {
       const groups = (user.groups || []).map(group => group.name || '').join(' ')
       const searchStr = `${user.name} ${groups}`
 
-      const regEx = new RegExp(searchTerm, 'gi')
+      const regEx = new RegExp(validateRegText(searchTerm), 'gi')
 
       return regEx.test(searchStr)
     })

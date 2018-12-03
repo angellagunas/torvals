@@ -77,6 +77,7 @@ class NavBar extends Component {
     await tree.commit()
     window.localStorage.setItem('name', '')
     window.localStorage.setItem('email', '')
+    window.localStorage.removeItem('_user')
 
     history.push('/log-in');
   }
