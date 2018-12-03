@@ -285,8 +285,7 @@ class StatusRepórt extends Component {
         isLoading: ' is-loading',
         isFiltered: false,
         salesTable: [],
-        noSalesData: '',
-        showCycles: false
+        noSalesData: ''
       })
     }
 
@@ -362,7 +361,8 @@ class StatusRepórt extends Component {
           dataRows: data.data,
           isFiltered: true,
           isLoading: '',
-          selectedCheckboxes: new Set()
+          selectedCheckboxes: new Set(),
+          showCycles: false
         })
         this.clearSearch()
       }
