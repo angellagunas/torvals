@@ -31,7 +31,7 @@
     "babel-preset-stage-0": "^6.24.1",
     "baobab": "^2.4.3",
     "baobab-react": "^2.1.2",
-    "bcrypt": "^3.0.2",
+    "bcrypt": "^3.0.0",
     "bull": "^3.3.5",
     "bulma": "^0.6.2",
     "bulma-badge": "^2.0.0",
