@@ -6,7 +6,6 @@ import moment from 'moment'
 import tree from '~core/tree'
 import _ from 'lodash'
 import { FormattedMessage, injectIntl } from 'react-intl'
-import Link from '~base/router/link'
 import api from '~base/api'
 import Loader from '~base/components/spinner'
 import Page from '~base/page'
@@ -17,7 +16,7 @@ import Checkbox from '~base/components/base-checkbox'
 import { toast } from 'react-toastify'
 import Wizard from './wizard/wizard';
 import Empty from '~base/components/empty'
-import { defaultCatalogs } from '~base/tools'
+import { defaultCatalogs, validateRegText } from '~base/tools'
 import DatePicker from '~base/components/date-picker'
 
 class Dashboard extends Component {
@@ -458,7 +457,7 @@ class Dashboard extends Component {
     }
 
     const items = this.state.productTable.filter((item) => {
-      const regEx = new RegExp(this.state.searchTerm, 'gi')
+      const regEx = new RegExp(validateRegText(this.state.searchTerm), 'gi')
       const searchStr = `${item.product.externalId} ${item.product.name}`
 
       if (regEx.test(searchStr))
@@ -1346,7 +1345,7 @@ class Dashboard extends Component {
                   {
                     this.state.minPeriod && <div className='level-item'>
                       <div className='field'>
-                      
+
                         <div className="is-clearfix">
                           <label className='label is-pulled-left'>
                             <FormattedMessage
