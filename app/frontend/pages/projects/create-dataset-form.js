@@ -45,7 +45,15 @@ class CreateDatsetForm extends Component {
     })
   }
 
-  async submitHandler ({formData}) {
+  async submitHandler({ formData }) {
+    if (/\s/.test(formData.name)) {
+      this.setState({
+        error: 'El nombre del Dataset no debe tener espacios en blanco',
+        apiCallErrorMessage: 'message is-danger'
+      })
+      return
+    }
+
     if (this.props.submitHandler) this.props.submitHandler(formData)
     try {
       var data = await api.post(this.props.url, formData)
