@@ -414,7 +414,8 @@ class ProjectDetail extends Component {
     await this.handleAdjustmentRequest(pendingDataRowsArray, showMessage, true)
 
     this.setState({
-      isConciliating: ''
+      isConciliating: '',
+      showFinishBtn: false
     })
   }
 
@@ -664,6 +665,9 @@ class ProjectDetail extends Component {
               project.status === 'pending-configuration',
         content: (
           <TabAdjustment
+            showFinishBtn={showFinishBtn => {
+              this.setState({ showFinishBtn })
+            }}
             loadCounters={() => {
               this.countAdjustmentRequests()
               this.getModifiedCount()
@@ -855,7 +859,7 @@ class ProjectDetail extends Component {
           </a>
         </p>
     }
-    else if (testRoles('manager-level-1, manager-level-2')) {
+    else if (testRoles('manager-level-1, manager-level-2') && this.state.showFinishBtn) {
       consolidarButton =
         <p className='control btn-conciliate'>
           <a className={'button is-success ' + this.state.isConciliating}
