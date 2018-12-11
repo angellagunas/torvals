@@ -75,7 +75,7 @@ class DatasetUtils(MongoCollection):
                         '$in': cycles,
                     },
                     'catalogItems': {
-                        '$in': [_id(item['_id']) for item in catalog_items]
+                        '$all': [_id(item['_id']) for item in catalog_items]
                     }
                 }
             }
