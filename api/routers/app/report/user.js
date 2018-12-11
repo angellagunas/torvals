@@ -68,7 +68,6 @@ module.exports = new Route({
     ]
 
     const stats = await UserReport.aggregate(statement)
-    console.info(JSON.stringify(statement))
     let finishedUsers = []
     let inProgressUsers = []
     let report = {}

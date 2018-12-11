@@ -188,7 +188,11 @@ const task = new Task(
 
     sendSlackNotificacion.run({
       channel: 'all',
-      message: `El dataset de ajuste del proyecto *${project.name}* se encuentra listo!`
+      message: `El dataset de ajuste del proyecto *${project.name}* se encuentra listo!`,
+      attachment: {
+        title: 'Exito!',
+        image_url: 'https://i.imgur.com/GfHWtUx.gif'
+      }
     })
   }
 )
