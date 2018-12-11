@@ -21,6 +21,7 @@ class StatusRepórt extends Component {
     super(props)
     this.state = {
       dataRows: [],
+      showCycles: false,
       isFiltered: false,
       filtersLoaded: false,
       filtersLoading: false,
@@ -263,7 +264,7 @@ class StatusRepórt extends Component {
     const { formData, filters } = this.state
     const formCycle = dataCycle || formData.cycle
 
-     if (!formCycle) {
+    if (!formCycle) {
       this.notify('¡Se debe filtrar por ciclo!', 5000, toast.TYPE.ERROR)
       return
     }
@@ -360,7 +361,8 @@ class StatusRepórt extends Component {
           dataRows: data.data,
           isFiltered: true,
           isLoading: '',
-          selectedCheckboxes: new Set()
+          selectedCheckboxes: new Set(),
+          showCycles: false
         })
         this.clearSearch()
       }
@@ -487,7 +489,7 @@ class StatusRepórt extends Component {
     ]
 
     // Todos
-    if (this.state.formData.cycle === -1) {
+    if (this.state.showCycles) {
       cols = [
         {
           'title': 'Ciclo',
@@ -741,7 +743,8 @@ class StatusRepórt extends Component {
         dataRows: allDataRows,
         isFiltered: true,
         isLoading: '',
-        selectedCheckboxes: new Set()
+        selectedCheckboxes: new Set(),
+        showCycles: true
       })
       this.clearSearch()
     } catch (error) {
