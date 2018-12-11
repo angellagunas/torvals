@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { FormattedMessage, injectIntl } from 'react-intl'
 import api from '~base/api'
+import { validateRegText } from '~base/tools'
 import tree from '~core/tree'
 import moment from 'moment'
 import { EditableTable } from '~base/components/base-editableTable'
@@ -21,6 +22,7 @@ class TabApprove extends Component {
     super(props)
     this.state = {
       dataRows: [],
+      filteredData: [],
       isLoading: '',
       selectedAll: false,
       disableButtons: true,
@@ -62,17 +64,39 @@ class TabApprove extends Component {
       let url = '/app/adjustmentRequests/dataset/' + this.props.project.activeDataset.uuid
       try {
         let data = await api.get(url)
+
         this.setState({
           dataRows: data.data
         }, () => {
           this.getRemainingItems()
           this.clearSearch()
           this.handleSort(this.state.sortBy)
+          this.salesCentersReq()
         })
       } catch (e) {
         console.log(e)
       }
     }
+  }
+
+  salesCentersReq() {
+    const salesCenters = []
+    const approveReqs = {}
+
+    for (let row of this.state.dataRows) {
+      const saleCenter = row.catalogItems.find(item => item.type === 'centro-de-venta')
+
+      approveReqs[saleCenter.uuid] = (approveReqs[saleCenter.uuid] || 0) + 1
+    }
+
+    for (let saleCenter of this.state.salesCenters) {
+      salesCenters.push({
+        ...saleCenter,
+        name: `${saleCenter.name} (${(approveReqs[saleCenter.uuid] || 0)})`
+      })
+    }
+
+    this.setState({ salesCenters })
   }
 
   getColumns() {
@@ -81,7 +105,7 @@ class TabApprove extends Component {
         'title': this.formatTitle('dashboard.selectAll'),
         'abbreviate': true,
         'abbr': (() => {
-          if (currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2') {
+          if (currentRole !== 'consultor-level-2') {
             return (
               <div className={this.state.remainingItems > 0 ? '' : 'is-invisible'}>
                 <Checkbox
@@ -97,7 +121,7 @@ class TabApprove extends Component {
         'property': 'checkbox',
         'default': '',
         formatter: (row, state) => {
-          if (currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2') {
+          if (currentRole !== 'consultor-level-2') {
             if (row.status === 'created') {
               if (!row.selected) {
                 row.selected = false
@@ -379,7 +403,7 @@ class TabApprove extends Component {
             <div className='field control'>
                 <div className='control'>
                   <Select
-                    label="Centor de venta"
+                    label="Centro de venta"
                     name="salesCenter"
                     value={this.state.salesCenter}
                     optionValue="uuid"
@@ -443,7 +467,7 @@ class TabApprove extends Component {
           </div>
         </div>
 
-        {currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2'
+        {currentRole !== 'consultor-level-2'
           ? <div className='level-right'>
             <div className='level-item'>
               <div className='saleCenter'>
@@ -537,7 +561,7 @@ class TabApprove extends Component {
         if (d >= this.state.startDate && d <= this.state.endDate) {
 
           if (this.state.searchTerm !== '') {
-            const regEx = new RegExp(this.state.searchTerm, 'gi')
+            const regEx = new RegExp(validateRegText(this.state.searchTerm), 'gi')
 
             if (regEx.test(item.product.name) ||
               regEx.test(item.product.externalId))
@@ -554,7 +578,7 @@ class TabApprove extends Component {
           return null
       }
       else if (this.state.searchTerm !== '' && !this.state.searchDate) {
-        const regEx = new RegExp(this.state.searchTerm, 'gi')
+        const regEx = new RegExp(validateRegText(this.state.searchTerm), 'gi')
 
         if (regEx.test(item.product.name) ||
           regEx.test(item.product.externalId))
@@ -752,7 +776,7 @@ class TabApprove extends Component {
       <div>
         <section>
           {this.getModifyButtons()}
-          {this.state.dataRows.length === 0 ?
+          {this.state.filteredData.length === 0 ?
             <section className='section'>
               <center>
                 <h2 className='subtitle has-text-primary'>

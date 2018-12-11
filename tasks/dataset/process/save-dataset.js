@@ -200,8 +200,11 @@ const task = new Task(
     }
     sendSlackNotification.run({
       channel: 'all',
-      message: `El dataset *${dataset.name}* ha sido cargado a la base de datos` +
-      ` y se procederá a procesarse.`
+      message: `El dataset *${dataset.name}* ha sido cargado a la base de datos y se procederá a procesarse.`,
+      attachment: {
+        title: 'A procesarse!',
+        image_url: 'https://media.giphy.com/media/ZofCGn3c0VK9y/giphy.gif'
+      }
     })
   }
 )

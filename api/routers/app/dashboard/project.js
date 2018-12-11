@@ -125,7 +125,11 @@ module.exports = new Route({
       return
     }
 
+    const externalIds = {}
     const catalogs = datasetRow[0].catalogItems.filter(item => {
+      if(externalIds[item.externalId]) return false
+      externalIds[item.externalId] = true
+
       if (currentRole.slug === 'orgadmin') {
         return item.isDeleted === false
       }

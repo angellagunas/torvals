@@ -133,16 +133,6 @@ class ProjectDetail extends Component {
         tab = 'ajustes'
       }
 
-      if (
-        currentRole !== 'manager-level-1' &&
-        currentRole !== 'manager-level-2' &&
-        body.data.outdated &&
-        projectStatus !== 'cloning' &&
-        !this.state.project.uuid
-      ) {
-        this.showModalOutdated()
-      }
-
       this.rules = body.data.rule
 
       this.setState({
@@ -249,18 +239,6 @@ class ProjectDetail extends Component {
   hideModalClone (e) {
     this.setState({
       cloneClassName: ''
-    })
-  }
-
-  showModalOutdated () {
-    this.setState({
-      outdatedClassName: ' is-active'
-    })
-  }
-
-  hideModalOutdated() {
-    this.setState({
-      outdatedClassName: ''
     })
   }
 
@@ -436,7 +414,8 @@ class ProjectDetail extends Component {
     await this.handleAdjustmentRequest(pendingDataRowsArray, showMessage, true)
 
     this.setState({
-      isConciliating: ''
+      isConciliating: '',
+      showFinishBtn: false
     })
   }
 
@@ -514,7 +493,6 @@ class ProjectDetail extends Component {
     try {
       await api.post(url, { ...this.state.project })
       await this.load()
-      this.hideModalOutdated()
     } catch (e) {
       toast('Error: ' + e.message, {
         autoClose: 5000,
@@ -687,6 +665,9 @@ class ProjectDetail extends Component {
               project.status === 'pending-configuration',
         content: (
           <TabAdjustment
+            showFinishBtn={showFinishBtn => {
+              this.setState({ showFinishBtn })
+            }}
             loadCounters={() => {
               this.countAdjustmentRequests()
               this.getModifiedCount()
@@ -878,7 +859,7 @@ class ProjectDetail extends Component {
           </a>
         </p>
     }
-    else if (testRoles('manager-level-1, manager-level-2')) {
+    else if (testRoles('manager-level-1, manager-level-2') && this.state.showFinishBtn) {
       consolidarButton =
         <p className='control btn-conciliate'>
           <a className={'button is-success ' + this.state.isConciliating}
@@ -980,41 +961,6 @@ class ProjectDetail extends Component {
           hideModal={this.hideModalDataset.bind(this)}
           finishUp={this.finishUpDataset.bind(this)}
         />
-
-        <BaseModal
-          title={this.formatTitle('projects.outdatedTitle')}
-          className={this.state.outdatedClassName}
-          hideModal={this.hideModalOutdated.bind(this)}
-        >
-          <p>
-            <FormattedMessage
-              id="projects.outdatedMsg"
-              defaultMessage={`Este proyecto se encuentra usando una version pasada de reglas de negocio, ¿Desea actualizarlo?`}
-            />
-          </p> <br />
-          <div className='field is-grouped'>
-            <div className='control'>
-              <button
-                className={'button is-primary ' + this.state.isUpdating}
-                disabled={!!this.state.isUpdating}
-                onClick={this.updateProject.bind(this)}
-              >
-                <FormattedMessage
-                  id="projects.btnUpdate"
-                  defaultMessage={`Actualizar`}
-                />
-              </button>
-            </div>
-            <div className='control'>
-              <button className='button' onClick={this.hideModalOutdated.bind(this)} type='button'>
-                <FormattedMessage
-                  id="projects.btnCancel"
-                  defaultMessage={`Cancelar`}
-                />
-              </button>
-            </div>
-          </div>
-        </BaseModal>
 
         {this.confirmMsg()}
       </div>

@@ -6,6 +6,7 @@ import { toast } from 'react-toastify'
 import tree from '~core/tree'
 import Select from '../projects/detail-tabs/select'
 import api from '~base/api'
+import { validateRegText } from '~base/tools'
 import Loader from '~base/components/spinner'
 import Page from '~base/page'
 import { loggedIn } from '~base/middlewares/'
@@ -20,6 +21,7 @@ class StatusRepórt extends Component {
     super(props)
     this.state = {
       dataRows: [],
+      showCycles: false,
       isFiltered: false,
       filtersLoaded: false,
       filtersLoading: false,
@@ -131,7 +133,7 @@ class StatusRepórt extends Component {
         }
       })
 
-      cycles = _.orderBy(cycles, 'dateStart', 'asc').slice(0, 4)
+      cycles = _.orderBy(cycles, 'dateStart', 'asc').slice(2, 7)
       cycles = [
         {
           cycle: -1, // Todos
@@ -141,7 +143,7 @@ class StatusRepórt extends Component {
       ]
 
       let formData = this.state.formData
-      formData.cycle = cycles[0].cycle
+      formData.cycle = cycles[1].cycle
 
       this.setState({
         filters: {
@@ -262,7 +264,7 @@ class StatusRepórt extends Component {
     const { formData, filters } = this.state
     const formCycle = dataCycle || formData.cycle
 
-     if (!formCycle) {
+    if (!formCycle) {
       this.notify('¡Se debe filtrar por ciclo!', 5000, toast.TYPE.ERROR)
       return
     }
@@ -359,7 +361,8 @@ class StatusRepórt extends Component {
           dataRows: data.data,
           isFiltered: true,
           isLoading: '',
-          selectedCheckboxes: new Set()
+          selectedCheckboxes: new Set(),
+          showCycles: false
         })
         this.clearSearch()
       }
@@ -486,7 +489,7 @@ class StatusRepórt extends Component {
     ]
 
     // Todos
-    if (this.state.formData.cycle === -1) {
+    if (this.state.showCycles) {
       cols = [
         {
           'title': 'Ciclo',
@@ -559,7 +562,7 @@ class StatusRepórt extends Component {
       const groups = (user.groups || []).map(group => group.name || '').join(' ')
       const searchStr = `${user.name} ${groups}`
 
-      const regEx = new RegExp(searchTerm, 'gi')
+      const regEx = new RegExp(validateRegText(searchTerm), 'gi')
 
       return regEx.test(searchStr)
     })
@@ -740,7 +743,8 @@ class StatusRepórt extends Component {
         dataRows: allDataRows,
         isFiltered: true,
         isLoading: '',
-        selectedCheckboxes: new Set()
+        selectedCheckboxes: new Set(),
+        showCycles: true
       })
       this.clearSearch()
     } catch (error) {
@@ -972,7 +976,8 @@ class StatusRepórt extends Component {
 
           </div>
 
-          {this.state.filteredData
+          {this.state.isLoading ? <Spinner />
+            : this.state.filteredData
             ? this.state.filteredData.length > 0
               ? <div className='scroll-table'>
                 <div className='scroll-table-container'>

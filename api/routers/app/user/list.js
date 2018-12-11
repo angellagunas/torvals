@@ -9,8 +9,7 @@ module.exports = new Route({
     var sortStatement = {}
     let match = [{'$match': {}}]
     let roleOrg = ctx.state.user.organizations.filter((item) => { return String(item.organization._id) == String(ctx.state.organization._id)})
-    if(String(roleOrg[0].role.slug) !== 'orgadmin'){
-      console.info(JSON.stringify(ctx.state.user.groups))
+    if(String(roleOrg[0].role.slug) !== 'orgadmin') {
       let invalidCatalogs = ['5b71e9abc2eb13002b7a700b', '5b71ea41e8ca55002673973c', '5b71ea8be8ca55002673973d']
       let groupIds = ctx.state.user.groups.filter((item) => {return !invalidCatalogs.includes(String(item)) })
       groupIds = groupIds.map((item) => {return ObjectId(item)})
