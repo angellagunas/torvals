@@ -85,8 +85,6 @@ module.exports = new Route({
       }
     }
 
-    console.log(initialMatch)
-    console.log(midMatch)
     var statement = [
       {
         '$match': {
@@ -215,7 +213,7 @@ module.exports = new Route({
         })
       }
     }
-    console.log(stats)
+
     ctx.body = {
       data: stats
     }

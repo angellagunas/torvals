@@ -175,7 +175,6 @@ module.exports = new Route({
         }
       }
     ]
-    console.info(match)
 
     const res = await DataSetRow.aggregate([ { '$match': match }, ...statement ])
     const previous = await DataSetRow.aggregate([ { '$match': matchPreviousSale }, ...statement ])

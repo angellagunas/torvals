@@ -158,11 +158,10 @@ const task = new Task(
     }
     sendSlackNotificacion.run({
       channel: 'all',
-      message: `El dataset *${dataset.name}* ha terminado de asignarsele los ` +
-        `productos/centros de venta/canales y esta listo para conciliarse!.`,
+      message: `El dataset *${dataset.name}* ha terminado de asignarsele los productos/centros de venta/canales y esta listo para conciliarse!.`,
       attachment: {
-        title: 'Exito!',
-        image_url: 'https://i.imgur.com/GfHWtUx.gif'
+        title: 'A conciliarse!',
+        image_url: 'https://media.giphy.com/media/bCNaX03QMJxrq/giphy.gif'
       }
     })
   }
