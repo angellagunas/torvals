@@ -25,6 +25,11 @@ app.use(convert(bodyParser({
   jsonLimit: '1mb'
 })))
 
+app.use(async (ctx, next) => {
+    ctx.req.setTimeout(0);
+    await next();
+});
+
 app.use(sanitizeBody)
 app.use(errorHandler)
 app.use(getRequestData)
