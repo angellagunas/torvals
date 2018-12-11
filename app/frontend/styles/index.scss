@@ -44,7 +44,7 @@ h2 {
 
 .DateInput #endDate {
   text-align: right;
-} 
+}
 
 .DateInput_input__focused {
   border-bottom: 2px solid $info;
@@ -155,7 +155,7 @@ h2 {
   position: relative;
   span {
     position: absolute;
-    top: -4px;
+    top: -5px;
     right: -12px;
     transform: translate(0, -100%);
     padding: 1px;
@@ -164,10 +164,10 @@ h2 {
     background: $warning;
     font-size: .75rem;
     font-weight: bold;
-    width: 1.8rem;
-    height: 1.5rem;
+    width: 1.9rem;
+    height: 1.2rem;
     text-align: center;
-    line-height: 1.5rem;
+    line-height: 1.2rem;
   }
 }
 
