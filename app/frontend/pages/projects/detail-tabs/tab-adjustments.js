@@ -113,22 +113,33 @@ class TabAdjustment extends Component {
 
         let cycles = _.orderBy(res.cycles, 'dateStart', 'asc')
 
+        let finishedCycles = {}
+        const usuId = localStorage.getItem('_user')
+        for (let cycle of cycles) {
+          const cycleName = `${usuId}-${cycle.uuid}`
+          finishedCycles[cycleName] = JSON.parse(localStorage.getItem('finishedCycles') || '{}')[cycleName] || false
+        }
+        localStorage.setItem('finishedCycles', JSON.stringify(finishedCycles))
+
         if (currentRole !== 'manager-level-1') {
           cycles = cycles.map((item, key) => {
-            return item = {
+            const isFinished = finishedCycles[`${usuId}-${item.uuid}`] ? '✔' : ''
+            return {
               ...item,
+              isFinished,
               adjustmentRange: this.rules.rangesLvl2[key],
               name: moment.utc(item.dateStart).format('MMMM D') + ' - ' + moment.utc(item.dateEnd).format('MMMM D'),
-              viewName: `Ciclo ${item.cycle} (Periodo ${item.periodStart} - ${item.periodEnd})`
+              viewName: `Ciclo ${item.cycle} (Periodo ${item.periodStart} - ${item.periodEnd}) ${isFinished}`
             }
           })
         } else {
           cycles = cycles.map((item, key) => {
-            return item = {
+            const isFinished = finishedCycles[`${usuId}-${item.uuid}`] ? '✔' : ''
+            return {
               ...item,
               adjustmentRange: this.rules.ranges[key],
               name: moment.utc(item.dateStart).format('MMMM D') + ' - ' + moment.utc(item.dateEnd).format('MMMM D'),
-              viewName: `Ciclo ${item.cycle} (Periodo ${item.periodStart} - ${item.periodEnd})`
+              viewName: `Ciclo ${item.cycle} (Periodo ${item.periodStart} - ${item.periodEnd}) ${isFinished}`
             }
           })
         }
@@ -151,6 +162,7 @@ class TabAdjustment extends Component {
         const minDate = moment.utc(cycles[0].dateStart)
         const maxDate = moment.utc(cycles[0].dateEnd)
 
+        this.props.showFinishBtn(!cycles[0].isFinished)
         this.setState({
           minDate,
           startDate: minDate,
@@ -184,15 +196,16 @@ class TabAdjustment extends Component {
     }
   }
 
-  async filterChangeHandler (name, value) {
-    if(name === 'cycle'){
-      var cycle = this.state.filters.cycles.find(item => {
+  async filterChangeHandler(name, value) {
+    if(name === 'cycle') {
+      const cycle = this.state.filters.cycles.find(item => {
         return item.cycle === value
       })
 
       const minDate = moment.utc(cycle.dateStart)
       const maxDate = moment.utc(cycle.dateEnd)
 
+      this.props.showFinishBtn(!cycle.isFinished)
       this.setState({
         minDate,
         startDate: minDate,
@@ -1670,7 +1683,7 @@ class TabAdjustment extends Component {
           <div className='columns'>
             {this.state.loadingIndicators ?
             <div className="column is-centered">
-                <Spinner /> 
+                <Spinner />
             </div>
               : <Fragment>
                   <div className='column is-6-desktop is-4-widescreen is-5-fullhd is-offset-1-fullhd is-offset-1-desktop'>
