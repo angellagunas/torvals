@@ -230,12 +230,14 @@ dataSetSchema.methods.recreateAndUploadFile = async function () {
   var s3File = {
     ContentType: 'text/csv',
     Bucket: bucket,
-    ACL: 'public-read'
+    ACL: 'private'
   }
+  console.info(aws)
 
   try {
     await this.fileChunk.uploadChunks(s3File, chunkKey)
   } catch (e) {
+    console.info(e)
     this.fileChunk.lastChunk = 0
     this.fileChunk.recreated = false
     this.fileChunk.uploaded = false
@@ -258,6 +260,7 @@ dataSetSchema.methods.recreateAndUploadFile = async function () {
 
     await s3.putObject(s3File).promise()
   } catch (e) {
+    console.info(e)
     return false
   }
 

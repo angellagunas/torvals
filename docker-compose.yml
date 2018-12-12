@@ -18,7 +18,7 @@ services:
     ports:
       - "3002:80"
     cpu_shares: 50
-    mem_limit: 1000M
+    mem_limit: 2000M
     mem_reservation: 500m
     env_file:
       - .env
@@ -33,10 +33,10 @@ services:
     depends_on:
       - mongodb
       - redisdb
-    cpu_shares: 400
-    cpus: 4
-    mem_limit: 16000M
-    mem_reservation: 4000m
+    cpu_shares: 1200
+    cpus: 12
+    mem_limit: 32000M
+    mem_reservation: 16000m
     env_file:
       - .env
     volumes:
@@ -75,10 +75,10 @@ services:
     depends_on:
       - mongodb
       - redisdb
-    cpu_shares: 200
-    cpus: 2
-    mem_limit: 6000M
-    mem_reservation: 2000m
+    cpu_shares: 800
+    cpus: 8
+    mem_limit: 16000M
+    mem_reservation: 10000m
     env_file:
       - .env
     volumes:
@@ -89,9 +89,10 @@ services:
     image: "redis:alpine"
     ports:
       - "6379:6379"
-    cpu_shares: 100
-    mem_limit: 3000M
-    mem_reservation: 1000m
+    cpu_shares: 200
+    cpus: 2
+    mem_limit: 16000M
+    mem_reservation: 8000m
   mongodb:
     restart: always
     image: mongo:3.6.3
@@ -103,6 +104,8 @@ services:
       - /data/db:/data/db
     ports:
         - 27017:27017
+    cpu_shares: 2400
+    cpus: 16
     mem_limit: 50000M
-    mem_reservation: 8000m
+    mem_reservation: 32000m
     command: mongod --smallfiles --logpath=/dev/null --wiredTigerCacheSizeGB 24 # --quiet
