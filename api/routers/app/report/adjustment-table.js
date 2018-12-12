@@ -189,7 +189,6 @@ module.exports = new Route({
       }
     ]
 
-    console.info(JSON.stringify(statement))
     const stats = await DataSetRow.aggregate(statement)
     let foundUsers = stats.map(item => {
       return item.user[0].uuid
