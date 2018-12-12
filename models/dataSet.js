@@ -232,7 +232,6 @@ dataSetSchema.methods.recreateAndUploadFile = async function () {
     Bucket: bucket,
     ACL: 'private'
   }
-  console.info(aws)
 
   try {
     await this.fileChunk.uploadChunks(s3File, chunkKey)
