@@ -40,7 +40,7 @@ cycleSchema.methods.toAdmin = function () {
 }
 
 cycleSchema.statics.getCurrent = async function (organization, rule) {
-  const today = moment.utc().add(3, 'd').format()
+  const today = moment.utc().add(6, 'd').format()
   console.info(today)
 
   return this.findOne({
