@@ -11,14 +11,23 @@ module.exports = new Route({
   handler: async function (ctx) {
     const orgId = ctx.params.uuid
     const org = await Organization.findOne({uuid: orgId}, {_id: 1})
-    const catalogItems = await CatalogItem.find({
+    let catalogItems = await CatalogItem.find({
       isDeleted: false,
       organization: org._id,
       type: 'centro-de-venta'
     })
 
+    const catalogs = []
+    const externalIds = new Set()
+    for (let item of catalogItems) {
+      if (externalIds.has(item.externalId)) continue
+
+      catalogs.push(item)
+      externalIds.add(item.externalId)
+    }
+
     ctx.body = {
-      'centro-de-venta': catalogItems
+      'centro-de-venta': catalogs
     }
   }
 })
