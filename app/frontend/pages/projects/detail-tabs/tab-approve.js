@@ -4,6 +4,7 @@ import api from '~base/api'
 import { validateRegText } from '~base/tools'
 import tree from '~core/tree'
 import moment from 'moment'
+import Loader from '~base/components/spinner'
 import { EditableTable } from '~base/components/base-editableTable'
 import { toast } from 'react-toastify'
 import FontAwesome from 'react-fontawesome'
@@ -772,6 +773,7 @@ class TabApprove extends Component {
 
   render() {
 
+    
     return (
       <div>
         <section>
@@ -781,11 +783,12 @@ class TabApprove extends Component {
               <center>
                 <h2 className='subtitle has-text-primary'>
                   <FormattedMessage
-                    id="approve.emptyApprove"
-                    defaultMessage={`No hay ajustes por aprobar`}
+                    id="projects.loading"
+                    defaultMessage={`Cargando, un momento por favor`}
                   />
                 </h2>
               </center>
+              <Loader />
             </section>
             :
             <BaseTable
