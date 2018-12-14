@@ -1144,6 +1144,7 @@ class TabAdjustment extends Component {
       'producto',
       'precio'
     ]
+    console.log(this.state.filters);
     for (const key in this.state.filters) {
       if (this.state.filters.hasOwnProperty(key)) {
         const element = this.state.filters[key];
