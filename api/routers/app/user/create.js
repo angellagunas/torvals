@@ -45,7 +45,7 @@ module.exports = new Route({
       await org.save()
       await userExist.save()
 
-      user.sendInviteEmail()
+      userExist.sendInviteEmail()
 
       ctx.body = {
         data: userExist.toPublic()
