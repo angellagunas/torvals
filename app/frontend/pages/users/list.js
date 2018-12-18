@@ -41,6 +41,9 @@ export default ListPage({
   sidePanelIcon: 'user-plus',
   sidePanelComponent: CreateUserNoModal,
   baseUrl: '/app/users',
+  apiParams: {
+    userRole: tree.get('user').currentRole.slug
+  },
   branchName: 'users',
   detailUrl: '/manage/users/',
   filters: true,
@@ -135,9 +138,10 @@ export default ListPage({
           if (row.roleDetail && currentUser) {
             disabledActions = row.roleDetail.priority <= currentUser.currentRole.priority
           }
-
+          console.log(currentUser.currentRole.slug)
           if (currentUser.currentRole.slug === 'consultor-level-3') {
-            disabledActions = true
+            console.log('pasee')
+            disabledActions = false
           }
 
           if (currentUser.currentRole.slug === 'orgadmin') {
