@@ -138,7 +138,7 @@ export default ListPage({
           if (row.roleDetail && currentUser) {
             disabledActions = row.roleDetail.priority <= currentUser.currentRole.priority
           }
-          console.log(currentUser.currentRole.slug)
+
           if (currentUser.currentRole.slug === 'consultor-level-3') {
             console.log('pasee')
             disabledActions = false
