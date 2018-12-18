@@ -175,7 +175,7 @@ class UsersDetail extends Component {
           }
 
           if (currentUser.currentRole.slug === 'consultor-level-3') {
-            disabledActions = true
+            disabledActions = false
           }
 
           if (currentUser.currentRole.slug === 'orgadmin') {
@@ -315,6 +315,9 @@ class UsersDetail extends Component {
           <div className='list-page'>
             <BranchedPaginatedTable
               branchName='users-list'
+              apiParams={{
+                userRole: (tree.get('user').currentRole.slug || {})
+              }}
               baseUrl='/app/users/'
               columns={this.getColumns()}
               filters={{ general: this.state.searchTerm }}

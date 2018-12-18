@@ -20,8 +20,7 @@ module.exports = new Route({
       'isDeleted': true
     })
 
-    if(userExist){
-      console.log("usuario existe")
+    if (userExist) {
       let data = userData
       userExist.set({
         ...userData,
@@ -45,6 +44,8 @@ module.exports = new Route({
 
       await org.save()
       await userExist.save()
+
+      userExist.sendInviteEmail()
 
       ctx.body = {
         data: userExist.toPublic()
