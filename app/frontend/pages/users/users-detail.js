@@ -16,7 +16,7 @@ class UsersDetail extends Component {
       searchTerm: '',
       userSelected: tree.get('userDetail') || undefined,
       modalClassName: '',
-      canCreate: 'admin, orgadmin, analyst, manager-level-2, manager-level-3'
+      canCreate: 'admin, orgadmin, analyst, consultor-level-3, manager-level-2, manager-level-3'
     }
   }
 

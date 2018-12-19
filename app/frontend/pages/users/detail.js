@@ -315,8 +315,8 @@ class UserDetail extends Component {
 
     var disabledRoles = false
     if (user.roleDetail && currentUser.currentRole.slug === 'consultor-level-3') {
-      disabledRoles = true
-      // disabledForm = true
+      disabledRoles = false
+      disabledForm = false
     }
 
     if (currentUser.currentRole.slug === 'orgadmin') {
