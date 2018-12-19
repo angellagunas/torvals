@@ -86,13 +86,37 @@ class TabAdjustment extends Component {
     }
   }
 
-  componentWillReceiveProps(nextProps){
+  componentWillReceiveProps(nextProps) {
     if (this.props.project.uuid && nextProps.project.uuid !== this.props.project.uuid) return
 
     if (nextProps.selectedTab === 'ajustes' && !this.state.filtersLoaded && !this.state.filtersLoading) {
       this.getFilters()
     }
 
+    if (nextProps.showedFinishBtn !== this.props.showedFinishBtn && !this.state.filtersLoading) {
+      const selectedCycle = tree.get('selectedCycle')
+      const cycles = this.state.filters.cycles
+      const finishedCycles = {}
+
+      for (let cycle of cycles) {
+        if (selectedCycle.uuid === cycle.uuid) {
+          const isFinished = !nextProps.showedFinishBtn
+          cycle.isFinished = isFinished
+          cycle.viewName = `${cycle.viewName} ${isFinished ? '✔' : ''}`
+          finishedCycles[cycle.uuid] = isFinished
+        } else {
+          finishedCycles[cycle.uuid] = JSON.parse(localStorage.getItem('finishedCycles') || '{}')[cycle.uuid] || false
+        }
+      }
+
+      localStorage.setItem('finishedCycles', JSON.stringify(finishedCycles))
+      this.setState({
+        filters: {
+          ...this.state.filters,
+          cycles
+        }
+      })
+    }
   }
 
   componentDidUpdate(prevProps) {
@@ -104,7 +128,7 @@ class TabAdjustment extends Component {
 
   async getFilters() {
     if (this.props.project.activeDataset && this.props.project.status === 'adjustment') {
-      this.setState({ filtersLoading:true })
+      this.setState({ filtersLoading: true })
 
       const url = '/app/rows/filters/dataset/'
 
@@ -114,32 +138,31 @@ class TabAdjustment extends Component {
         let cycles = _.orderBy(res.cycles, 'dateStart', 'asc')
 
         let finishedCycles = {}
-        const usuId = localStorage.getItem('_user')
         for (let cycle of cycles) {
-          const cycleName = `${usuId}-${cycle.uuid}`
-          finishedCycles[cycleName] = JSON.parse(localStorage.getItem('finishedCycles') || '{}')[cycleName] || false
+          finishedCycles[cycle.uuid] = JSON.parse(localStorage.getItem('finishedCycles') || '{}')[cycle.uuid] || false
         }
         localStorage.setItem('finishedCycles', JSON.stringify(finishedCycles))
 
         if (currentRole !== 'manager-level-1') {
           cycles = cycles.map((item, key) => {
-            const isFinished = finishedCycles[`${usuId}-${item.uuid}`] ? '✔' : ''
+            const isFinished = finishedCycles[item.uuid]
             return {
               ...item,
               isFinished,
               adjustmentRange: this.rules.rangesLvl2[key],
               name: moment.utc(item.dateStart).format('MMMM D') + ' - ' + moment.utc(item.dateEnd).format('MMMM D'),
-              viewName: `Ciclo ${item.cycle} (Periodo ${item.periodStart} - ${item.periodEnd}) ${isFinished}`
+              viewName: `Ciclo ${item.cycle} (Periodo ${item.periodStart} - ${item.periodEnd}) ${isFinished ? '✔' : ''}`
             }
           })
         } else {
           cycles = cycles.map((item, key) => {
-            const isFinished = finishedCycles[`${usuId}-${item.uuid}`] ? '✔' : ''
+            const isFinished = finishedCycles[item.uuid]
             return {
               ...item,
+              isFinished,
               adjustmentRange: this.rules.ranges[key],
               name: moment.utc(item.dateStart).format('MMMM D') + ' - ' + moment.utc(item.dateEnd).format('MMMM D'),
-              viewName: `Ciclo ${item.cycle} (Periodo ${item.periodStart} - ${item.periodEnd}) ${isFinished}`
+              viewName: `Ciclo ${item.cycle} (Periodo ${item.periodStart} - ${item.periodEnd}) ${isFinished ? '✔' : ''}`
             }
           })
         }
