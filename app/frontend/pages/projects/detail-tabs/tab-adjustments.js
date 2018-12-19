@@ -99,7 +99,7 @@ class TabAdjustment extends Component {
       const finishedCycles = {}
 
       for (let cycle of cycles) {
-        if (selectedCycle.uuid === cycle.uuid) {
+        if (selectedCycle.uuid === cycle.uuid && !cycle.isFinished) {
           const isFinished = !nextProps.showedFinishBtn
           cycle.isFinished = isFinished
           cycle.viewName = `${cycle.viewName} ${isFinished ? '✔' : ''}`
