@@ -16,7 +16,7 @@ export default ListPage({
   icon: 'user',
   exact: true,
   roles: 'admin, orgadmin, analyst, consultor-level-3, consultor-level-2, manager-level-2, manager-level-3',
-  canCreate: 'admin, orgadmin, analyst, manager-level-2, manager-level-3',
+  canCreate: 'admin, orgadmin, analyst, consultor-level-3, manager-level-2, manager-level-3',
   validate: [loggedIn, verifyRole],
   titleSingular: 'Usuario', //TODO: translate
   create: true,

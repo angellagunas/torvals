@@ -63,7 +63,7 @@ export default Page({
   title: 'Usuarios y Grupos',
   icon: 'users',
   roles: 'admin, orgadmin, analyst, consultor-level-3, consultor-level-2, manager-level-2, manager-level-3',
-  canCreate: 'admin, orgadmin, analyst, manager-level-2, manager-level-3',
+  canCreate: 'admin, orgadmin, analyst, consultor-level-3, manager-level-2, manager-level-3',
   exact: true,
   validate: [loggedIn, verifyRole],
   component: injectIntl(UsersGroups)
