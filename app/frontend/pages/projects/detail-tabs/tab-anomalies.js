@@ -87,7 +87,7 @@ class TabAnomalies extends Component {
             loaded: true
           })
         }
-      
+
         if(res.data.length === 0)
           this.notify(this.formatTitle('anomalies.emptyAnomalies'), 5000, toast.TYPE.INFO)
 
@@ -97,7 +97,7 @@ class TabAnomalies extends Component {
           isFiltered: false,
           loaded: true
         })
-        
+
         this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
       }
     })
@@ -119,7 +119,7 @@ class TabAnomalies extends Component {
         find = item
       }
     })
-    
+
     let title = find.name
     if (this.findInCatalogs(find.slug)) {
       title = this.formatTitle('catalogs.' + find.slug)
@@ -197,7 +197,7 @@ class TabAnomalies extends Component {
         if (this.findInCatalogs(catalog.slug)) {
           title = this.formatTitle('catalogs.' + catalog.slug)
         }
-        
+
         return (
           {
             'title': ` ${title}`,
@@ -218,7 +218,7 @@ class TabAnomalies extends Component {
   ).filter(item => item)
 
     let cols = [
-      { 
+      {
         'title': this.formatTitle('dashboard.selectAll'),
         'abbreviate': true,
         'abbr': (() => {
@@ -260,7 +260,7 @@ class TabAnomalies extends Component {
           return String(row.newProduct.externalId)
         }
       },
-      { 
+      {
         'title': this.formatTitle('tables.colProduct'),
         'property': 'product.name',
         'default': 'N/A',
@@ -270,7 +270,7 @@ class TabAnomalies extends Component {
         }
       },
       ...catalogItems,
-      { 
+      {
         'title': this.formatTitle('anomalies.type'),
         'property': 'type',
         'default': 'N/A',
@@ -279,7 +279,7 @@ class TabAnomalies extends Component {
           return String(row.type)
         }
       },
-      { 
+      {
         'title': this.formatTitle('tables.colDate'),
         'property': 'date',
         'default': 'N/A',
@@ -288,7 +288,7 @@ class TabAnomalies extends Component {
           return moment.utc(row.date, 'YYYY-MM-DD').local().format('DD/MM/YYYY')
         }
       },
-      { 
+      {
         'title': this.formatTitle('tables.colForecast'),
         'property': 'prediction',
         'default': 0,
@@ -335,7 +335,7 @@ class TabAnomalies extends Component {
     var url = '/app/anomalies/' + obj.uuid
     const res = await api.post(url, { ...obj })
 
-    if(res.data){
+    if (res.data) {
       obj.edited = true
       let index = this.state.anomalies.findIndex((item) => { return obj.uuid === item.uuid })
       let aux = this.state.anomalies
@@ -345,7 +345,7 @@ class TabAnomalies extends Component {
       this.setState({
         anomalies: aux
       })
-      
+
       this.notify(this.formatTitle('anomalies.saved'), 5000, toast.TYPE.INFO)
 
     }
@@ -381,7 +381,8 @@ class TabAnomalies extends Component {
     })
     let url = '/app/anomalies/restore/'
     let res = await api.post(url + this.props.project.uuid, {
-      anomalies: Object.values(this.state.selected)
+      anomalies: Object.values(this.state.selected),
+      rol: currentRole
     })
 
     if (res.data.status === 'ok') {

@@ -1,5 +1,5 @@
 const Route = require('lib/router/route')
-const { Anomaly, Project, DataSetRow } = require('models')
+const { Anomaly, Project, DataSetRow, AdjustmentRequest } = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -52,6 +52,9 @@ module.exports = new Route({
           await Anomaly.bulkWrite(bulkOps)
           bulkOps = []
           await DataSetRow.insertMany(updateBulk)
+          if (data.rol === 'manager-level-1') {
+            await AdjustmentRequest.insertMany(updateBulk)
+          }
           updateBulk = []
         }
       } catch (e) {
@@ -63,8 +66,13 @@ module.exports = new Route({
       if (bulkOps.length > 0) {
         await Anomaly.bulkWrite(bulkOps)
         await DataSetRow.insertMany(updateBulk)
+
+        if (data.rol === 'manager-level-1') {
+          await AdjustmentRequest.insertMany(updateBulk)
+        }
       }
     } catch (e) {
+      console.log(e)
       ctx.throw(500, 'Error recuperando las anomalías')
     }
 

@@ -40,8 +40,8 @@ cycleSchema.methods.toAdmin = function () {
 }
 
 cycleSchema.statics.getCurrent = async function (organization, rule) {
-  const today = moment.utc().add(6, 'd').format()
-  // const today = moment.utc().subtract(3, 'd').format()
+  const today = moment.utc().add(6, 'd').format() // prediccion
+  // const today = moment.utc().subtract(3, 'd').format() // promedios
   console.info(today)
 
   return this.findOne({

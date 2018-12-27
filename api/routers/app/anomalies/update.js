@@ -17,6 +17,15 @@ module.exports = new Route({
 
     ctx.assert(anomaly, 404, 'Anomalía no encontrada')
 
+    if (data.rol === 'manager-level-1'){
+      await AdjustmentRequest.insertMany({
+       // aqui necesito el obj completo para crearlo
+      })
+
+      ctx.body = {
+        data: AdjustmentRequest.toPublic() // anomaly.toPublic()
+      }
+    }
     anomaly.set({
       prediction: data.prediction
     })
