@@ -41,7 +41,7 @@ class CreateProject extends Component {
         hideModal={this.hideModal}
       >
         <ProjectForm
-          baseUrl='/admin/projects'
+          baseUrl={this.props.baseUrl}
           url={this.props.url}
           finishUp={this.props.finishUp}
           initialState={this.initialState}

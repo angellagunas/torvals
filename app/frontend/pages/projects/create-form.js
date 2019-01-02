@@ -8,7 +8,8 @@ import {
   TextWidget,
   NumberWidget,
   TextareaWidget,
-  SelectWidget
+  SelectWidget,
+  DateWidget
 } from '~base/components/base-form'
 
 const status = [
@@ -234,7 +235,7 @@ class ProjectForm extends Component {
       this.schema.properties['cycleType'] = {
         type: 'string',
         title: 'Configuración de dias',
-        // default: 'add',
+        default: 'add',
         enum: [
           'add',
           'subtract'
@@ -247,8 +248,30 @@ class ProjectForm extends Component {
       this.uiSchema['cycleTypeValue'] = {'ui:widget': NumberWidget, 'ui:disabled': !this.props.isAdmin }
       this.schema.properties['cycleTypeValue'] = {
         type: 'number',
-        // default: 6,
+        default: 6,
         title: 'Dias'
+      }
+
+      this.uiSchema['mainDatasetV'] = {'ui:widget': TextWidget, 'ui:disabled': !this.props.isAdmin }
+      this.schema.properties['mainDatasetV'] = {
+        type: 'string',
+        title: 'Dataset principal'
+      }
+      this.uiSchema['activeDatasetV'] = {'ui:widget': TextWidget, 'ui:disabled': !this.props.isAdmin }
+      this.schema.properties['activeDatasetV'] = {
+        type: 'string',
+        title: 'Dataset activo'
+      }
+
+      this.uiSchema['timerStart'] = {'ui:widget': DateWidget, 'ui:disabled': !this.props.isAdmin }
+      this.schema.properties['timerStart'] = {
+        type: 'string',
+        title: 'Inicio del timer'
+      }
+      this.uiSchema['timerEnd'] = {'ui:widget': DateWidget, 'ui:disabled': !this.props.isAdmin }
+      this.schema.properties['timerEnd'] = {
+        type: 'string',
+        title: 'FInal del timer'
       }
     }
     return (

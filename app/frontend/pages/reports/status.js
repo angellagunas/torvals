@@ -920,7 +920,10 @@ class StatusRepórt extends Component {
             </div>
           </div>
 
-          <Timer />
+          <Timer
+            timerStart={this.state.projectSelected.timerStart}
+            timerEnd={this.state.projectSelected.timerEnd}
+          />
 
         </div>
         <div className='section search-section'>
