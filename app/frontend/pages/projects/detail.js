@@ -50,7 +50,8 @@ class ProjectDetail extends Component {
       modified: 0,
       pendingChanges: 0,
       pending: 0,
-      pendingDataRows: {}
+      pendingDataRows: {},
+      showFinishBtn: false
     }
 
     this.interval = null
@@ -417,6 +418,7 @@ class ProjectDetail extends Component {
       isConciliating: '',
       showFinishBtn: false
     })
+    this.hideModal()
   }
 
   notify(message = '', timeout = 5000, type = toast.TYPE.INFO) {
@@ -522,7 +524,7 @@ class ProjectDetail extends Component {
       <BaseModal
         title="Aun hay ajustes fuera de rango"
         className={'modal-confirm' + this.state.modalClassName}
-        hideModal={() => { this.hideModal() }}
+        hideModal={() => this.hideModal()}
       >
         <center>
           <h3>
@@ -665,6 +667,7 @@ class ProjectDetail extends Component {
               project.status === 'pending-configuration',
         content: (
           <TabAdjustment
+            showedFinishBtn={this.state.showFinishBtn}
             showFinishBtn={showFinishBtn => {
               this.setState({ showFinishBtn })
             }}
