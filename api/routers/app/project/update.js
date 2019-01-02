@@ -19,7 +19,9 @@ module.exports = new Route({
     project.set({
       name: data.name,
       description: data.description,
-      status: data.status
+      status: data.status,
+      cycleType: data.cycleType || 'add',
+      cycleTypeValue: data.cycleTypeValue || 6
     })
 
     if (data.showOnDashboard !== undefined) {

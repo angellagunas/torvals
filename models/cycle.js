@@ -39,8 +39,11 @@ cycleSchema.methods.toAdmin = function () {
   }
 }
 
-cycleSchema.statics.getCurrent = async function (organization, rule) {
-  const today = moment.utc().add(6, 'd').format()
+cycleSchema.statics.getCurrent = async function (organization, rule, cycleType, cycleTypeValue) {
+  let today = moment.utc().add(cycleTypeValue, 'd').format()
+  if (cycleType !== 'add') {
+    today = moment.utc().subtract(cycleTypeValue, 'd').format()
+  }
   console.info(today)
 
   return this.findOne({
@@ -52,8 +55,8 @@ cycleSchema.statics.getCurrent = async function (organization, rule) {
   })
 }
 
-cycleSchema.statics.getAvailable = async function (organization, rule, cyclesAvailable) {
-  const currentCycle = await this.getCurrent(organization, rule)
+cycleSchema.statics.getAvailable = async function (organization, rule, cycleType, cycleTypeValue, cyclesAvailable) {
+  const currentCycle = await this.getCurrent(organization, rule, cycleType, cycleTypeValue)
 
   if (!currentCycle) return []
 

@@ -47,6 +47,8 @@ module.exports = new Route({
       let cyclesAvailable = await Cycle.getAvailable(
         project.organization._id,
         project.rule._id,
+        project.cycleType,
+        project.cycleTypeValue,
         cycles
       )
 
@@ -80,6 +82,8 @@ module.exports = new Route({
         cyclesAvailable = await Cycle.getAvailable(
           project.organization._id,
           project.rule._id,
+          project.cycleType,
+          project.cycleTypeValue,
           cycles
         )
       }

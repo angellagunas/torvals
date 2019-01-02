@@ -47,6 +47,15 @@ const projectSchema = new Schema({
     ],
     default: 'empty'
   },
+  cycleType: {
+    type: String,
+    enum: [
+      'add',
+      'subtract'
+    ],
+    default: 'add'
+  },
+  cycleTypeValue: { type: Number },
   description: { type: String },
   externalId: { type: String },
   adjustment: { type: Number },
@@ -90,7 +99,9 @@ projectSchema.methods.toPublic = function () {
     showOnDashboard: (this.showOnDashboard === null) ? true : this.showOnDashboard,
     outdated: this.outdated,
     rule: this.rule,
-    cycleStatus: this.cycleStatus
+    cycleStatus: this.cycleStatus,
+    cycleType : this.cycleType,
+    cycleTypeValue : this.cycleTypeValue
   }
 }
 
@@ -113,7 +124,9 @@ projectSchema.methods.toAdmin = function () {
     showOnDashboard: (this.showOnDashboard === null) ? true : this.showOnDashboard,
     rule: this.rule,
     outdated: this.outdated,
-    cycleStatus: this.cycleStatus
+    cycleStatus: this.cycleStatus,
+    cycleType : this.cycleType,
+    cycleTypeValue : this.cycleTypeValue
   }
 }
 

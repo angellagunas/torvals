@@ -6,6 +6,7 @@ import tree from '~core/tree'
 import {
   BaseForm,
   TextWidget,
+  NumberWidget,
   TextareaWidget,
   SelectWidget
 } from '~base/components/base-form'
@@ -208,10 +209,46 @@ class ProjectForm extends Component {
 
     if (this.uiSchema.status) this.uiSchema.status['ui:disabled'] = !this.props.isAdmin
     if (this.state.formData.cycleStatus) {
-      this.uiSchema['cycleStatus'] = {'ui:widget': TextWidget, 'ui:disabled': true}
+      this.uiSchema['cycleStatus'] = {'ui:widget': SelectWidget, 'ui:disabled': !this.props.isAdmin }
       this.schema.properties['cycleStatus'] = {
         type: 'string',
-        title: this.formatTitle('projectConfig.cycleStatus')
+        title: this.formatTitle('projectConfig.cycleStatus'),
+        enum: [
+          'empty',
+          'consolidation',
+          'forecastCreation',
+          'rangeAdjustmentRequest',
+          'rangeAdjustment',
+          'salesUpload'
+        ],
+        enumNames: [
+          'empty',
+          'consolidation',
+          'forecastCreation (close)',
+          'rangeAdjustmentRequest',
+          'rangeAdjustment (open)',
+          'salesUpload'
+        ]
+      }
+      this.uiSchema['cycleType'] = {'ui:widget': SelectWidget, 'ui:disabled': !this.props.isAdmin }
+      this.schema.properties['cycleType'] = {
+        type: 'string',
+        title: 'Configuración de dias',
+        // default: 'add',
+        enum: [
+          'add',
+          'subtract'
+        ],
+        enumNames: [
+          'Agregar',
+          'Remover'
+        ]
+      }
+      this.uiSchema['cycleTypeValue'] = {'ui:widget': NumberWidget, 'ui:disabled': !this.props.isAdmin }
+      this.schema.properties['cycleTypeValue'] = {
+        type: 'number',
+        // default: 6,
+        title: 'Dias'
       }
     }
     return (
