@@ -24,6 +24,7 @@ class TabApprove extends Component {
     this.state = {
       dataRows: [],
       filteredData: [],
+      filtersLoading: false,
       isLoading: '',
       selectedAll: false,
       disableButtons: true,
@@ -31,6 +32,7 @@ class TabApprove extends Component {
       searchTerm: '',
       salesCenters: [],
       salesCenter: {},
+      groups:[],
       sortAscending: true,
       sortBy: 'statusLevel'
     }
@@ -41,7 +43,6 @@ class TabApprove extends Component {
     this.getFilters()
   }
 
-
   componentWillUnmount() {
     this.props.setAlert('is-white', ' ')
   }
@@ -51,10 +52,13 @@ class TabApprove extends Component {
 
     try {
       const res = await api.get(url + this.props.project.activeDataset.uuid)
+
       this.setState({
         salesCenters: res['centro-de-venta'],
         salesCenter: (res['centro-de-venta'][0] || {}).uuid
       }, () => this.getAdjustmentRequests())
+      this.setState({filtersLoading:true})
+      console.log(this.state.groups);
     } catch(error) {
       console.error(error)
     }
@@ -741,7 +745,7 @@ class TabApprove extends Component {
 
   handleSort(e) {
     let sorted = this.state.filteredData
-
+    // Probando
     if (e === 'productId') {
       if (this.state.sortAscending) {
         sorted.sort((a, b) => { return parseFloat(a.product.externalId) - parseFloat(b.product.externalId) })
@@ -773,22 +777,21 @@ class TabApprove extends Component {
 
   render() {
 
-    
     return (
       <div>
         <section>
-          {this.getModifyButtons()}
-          {this.state.filteredData.length === 0 ?
+          {this.getModifyButtons()}          
+
+          {this.state.filteredData.length === 0 && this.state.filtersLoading ?
             <section className='section'>
               <center>
                 <h2 className='subtitle has-text-primary'>
                   <FormattedMessage
-                    id="projects.loading"
-                    defaultMessage={`Cargando, un momento por favor`}
+                    id="approve.emptyApprove"
+                    defaultMessage={`No hay ajustes por aprobar`}
                   />
                 </h2>
               </center>
-              <Loader />
             </section>
             :
             <BaseTable
@@ -799,6 +802,24 @@ class TabApprove extends Component {
               sortBy={this.state.sortBy}
               handleSort={(e) => this.handleSort(e)}
             />
+          }
+
+          {!this.state.filtersLoading ?
+
+            <section className='section'>
+              <center>
+                <h2 className='subtitle has-text-primary'>
+                  <FormattedMessage
+                    id="projects.loading"
+                    defaultMessage={`Cargando`}
+                  />
+                </h2>
+              </center>
+              <Loader />
+            </section>
+            :
+            console.log('termino de cargar')
+
           }
         </section>
       </div>
