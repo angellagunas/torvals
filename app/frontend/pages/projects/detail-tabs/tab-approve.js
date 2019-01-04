@@ -58,7 +58,6 @@ class TabApprove extends Component {
         salesCenter: (res['centro-de-venta'][0] || {}).uuid
       }, () => this.getAdjustmentRequests())
       this.setState({filtersLoading:true})
-      console.log(this.state.groups);
     } catch(error) {
       console.error(error)
     }
@@ -745,7 +744,6 @@ class TabApprove extends Component {
 
   handleSort(e) {
     let sorted = this.state.filteredData
-    // Probando
     if (e === 'productId') {
       if (this.state.sortAscending) {
         sorted.sort((a, b) => { return parseFloat(a.product.externalId) - parseFloat(b.product.externalId) })
@@ -794,17 +792,7 @@ class TabApprove extends Component {
               </center>
             </section>
             :
-            <BaseTable
-              className='aprobe-table is-fullwidth'
-              data={this.state.filteredData}
-              columns={this.getColumns()}
-              sortAscending={this.state.sortAscending}
-              sortBy={this.state.sortBy}
-              handleSort={(e) => this.handleSort(e)}
-            />
-          }
-
-          {!this.state.filtersLoading ?
+            !this.state.filtersLoading ?
 
             <section className='section'>
               <center>
@@ -818,9 +806,17 @@ class TabApprove extends Component {
               <Loader />
             </section>
             :
-            console.log('termino de cargar')
-
+            <BaseTable
+              className='aprobe-table is-fullwidth'
+              data={this.state.filteredData}
+              columns={this.getColumns()}
+              sortAscending={this.state.sortAscending}
+              sortBy={this.state.sortBy}
+              handleSort={(e) => this.handleSort(e)}
+            />
           }
+
+          
         </section>
       </div>
     )
