@@ -380,9 +380,11 @@ class TabAnomalies extends Component {
       isRestoring: ' is-loading'
     })
     let url = '/app/anomalies/restore/'
+    console.log("tree.get('user')", tree.get('user'))
     let res = await api.post(url + this.props.project.uuid, {
       anomalies: Object.values(this.state.selected),
-      rol: currentRole
+      rol: currentRole,
+      userUuid: tree.get('user').uuid
     })
 
     if (res.data.status === 'ok') {
