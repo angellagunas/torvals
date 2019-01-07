@@ -118,7 +118,6 @@ class StatusRepórt extends Component {
     this.setState({ filtersLoading: true })
 
     const url = '/app/reports/filters/' + this.state.projectSelected.uuid
-
     await this.getCatalogFilters()
 
     try {
@@ -133,7 +132,7 @@ class StatusRepórt extends Component {
         }
       })
 
-      cycles = _.orderBy(cycles, 'dateStart', 'asc').slice(2, 7)
+      cycles = _.orderBy(cycles, 'dateStart', 'asc').slice(-7)
       cycles = [
         {
           cycle: -1, // Todos

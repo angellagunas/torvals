@@ -1,5 +1,6 @@
 const Route = require('lib/router/route')
 const {
+  DataSetRow,
   Project,
   User,
   Organization,
@@ -16,46 +17,52 @@ module.exports = new Route({
   handler: async function (ctx) {
     const organization = await Organization.findOne({_id: ctx.state.organization._id})
     const uuid = ctx.params.uuid
+    const datasetId = ctx.params.uuid
 
     const project = await Project.findOne({
       uuid: uuid,
       organization: organization._id
     })
 
+    const dataset = await Project.findOne({
+      'uuid': datasetId,
+      'isDeleted': false,
+      organization: ctx.state.organization
+    }).populate('rule')
+
+    ctx.assert(dataset, 404, 'DataSet no encontrado')
+
     const rule = await Rule.findOne({
       organization: organization._id,
       _id: project.rule
     })
 
-    const cycles = await Cycle.find({
-      isDeleted: false,
-      'organization': organization._id,
-      rule: rule._id,
-      $or: [
-        {
-          dateStart: {
-            $gte: moment().utc().format('YYYY-MM-DD')
-          }
-        },
-        {
-          dateStart: {
-            $lte: moment().utc().format('YYYY-MM-DD')
-          },
-          dateEnd: {
-            $gte: moment().utc().format('YYYY-MM-DD')
-          }
-        }
-      ]
+    let cycles = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('cycle')
 
-    }).sort({dateStart: 1}).limit(rule.cyclesAvailable)
+    cycles = await Cycle.find({
+      organization: ctx.state.organization,
+      rule: dataset.rule,
+      dateStart: {$lte: moment.utc(dataset.dateMax), $gte: moment.utc(dataset.dateMin).subtract(1, 'days')}
+    }).sort('-dateStart')
 
     cycles.data = cycles.map(async item => {
+      if (String(dataset.project) === '5b5ba0ac83afa00038095701' || String(dataset.project) === '5b3e3cbf7fecc8004a81cd26') {
+        return {
+        uuid: item.uuid,
+        dateStart: item.dateStart,
+        dateEnd: item.dateEnd
+        }
+      }
+
       const periods = await Period.find({
         cycle: item._id
       })
 
       return {
-        ...item.toPublic(),
+        cycle: item.cycle,
+        uuid: item.uuid,
+        dateStart: item.dateStart,
+        dateEnd: item.dateEnd,
         periodStart: (periods[0] || {}).period,
         periodEnd: (periods[periods.length - 1] || {}).period
       }
