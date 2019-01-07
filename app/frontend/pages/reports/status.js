@@ -124,7 +124,7 @@ class StatusRepórt extends Component {
     try {
       let res = await api.get(url)
 
-      let cycles = _.orderBy(res.cycles, 'dateStart', 'asc')
+      let cycles = _.orderBy(res.cycles, 'dateStart', 'asc').slice(2,7)
       .map(item => {
         return {
           ...item,
@@ -133,7 +133,7 @@ class StatusRepórt extends Component {
         }
       })
 
-      cycles = _.orderBy(cycles, 'dateStart', 'asc').slice(2, 7)
+      cycles = _.orderBy(cycles, 'dateStart', 'asc')
       cycles = [
         {
           cycle: -1, // Todos
@@ -467,24 +467,6 @@ class StatusRepórt extends Component {
             )
           }
         }
-      },
-      {
-        'title': this.formatTitle('approve.approved'),
-        'property': 'approved',
-        'default': '0',
-        'sortable': true
-      },
-      {
-        'title': this.formatTitle('approve.rejected'),
-        'property': 'rejected',
-        'default': '0',
-        'sortable': true
-      },
-      {
-        'title': this.formatTitle('approve.pending'),
-        'property': 'created',
-        'default': '0',
-        'sortable': true
       }
     ]
 
