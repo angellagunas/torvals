@@ -43,7 +43,7 @@ module.exports = new Route({
       organization: ctx.state.organization,
       rule: dataset.rule,
       dateStart: {$lte: moment.utc(dataset.dateMax), $gte: moment.utc(dataset.dateMin).subtract(1, 'days')}
-    }).sort('-dateStart')
+    }).sort('-dateStart').limit(rule.cyclesAvailable)
 
     cycles.data = cycles.map(async item => {
       if (String(dataset.project) === '5b5ba0ac83afa00038095701' || String(dataset.project) === '5b3e3cbf7fecc8004a81cd26') {

@@ -132,7 +132,7 @@ class StatusRepórt extends Component {
         }
       })
 
-      cycles = _.orderBy(cycles, 'dateStart', 'asc').slice(-7)
+      cycles = _.orderBy(cycles, 'dateStart', 'asc').slice(0,3)
       cycles = [
         {
           cycle: -1, // Todos
