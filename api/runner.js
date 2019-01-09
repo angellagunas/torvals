@@ -21,9 +21,13 @@ if (multiple) {
     // (Workers can share any TCP connection.
     //  In this case its a HTTP server)
 
+    //const server = app.listen(apiPort)
+    //server.timeout = 600000
     app.listen(apiPort)
   }
 } else {
+  //const server =  app.listen(apiPort)
+  //server.timeout = 600000
   app.listen(apiPort)
   console.log(`Api started ${apiHost}`)
 }
