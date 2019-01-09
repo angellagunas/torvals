@@ -28,13 +28,12 @@ module.exports = new Route({
       'uuid': datasetId,
       'isDeleted': false,
       organization: ctx.state.organization
-    }).populate('rule')
+    })
 
     ctx.assert(dataset, 404, 'DataSet no encontrado')
 
     const rule = await Rule.findOne({
-      organization: organization._id,
-      _id: project.rule
+      organization: organization._id
     })
 
     let cycles = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('cycle')
