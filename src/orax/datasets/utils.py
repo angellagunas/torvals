@@ -60,8 +60,7 @@ class DatasetUtils(MongoCollection):
                 '$match': {
                     'dataset': {
                         '$in': [
-                            _id(dataset['_id']),
-                            _id(project['mainDataset'])
+                            _id(dataset['_id'])
                         ]
                     },
                     'isDeleted': False,
