@@ -804,7 +804,12 @@ class ProjectDetail extends Component {
                 className='is-shadowless'
                 baseUrl='/app/projects'
                 url={'/app/projects/' + this.props.match.params.uuid}
-                initialState={{ ...project, organization: project.organization.uuid }}
+                initialState={{
+                  ...project,
+                  mainDatasetV: project.mainDataset.uuid,
+                  activeDatasetV: project.activeDataset.uuid,
+                  organization: project.organization.uuid
+                }}
                 load={this.load.bind(this)}
                 canEdit={canEdit}
                 editable

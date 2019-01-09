@@ -11,12 +11,18 @@ module.exports = new Route({
 
     ctx.assert(dataset, 404, 'DataSet no encontrado')
 
+    const project = await Project.findOne({ _id: dataset.project })
     const userReport = await UserReport.findOne({
       user: ctx.state.user,
       dataset: dataset._id
     })
     if (!userReport) {
-      const cycle = await Cycle.getCurrent(ctx.state.organization._id, dataset.rule)
+      const cycle = await Cycle.getCurrent(
+        ctx.state.organization._id,
+        dataset.rule,
+        project.cycleType,
+        project.cycleTypeValue
+      )
       await UserReport.create({
         user: ctx.state.user,
         dataset: dataset._id,
