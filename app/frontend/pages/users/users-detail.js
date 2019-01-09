@@ -7,6 +7,7 @@ import tree from '~core/tree'
 import UserDetail from './detail'
 import CreateUser from './create'
 import { testRoles } from '~base/tools'
+import env from '~base/env-variables'
 
 class UsersDetail extends Component {
   constructor (props) {
@@ -15,8 +16,42 @@ class UsersDetail extends Component {
       searchTerm: '',
       userSelected: tree.get('userDetail') || undefined,
       modalClassName: '',
-      canCreate: 'admin, orgadmin, analyst, manager-level-2, manager-level-3'
+      canCreate: 'admin, orgadmin, analyst, consultor-level-3, manager-level-2, manager-level-3'
     }
+  }
+
+  async resetOnClick (email) {
+    await this.setState({
+      resetLoading: true,
+      resetText: this.formatTitle('user.resetText1'),
+      resetClass: 'button is-info'
+    })
+
+    var url = '/user/reset-password'
+    try {
+      await api.post(url, {email})
+      setTimeout(() => {
+        this.setState({
+          resetLoading: true,
+          resetText: this.formatTitle('user.resetText2'),
+          resetClass: 'button is-success'
+        })
+      }, 3000)
+    } catch (e) {
+      await this.setState({
+        resetLoading: true,
+        resetText: this.formatTitle('user.resetText3'),
+        resetClass: 'button is-danger'
+      })
+    }
+
+    setTimeout(() => {
+      this.setState({
+        resetLoading: false,
+        resetText: this.formatTitle('user.resetText'),
+        resetClass: 'button is-danger'
+      })
+    }, 10000)
   }
 
   formatTitle (id) {
@@ -140,7 +175,7 @@ class UsersDetail extends Component {
           }
 
           if (currentUser.currentRole.slug === 'consultor-level-3') {
-            disabledActions = true
+            disabledActions = false
           }
 
           if (currentUser.currentRole.slug === 'orgadmin') {
@@ -162,6 +197,15 @@ class UsersDetail extends Component {
                     </span>
                   </a>
               }
+              </div>
+              <div className='control'>
+              {env.EMAIL_SEND && (
+                <a className='button is-warning' onClick={() => this.resetOnClick(row.email)}>
+                  <span className='icon is-small' title="Reset Password">
+                    <i className='fa fa-envelope has-text-white' />
+                  </span>
+                </a>
+              )}
               </div>
               <div className='control'>
                 {currentUser.uuid !== row.uuid && !disabledActions && (
@@ -271,6 +315,9 @@ class UsersDetail extends Component {
           <div className='list-page'>
             <BranchedPaginatedTable
               branchName='users-list'
+              apiParams={{
+                userRole: (tree.get('user').currentRole.slug || {})
+              }}
               baseUrl='/app/users/'
               columns={this.getColumns()}
               filters={{ general: this.state.searchTerm }}

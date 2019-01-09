@@ -97,6 +97,7 @@ class AdminLayout extends Component {
         await tree.commit()
         window.localStorage.setItem('name', '')
         window.localStorage.setItem('email', '')
+        window.localStorage.removeItem('_user')
         return
       }
 
@@ -111,6 +112,7 @@ class AdminLayout extends Component {
 
       window.localStorage.setItem('name', me.user.name)
       window.localStorage.setItem('email', me.user.email)
+      window.localStorage.setItem('_user', me.user.uuid)
     }
 
     this.setState({loaded: true, activateModal: activated})

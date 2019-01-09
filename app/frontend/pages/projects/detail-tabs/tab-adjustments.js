@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
 import { FormattedMessage, injectIntl } from 'react-intl'
 import FontAwesome from 'react-fontawesome'
 import moment from 'moment'
@@ -8,9 +8,11 @@ import { toast } from 'react-toastify'
 import { defaultCatalogs } from '~base/tools'
 
 import api from '~base/api'
+import { validateRegText } from '~base/tools'
 import Loader from '~base/components/spinner'
 import Editable from '~base/components/base-editable'
 import Checkbox from '~base/components/base-checkbox'
+import Spinner from '~base/components/spinner'
 
 import WeekTable from './week-table'
 import ProductTable from './product-table'
@@ -34,6 +36,7 @@ class TabAdjustment extends Component {
       filtersLoaded: false,
       filtersLoading: false,
       isLoading: '',
+      loadingIndicators: false,
       isLoadingButtons: '',
       modified: 0,
       pending: 0,
@@ -83,13 +86,37 @@ class TabAdjustment extends Component {
     }
   }
 
-  componentWillReceiveProps(nextProps){
+  componentWillReceiveProps(nextProps) {
     if (this.props.project.uuid && nextProps.project.uuid !== this.props.project.uuid) return
 
     if (nextProps.selectedTab === 'ajustes' && !this.state.filtersLoaded && !this.state.filtersLoading) {
       this.getFilters()
     }
 
+    if (nextProps.showedFinishBtn !== this.props.showedFinishBtn && !this.state.filtersLoading) {
+      const selectedCycle = tree.get('selectedCycle')
+      const cycles = this.state.filters.cycles
+      const finishedCycles = {}
+
+      for (let cycle of cycles) {
+        if (selectedCycle.uuid === cycle.uuid && !cycle.isFinished) {
+          const isFinished = !nextProps.showedFinishBtn
+          cycle.isFinished = isFinished
+          cycle.viewName = `${cycle.viewName} ${isFinished ? '✔' : ''}`
+          finishedCycles[cycle.uuid] = isFinished
+        } else {
+          finishedCycles[cycle.uuid] = JSON.parse(localStorage.getItem('finishedCycles') || '{}')[cycle.uuid] || false
+        }
+      }
+
+      localStorage.setItem('finishedCycles', JSON.stringify(finishedCycles))
+      this.setState({
+        filters: {
+          ...this.state.filters,
+          cycles
+        }
+      })
+    }
   }
 
   componentDidUpdate(prevProps) {
@@ -101,7 +128,7 @@ class TabAdjustment extends Component {
 
   async getFilters() {
     if (this.props.project.activeDataset && this.props.project.status === 'adjustment') {
-      this.setState({ filtersLoading:true })
+      this.setState({ filtersLoading: true })
 
       const url = '/app/rows/filters/dataset/'
 
@@ -110,22 +137,32 @@ class TabAdjustment extends Component {
 
         let cycles = _.orderBy(res.cycles, 'dateStart', 'asc')
 
+        let finishedCycles = {}
+        for (let cycle of cycles) {
+          finishedCycles[cycle.uuid] = JSON.parse(localStorage.getItem('finishedCycles') || '{}')[cycle.uuid] || false
+        }
+        localStorage.setItem('finishedCycles', JSON.stringify(finishedCycles))
+
         if (currentRole !== 'manager-level-1') {
           cycles = cycles.map((item, key) => {
-            return item = {
+            const isFinished = finishedCycles[item.uuid]
+            return {
               ...item,
+              isFinished,
               adjustmentRange: this.rules.rangesLvl2[key],
               name: moment.utc(item.dateStart).format('MMMM D') + ' - ' + moment.utc(item.dateEnd).format('MMMM D'),
-              viewName: `Ciclo ${item.cycle} (Periodo ${item.periodStart} - ${item.periodEnd})`
+              viewName: `Ciclo ${item.cycle} (Periodo ${item.periodStart} - ${item.periodEnd}) ${isFinished ? '✔' : ''}`
             }
           })
         } else {
           cycles = cycles.map((item, key) => {
-            return item = {
+            const isFinished = finishedCycles[item.uuid]
+            return {
               ...item,
+              isFinished,
               adjustmentRange: this.rules.ranges[key],
               name: moment.utc(item.dateStart).format('MMMM D') + ' - ' + moment.utc(item.dateEnd).format('MMMM D'),
-              viewName: `Ciclo ${item.cycle} (Periodo ${item.periodStart} - ${item.periodEnd})`
+              viewName: `Ciclo ${item.cycle} (Periodo ${item.periodStart} - ${item.periodEnd}) ${isFinished ? '✔' : ''}`
             }
           })
         }
@@ -148,6 +185,7 @@ class TabAdjustment extends Component {
         const minDate = moment.utc(cycles[0].dateStart)
         const maxDate = moment.utc(cycles[0].dateEnd)
 
+        this.props.showFinishBtn(!cycles[0].isFinished)
         this.setState({
           minDate,
           startDate: minDate,
@@ -181,15 +219,16 @@ class TabAdjustment extends Component {
     }
   }
 
-  async filterChangeHandler (name, value) {
-    if(name === 'cycle'){
-      var cycle = this.state.filters.cycles.find(item => {
+  async filterChangeHandler(name, value) {
+    if(name === 'cycle') {
+      const cycle = this.state.filters.cycles.find(item => {
         return item.cycle === value
       })
 
       const minDate = moment.utc(cycle.dateStart)
       const maxDate = moment.utc(cycle.dateEnd)
 
+      this.props.showFinishBtn(!cycle.isFinished)
       this.setState({
         minDate,
         startDate: minDate,
@@ -250,6 +289,7 @@ class TabAdjustment extends Component {
 
     const url = '/app/rows/dataset/'
     try{
+      this.getSalesTable()
       let data = await api.get(
         url + this.props.project.activeDataset.uuid,
         {
@@ -266,7 +306,6 @@ class TabAdjustment extends Component {
         selectedCheckboxes: new Set()
       })
       this.clearSearch()
-      this.getSalesTable()
     }catch(e){
       console.log(e)
       this.setState({
@@ -839,7 +878,7 @@ class TabAdjustment extends Component {
     }
 
     const items = this.state.dataRows.filter((item) => {
-      const regEx = new RegExp(this.state.searchTerm, 'gi')
+      const regEx = new RegExp(validateRegText(this.state.searchTerm), 'gi')
       const searchStr = `${item.productName} ${item.productId} ${item.channel} ${item.salesCenter}`
 
       if (regEx.test(searchStr))
@@ -925,7 +964,10 @@ class TabAdjustment extends Component {
   }
 
   async getSalesTable() {
-    let url = '/app/datasets/sales/' + this.props.project.activeDataset.uuid
+    this.setState({
+      loadingIndicators: true
+    })
+    let url = '/v2/datasets/sales/' + this.props.project.activeDataset.uuid
     let cycle = this.state.filters.cycles.find(item => {
       return item.cycle === this.state.formData.cycle
     })
@@ -963,6 +1005,7 @@ class TabAdjustment extends Component {
           noSalesData: res.data.length === 0 ? this.formatTitle('dashboard.productEmptyMsg') : ''
         }, () => {
             this.setState({
+              loadingIndicators: false,
               reloadGraph: false
             })
         })
@@ -1182,10 +1225,11 @@ class TabAdjustment extends Component {
   }
 
   showBy(prices) {
-    this.setState({ prices },
-      () => {
-        this.getSalesTable()
-      })
+    this.setState({
+      prices
+    }, () => {
+      this.getSalesTable()
+    })
   }
 
   getCallback() {
@@ -1660,167 +1704,173 @@ class TabAdjustment extends Component {
               </div>
           </div>
           <div className='columns'>
-            <div className='column is-6-desktop is-4-widescreen is-5-fullhd is-offset-1-fullhd is-offset-1-desktop'>
-              <div className='panel sales-table'>
-                <div className='panel-heading'>
-                  <h2 className='is-capitalized'>
-                    <FormattedMessage
-                      id="adjustments.total"
-                      defaultMessage={`Totales`}
-                    /> {this.getCycleName()}
-                  </h2>
-                </div>
-                <div className='panel-block'>
-                  {
-                    currentRole !== 'consultor-level-3' &&
-                      this.state.salesTable.length > 0 ?
-                      <table className='table is-fullwidth is-hoverable'>
-                        <thead>
-                          <tr>
-                            <th className='has-text-centered'>
-                              <FormattedMessage
-                                id="adjustments.period"
-                                defaultMessage={`Periodo`}
-                              />
-                            </th>
-                            <th className='has-text-info has-text-centered'>
-                              <FormattedMessage
-                                id="tables.colForecast"
-                                defaultMessage={`Predicción`}
-                              />
-                            </th>
-                            <th className='has-text-teal has-text-centered'>
-                              <FormattedMessage
-                                id="tables.colAdjustment"
-                                defaultMessage={`Ajustes`}
-                              />
-                            </th>
-                            <th className='has-text-danger has-text-centered'>
-                              <FormattedMessage
-                                id="tables.colLast"
-                                defaultMessage={`Venta año anterior`}
-                              />
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {this.state.salesTable.map((item, key) => {
-                            return (
-                              <tr key={key}>
-                                <td className='has-text-centered'>
-                                  {item.period[0]}
-                                </td>
-                                <td className='has-text-centered'>
-                                  {this.state.prices && '$'} {item.prediction.toFixed(0).replace(/./g, (c, i, a) => {
-                                    return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                                  })}
-                                </td>
-                                <td className='has-text-centered'>
-                                  {this.state.prices && '$'} {item.adjustment.toFixed(0).replace(/./g, (c, i, a) => {
-                                    return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                                  })}
-                                </td>
-                                <td className='has-text-centered'>
-                                  {this.state.prices && '$'} {((this.state.prevData[key] || {}).sale || 0).toFixed(0).replace(/./g, (c, i, a) => {
-                                    return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                                  })}
-                                </td>
-                              </tr>
-                            )
-                          })
-                          }
-
-                          <tr className='totals'>
-                            <th className='has-text-centered'>
-                              <FormattedMessage
-                                id="adjustments.total"
-                                defaultMessage={`Total`}
-                              />
-                            </th>
-                            <th className='has-text-info has-text-centered'>
-                              {this.state.prices && '$'} {this.state.totalPrediction.toFixed(0).replace(/./g, (c, i, a) => {
-                                return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                              })}
-                            </th>
-                            <th className='has-text-teal has-text-centered'>
-                              {this.state.prices && '$'} {this.state.totalAdjustment.toFixed(0).replace(/./g, (c, i, a) => {
-                                return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                              })}
-                            </th>
-                            <th className='has-text-danger has-text-centered'>
-                              {this.state.prices && '$'} {this.state.totalPrevSale.toFixed(0).replace(/./g, (c, i, a) => {
-                                return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                              })}
-                            </th>
-                          </tr>
-                        </tbody>
-                      </table>
-                      :
-                      this.loadTable()
-                  }
-                </div>
-              </div>
+            {this.state.loadingIndicators ?
+            <div className="column is-centered">
+                <Spinner />
             </div>
+              : <Fragment>
+                  <div className='column is-6-desktop is-4-widescreen is-5-fullhd is-offset-1-fullhd is-offset-1-desktop'>
+                    <div className='panel sales-table'>
+                      <div className='panel-heading'>
+                        <h2 className='is-capitalized'>
+                          <FormattedMessage
+                            id="adjustments.total"
+                            defaultMessage={`Totales`}
+                          /> {this.getCycleName()}
+                        </h2>
+                      </div>
+                      <div className='panel-block'>
+                        {
+                          currentRole !== 'consultor-level-3' &&
+                            this.state.salesTable.length > 0 ?
+                            <table className='table is-fullwidth is-hoverable'>
+                              <thead>
+                                <tr>
+                                  <th className='has-text-centered'>
+                                    <FormattedMessage
+                                      id="adjustments.period"
+                                      defaultMessage={`Periodo`}
+                                    />
+                                  </th>
+                                  <th className='has-text-info has-text-centered'>
+                                    <FormattedMessage
+                                      id="tables.colForecast"
+                                      defaultMessage={`Predicción`}
+                                    />
+                                  </th>
+                                  <th className='has-text-teal has-text-centered'>
+                                    <FormattedMessage
+                                      id="tables.colAdjustment"
+                                      defaultMessage={`Ajustes`}
+                                    />
+                                  </th>
+                                  <th className='has-text-danger has-text-centered'>
+                                    <FormattedMessage
+                                      id="tables.colLast"
+                                      defaultMessage={`Venta año anterior`}
+                                    />
+                                  </th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {this.state.salesTable.map((item, key) => {
+                                  return (
+                                    <tr key={key}>
+                                      <td className='has-text-centered'>
+                                        {item.period[0]}
+                                      </td>
+                                      <td className='has-text-centered'>
+                                        {this.state.prices && '$'} {item.prediction.toFixed(0).replace(/./g, (c, i, a) => {
+                                          return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                        })}
+                                      </td>
+                                      <td className='has-text-centered'>
+                                        {this.state.prices && '$'} {item.adjustment.toFixed(0).replace(/./g, (c, i, a) => {
+                                          return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                        })}
+                                      </td>
+                                      <td className='has-text-centered'>
+                                        {this.state.prices && '$'} {((this.state.prevData[key] || {}).sale || 0).toFixed(0).replace(/./g, (c, i, a) => {
+                                          return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                        })}
+                                      </td>
+                                    </tr>
+                                  )
+                                })
+                                }
 
-            <div className='column is-5-tablet is-5-desktop is-4-widescreen is-offset-1-widescreen is-narrow-fullhd is-offset-1-fullhd'>
-              <div className='panel sales-graph'>
-                <div className='panel-heading'>
-                  <h2 className='is-capitalized'>
-                    <FormattedMessage
-                      id="adjustments.report"
-                      defaultMessage={`Reporte`}
-                    /> {this.getCycleName()}
-                  </h2>
-                </div>
-                <div className='panel-block'>
-                  {
-                    currentRole !== 'consultor-level-3' &&
-                      this.state.salesTable.length > 0 ?
-                      <Graph
-                        data={graphData}
-                        maintainAspectRatio={false}
-                        responsive={true}
-                        reloadGraph={this.state.reloadGraph}
-                        labels={this.state.salesTable.map((item, key) => { return this.formatTitle('adjustments.period') + ' ' + item.period[0] })}
-                        tooltips={{
-                          mode: 'index',
-                          intersect: true,
-                          titleFontFamily: "'Roboto', sans-serif",
-                          bodyFontFamily: "'Roboto', sans-serif",
-                          bodyFontStyle: 'bold',
-                          callbacks: {
-                            label: tooltipCallback
-                          }
-                        }}
-                        scales={
-                          {
-                            xAxes:[{
-                              gridLines: {
-                                display: false
-                              }
-                            }],
-                            yAxes: [
-                              {
-                                gridLines: {
-                                  display: false
-                                },
-                                ticks: {
-                                  callback: labelCallback,
-                                  fontSize: 11
-                                },
-                                display: true
-                              }
-                            ]
-                          }
+                                <tr className='totals'>
+                                  <th className='has-text-centered'>
+                                    <FormattedMessage
+                                      id="adjustments.total"
+                                      defaultMessage={`Total`}
+                                    />
+                                  </th>
+                                  <th className='has-text-info has-text-centered'>
+                                    {this.state.prices && '$'} {this.state.totalPrediction.toFixed(0).replace(/./g, (c, i, a) => {
+                                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                    })}
+                                  </th>
+                                  <th className='has-text-teal has-text-centered'>
+                                    {this.state.prices && '$'} {this.state.totalAdjustment.toFixed(0).replace(/./g, (c, i, a) => {
+                                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                    })}
+                                  </th>
+                                  <th className='has-text-danger has-text-centered'>
+                                    {this.state.prices && '$'} {this.state.totalPrevSale.toFixed(0).replace(/./g, (c, i, a) => {
+                                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                    })}
+                                  </th>
+                                </tr>
+                              </tbody>
+                            </table>
+                            :
+                            this.loadTable()
                         }
-                      />
-                      :
-                      this.loadTable()
-                  }
-                </div>
-              </div>
-            </div>
+                      </div>
+                    </div>
+                  </div>
 
+                  <div className='column is-5-tablet is-5-desktop is-4-widescreen is-offset-1-widescreen is-narrow-fullhd is-offset-1-fullhd'>
+                    <div className='panel sales-graph'>
+                      <div className='panel-heading'>
+                        <h2 className='is-capitalized'>
+                          <FormattedMessage
+                            id="adjustments.report"
+                            defaultMessage={`Reporte`}
+                          /> {this.getCycleName()}
+                        </h2>
+                      </div>
+                      <div className='panel-block'>
+                        {
+                          currentRole !== 'consultor-level-3' &&
+                            this.state.salesTable.length > 0 ?
+                            <Graph
+                              data={graphData}
+                              maintainAspectRatio={false}
+                              responsive={true}
+                              reloadGraph={this.state.reloadGraph}
+                              labels={this.state.salesTable.map((item, key) => { return this.formatTitle('adjustments.period') + ' ' + item.period[0] })}
+                              tooltips={{
+                                mode: 'index',
+                                intersect: true,
+                                titleFontFamily: "'Roboto', sans-serif",
+                                bodyFontFamily: "'Roboto', sans-serif",
+                                bodyFontStyle: 'bold',
+                                callbacks: {
+                                  label: tooltipCallback
+                                }
+                              }}
+                              scales={
+                                {
+                                  xAxes:[{
+                                    gridLines: {
+                                      display: false
+                                    }
+                                  }],
+                                  yAxes: [
+                                    {
+                                      gridLines: {
+                                        display: false
+                                      },
+                                      ticks: {
+                                        callback: labelCallback,
+                                        fontSize: 11
+                                      },
+                                      display: true
+                                    }
+                                  ]
+                                }
+                              }
+                            />
+                            :
+                            this.loadTable()
+                        }
+                      </div>
+                    </div>
+                  </div>
+              </Fragment>
+            }
           </div>
         </div>
 

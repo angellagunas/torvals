@@ -69,7 +69,14 @@ module.exports = new Route({
 
       if (isCatalog) {
         const cItem = await CatalogItem.findOne({uuid: ctx.request.query[filter]})
-        catalogItemsFilters.push(cItem.id)
+        try{
+          catalogItemsFilters.push(cItem.id)
+        }catch(e){
+          console.info(e)
+          console.info(filter)
+          console.info(ctx.request.query[filter])
+          continue
+        }
         continue
       }
 

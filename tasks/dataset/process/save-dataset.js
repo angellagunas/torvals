@@ -163,8 +163,11 @@ const task = new Task(
 
       await sendSlackNotification.run({
         channel: 'all',
-        message: `Error al cargar el dataset *${dataset.name}* a la base de datos! ` +
-        `*${e.message}*`
+        message: `Error al cargar el dataset *${dataset.name}* a la base de datos! *${e.message}*`,
+        attachment: {
+          title: 'Error!!',
+          image_url: 'https://i.kym-cdn.com/entries/icons/mobile/000/027/475/Screen_Shot_2018-10-25_at_11.02.15_AM.jpg'
+        }
       })
 
       return false
@@ -200,8 +203,11 @@ const task = new Task(
     }
     sendSlackNotification.run({
       channel: 'all',
-      message: `El dataset *${dataset.name}* ha sido cargado a la base de datos` +
-      ` y se procederá a procesarse.`
+      message: `El dataset *${dataset.name}* ha sido cargado a la base de datos y se procederá a procesarse.`,
+      attachment: {
+        title: 'A procesarse!',
+        image_url: 'https://media.giphy.com/media/ZofCGn3c0VK9y/giphy.gif'
+      }
     })
   }
 )

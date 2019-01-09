@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { FormattedMessage, injectIntl } from 'react-intl'
 import api from '~base/api'
+import { validateRegText } from '~base/tools'
 import tree from '~core/tree'
 import moment from 'moment'
 import { EditableTable } from '~base/components/base-editableTable'
@@ -11,6 +12,7 @@ import Checkbox from '~base/components/base-checkbox'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import CustomDate from './custom-date'
+import Select from './select'
 
 const generalAdjustment = 0.1
 var currentRole
@@ -20,11 +22,14 @@ class TabApprove extends Component {
     super(props)
     this.state = {
       dataRows: [],
+      filteredData: [],
       isLoading: '',
       selectedAll: false,
       disableButtons: true,
       selectedCheckboxes: new Set(),
       searchTerm: '',
+      salesCenters: [],
+      salesCenter: {},
       sortAscending: true,
       sortBy: 'statusLevel'
     }
@@ -32,7 +37,7 @@ class TabApprove extends Component {
   }
 
   componentWillMount() {
-    this.getAdjustmentRequests()
+    this.getFilters()
   }
 
 
@@ -40,21 +45,58 @@ class TabApprove extends Component {
     this.props.setAlert('is-white', ' ')
   }
 
+  async getFilters() {
+    const url = '/app/rows/filters/dataset/'
+
+    try {
+      const res = await api.get(url + this.props.project.activeDataset.uuid)
+      this.setState({
+        salesCenters: res['centro-de-venta'],
+        salesCenter: (res['centro-de-venta'][0] || {}).uuid
+      }, () => this.getAdjustmentRequests())
+    } catch(error) {
+      console.error(error)
+    }
+  }
+
   async getAdjustmentRequests() {
     if (this.props.project.activeDataset) {
       let url = '/app/adjustmentRequests/dataset/' + this.props.project.activeDataset.uuid
       try {
         let data = await api.get(url)
+
         this.setState({
           dataRows: data.data
+        }, () => {
+          this.getRemainingItems()
+          this.clearSearch()
+          this.handleSort(this.state.sortBy)
+          this.salesCentersReq()
         })
-        this.getRemainingItems()
-        this.clearSearch()
-        this.handleSort(this.state.sortBy)
       } catch (e) {
         console.log(e)
       }
     }
+  }
+
+  salesCentersReq() {
+    const salesCenters = []
+    const approveReqs = {}
+
+    for (let row of this.state.dataRows) {
+      const saleCenter = row.catalogItems.find(item => item.type === 'centro-de-venta')
+
+      approveReqs[saleCenter.uuid] = (approveReqs[saleCenter.uuid] || 0) + 1
+    }
+
+    for (let saleCenter of this.state.salesCenters) {
+      salesCenters.push({
+        ...saleCenter,
+        name: `${saleCenter.name} (${(approveReqs[saleCenter.uuid] || 0)})`
+      })
+    }
+
+    this.setState({ salesCenters })
   }
 
   getColumns() {
@@ -63,7 +105,7 @@ class TabApprove extends Component {
         'title': this.formatTitle('dashboard.selectAll'),
         'abbreviate': true,
         'abbr': (() => {
-          if (currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2') {
+          if (currentRole !== 'consultor-level-2') {
             return (
               <div className={this.state.remainingItems > 0 ? '' : 'is-invisible'}>
                 <Checkbox
@@ -79,7 +121,7 @@ class TabApprove extends Component {
         'property': 'checkbox',
         'default': '',
         formatter: (row, state) => {
-          if (currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2') {
+          if (currentRole !== 'consultor-level-2') {
             if (row.status === 'created') {
               if (!row.selected) {
                 row.selected = false
@@ -358,6 +400,19 @@ class TabApprove extends Component {
 
           <div className='level-item'>
             <div className='field is-grouped'>
+            <div className='field control'>
+                <div className='control'>
+                  <Select
+                    label="Centro de venta"
+                    name="salesCenter"
+                    value={this.state.salesCenter}
+                    optionValue="uuid"
+                    optionName="name"
+                    options={this.state.salesCenters}
+                    onChange={(name, value) => this.setSalesCenter(value)}
+                  />
+                </div>
+              </div>
               <div className='field control'>
                 <label className='label'>
                   <FormattedMessage
@@ -412,7 +467,7 @@ class TabApprove extends Component {
           </div>
         </div>
 
-        {currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2'
+        {currentRole !== 'consultor-level-2'
           ? <div className='level-right'>
             <div className='level-item'>
               <div className='saleCenter'>
@@ -471,6 +526,30 @@ class TabApprove extends Component {
     )
   }
 
+  setSalesCenter(value) {
+    this.setState({
+      salesCenter: value
+    }, () => this.clearSearch())
+  }
+
+  filterBySalesCenter(dataRows) {
+    const rows = dataRows || this.state.dataRows
+    const data = []
+
+    for (let row of rows) {
+      const catalog = row.catalogItems.find(item => item.type === 'centro-de-venta')
+      if (!catalog) continue
+
+      if (catalog.uuid === this.state.salesCenter) {
+        data.push(row)
+      }
+    }
+
+    this.setState({
+      filteredData: data
+    })
+  }
+
   searchDatarows() {
     const items = this.state.dataRows.map((item) => {
       if (this.state.searchTerm === '' && !this.state.searchDate) {
@@ -482,7 +561,7 @@ class TabApprove extends Component {
         if (d >= this.state.startDate && d <= this.state.endDate) {
 
           if (this.state.searchTerm !== '') {
-            const regEx = new RegExp(this.state.searchTerm, 'gi')
+            const regEx = new RegExp(validateRegText(this.state.searchTerm), 'gi')
 
             if (regEx.test(item.product.name) ||
               regEx.test(item.product.externalId))
@@ -499,7 +578,7 @@ class TabApprove extends Component {
           return null
       }
       else if (this.state.searchTerm !== '' && !this.state.searchDate) {
-        const regEx = new RegExp(this.state.searchTerm, 'gi')
+        const regEx = new RegExp(validateRegText(this.state.searchTerm), 'gi')
 
         if (regEx.test(item.product.name) ||
           regEx.test(item.product.externalId))
@@ -510,9 +589,7 @@ class TabApprove extends Component {
     })
       .filter(function (item) { return item != null });
 
-    this.setState({
-      filteredData: items
-    })
+    this.filterBySalesCenter(items)
   }
 
   uncheckAll() {
@@ -699,7 +776,7 @@ class TabApprove extends Component {
       <div>
         <section>
           {this.getModifyButtons()}
-          {this.state.dataRows.length === 0 ?
+          {this.state.filteredData.length === 0 ?
             <section className='section'>
               <center>
                 <h2 className='subtitle has-text-primary'>
@@ -717,7 +794,8 @@ class TabApprove extends Component {
               columns={this.getColumns()}
               sortAscending={this.state.sortAscending}
               sortBy={this.state.sortBy}
-              handleSort={(e) => this.handleSort(e)} />
+              handleSort={(e) => this.handleSort(e)}
+            />
           }
         </section>
       </div>

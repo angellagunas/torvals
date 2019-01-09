@@ -93,6 +93,7 @@ module.exports = new Route({
     }
 
     let initialMatch = {
+      isDeleted: false,
       dataset: { $in: datasets }
     }
 
@@ -351,11 +352,11 @@ module.exports = new Route({
     }
 
     try {
-      for (let item in response) {
+      /*for (let item in response) {
         await redis.hSet(parameterHash, item, JSON.stringify(response[item]))
       }
       await redis.hSet(parameterHash, 'mape', mape)
-      await redis.expire(parameterHash, EXPIRATION)
+      await redis.expire(parameterHash, EXPIRATION)*/
     } catch (e) {
       console.log('Error setting the cache')
     }

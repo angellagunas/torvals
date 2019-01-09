@@ -230,12 +230,13 @@ dataSetSchema.methods.recreateAndUploadFile = async function () {
   var s3File = {
     ContentType: 'text/csv',
     Bucket: bucket,
-    ACL: 'public-read'
+    ACL: 'private'
   }
 
   try {
     await this.fileChunk.uploadChunks(s3File, chunkKey)
   } catch (e) {
+    console.info(e)
     this.fileChunk.lastChunk = 0
     this.fileChunk.recreated = false
     this.fileChunk.uploaded = false
@@ -258,6 +259,7 @@ dataSetSchema.methods.recreateAndUploadFile = async function () {
 
     await s3.putObject(s3File).promise()
   } catch (e) {
+    console.info(e)
     return false
   }
 
@@ -573,10 +575,10 @@ dataSetSchema.virtual('url').get(function () {
   }
 
   if (this.path && this.path.url) {
-    return 'https://s3.' + this.path.region + '.amazonaws.com/' + this.path.bucket + '/' + this.path.url
+    return `${aws.s3CDN}/${this.path.url}`
   }
 
-  return 'https://s3.us-east-1.amazonaws.com/abraxas-orax-statics/avatars/default.jpg'
+  return `${aws.s3CDN}/avatars/default.jpg`
 })
 
 dataSetSchema.methods.getProductColumn = function () {
