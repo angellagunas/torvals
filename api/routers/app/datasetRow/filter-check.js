@@ -14,7 +14,7 @@ module.exports = new Route({
   method: 'get',
   path: '/filtercheck/:uuid',
   handler: async function (ctx) {
-    var datasetId = ctx.params.uuid
+    const datasetId = ctx.params.uuid
 
     const dataset = await DataSet.findOne({
       'uuid': datasetId,
@@ -28,7 +28,7 @@ module.exports = new Route({
 
     let catalogs = dataset.rule.catalogs
     const user = ctx.state.user
-    var currentRole
+    let currentRole
 
     const currentOrganization = user.organizations.find(orgRel => {
       return ctx.state.organization._id.equals(orgRel.organization._id)
@@ -40,11 +40,11 @@ module.exports = new Route({
       currentRole = role.toPublic()
     }
 
-    var query = {}
+    let query = {}
 
     let filters = {}
-    var res = []
-    var rows = null
+    let res = []
+    let rows = null
 
     for (i=0; i< ctx.request.query.numberChannels; i++)
     {
@@ -84,7 +84,7 @@ async function consultfilter(query, currentRole, catalogs, user, dataset){
       continue
     }
 
-    var isCatalog = catalogs.find(item => {
+    let isCatalog = catalogs.find(item => {
       return item.slug === filter
     })
 

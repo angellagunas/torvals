@@ -186,20 +186,16 @@ class TabAdjustment extends Component {
         const minDate = moment.utc(cycles[0].dateStart)
         const maxDate = moment.utc(cycles[0].dateEnd)
 
-        var res2 = await this.validateFilter(res.canal, res.cycles, formData)
-
-        console.log(res2)
-        console.log(res)
+        const res2 = await this.validateFilter(res.canal, res.cycles, formData)
 
         Allchannels = res.canal.slice()
 
-        if (res2 != null)
-        {
-          for (var k = 0; k < res2.dataCount.length; k++)
-          {
-            if (res2.dataCount[k].count == 0)
-            {
-              const index = res.canal.findIndex(i => i.uuid === res2.dataCount[k].uuid)
+        let index
+
+        if (res2 != null){
+          for (let k of res2.dataCount){
+            if (k.count == 0){
+              index = res.canal.findIndex(i => i.uuid === k.uuid)
               res.canal.splice(index, 1)
             }
           }
@@ -269,17 +265,15 @@ class TabAdjustment extends Component {
 
       let channel = Allchannels.slice()
 
-      var res = await this.validateFilter(channel, this.state.filters.cycles, aux)
+      const res = await this.validateFilter(channel, this.state.filters.cycles, aux)
 
-      var filters = this.state.filters
+      let filters = this.state.filters
+      let index
 
-      if (res != null)
-      {
-        for (var k = 0; k < res.dataCount.length; k++)
-        {
-          if (res.dataCount[k].count == 0)
-          {
-            const index = channel.findIndex(i => i.uuid === res.dataCount[k].uuid)
+      if (res != null){
+        for (let k of res.dataCount){
+          if (k.count == 0){
+            index = channel.findIndex(i => i.uuid === k.uuid)
             channel.splice(index, 1)
           }
         }
@@ -1207,13 +1201,12 @@ class TabAdjustment extends Component {
 
   // Funcion que ajusta los filtros de canal en funcion del ceve selccionado, para evitar filtros sin data.
   async validateFilter(element, cycles, formData) {
-    var canalID = []
-    for(var canal in element)
-    {
+    let canalID = []
+    for(let canal in element) {
       canalID.push(element[canal].uuid)
     }
 
-    var cycle = cycles.find(item => {
+    let cycle = cycles.find(item => {
       return item.cycle === formData.cycle
     })
 
