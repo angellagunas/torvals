@@ -26,7 +26,6 @@ const task = new Task(async function (argv) {
     console.log(e)
     return false
   }
-
   console.log(`${title} Email Sent =>`, recipients)
   return true
 })
