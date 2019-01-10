@@ -59,6 +59,7 @@ export default ListPage({
   pageLimit: 20,
   filters: true,
   lengthList: true,
+  selectComponent: true,
   schema: {
     type: 'object',
     required: [],

@@ -47,6 +47,17 @@ const projectSchema = new Schema({
     ],
     default: 'empty'
   },
+  cycleType: {
+    type: String,
+    enum: [
+      'add',
+      'subtract'
+    ],
+    default: 'add'
+  },
+  cycleTypeValue: { type: Number },
+  timerStart: { type: Date },
+  timerEnd: { type: Date },
   description: { type: String },
   externalId: { type: String },
   adjustment: { type: Number },
@@ -58,15 +69,15 @@ const projectSchema = new Schema({
   },
   showOnDashboard: { type: Boolean, default: true },
   etag: { type: String },
-  dateMax: {type: Date},
-  dateMin: {type: Date},
+  dateMax: { type: Date },
+  dateMin: { type: Date },
   dateCreated: { type: Date, default: moment.utc },
   createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   uuid: { type: String, default: v4 },
   isDeleted: { type: Boolean, default: false },
-  rule: {type: Schema.Types.ObjectId, ref: 'Rule'},
-  outdated: {type: Boolean, default: false},
-  hasForecast: {type: Boolean, default: false}
+  rule: { type: Schema.Types.ObjectId, ref: 'Rule' },
+  outdated: { type: Boolean, default: false },
+  hasForecast: { type: Boolean, default: false }
 }, { usePushEach: true })
 
 projectSchema.plugin(dataTables)
@@ -90,7 +101,11 @@ projectSchema.methods.toPublic = function () {
     showOnDashboard: (this.showOnDashboard === null) ? true : this.showOnDashboard,
     outdated: this.outdated,
     rule: this.rule,
-    cycleStatus: this.cycleStatus
+    cycleStatus: this.cycleStatus,
+    cycleType : this.cycleType,
+    cycleTypeValue : this.cycleTypeValue,
+    timerStart: this.timerStart,
+    timerEnd: this.timerEnd
   }
 }
 
@@ -113,7 +128,11 @@ projectSchema.methods.toAdmin = function () {
     showOnDashboard: (this.showOnDashboard === null) ? true : this.showOnDashboard,
     rule: this.rule,
     outdated: this.outdated,
-    cycleStatus: this.cycleStatus
+    cycleStatus: this.cycleStatus,
+    cycleType : this.cycleType,
+    cycleTypeValue : this.cycleTypeValue,
+    timerStart: this.timerStart,
+    timerEnd: this.timerEnd
   }
 }
 

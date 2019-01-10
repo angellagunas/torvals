@@ -134,48 +134,6 @@ module.exports = new Route({
           },
           'total': {
             '$sum': 1.0
-          },
-          'approved': {
-            '$sum': {
-              '$cond': [
-                {
-                  '$eq': [
-                    '$adjustmentRequest.status',
-                    'approved'
-                  ]
-                },
-                1.0,
-                0.0
-              ]
-            }
-          },
-          'created': {
-            '$sum': {
-              '$cond': [
-                {
-                  '$eq': [
-                    '$adjustmentRequest.status',
-                    'created'
-                  ]
-                },
-                1.0,
-                0.0
-              ]
-            }
-          },
-          'rejected': {
-            '$sum': {
-              '$cond': [
-                {
-                  '$eq': [
-                    '$adjustmentRequest.status',
-                    'rejected'
-                  ]
-                },
-                1.0,
-                0.0
-              ]
-            }
           }
         }
       },

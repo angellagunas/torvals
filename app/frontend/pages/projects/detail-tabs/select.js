@@ -51,11 +51,20 @@ class Select extends Component {
                 )}
                 {this.props.options.map((item, key) => {
                   if (this.props.optionValue && this.props.optionName) {
-                    return (
-                      <option key={key} value={item[this.props.optionValue]}>
-                        {item[this.props.optionName]}
-                      </option>
-                    );
+                    if(this.props.name === 'centro-de-venta'){
+                      return (
+                        <option key={key} value={item[this.props.optionValue]}>
+                           {item['externalId']+ ' - ' + item[this.props.optionName]}
+                        </option>
+                      );
+                    }
+                    else{
+                      return (
+                        <option key={key} value={item[this.props.optionValue]}>
+                          {item[this.props.optionName]}
+                        </option>
+                      );
+                    }
                   } else {
                     return (
                       <option key={key} value={item}>

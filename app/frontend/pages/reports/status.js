@@ -118,13 +118,12 @@ class StatusRepórt extends Component {
     this.setState({ filtersLoading: true })
 
     const url = '/app/reports/filters/' + this.state.projectSelected.uuid
-
     await this.getCatalogFilters()
 
     try {
       let res = await api.get(url)
 
-      let cycles = _.orderBy(res.cycles, 'dateStart', 'asc')
+      let cycles = _.orderBy(res.cycles, 'dateStart', 'asc').slice(2,7)
       .map(item => {
         return {
           ...item,
@@ -133,7 +132,7 @@ class StatusRepórt extends Component {
         }
       })
 
-      cycles = _.orderBy(cycles, 'dateStart', 'asc').slice(2, 7)
+      cycles = _.orderBy(cycles, 'dateStart', 'asc').slice(0,3)
       cycles = [
         {
           cycle: -1, // Todos
@@ -467,24 +466,6 @@ class StatusRepórt extends Component {
             )
           }
         }
-      },
-      {
-        'title': this.formatTitle('approve.approved'),
-        'property': 'approved',
-        'default': '0',
-        'sortable': true
-      },
-      {
-        'title': this.formatTitle('approve.rejected'),
-        'property': 'rejected',
-        'default': '0',
-        'sortable': true
-      },
-      {
-        'title': this.formatTitle('approve.pending'),
-        'property': 'created',
-        'default': '0',
-        'sortable': true
       }
     ]
 
@@ -920,7 +901,10 @@ class StatusRepórt extends Component {
             </div>
           </div>
 
-          <Timer />
+          <Timer
+            timerStart={this.state.projectSelected.timerStart}
+            timerEnd={this.state.projectSelected.timerEnd}
+          />
 
         </div>
         <div className='section search-section'>
