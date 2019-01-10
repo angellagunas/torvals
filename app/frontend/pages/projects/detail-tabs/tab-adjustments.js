@@ -23,7 +23,8 @@ import { Timer } from '~base/components/timer'
 
 const FileSaver = require('file-saver')
 
-var currentRole
+let currentRole
+let Allchannels
 
 class TabAdjustment extends Component {
   constructor (props) {
@@ -185,6 +186,21 @@ class TabAdjustment extends Component {
         const minDate = moment.utc(cycles[0].dateStart)
         const maxDate = moment.utc(cycles[0].dateEnd)
 
+        const res2 = await this.validateFilter(res.canal, res.cycles, formData)
+
+        Allchannels = res.canal.slice()
+
+        let index
+
+        if (res2 != null){
+          for (let k of res2.dataCount){
+            if (k.count == 0){
+              index = res.canal.findIndex(i => i.uuid === k.uuid)
+              res.canal.splice(index, 1)
+            }
+          }
+        }
+
         this.props.showFinishBtn(!cycles[0].isFinished)
         this.setState({
           minDate,
@@ -244,6 +260,35 @@ class TabAdjustment extends Component {
 
     let aux = this.state.formData
     aux[name] = value
+
+    if (name==='centro-de-venta') {
+
+      let channel = Allchannels.slice()
+
+      const res = await this.validateFilter(channel, this.state.filters.cycles, aux)
+
+      let filters = this.state.filters
+      let index
+
+      if (res != null){
+        for (let k of res.dataCount){
+          if (k.count == 0){
+            index = channel.findIndex(i => i.uuid === k.uuid)
+            channel.splice(index, 1)
+          }
+        }
+      }
+
+      filters.canal = channel
+      aux['canal'] = channel[0].uuid
+
+      this.setState({
+        filters: {
+          ...filters
+        }
+      })
+    }
+
     this.setState({
       formData: aux
     }, () => {
@@ -1154,6 +1199,36 @@ class TabAdjustment extends Component {
     return title
   }
 
+  // Funcion que ajusta los filtros de canal en funcion del ceve selccionado, para evitar filtros sin data.
+  async validateFilter(element, cycles, formData) {
+    let canalID = []
+    for(let canal in element) {
+      canalID.push(element[canal].uuid)
+    }
+
+    let cycle = cycles.find(item => {
+      return item.cycle === formData.cycle
+    })
+
+    // Consulta a la BD por los filtros
+    const url = '/app/rows/filtercheck/'
+    try{
+      let data = await api.get(
+        url + this.props.project.activeDataset.uuid,
+        {
+          ...formData,
+          cycle: cycle.uuid,
+          canales: canalID,
+          numberChannels: canalID.length
+        }
+      )
+      return data
+    }catch(e){
+      console.log(e)
+      return null
+    }
+  }
+
   makeFilters() {
     let filters = []
     let zeroFilters = 0
@@ -1187,19 +1262,19 @@ class TabAdjustment extends Component {
           )
         }
         else if(element.length > 1){
-        filters.push(
-          <div key={key} className='column is-narrow'>
-            <Select
-              label={this.findName(key)}
-              name={key}
-              value={this.state.formData[key]}
-              optionValue='uuid'
-              optionName='name'
-              options={element}
-              onChange={(name, value) => { this.filterChangeHandler(name, value) }}
-            />
-          </div>
-        )
+          filters.push(
+            <div key={key} className='column is-narrow'>
+              <Select
+                label={this.findName(key)}
+                name={key}
+                value={this.state.formData[key]}
+                optionValue='uuid'
+                optionName='name'
+                options={element}
+                onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+              />
+            </div>
+          )
         }
         else if (element.length === 0){
           zeroFilters++
@@ -1531,7 +1606,10 @@ class TabAdjustment extends Component {
               </div>
             </div>
 
-            <Timer />
+            <Timer
+              timerStart={this.props.project.timerStart}
+              timerEnd={this.props.project.timerEnd}
+            />
 
           </div>
         </div>
