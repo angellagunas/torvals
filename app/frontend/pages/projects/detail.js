@@ -882,6 +882,19 @@ class ProjectDetail extends Component {
         </p>
     }
 
+    if (!project.mainDataset && testRoles('orgadmin')) {
+      return (
+        <TabDatasets
+          project={project}
+          history={this.props.history}
+          canEdit={canEdit}
+          setAlert={(type, data) => this.setAlert(type, data)}
+          reload={(tab) => this.load(tab)}
+          datasetDetail={this.state.datasetDetail}
+        />
+      )
+    }
+
     return (
       <div>
         <Tabs
