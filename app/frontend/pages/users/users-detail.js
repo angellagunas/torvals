@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import Select from 'react-select'
 import { FormattedMessage, injectIntl } from 'react-intl'
 import { BranchedPaginatedTable } from '~base/components/base-paginated-table'
 import api from '~base/api'
@@ -15,9 +16,21 @@ class UsersDetail extends Component {
     this.state = {
       searchTerm: '',
       userSelected: tree.get('userDetail') || undefined,
+      userRoles: null,
+      selectedRole: '',
       modalClassName: '',
       canCreate: 'admin, orgadmin, analyst, consultor-level-3, manager-level-2, manager-level-3'
     }
+  }
+
+  async componentWillMount() {
+    this.setState({
+      userRoles: await this.getRoles()
+    })
+  }
+
+  async getRoles() {
+    return api.get('/app/roles/')
   }
 
   async resetOnClick (email) {
@@ -260,6 +273,38 @@ class UsersDetail extends Component {
 
     this.selectUser(object)
   }
+  
+  setSelectedRole(option) {
+    const selection = option === null ? '' : option
+
+    this.setState({
+      selectedRole: selection
+    })
+  }
+  
+  slectionRoleComponent() {
+    if (this.state.userRoles) {
+      let roles = this.state.userRoles.data.map(role => {
+        let val = {
+          value: role.uuid,
+          label: role.name
+        }
+        return val
+      })
+
+    return( 
+      <Select
+        autosize={false}
+        placeholder='Filtrar Por Rol' // TODO Language
+        options={roles}
+        onChange={option => this.setSelectedRole(option)}
+        value={this.state.selectedRole}
+      />
+    )
+    } else {
+      return null
+    }
+  }
 
   render () {
     return (
@@ -279,6 +324,9 @@ class UsersDetail extends Component {
             </div>
             <div className='level-right'>
               <div className='level-item'>
+              <div className='control level-item'>
+                {this.slectionRoleComponent()}
+              </div>
                 <div className='field'>
                   <div className='control has-icons-right'>
                     <input
@@ -320,7 +368,7 @@ class UsersDetail extends Component {
               }}
               baseUrl='/app/users/'
               columns={this.getColumns()}
-              filters={{ general: this.state.searchTerm }}
+              filters={{ general: this.state.searchTerm, role: this.state.selectedRole.value }}
             />
           </div>
 
