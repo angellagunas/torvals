@@ -806,9 +806,9 @@ class ProjectDetail extends Component {
                 url={'/app/projects/' + this.props.match.params.uuid}
                 initialState={{
                   ...project,
-                  mainDatasetV: project.mainDataset.uuid,
-                  activeDatasetV: project.activeDataset.uuid,
-                  organization: project.organization.uuid
+                  mainDatasetV: (project.mainDataset || {}).uuid,
+                  activeDatasetV: (project.activeDataset || {}).uuid,
+                  organization: (project.organization || {}).uuid
                 }}
                 load={this.load.bind(this)}
                 canEdit={canEdit}
@@ -880,6 +880,19 @@ class ProjectDetail extends Component {
             />
           </a>
         </p>
+    }
+
+    if ((!project.mainDataset || !project.activeDataset) && testRoles('orgadmin')) {
+      return (
+        <TabDatasets
+          project={project}
+          history={this.props.history}
+          canEdit={canEdit}
+          setAlert={(type, data) => this.setAlert(type, data)}
+          reload={(tab) => this.load(tab)}
+          datasetDetail={this.state.datasetDetail}
+        />
+      )
     }
 
     return (
