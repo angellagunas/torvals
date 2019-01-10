@@ -6,7 +6,7 @@ const {
   AdjustmentRequest,
   User
 } = require('models')
-const ObjectId = require('mongodb').ObjectID
+const ObjectId = require('mongodb').ObjectID;
 
 module.exports = new Route({
   method: 'post',
@@ -121,14 +121,14 @@ module.exports = new Route({
                 ...value,
                 organization: value.organization,
                 project: value.project,
-                datasetRow: ObjectId(newDataSetRow2._id),
+                datasetRow: (newDataSetRow2._id),
                 //dataset: '', ?????
                 //lastAdjustment: '',
                 //newAdjustment: '',
-                requestedBy: ObjectId(user._id),
+                requestedBy: (user._id),
                 approvedBy: null,
                 rejectedBy: null,
-                product: ObjectId(value.apiData.producto_id),
+                product: (value.apiData.producto_id),
                 //newProduct: '', ?????
                 catalogItems: [],/// ?????
                 status: null,
