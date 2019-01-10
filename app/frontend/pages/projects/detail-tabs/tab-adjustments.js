@@ -23,8 +23,8 @@ import { Timer } from '~base/components/timer'
 
 const FileSaver = require('file-saver')
 
-var currentRole
-var Allchannels
+let currentRole
+let Allchannels
 
 class TabAdjustment extends Component {
   constructor (props) {

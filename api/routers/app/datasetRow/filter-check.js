@@ -46,8 +46,7 @@ module.exports = new Route({
     let res = []
     let rows = null
 
-    for (i=0; i< ctx.request.query.numberChannels; i++)
-    {
+    for (i=0; i< ctx.request.query.numberChannels; i++) {
       query = {
         cycle: ctx.request.query['cycle'],
         'centro-de-venta': ctx.request.query['centro-de-venta'],
@@ -72,7 +71,7 @@ async function consultfilter(query, currentRole, catalogs, user, dataset){
   let catalogItemsFilters = []
   let filters = {}
       
-  for (var filter in query) {
+  for (let filter in query) {
     filter_skip = ['limit', 'start', 'sort', 'date_start', 'date_end']
     if (filter_skip.includes(filter)) {
       continue
