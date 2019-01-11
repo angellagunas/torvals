@@ -4,6 +4,7 @@ import api from '~base/api'
 import { validateRegText } from '~base/tools'
 import tree from '~core/tree'
 import moment from 'moment'
+import Loader from '~base/components/spinner'
 import { EditableTable } from '~base/components/base-editableTable'
 import { toast } from 'react-toastify'
 import FontAwesome from 'react-fontawesome'
@@ -23,6 +24,7 @@ class TabApprove extends Component {
     this.state = {
       dataRows: [],
       filteredData: [],
+      filtersLoading: false,
       isLoading: '',
       selectedAll: false,
       disableButtons: true,
@@ -30,6 +32,7 @@ class TabApprove extends Component {
       searchTerm: '',
       salesCenters: [],
       salesCenter: {},
+      groups:[],
       sortAscending: true,
       sortBy: 'statusLevel'
     }
@@ -54,6 +57,7 @@ class TabApprove extends Component {
         salesCenters: res['centro-de-venta'],
         salesCenter: (res['centro-de-venta'][0] || {}).uuid
       }, () => this.getAdjustmentRequests())
+      this.setState({filtersLoading:true})
     } catch(error) {
       console.error(error)
     }
@@ -775,8 +779,9 @@ class TabApprove extends Component {
     return (
       <div>
         <section>
-          {this.getModifyButtons()}
-          {this.state.filteredData.length === 0 ?
+          {this.getModifyButtons()}          
+
+          {this.state.filteredData.length === 0 && this.state.filtersLoading ?
             <section className='section'>
               <center>
                 <h2 className='subtitle has-text-primary'>
@@ -788,6 +793,20 @@ class TabApprove extends Component {
               </center>
             </section>
             :
+            !this.state.filtersLoading ?
+
+            <section className='section'>
+              <center>
+                <h2 className='subtitle has-text-primary'>
+                  <FormattedMessage
+                    id="projects.loading"
+                    defaultMessage={`Cargando`}
+                  />
+                </h2>
+              </center>
+              <Loader />
+            </section>
+            :
             <BaseTable
               className='aprobe-table is-fullwidth'
               data={this.state.filteredData}
@@ -797,6 +816,8 @@ class TabApprove extends Component {
               handleSort={(e) => this.handleSort(e)}
             />
           }
+
+          
         </section>
       </div>
     )
