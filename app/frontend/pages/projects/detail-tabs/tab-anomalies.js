@@ -403,7 +403,11 @@ class TabAnomalies extends Component {
       })
     }
 
-    this.props.reload('configuracion')
+    if (currentRole !== 'manager-level-1') {
+      this.props.reload('configuracion')
+    } else {
+      window.location.reload(false)
+    }
   }
 
 

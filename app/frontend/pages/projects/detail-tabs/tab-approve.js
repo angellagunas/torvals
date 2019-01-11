@@ -85,7 +85,9 @@ class TabApprove extends Component {
 
     for (let row of this.state.dataRows) {
       let saleCenter = row.catalogItems.find(item => item.type === 'centro-de-venta')
-
+      if (!saleCenter) {
+        saleCenter = {}
+      }
       approveReqs[saleCenter.uuid] = (approveReqs[saleCenter.uuid] || 0) + 1
     }
 
@@ -147,7 +149,7 @@ class TabApprove extends Component {
           if (!row.selected) {
             row.selected = false
           }
-          return String(row.product.externalId)
+          return String((row.product || {}).externalId)
         }
       },
       {
@@ -156,7 +158,7 @@ class TabApprove extends Component {
         'default': 'N/A',
         'sortable': true,
         formatter: (row) => {
-          return String(row.product.name)
+          return String((row.product || {}).name)
         }
       },
       {

@@ -29,7 +29,7 @@ module.exports = new Route({
               'update': {$set: {isDeleted: true}}
             }
           })
-          
+
           updateBulk.push({
             'organization': anomaly.organization,
             'project': anomaly.project,
