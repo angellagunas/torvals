@@ -24,16 +24,18 @@ class UsersDetail extends Component {
     }
   }
 
-  async componentWillMount() {
-    this.setState({
-      userRoles: await this.getRoles()
-    })
+  componentDidMount() {
+    this.getRoles()
   }
 
   async getRoles() {
-    return api.get('/app/roles/')
-  }
+    const roles = await api.get('/app/roles/')
   
+    this.setState({
+      userRoles: roles
+    })
+  }
+
   notify(message = '', timeout = 5000, type = toast.TYPE.INFO) {
     if (!toast.isActive(this.toastId)) {
       this.toastId = toast(message, {
@@ -305,14 +307,11 @@ class UsersDetail extends Component {
   }
   
   slectionRoleComponent() {
-    if (this.state.userRoles) {
-      let roles = this.state.userRoles.data.map(role => {
-        let val = {
+    if (this.state.userRoles && this.state.userRoles.data) {
+      let roles = this.state.userRoles.data.map(role => ({
           value: role.uuid,
           label: role.name
-        }
-        return val
-      })
+      }))
 
     return( 
       <Select
