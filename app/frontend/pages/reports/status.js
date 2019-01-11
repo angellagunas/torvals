@@ -21,6 +21,7 @@ class StatusRepórt extends Component {
     super(props)
     this.state = {
       dataRows: [],
+      projectSelected: {},
       showCycles: false,
       isFiltered: false,
       filtersLoaded: false,
