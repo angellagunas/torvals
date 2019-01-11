@@ -9,6 +9,7 @@ import UserDetail from './detail'
 import CreateUser from './create'
 import { testRoles } from '~base/tools'
 import env from '~base/env-variables'
+import { toast } from 'react-toastify'
 
 class UsersDetail extends Component {
   constructor (props) {
@@ -32,6 +33,24 @@ class UsersDetail extends Component {
   async getRoles() {
     return api.get('/app/roles/')
   }
+  
+  notify(message = '', timeout = 5000, type = toast.TYPE.INFO) {
+    if (!toast.isActive(this.toastId)) {
+      this.toastId = toast(message, {
+        autoClose: timeout,
+        type: type,
+        hideProgressBar: true,
+        closeButton: false
+      })
+    } else {
+      toast.update(this.toastId, {
+        render: message,
+        type: type,
+        autoClose: timeout,
+        closeButton: false
+      })
+    }
+  }
 
   async resetOnClick (email) {
     await this.setState({
@@ -49,6 +68,9 @@ class UsersDetail extends Component {
           resetText: this.formatTitle('user.resetText2'),
           resetClass: 'button is-success'
         })
+
+        this.notify('Se ha enviado el correo',5000, toast.TYPE.SUCCESS)
+
       }, 3000)
     } catch (e) {
       await this.setState({
