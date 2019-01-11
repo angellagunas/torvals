@@ -309,8 +309,8 @@ class UsersDetail extends Component {
   slectionRoleComponent() {
     if (this.state.userRoles && this.state.userRoles.data) {
       let roles = this.state.userRoles.data.map(role => ({
-          value: role.uuid,
-          label: role.name
+        value: role.uuid,
+        label: role.name
       }))
 
     return( 
