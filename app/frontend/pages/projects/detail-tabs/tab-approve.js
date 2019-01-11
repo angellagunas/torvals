@@ -85,10 +85,7 @@ class TabApprove extends Component {
 
     for (let row of this.state.dataRows) {
       let saleCenter = row.catalogItems.find(item => item.type === 'centro-de-venta')
-      if (!saleCenter) {
-        saleCenter = {}
-        console.log('empty', row)
-      }
+
       approveReqs[saleCenter.uuid] = (approveReqs[saleCenter.uuid] || 0) + 1
     }
 
