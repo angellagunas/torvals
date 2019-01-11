@@ -29,6 +29,7 @@ module.exports = new Route({
               'update': {$set: {isDeleted: true}}
             }
           })
+          
           updateBulk.push({
             'organization': anomaly.organization,
             'project': anomaly.project,
@@ -39,6 +40,7 @@ module.exports = new Route({
             'channel': anomaly.channel,
             'cycle': anomaly.cycle,
             'period': anomaly.period,
+            'catalogItems': anomaly.catalogItems,
             'data': {
               ...anomaly.data,
               'prediction': anomaly.prediction,
@@ -58,6 +60,45 @@ module.exports = new Route({
           bulkOps = []
           updateBulk = []
 
+          if (data.rol === 'manager-level-1') {
+            for (let datasetRow of rows) {
+              const adjustmentRequest = await AdjustmentRequest.create({
+                organization: datasetRow.organization,
+                project: datasetRow.project,
+                dataset: datasetRow.dataset,
+                datasetRow: datasetRow._id,
+                product: datasetRow.product,
+                newProduct: datasetRow.newProduct,
+                channel: datasetRow.channel,
+                salesCenter: datasetRow.salesCenter,
+                lastAdjustment: datasetRow.data.adjustment,
+                newAdjustment: datasetRow.data.prediction,
+                requestedBy: ctx.state.user._id,
+                status: 'created',
+                catalogItems: datasetRow.catalogItems,
+                period: datasetRow.period,
+                cycle: datasetRow.cycle,
+                catalogItems: anomaly.catalogItems,
+              })
+
+              datasetRow.adjustmentRequest = adjustmentRequest
+              await datasetRow.save()
+            }
+          }
+
+        }
+      } catch (e) {
+        console.error('Error recuperando las anomalías', e)
+        ctx.throw(500, 'Error recuperando las anomalías')
+      }
+    }
+
+    try {
+      if (bulkOps.length > 0) {
+        await Anomaly.bulkWrite(bulkOps)
+        const rows = await DataSetRow.insertMany(updateBulk)
+
+        if (data.rol === 'manager-level-1') {
           for (let datasetRow of rows) {
             const adjustmentRequest = await AdjustmentRequest.create({
               organization: datasetRow.organization,
@@ -80,39 +121,6 @@ module.exports = new Route({
             datasetRow.adjustmentRequest = adjustmentRequest
             await datasetRow.save()
           }
-        }
-      } catch (e) {
-        console.error('Error recuperando las anomalías', e)
-        ctx.throw(500, 'Error recuperando las anomalías')
-      }
-    }
-
-    try {
-      if (bulkOps.length > 0) {
-        await Anomaly.bulkWrite(bulkOps)
-        const rows = await DataSetRow.insertMany(updateBulk)
-
-        for (let datasetRow of rows) {
-          const adjustmentRequest = await AdjustmentRequest.create({
-            organization: datasetRow.organization,
-            project: datasetRow.project,
-            dataset: datasetRow.dataset,
-            datasetRow: datasetRow._id,
-            product: datasetRow.product,
-            newProduct: datasetRow.newProduct,
-            channel: datasetRow.channel,
-            salesCenter: datasetRow.salesCenter,
-            lastAdjustment: datasetRow.data.adjustment,
-            newAdjustment: datasetRow.data.prediction,
-            requestedBy: ctx.state.user._id,
-            status: 'created',
-            catalogItems: datasetRow.catalogItems,
-            period: datasetRow.period,
-            cycle: datasetRow.cycle
-          })
-
-          datasetRow.adjustmentRequest = adjustmentRequest
-          await datasetRow.save()
         }
       }
     } catch (e) {
