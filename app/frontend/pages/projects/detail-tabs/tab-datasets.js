@@ -208,7 +208,7 @@ class TabDatasets extends Component {
   }
 
   render () {
-    const dataSetsNumber = this.props.project.datasets.length
+    const dataSetsNumber = (this.props.project.datasets || []).length
     let adviseContent = null
     if (dataSetsNumber) {
       adviseContent =

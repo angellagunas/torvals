@@ -58,7 +58,13 @@ const task = new Task(
     }
 
     const cycles = project.rule.cyclesAvailable
-    let cyclesAvailable = await Cycle.getAvailable(organization._id, project.rule._id, cycles)
+    let cyclesAvailable = await Cycle.getAvailable(
+      organization._id,
+      project.rule._id,
+      project.cycleType,
+      project.cycleTypeValue,
+      cycles
+    )
     if (cyclesAvailable.length < cycles) {
       log.call('Creating missing cycles.')
 
@@ -85,7 +91,13 @@ const task = new Task(
         })
       }
 
-      cyclesAvailable = await Cycle.getAvailable(organization._id, project.rule._id, cycles)
+      cyclesAvailable = await Cycle.getAvailable(
+        organization._id,
+        project.rule._id,
+        project.cycleType,
+        project.cycleTypeValue,
+        cycles
+      )
     }
 
     log.call('Obtaining rows to copy...')
