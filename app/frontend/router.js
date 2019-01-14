@@ -43,6 +43,7 @@ import CatalogRouter from './pages/catalog/router'
 import CatalogDetail from './pages/catalog/detail'
 import HistoricalReport from './pages/reports/historic'
 import StatusReport from './pages/reports/status'
+import AdjustmentReport from './pages/reports/adjustment'
 import DownloadReport from './pages/reports/download'
 import OrgRules from './pages/org-rules'
 import UsersGroups from './pages/users-groups'
@@ -114,6 +115,7 @@ class AppRouter extends Component {
 
               {HistoricalReport.asRouterItem()}
               {StatusReport.asRouterItem()}
+              {AdjustmentReport.asRouterItem()}
               {DownloadReport.asRouterItem()}
 
               {OrgRules.asRouterItem()}

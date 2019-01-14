@@ -124,7 +124,7 @@ class StatusRepórt extends Component {
     try {
       let res = await api.get(url)
 
-      let cycles = _.orderBy(res.cycles, 'dateStart', 'asc').slice(2,7)
+      let cycles = _.orderBy(res.cycles, 'dateStart', 'asc').slice(0, 4)
       .map(item => {
         return {
           ...item,
@@ -133,7 +133,6 @@ class StatusRepórt extends Component {
         }
       })
 
-      cycles = _.orderBy(cycles, 'dateStart', 'asc').slice(0,3)
       cycles = [
         {
           cycle: -1, // Todos
