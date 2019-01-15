@@ -1,5 +1,6 @@
 const Route = require('lib/router/route')
 const {
+  DataSet,
   DataSetRow,
   Project,
   User,
@@ -16,19 +17,13 @@ module.exports = new Route({
   path: '/filters/:uuid',
   handler: async function (ctx) {
     const organization = await Organization.findOne({_id: ctx.state.organization._id})
-    const uuid = ctx.params.uuid
     const datasetId = ctx.params.uuid
 
-    const project = await Project.findOne({
-      uuid: uuid,
-      organization: organization._id
-    })
-
-    const dataset = await Project.findOne({
-      'uuid': datasetId,
-      'isDeleted': false,
+    const dataset = await DataSet.findOne({
+      uuid: datasetId,
+      isDeleted: false,
       organization: ctx.state.organization
-    })
+    }).populate('rule')
 
     ctx.assert(dataset, 404, 'DataSet no encontrado')
 
@@ -72,7 +67,7 @@ module.exports = new Route({
     let invalidCatalogs = ['5b71e9abc2eb13002b7a700b', '5b71ea41e8ca55002673973c', '5b71ea8be8ca55002673973d']
     let groupIds = ctx.state.user.groups.filter((item) => {return !invalidCatalogs.includes(String(item)) })
     const groups = groupIds.map((group) => {return String(group)})
-    
+
     const users = await User.find({
       isDeleted: false,
       isOperationalUser: true,
