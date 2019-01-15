@@ -477,6 +477,7 @@
       "saving": "Saving"
     },
     "report": {
+      "adjustmentTitle" : "Adjustment Report",
       "adjustmentFinished": "Finished adjustments",
       "adjustmentInProcess": "Adjustments in process",
       "adjustmentTimeLeft": "Remaining time to adjust",

@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { injectIntl } from 'react-intl'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import moment from 'moment'
 import _ from 'lodash'
 import { toast } from 'react-toastify'
@@ -225,6 +225,19 @@ class AdjustmentReport extends Component {
     return intl.formatMessage({ id })
   }
 
+  getHeader() {
+    return (
+      <div className='section-header'>
+        <h2>
+            <FormattedMessage
+              id="report.adjustmentTitle"
+              defaultMessage={`Reporte de Ajustes`}
+            />
+        </h2>
+      </div>
+    )
+  }
+
   async download() {
     try {
       const {
@@ -348,6 +361,7 @@ class AdjustmentReport extends Component {
     if (error) {
       return (
         <div className="detail-page">
+          {this.getHeader()}
           <div className="section columns">
             <div className="column">
               <article className="message is-danger">
@@ -367,6 +381,7 @@ class AdjustmentReport extends Component {
     if (filtersLoading) {
       return (
         <div className="detail-page">
+          {this.getHeader()}
           <div className="section columns">
             <div className="column is-centered">
               <Spinner />
@@ -378,45 +393,63 @@ class AdjustmentReport extends Component {
 
     return (
       <div className="detail-page">
-        <div className="section level selects">
-          <div className="columns is-multiline is-mobile">
+        {this.getHeader()}
+        <div className='section columns is-multiline is-padingless-top'>
+          <div className='column'>
+            <div className='section level selects is-clearfix'>
+              <div className='level-left'>
+                {this.state.projectSelected &&
+                  <div className='level-item'>
+                    <Select
+                      label={this.formatTitle('adjustments.project')}
+                      name="project"
+                      value={projectSelected.uuid}
+                      optionValue="uuid"
+                      optionName="name"
+                      type="text"
+                      options={projects}
+                      onChange={(name, value) => this.filterChangeHandler(name, value)}
+                    />
+                  </div>
+                }
 
-            <div className="column is-narrow">
-              <Select
-                label={this.formatTitle('adjustments.cycle')}
-                name="project"
-                value={projectSelected.uuid}
-                optionValue="uuid"
-                optionName="name"
-                type="text"
-                options={projects}
-                onChange={(name, value) => this.filterChangeHandler(name, value)}
-              />
+                <div className="level-item">
+                  <DatePicker
+                    label={this.formatTitle('adjustments.dateRange')}
+                    minDate={minDate}
+                    maxDate={maxDate}
+                    initialStartDate={startDate}
+                    initialEndDate={endDate}
+                    onChange={dates => this.onDatesChange(dates)}
+                  />
+                </div>
+
+                <div className='level-right'>
+                  <div className='level-item'>
+
+                    <div className='field'>
+                      <label className='label'>
+                        <br />
+                      </label>
+                      <div className='control'>
+                        <button
+                          type="button"
+                          className={'button is-primary'}
+                          disabled={!!isDownloading}
+                          onClick={() => this.download()}
+                          >
+                          <span className="icon" title="Descargar">
+                            <i className="fa fa-download" />
+                          </span>
+                          <p>{this.formatTitle('report.adjustmentDownload')}</p>
+                        </button>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
             </div>
-
-            <div className="column is-narrow">
-              <DatePicker
-                minDate={minDate}
-                maxDate={maxDate}
-                initialStartDate={startDate}
-                initialEndDate={endDate}
-                onChange={dates => this.onDatesChange(dates)}
-              />
-            </div>
-
-            <div className="column download-btn">
-              <button
-                type="button"
-                className={`button is-info ${isDownloading && 'is-loading'}`}
-                disabled={!!isDownloading}
-                onClick={() => this.download()}
-              >
-                <span className="icon" title="Descargar">
-                  <i className="fa fa-download" />
-                </span>
-              </button>
-            </div>
-
           </div>
         </div>
 

@@ -102,6 +102,7 @@
       "colGroups": "Grupos"
     },
     "adjustments": {
+      "project": "Projecto",
       "exercise": "Ejercicio",
       "cycle": "Ciclo",
       "indicators": "Indicadores",
@@ -116,6 +117,7 @@
       "periodView": "Vista Periodo",
       "productView": "Vista Producto",
       "adjustmentRange": "Rango permitido",
+      "dateRange": "Rango por Fechas",
       "last": "Anterior",
       "range": "Rango",
       "unlimited": "Ilimitado",
@@ -478,9 +480,11 @@
       "saving": "Guardando"
     },
     "report": {
+      "adjustmentTitle" : "Reporte de Ajustes",
       "adjustmentFinished": "Ajustes finalizados",
       "adjustmentInProcess": "Ajustes en proceso",
       "adjustmentTimeLeft": "Tiempo restante para ajustar",
+      "adjustmentDownload": "Descargar",
       "days": "Días",
       "downloadInfo": "Estos son los ultimos reportes en proyecto",
       "downloadInfo2": "Recuerda que tus reportes estan disponibles 24 horas despues de tu cierre.",
