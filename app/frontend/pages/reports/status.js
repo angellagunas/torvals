@@ -21,6 +21,7 @@ class StatusRepórt extends Component {
     super(props)
     this.state = {
       dataRows: [],
+      projectSelected: {},
       showCycles: false,
       isFiltered: false,
       filtersLoaded: false,
@@ -116,14 +117,12 @@ class StatusRepórt extends Component {
 
   async getFilters () {
     this.setState({ filtersLoading: true })
-
-    const url = '/app/reports/filters/' + this.state.projectSelected.uuid
+    const url = '/app/reports/filters/' + this.state.projectSelected.activeDataset.uuid
     await this.getCatalogFilters()
 
     try {
       let res = await api.get(url)
-
-      let cycles = _.orderBy(res.cycles, 'dateStart', 'asc').slice(2,7)
+      let cycles = _.orderBy(res.cycles, 'dateStart', 'asc').slice(2, 6)
       .map(item => {
         return {
           ...item,
@@ -132,7 +131,6 @@ class StatusRepórt extends Component {
         }
       })
 
-      cycles = _.orderBy(cycles, 'dateStart', 'asc').slice(0,3)
       cycles = [
         {
           cycle: -1, // Todos
@@ -570,8 +568,8 @@ class StatusRepórt extends Component {
       return (
         <div className='is-fullwidth has-text-centered subtitle has-text-primary'>
           <FormattedMessage
-            id="report.loadingMsg"
-            defaultMessage={`Cargando, un momento por favor`}
+            id="report.longLoadingMsg"
+            defaultMessage={`Cargando, esto podría tardar varios minutos`}
           />
           <Loader />
         </div>
@@ -858,7 +856,7 @@ class StatusRepórt extends Component {
                   </div>
                 }
 
-                {this.state.filters.status.length > 0 &&
+                {(this.state.filters.status || []).length > 0 &&
                   <div className='level-item'>
                     <Select
                       label={"Estatus"}

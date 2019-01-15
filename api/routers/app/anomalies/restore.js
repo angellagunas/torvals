@@ -1,5 +1,10 @@
 const Route = require('lib/router/route')
-const { Anomaly, Project, DataSetRow } = require('models')
+const {
+  Anomaly,
+  Project,
+  DataSetRow,
+  AdjustmentRequest
+} = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -11,7 +16,6 @@ module.exports = new Route({
     ctx.assert(project, 404, 'Proyecto no encontrado')
 
     var batchSize = 1000
-
     var bulkOps = []
     var updateBulk = []
 
@@ -25,6 +29,7 @@ module.exports = new Route({
               'update': {$set: {isDeleted: true}}
             }
           })
+
           updateBulk.push({
             'organization': anomaly.organization,
             'project': anomaly.project,
@@ -35,6 +40,7 @@ module.exports = new Route({
             'channel': anomaly.channel,
             'cycle': anomaly.cycle,
             'period': anomaly.period,
+            'catalogItems': anomaly.catalogItems,
             'data': {
               ...anomaly.data,
               'prediction': anomaly.prediction,
@@ -50,11 +56,39 @@ module.exports = new Route({
         if (bulkOps.length === batchSize) {
           console.log(`${batchSize} anomalies saved!`)
           await Anomaly.bulkWrite(bulkOps)
+          const rows = await DataSetRow.insertMany(updateBulk)
           bulkOps = []
-          await DataSetRow.insertMany(updateBulk)
           updateBulk = []
+
+          if (data.rol === 'manager-level-1') {
+            for (let datasetRow of rows) {
+              const adjustmentRequest = await AdjustmentRequest.create({
+                organization: datasetRow.organization,
+                project: datasetRow.project,
+                dataset: datasetRow.dataset,
+                datasetRow: datasetRow._id,
+                product: datasetRow.product,
+                newProduct: datasetRow.newProduct,
+                channel: datasetRow.channel,
+                salesCenter: datasetRow.salesCenter,
+                lastAdjustment: datasetRow.data.adjustment,
+                newAdjustment: datasetRow.data.prediction,
+                requestedBy: ctx.state.user._id,
+                status: 'created',
+                catalogItems: datasetRow.catalogItems,
+                period: datasetRow.period,
+                cycle: datasetRow.cycle,
+                catalogItems: anomaly.catalogItems,
+              })
+
+              datasetRow.adjustmentRequest = adjustmentRequest
+              await datasetRow.save()
+            }
+          }
+
         }
       } catch (e) {
+        console.error('Error recuperando las anomalías', e)
         ctx.throw(500, 'Error recuperando las anomalías')
       }
     }
@@ -62,10 +96,36 @@ module.exports = new Route({
     try {
       if (bulkOps.length > 0) {
         await Anomaly.bulkWrite(bulkOps)
-        await DataSetRow.insertMany(updateBulk)
+        const rows = await DataSetRow.insertMany(updateBulk)
+
+        if (data.rol === 'manager-level-1') {
+          for (let datasetRow of rows) {
+            const adjustmentRequest = await AdjustmentRequest.create({
+              organization: datasetRow.organization,
+              project: datasetRow.project,
+              dataset: datasetRow.dataset,
+              datasetRow: datasetRow._id,
+              product: datasetRow.product,
+              newProduct: datasetRow.newProduct,
+              channel: datasetRow.channel,
+              salesCenter: datasetRow.salesCenter,
+              lastAdjustment: datasetRow.data.adjustment,
+              newAdjustment: datasetRow.data.prediction,
+              requestedBy: ctx.state.user._id,
+              status: 'created',
+              catalogItems: datasetRow.catalogItems,
+              period: datasetRow.period,
+              cycle: datasetRow.cycle
+            })
+
+            datasetRow.adjustmentRequest = adjustmentRequest
+            await datasetRow.save()
+          }
+        }
       }
     } catch (e) {
-      ctx.throw(500, 'Error recuperando las anomalías')
+      console.error('Error recuperando las anomalías 2', e)
+      ctx.throw(500, 'Error recuperando las anomalías 2')
     }
 
     ctx.body = {

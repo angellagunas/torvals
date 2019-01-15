@@ -18,7 +18,8 @@
       "prices": "Precios",
       "forecast": "Predicciones",
       "uploadUsers": "Agregar Usuarios",
-      "reportStatus": "Estado de proyecto",
+      "reportStatus": "Reporte de Actividad",
+      "reportAdjustment": "Reporte de ajustes",
       "reportHistoric": "Histórico de ajustes",
       "reportDownloads": "Descargas",
       "home": "Inicio",
@@ -101,6 +102,7 @@
       "colGroups": "Grupos"
     },
     "adjustments": {
+      "project": "Projecto",
       "exercise": "Ejercicio",
       "cycle": "Ciclo",
       "indicators": "Indicadores",
@@ -115,6 +117,7 @@
       "periodView": "Vista Periodo",
       "productView": "Vista Producto",
       "adjustmentRange": "Rango permitido",
+      "dateRange": "Rango por Fechas",
       "last": "Anterior",
       "range": "Rango",
       "unlimited": "Ilimitado",
@@ -477,9 +480,11 @@
       "saving": "Guardando"
     },
     "report": {
+      "adjustmentTitle" : "Reporte de Ajustes",
       "adjustmentFinished": "Ajustes finalizados",
       "adjustmentInProcess": "Ajustes en proceso",
       "adjustmentTimeLeft": "Tiempo restante para ajustar",
+      "adjustmentDownload": "Descargar",
       "days": "Días",
       "downloadInfo": "Estos son los ultimos reportes en proyecto",
       "downloadInfo2": "Recuerda que tus reportes estan disponibles 24 horas despues de tu cierre.",
@@ -494,6 +499,7 @@
       "hours": "Horas",
       "initial": "Inicial",
       "loadingMsg": "Cargando, un momento por favor",
+      "longLoadingMsg" : "Cargando, esto podría tardar varios minutos",
       "minutes": "Min.",
       "noAdjustment": "Sin ajustes",
       "noInfo": "No hay datos que mostrar, intente con otro filtro",
@@ -503,7 +509,7 @@
       "quantity": "Cantidad",
       "searchTitle": "Búsqueda general",
       "showBy": "Mostrar por",
-      "statusTitle": "Estado de proyecto"
+      "statusTitle": "Reporte de Actividad"
     },
     "projects": {
       "add": "Agregar",

@@ -13,6 +13,7 @@ import GroupsImport from '../pages/import/groups'
 import Catalogs from '../pages/catalog/list'
 import HistoricReport from '../pages/reports/historic'
 import StatusReport from '../pages/reports/status'
+import AdjustmentReport from '../pages/reports/adjustment'
 import DownloadReport from '../pages/reports/download'
 import Prices from '../pages/prices/list'
 import OrgRules from '../pages/org-rules'
@@ -229,6 +230,7 @@ class Sidebar extends Component {
           opened: false,
           dropdown: [
             this.formatTitle('sideMenu.reportStatus', StatusReport),
+            this.formatTitle('sideMenu.reportAdjustment', AdjustmentReport),
             // this.formatTitle('sideMenu.reportHistoric', HistoricReport),
             this.formatTitle('sideMenu.reportDownloads', DownloadReport)
           ]

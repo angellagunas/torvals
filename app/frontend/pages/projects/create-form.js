@@ -148,6 +148,10 @@ class ProjectForm extends Component {
       this.setState({...this.state, apiCallMessage: 'message is-success'})
       if (this.props.finishUp) this.props.finishUp(data.data)
       await this.updateStep()
+
+      if (this.props.refresh) {
+        window.location.reload(false)
+      }
       return
     } catch (e) {
       if (this.props.errorHandler) this.props.errorHandler(e)
@@ -159,7 +163,7 @@ class ProjectForm extends Component {
     }
   }
 
-  render () {
+  render() {
     let { canEdit } = this.props
     var error
     if (this.state.error) {

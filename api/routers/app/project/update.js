@@ -31,6 +31,7 @@ module.exports = new Route({
       name: data.name,
       description: data.description,
       status: data.status,
+      cycleStatus: data.cycleStatus,
       cycleType: data.cycleType || 'add',
       cycleTypeValue: data.cycleTypeValue || 6,
       mainDataset: mainDataset ? ObjectId(mainDataset._id) : null,
