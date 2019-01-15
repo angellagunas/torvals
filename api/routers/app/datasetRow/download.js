@@ -51,7 +51,8 @@ module.exports = new Route({
         'product',
         'showAdjusted',
         'showNotAdjusted',
-        'searchTerm'
+        'searchTerm',
+        'noHeaders'
       ]
       if (unwantedKeys.includes(filter)) {
         continue
@@ -82,9 +83,8 @@ module.exports = new Route({
     }
     names.push('"producto_id"', '"producto_name"', '"fecha"', '"periodo"', '"prediccion"', '"ajuste"')
 
-    rowsCsv = `${names.join()}\r\n`
+    rowsCsv = !data.noHeaders ? `${names.join()}\r\n` : ''
 
-    rowsCsv = rowsCsv.substring(0, rowsCsv.length - 1) + '\r\n'
     for (let row of rows) {
       let rowsString = rowBeginning
 

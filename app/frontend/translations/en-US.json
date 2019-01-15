@@ -19,6 +19,7 @@
       "forecast": "Forecasts",
       "uploadUsers": "Add Users",
       "reportStatus": "Project Status",
+      "reportAdjustment": "Adjustment Report",
       "reportHistoric": "Historical Adjustment",
       "reportDownloads": "Downloads",
       "home": "Home",
@@ -476,6 +477,7 @@
       "saving": "Saving"
     },
     "report": {
+      "adjustmentTitle" : "Adjustment Report",
       "adjustmentFinished": "Finished adjustments",
       "adjustmentInProcess": "Adjustments in process",
       "adjustmentTimeLeft": "Remaining time to adjust",

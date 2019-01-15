@@ -122,7 +122,6 @@ class StatusRepórt extends Component {
 
     try {
       let res = await api.get(url)
-      console.log({ cycles: _.orderBy(res.cycles, 'dateStart', 'asc') })
       let cycles = _.orderBy(res.cycles, 'dateStart', 'asc').slice(2, 6)
       .map(item => {
         return {
