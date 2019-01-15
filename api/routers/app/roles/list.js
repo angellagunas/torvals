@@ -18,9 +18,9 @@ module.exports = new Route({
         ]
       } else if (!isNaN(parseInt(ctx.request.query[filter]))) {
         filters[filter] = parseInt(ctx.request.query[filter])
-      } else {
+      } /*else {
         filters[filter] = ctx.request.query[filter]
-      }
+      }*/
     }
 
     let user = ctx.state.user
@@ -48,7 +48,7 @@ module.exports = new Route({
       limit: ctx.request.query.limit || 20,
       skip: ctx.request.query.start || 0,
       find: {isDeleted: false, ...filters},
-      sort: ctx.request.query.sort || 'priority'
+      sort: ctx.request.query.sort || 'name'
     })
 
     ctx.body = role
