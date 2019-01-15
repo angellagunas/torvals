@@ -29,7 +29,7 @@ module.exports = new Route({
       }
     }
 
-    if (project.activeDataset && dataset.uuid !== project.activeDataset.uuid) {
+    if (project.activeDataset && dataset.uuid !== (project.activeDataset || {}).uuid) {
       project.status = 'adjustment'
     }
 

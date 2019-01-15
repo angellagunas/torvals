@@ -730,7 +730,7 @@ class ProjectDetail extends Component {
         name: 'anomalias',
         title: this.formatTitle('tabs.anomalies'),
         reload: true,
-        hide: (testRoles('manager-level-1') ||
+        hide: (
           project.status === 'processing' ||
           project.status === 'pendingRows' ||
           project.status === 'empty' ||
