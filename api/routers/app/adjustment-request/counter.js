@@ -16,7 +16,7 @@ module.exports = new Route({
   path: '/counter/:uuid/',
   handler: async function (ctx) {
     let datasetId = ctx.params.uuid
-
+    const catalogIds = ctx.request.query.catalogIds.split(',')  
     const dataset = await DataSet.findOne({
       'uuid': datasetId,
       'isDeleted': false,
@@ -50,16 +50,14 @@ module.exports = new Route({
       'consultor-level-3'
     ]
     if (permissionsList.includes(currentRole.slug)) {
-      let catalogItems = await CatalogItem.filterByUserRole(
-        { },
+      var catalogItems = await CatalogItem.filterByUserRole(
+        { _id: {$in: catalogIds}, type: 'centro-de-venta'},
         currentRole.slug,
         user
       )
       filters['catalogItems'] = { '$in': catalogItems }
     }
-
     let adjustmentRequests = await AdjustmentRequest.find(filters).populate('datasetRow')
-
     if (currentRole.slug === 'consultor-level-2' || currentRole.slug === 'manager-level-2') {
       let ranges = dataset.rule.rangesLvl2
       let cycles = await Cycle.find({

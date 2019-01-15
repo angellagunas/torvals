@@ -20,7 +20,7 @@ module.exports = new Route({
       }
 
       if (filter === 'salesCenter') {
-        const salesCenter = await SalesCenter.findOne({'uuid': ctx.request.query[filter]})
+        const salesCenter = await SalesCenter.findOne({'uuid': [filter]})
 
         if (salesCenter) {
           filters['salesCenter'] = ObjectId(salesCenter._id)
