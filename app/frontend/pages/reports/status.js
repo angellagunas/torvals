@@ -122,7 +122,6 @@ class StatusRepórt extends Component {
 
     try {
       let res = await api.get(url)
-      console.log({ cycles: _.orderBy(res.cycles, 'dateStart', 'asc') })
       let cycles = _.orderBy(res.cycles, 'dateStart', 'asc').slice(2, 6)
       .map(item => {
         return {
@@ -569,8 +568,8 @@ class StatusRepórt extends Component {
       return (
         <div className='is-fullwidth has-text-centered subtitle has-text-primary'>
           <FormattedMessage
-            id="report.loadingMsg"
-            defaultMessage={`Cargando, un momento por favor`}
+            id="report.longLoadingMsg"
+            defaultMessage={`Cargando, esto podría tardar varios minutos`}
           />
           <Loader />
         </div>
@@ -857,7 +856,7 @@ class StatusRepórt extends Component {
                   </div>
                 }
 
-                {this.state.filters.status.length > 0 &&
+                {(this.state.filters.status || []).length > 0 &&
                   <div className='level-item'>
                     <Select
                       label={"Estatus"}

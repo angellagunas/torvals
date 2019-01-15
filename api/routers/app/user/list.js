@@ -122,7 +122,7 @@ module.exports = new Route({
       } else if (filter === 'userRole' && ctx.request.query[filter] === 'consultor-level-3') {
         const roles = await Role.find({ slug: { $in: ['manager-level-2', 'manager-level-1', 'consultor-level-2', 'consultor']} })
         statement.push({ '$match': { 'doc.organizations.role': { $in: roles.map(role => ObjectId(role._id)) } } })
-      } else if (filter === 'role') {
+      } else if (filter === 'role' && ctx.request.query[filter]) {
         const role = await Role.findOne({ 'uuid': ctx.request.query[filter] })
         statement.push({ '$match': { 'doc.organizations.role': { $in: [ObjectId(role._id)] } } })
       } else if (filter === 'group') {

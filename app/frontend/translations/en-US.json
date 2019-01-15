@@ -19,6 +19,7 @@
       "forecast": "Forecasts",
       "uploadUsers": "Add Users",
       "reportStatus": "Project Status",
+      "reportAdjustment": "Adjustment Report",
       "reportHistoric": "Historical Adjustment",
       "reportDownloads": "Downloads",
       "home": "Home",
@@ -476,6 +477,7 @@
       "saving": "Saving"
     },
     "report": {
+      "adjustmentTitle" : "Adjustment Report",
       "adjustmentFinished": "Finished adjustments",
       "adjustmentInProcess": "Adjustments in process",
       "adjustmentTimeLeft": "Remaining time to adjust",
@@ -493,6 +495,7 @@
       "hours": "Hours",
       "initial": "Initial",
       "loadingMsg": "Loading, one moment please",
+      "longLoadingMsg" : "Loading, may take several minutes",
       "minutes": "Min.",
       "noAdjustment": "No adjustments",
       "noInfo": "No data to show, try another filter",

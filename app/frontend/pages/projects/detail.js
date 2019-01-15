@@ -752,7 +752,7 @@ class ProjectDetail extends Component {
         name: 'anomalias',
         title: this.formatTitle('tabs.anomalies'),
         reload: true,
-        hide: (testRoles('manager-level-1') ||
+        hide: (
           project.status === 'processing' ||
           project.status === 'pendingRows' ||
           project.status === 'empty' ||
@@ -777,6 +777,7 @@ class ProjectDetail extends Component {
             <div className='section'>
               {testRoles('orgadmin') &&
                 <CreateProject
+                  refresh={true}
                   url='/app/projects/clone'
                   initialState={{ ...project, organization: project.organization.uuid, clone: project.uuid }}
                   className={this.state.cloneClassName}
@@ -823,6 +824,7 @@ class ProjectDetail extends Component {
               }
 
               <ProjectForm
+                refresh={true}
                 className='is-shadowless'
                 baseUrl='/app/projects'
                 url={'/app/projects/' + this.props.match.params.uuid}
