@@ -49,8 +49,8 @@ export default ListPage({
   },
   sortBy: 'priority',
   modifyData: (data) => {
-    const actualRole = tree.get('role')
-    return uniqBy([actualRole, ...data], 'uuid')
+    //const actualRole = tree.get('role')
+    return uniqBy([...data], 'uuid')
   },
   getColumns: () => {
     return [
