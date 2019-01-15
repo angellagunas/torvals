@@ -18,9 +18,7 @@ module.exports = new Route({
         ]
       } else if (!isNaN(parseInt(ctx.request.query[filter]))) {
         filters[filter] = parseInt(ctx.request.query[filter])
-      } /*else {
-        filters[filter] = ctx.request.query[filter]
-      }*/
+      }
     }
 
     let user = ctx.state.user
