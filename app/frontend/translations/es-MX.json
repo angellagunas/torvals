@@ -18,7 +18,7 @@
       "prices": "Precios",
       "forecast": "Predicciones",
       "uploadUsers": "Agregar Usuarios",
-      "reportStatus": "Estado de proyecto",
+      "reportStatus": "Reporte de Actividad",
       "reportAdjustment": "Reporte de ajustes",
       "reportHistoric": "Histórico de ajustes",
       "reportDownloads": "Descargas",
@@ -509,7 +509,7 @@
       "quantity": "Cantidad",
       "searchTitle": "Búsqueda general",
       "showBy": "Mostrar por",
-      "statusTitle": "Estado de proyecto"
+      "statusTitle": "Reporte de Actividad"
     },
     "projects": {
       "add": "Agregar",

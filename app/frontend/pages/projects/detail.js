@@ -24,6 +24,7 @@ import CreateDataSet from './create-dataset'
 import TabAdjustment from './detail-tabs/tab-adjustments'
 import TabAnomalies from './detail-tabs/tab-anomalies'
 import CreateProject from './create'
+import { consolidateStreamedStyles } from 'styled-components';
 
 var currentRole
 var user
@@ -156,14 +157,35 @@ class ProjectDetail extends Component {
     }
   }
 
+  async getUuidGroup(){
+    const url = '/app/users/' + tree.get('user').uuid
+
+    const body = await api.get(url)
+    const role = tree._data.user.currentRole.slug
+    const groups = role == 'orgadmin' ? body.data.groups : body.data.groups.filter(item => tree._data.user.groups.includes(item._id))
+    let catalogItems = []
+
+    for (let group of groups) {
+      catalogItems = [
+        ...catalogItems,
+        ...group.catalogItems
+      ]      
+    }
+    return [...new Set(catalogItems)]
+  }
+
   async countAdjustmentRequests () {
     if (this.state.project.activeDataset) {
-      var url = '/app/adjustmentRequests/counter/' + this.state.project.activeDataset.uuid
+      const userGroups = !testRoles('orgadmin')? await this.getUuidGroup() : []
+      const url = '/app/adjustmentRequests/counter/' + this.state.project.activeDataset.uuid
       try {
-        var body = await api.get(url)
+        let body = await api.get(url, {
+          catalogIds: userGroups.join(',')
+        })
+        console.log(body.data.created)
         if (this.state.counterAdjustments !== body.data.created) {
           this.setState({
-            counterAdjustments: body.data.created
+            counterAdjustments: body.data.created            
           })
         }
       } catch (e) {
@@ -922,7 +944,7 @@ class ProjectDetail extends Component {
                     </p>
                     <p className='control'>
                       <span className='has-text-success has-text-weight-semibold'>
-                        <span className='icon is-small'>
+                      <span className='icon is-small'>
                           <i className='fa fa-check' />
                         </span>
                         <FormattedMessage
