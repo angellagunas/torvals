@@ -493,6 +493,7 @@
       "hours": "Hours",
       "initial": "Initial",
       "loadingMsg": "Loading, one moment please",
+      "longLoadingMsg" : "Loading, may take several minutes",
       "minutes": "Min.",
       "noAdjustment": "No adjustments",
       "noInfo": "No data to show, try another filter",

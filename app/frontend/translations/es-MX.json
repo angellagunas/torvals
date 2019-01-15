@@ -494,6 +494,7 @@
       "hours": "Horas",
       "initial": "Inicial",
       "loadingMsg": "Cargando, un momento por favor",
+      "longLoadingMsg" : "Cargando, esto podría tardar varios minutos",
       "minutes": "Min.",
       "noAdjustment": "Sin ajustes",
       "noInfo": "No hay datos que mostrar, intente con otro filtro",
