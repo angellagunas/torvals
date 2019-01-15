@@ -50,7 +50,7 @@ module.exports = new Route({
       'consultor-level-3'
     ]
     if (permissionsList.includes(currentRole.slug)) {
-      var catalogItems = await CatalogItem.filterByUserRole(
+      let catalogItems = await CatalogItem.filterByUserRole(
         { _id: {$in: catalogIds}, type: 'centro-de-venta'},
         currentRole.slug,
         user

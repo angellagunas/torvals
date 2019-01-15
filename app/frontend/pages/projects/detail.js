@@ -177,9 +177,9 @@ class ProjectDetail extends Component {
   async countAdjustmentRequests () {
     if (this.state.project.activeDataset) {
       const userGroups = !testRoles('orgadmin')? await this.getUuidGroup() : []
-      var url = '/app/adjustmentRequests/counter/' + this.state.project.activeDataset.uuid
+      const url = '/app/adjustmentRequests/counter/' + this.state.project.activeDataset.uuid
       try {
-        var body = await api.get(url, {
+        let body = await api.get(url, {
           catalogIds: userGroups.join(',')
         })
         console.log(body.data.created)
@@ -942,6 +942,9 @@ class ProjectDetail extends Component {
                     </p>
                     <p className='control'>
                       <span className='has-text-success has-text-weight-semibold'>
+                      <span className='icon is-small'>
+                          <i className='fa fa-check' />
+                        </span>
                         <FormattedMessage
                           id="projects.done"
                           defaultMessage={`Realizados`}
