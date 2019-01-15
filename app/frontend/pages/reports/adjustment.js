@@ -109,9 +109,9 @@ class AdjustmentReport extends Component {
     const { projectSelected, filters } = this.state
 
     try {
-      const res = await api.get(`/app/reports/filters/${projectSelected.uuid}`)
+      const res = await api.get(`/app/reports/filters/${projectSelected.activeDataset.uuid}`)
 
-      let cycles = _.orderBy(res.cycles, 'dateStart', 'asc').slice(0, 4)
+      let cycles = _.orderBy(res.cycles, 'dateStart', 'asc').slice(2, 6)
       cycles = cycles.map(item => ({
         ...item,
         name: `${moment.utc(item.dateStart).format('MMMM D')} - ${moment.utc(item.dateEnd).format('MMMM D')}`,
