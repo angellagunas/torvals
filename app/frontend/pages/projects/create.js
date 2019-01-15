@@ -4,7 +4,7 @@ import BaseModal from '~base/components/base-modal'
 import ProjectForm from './create-form'
 
 class CreateProject extends Component {
-  constructor (props) {
+  constructor(props) {
     super(props)
     this.hideModal = this.props.hideModal.bind(this)
     this.state = {
@@ -21,19 +21,19 @@ class CreateProject extends Component {
     }
   }
 
-  submitHandler () {
+  submitHandler() {
     this.setState({ isLoading: ' is-loading' })
   }
 
-  errorHandler () {
+  errorHandler() {
     this.setState({ isLoading: '' })
   }
 
-  formatTitle (id) {
+  formatTitle(id) {
     return this.props.intl.formatMessage({ id: id })
   }
 
-  render () {
+  render() {
     return (
       <BaseModal
         title={this.formatTitle(this.props.title) || 'Crear Proyecto'}
@@ -41,6 +41,7 @@ class CreateProject extends Component {
         hideModal={this.hideModal}
       >
         <ProjectForm
+          refresh={this.props.refresh}
           baseUrl={this.props.baseUrl}
           url={this.props.url}
           finishUp={this.props.finishUp}
