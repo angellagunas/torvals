@@ -111,7 +111,10 @@ module.exports = new Route({
     let users = []
 
     if (finishedUsers.length > 0 && (anyStatus || filterStatus === '1')) {
-      const finishedUsersItems = await User.find({uuid: {$in: finishedUsers}})
+      const finishedUsersItems = await User.find({
+        isDeleted: false,
+        uuid: { $in: finishedUsers }
+      })
       const newFinishedUsers = []
       for (let finishedUser of finishedUsersItems) {
         newFinishedUsers.push({
@@ -126,7 +129,10 @@ module.exports = new Route({
     }
 
     if (inProgressUsers.length > 0 && (anyStatus || filterStatus === '2')) {
-      const inProgressUsersItems = await User.find({uuid: {$in: inProgressUsers}})
+      const inProgressUsersItems = await User.find({
+        isDeleted: false,
+        uuid: { $in: inProgressUsers }
+      })
       const newInProgressUsers = []
       for (let inProgressUser of inProgressUsersItems) {
         newInProgressUsers.push({
@@ -141,7 +147,10 @@ module.exports = new Route({
     }
 
     if (inactiveUsers.length > 0 && (anyStatus || filterStatus === '3')) {
-      const inactiveUsersItems = await User.find({uuid: {$in: inactiveUsers}})
+      const inactiveUsersItems = await User.find({
+        isDeleted: false,
+        uuid: { $in: inactiveUsers }
+      })
       const newInactiveUsers = []
       for (let inactiveUser of inactiveUsersItems) {
         newInactiveUsers.push({

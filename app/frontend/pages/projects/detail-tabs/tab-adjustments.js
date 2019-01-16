@@ -152,7 +152,7 @@ class TabAdjustment extends Component {
               isFinished,
               adjustmentRange: this.rules.rangesLvl2[key],
               name: moment.utc(item.dateStart).format('MMMM D') + ' - ' + moment.utc(item.dateEnd).format('MMMM D'),
-              viewName: `Ciclo ${item.cycle} (Periodo ${item.periodStart} - ${item.periodEnd}) ${isFinished ? '✔' : ''}`
+              viewName: `${isFinished ? '✔ ' : ''}Ciclo ${item.cycle} (Periodo ${item.periodStart} - ${item.periodEnd}) `
             }
           })
         } else {
@@ -163,7 +163,7 @@ class TabAdjustment extends Component {
               isFinished,
               adjustmentRange: this.rules.ranges[key],
               name: moment.utc(item.dateStart).format('MMMM D') + ' - ' + moment.utc(item.dateEnd).format('MMMM D'),
-              viewName: `Ciclo ${item.cycle} (Periodo ${item.periodStart} - ${item.periodEnd}) ${isFinished ? '✔' : ''}`
+              viewName: `${isFinished ? '✔ ' : ''} Ciclo ${item.cycle} (Periodo ${item.periodStart} - ${item.periodEnd})`
             }
           })
         }
@@ -803,7 +803,7 @@ class TabAdjustment extends Component {
       if (rowAux.length > 0) {
         const res = await api.post(url, rowAux)
       }
-      if (isLimited && (currentRole === 'manager-level-1' || currentRole === 'manager-level-2')) {
+      if (isLimited && (currentRole === 'manager-level-1')) {
         this.notify(
           (<p>
             <span className='icon'>
@@ -857,7 +857,7 @@ class TabAdjustment extends Component {
 
     this.props.loadCounters()
 
-    if (currentRole !== 'manager-level-1' && currentRole !== 'manager-level-2' && limitedRows.length) {
+    if (currentRole !== 'manager-level-1' && limitedRows.length) {
       this.props.handleAdjustmentRequest(limitedRows)
     }
 
@@ -1285,7 +1285,7 @@ class TabAdjustment extends Component {
     if(zeroFilters === numfilters){
       let msg = this.formatTitle('adjustments.noInfo')
 
-      if (currentRole === 'manager-level-1' || currentRole === 'manager-level-2'){
+      if (currentRole === 'manager-level-1' ){
         msg = this.formatTitle('adjustments.nofilters')
       }
 
