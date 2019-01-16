@@ -195,9 +195,12 @@ class ProjectDetail extends Component {
 
   async getModifiedCount () {
     if (this.state.project.activeDataset) {
+      const userGroups = !testRoles('orgadmin')? await this.getUuidGroup() : []
       const url = '/app/rows/modified/dataset/'
       try {
-        let res = await api.get(url + this.state.project.activeDataset.uuid)
+        let res = await api.get(url + this.state.project.activeDataset.uuid,{
+          catalogIds: userGroups.join(',')
+        })
 
         if (
           res.data.pending !== this.state.pendingChanges ||
