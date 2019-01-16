@@ -112,6 +112,7 @@ module.exports = new Route({
 
     if (finishedUsers.length > 0 && (anyStatus || filterStatus === '1')) {
       const finishedUsersItems = await User.find({
+        isDeleted: false,
         uuid: { $in: finishedUsers }
       })
       const newFinishedUsers = []
@@ -129,6 +130,7 @@ module.exports = new Route({
 
     if (inProgressUsers.length > 0 && (anyStatus || filterStatus === '2')) {
       const inProgressUsersItems = await User.find({
+        isDeleted: false,
         uuid: { $in: inProgressUsers }
       })
       const newInProgressUsers = []
@@ -146,6 +148,7 @@ module.exports = new Route({
 
     if (inactiveUsers.length > 0 && (anyStatus || filterStatus === '3')) {
       const inactiveUsersItems = await User.find({
+        isDeleted: false,
         uuid: { $in: inactiveUsers }
       })
       const newInactiveUsers = []
