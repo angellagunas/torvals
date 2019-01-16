@@ -15,6 +15,7 @@ class UsersDetail extends Component {
   constructor (props) {
     super(props)
     this.state = {
+      sendingEmail: [],
       searchTerm: '',
       userSelected: tree.get('userDetail') || undefined,
       userRoles: null,
@@ -58,19 +59,29 @@ class UsersDetail extends Component {
     await this.setState({
       resetLoading: true,
       resetText: this.formatTitle('user.resetText1'),
-      resetClass: 'button is-info'
+      resetClass: 'button is-info',
+      sendingEmail: [
+        ...this.state.sendingEmail,
+        email
+      ]
     })
 
     var url = '/user/reset-password'
     try {
       await api.post(url, {email})
+      const userIndex = this.state.sendingEmail.findIndex(userEmail => userEmail === email)
+      if (userIndex !== -1) {
+        this.state.sendingEmail.splice(userIndex, 1)
+      }
+      console.log('EMAIL', this.state.sendingEmail)
       setTimeout(() => {
         this.setState({
           resetLoading: true,
           resetText: this.formatTitle('user.resetText2'),
-          resetClass: 'button is-success'
+          resetClass: 'button is-success',
+          sendingEmail: this.state.sendingEmail
         })
-
+        
         this.notify('Se ha enviado el correo',5000, toast.TYPE.SUCCESS)
 
       }, 3000)
@@ -206,7 +217,6 @@ class UsersDetail extends Component {
 
           const currentUser = tree.get('user')
           var disabledActions = false
-
           if (row.roleDetail && currentUser) {
             disabledActions = row.roleDetail.priority <= currentUser.currentRole.priority
           }
@@ -237,11 +247,14 @@ class UsersDetail extends Component {
               </div>
               <div className='control'>
               {env.EMAIL_SEND && (
-                <a className='button is-warning' onClick={() => this.resetOnClick(row.email)}>
+                <button
+                    className={`button is-warning ${this.state.sendingEmail.includes(row.email) ? ' is-loading': ''}`}
+                    disabled={this.state.sendingEmail === row.email}
+                    onClick={() => this.resetOnClick(row.email)}>
                   <span className='icon is-small' title="Reset Password">
-                    <i className='fa fa-envelope has-text-white' />
-                  </span>
-                </a>
+                    <i className='fa fa-envelope' />
+                  </span>   
+                </button>
               )}
               </div>
               <div className='control'>
