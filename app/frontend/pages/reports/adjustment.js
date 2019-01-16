@@ -505,5 +505,5 @@ export default Page({
   component: injectIntl(AdjustmentReport),
   title: 'Reporte de ajustes',
   icon: 'history',
-  roles: 'consultor-level-3, analyst, orgadmin, admin, consultor-level-2, manager-level-2, manager-level-3'
+  roles: 'orgadmin'
 })
