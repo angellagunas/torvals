@@ -34,12 +34,16 @@ module.exports = new Route({
         currentRole = role.toPublic()
       }
     }
-
+    console.log(currentRole)
     const rolesWithPrivileges = ['consultor-level-3', 'consultor-level-2', 'manager-level-2']
     const currentUserHasPrivileges = rolesWithPrivileges.includes(currentRole.slug)
 
     if (currentUserHasPrivileges) {
       filters['priority'] = { $gt: currentRole.priority }
+    } else if (currentRole.slug === 'planning') {
+      filters['slug'] = 'planning'
+    } else {
+      filters['priority'] = { $gte: currentRole.priority }
     }
 
     var role = await Role.dataTables({

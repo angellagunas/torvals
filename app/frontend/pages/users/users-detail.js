@@ -17,7 +17,7 @@ class UsersDetail extends Component {
     this.state = {
       searchTerm: '',
       userSelected: tree.get('userDetail') || undefined,
-      userRoles: null,
+      userRoles: [],
       selectedRole: '',
       modalClassName: '',
       canCreate: 'admin, orgadmin, analyst, consultor-level-3, manager-level-2, manager-level-3'
@@ -30,7 +30,7 @@ class UsersDetail extends Component {
 
   async getRoles() {
     const roles = await api.get('/app/roles/')
-  
+
     this.setState({
       userRoles: roles
     })
@@ -297,7 +297,7 @@ class UsersDetail extends Component {
 
     this.selectUser(object)
   }
-  
+
   setSelectedRole(option) {
     const selection = option === null ? '' : option
 
@@ -305,7 +305,7 @@ class UsersDetail extends Component {
       selectedRole: selection
     })
   }
-  
+
   slectionRoleComponent() {
     if (this.state.userRoles && this.state.userRoles.data) {
       let roles = this.state.userRoles.data.map(role => ({
@@ -313,7 +313,7 @@ class UsersDetail extends Component {
         label: role.name
       }))
 
-    return( 
+    return(
       <Select
         autosize={false}
         placeholder='Filtrar Por Rol' // TODO Language

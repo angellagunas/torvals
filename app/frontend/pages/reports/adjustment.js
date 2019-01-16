@@ -178,6 +178,19 @@ class AdjustmentReport extends Component {
     }
   }
 
+  getHeader() {
+    return (
+      <div className="section-header">
+        <h2>
+          <FormattedMessage
+            id="report.adjustmentTitle"
+            defaultMessage={`Reporte de Ajustes`}
+          />
+        </h2>
+      </div>
+    )
+  }
+
   async filterChangeHandler(name, value) {
     const { projects, formData } = this.state
     if (name === 'project') {
@@ -225,19 +238,6 @@ class AdjustmentReport extends Component {
     return intl.formatMessage({ id })
   }
 
-  getHeader() {
-    return (
-      <div className='section-header'>
-        <h2>
-            <FormattedMessage
-              id="report.adjustmentTitle"
-              defaultMessage={`Reporte de Ajustes`}
-            />
-        </h2>
-      </div>
-    )
-  }
-
   async download() {
     try {
       const {
@@ -271,7 +271,7 @@ class AdjustmentReport extends Component {
     } catch (error) {
       console.error(error)
       this.setState({
-        isDownloading: false,
+        isDownloading: false
       })
       this.notify('¡No se pudo completar la descarga!', 5000, toast.TYPE.ERROR)
     }
@@ -394,12 +394,12 @@ class AdjustmentReport extends Component {
     return (
       <div className="detail-page">
         {this.getHeader()}
-        <div className='section columns is-multiline is-padingless-top'>
-          <div className='column'>
-            <div className='section level selects is-clearfix'>
-              <div className='level-left'>
-                {this.state.projectSelected &&
-                  <div className='level-item'>
+        <div className="section columns is-multiline is-padingless-top">
+          <div className="column">
+            <div className="section level selects is-clearfix">
+              <div className="level-left">
+                {projectSelected && (
+                  <div className="level-item">
                     <Select
                       label={this.formatTitle('adjustments.project')}
                       name="project"
@@ -410,7 +410,7 @@ class AdjustmentReport extends Component {
                       options={projects}
                       onChange={(name, value) => this.filterChangeHandler(name, value)}
                     />
-                  </div>
+                  </div>)
                 }
 
                 <div className="level-item">
@@ -424,20 +424,20 @@ class AdjustmentReport extends Component {
                   />
                 </div>
 
-                <div className='level-right'>
-                  <div className='level-item'>
+                <div className="level-right">
+                  <div className="level-item">
 
-                    <div className='field'>
-                      <label className='label'>
+                    <div className="field">
+                      <label className="label">
                         <br />
                       </label>
-                      <div className='control'>
+                      <div className="control">
                         <button
                           type="button"
-                          className={'button is-primary'}
+                          className="button is-primary"
                           disabled={!!isDownloading}
                           onClick={() => this.download()}
-                          >
+                        >
                           <span className="icon" title="Descargar">
                             <i className="fa fa-download" />
                           </span>
