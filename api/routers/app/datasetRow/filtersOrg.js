@@ -11,7 +11,7 @@ module.exports = new Route({
   handler: async function (ctx) {
     const orgId = ctx.params.uuid
     const org = await Organization.findOne({uuid: orgId}, {_id: 1})
-		console.log("​ctx.state.user", ctx.state.user)
+
     let catalogItems = await CatalogItem.find({
       isDeleted: false,
       organization: org._id,

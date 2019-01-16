@@ -34,7 +34,7 @@ module.exports = new Route({
         currentRole = role.toPublic()
       }
     }
-    console.log(currentRole)
+
     const rolesWithPrivileges = ['consultor-level-3', 'consultor-level-2', 'manager-level-2']
     const currentUserHasPrivileges = rolesWithPrivileges.includes(currentRole.slug)
 
