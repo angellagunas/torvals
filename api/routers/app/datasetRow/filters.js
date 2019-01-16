@@ -91,7 +91,7 @@ module.exports = new Route({
       isDeleted: false,
       type: {$ne: 'producto'},
       ...filters
-    })
+    }).sort('name')
 
     await dataset.rule.populate('catalogs').execPopulate()
 

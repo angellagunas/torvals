@@ -12,7 +12,7 @@ module.exports = new Route({
   path: '/modified/dataset/:uuid',
   handler: async function (ctx) {
     let datasetId = ctx.params.uuid
-
+    const catalogIds = ctx.request.query.catalogIds.split(',')
     const dataset = await DataSet.findOne({'uuid': datasetId, 'isDeleted': false})
 
     ctx.assert(dataset, 404, 'DataSet no encontrado')
@@ -43,7 +43,7 @@ module.exports = new Route({
     ]
     if (permissionsList.includes(currentRole.slug)) {
       const catalogItems = await CatalogItem.filterByUserRole(
-        { },
+        { _id: {$in: catalogIds}, type: 'centro-de-venta'},
         currentRole.slug,
         user
       )
@@ -51,7 +51,6 @@ module.exports = new Route({
     }
 
     let modified = await DataSetRow.find({isDeleted: false, ...filters}).count()
-
     filters['status'] = 'sendingChanges'
     let pending = await DataSetRow.find({isDeleted: false, ...filters}).count()
 
