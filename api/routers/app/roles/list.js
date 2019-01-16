@@ -40,6 +40,10 @@ module.exports = new Route({
 
     if (currentUserHasPrivileges) {
       filters['priority'] = { $gt: currentRole.priority }
+    } else if (currentRole.slug === 'planning') {
+      filters['slug'] = 'planning'
+    } else {
+      filters['priority'] = { $gte: currentRole.priority }
     }
 
     var role = await Role.dataTables({
