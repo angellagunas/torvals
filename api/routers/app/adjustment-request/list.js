@@ -146,7 +146,16 @@ module.exports = new Route({
       sort: ctx.request.query.sort || '-dateCreated'
     })
     
-    
+    adjustmentRequests.data = adjustmentRequests.data.map(item => {
+      return {
+        ...item.toPublic(),
+        product: item.newProduct,
+        requestedBy: item.requestedBy.toPublic(),
+        approvedBy: item.approvedBy ? item.approvedBy.toPublic() : undefined,
+        rejectedBy: item.rejectedBy ? item.rejectedBy.toPublic() : undefined,
+        datasetRow: item.datasetRow.toPublic()
+      }
+    })
     ctx.body = adjustmentRequests
   }
 })
