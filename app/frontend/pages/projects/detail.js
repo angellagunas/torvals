@@ -182,7 +182,6 @@ class ProjectDetail extends Component {
         let body = await api.get(url, {
           catalogIds: userGroups.join(',')
         })
-        console.log(body.data.created)
         if (this.state.counterAdjustments !== body.data.created) {
           this.setState({
             counterAdjustments: body.data.created            

@@ -50,7 +50,7 @@ module.exports = new Route({
       'consultor-level-3'
     ]
     if (permissionsList.includes(currentRole.slug)) {
-      let catalogItems = await CatalogItem.filterByUserRole(
+      var catalogItems = await CatalogItem.filterByUserRole(
         { _id: {$in: catalogIds}, type: 'centro-de-venta'},
         currentRole.slug,
         user
@@ -58,33 +58,7 @@ module.exports = new Route({
       filters['catalogItems'] = { '$in': catalogItems }
     }
     let adjustmentRequests = await AdjustmentRequest.find(filters).populate('datasetRow')
-    if (currentRole.slug === 'consultor-level-2' || currentRole.slug === 'manager-level-2') {
-      let ranges = dataset.rule.rangesLvl2
-      let cycles = await Cycle.find({
-        organization: ctx.state.organization,
-        rule: dataset.rule,
-        dateStart: {$lte: moment.utc(dataset.dateMax), $gte: moment.utc(dataset.dateMin).subtract(1, 'days')}
-      }).sort({'cycle': 1})
-
-      cycles = cycles.map(item => {
-        return {
-          cycle: item.cycle,
-          uuid: item.uuid,
-          dateStart: item.dateStart,
-          dateEnd: item.dateEnd
-        }
-      })
-
-      adjustmentRequests = adjustmentRequests.filter(item => {
-        let rangeIndex = _.findIndex(cycles, cycle => {
-          return moment(cycle.dateStart).utc() <= moment(item.datasetRow.data.forecastDate).utc() &&
-                 moment(cycle.dateEnd).utc() >= moment(item.datasetRow.data.forecastDate).utc()
-        })
-
-        let percentage = Math.round(((item.newAdjustment - item.lastAdjustment) / item.lastAdjustment) * 100)
-        return percentage <= ranges[rangeIndex]
-      })
-    }
+    
 
     ctx.body = {
       data: {created: adjustmentRequests.length}
