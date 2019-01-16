@@ -483,7 +483,7 @@ class ProjectDetail extends Component {
     let rows = productAux.filter(item => { return item.newAdjustment && item.isLimit })
     try {
       var res = await api.post('/app/rows/request', {rows: rows, finishAdjustments: finishAdjustments, cycle: cycle.uuid, dataset: this.state.project.activeDataset.uuid})
-      if (currentRole === 'manager-level-1' || currentRole === 'manager-level-2') {
+      if (currentRole === 'manager-level-1' ) {
         this.notify(this.formatTitle('adjustments.save'), 5000, toast.TYPE.INFO)
         if (showMessage) {
           this.setState({

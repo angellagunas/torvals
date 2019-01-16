@@ -803,7 +803,7 @@ class TabAdjustment extends Component {
       if (rowAux.length > 0) {
         const res = await api.post(url, rowAux)
       }
-      if (isLimited && (currentRole === 'manager-level-1' || currentRole === 'manager-level-2')) {
+      if (isLimited && (currentRole === 'manager-level-1')) {
         this.notify(
           (<p>
             <span className='icon'>
@@ -857,7 +857,7 @@ class TabAdjustment extends Component {
 
     this.props.loadCounters()
 
-    if (currentRole !== 'manager-level-1' && currentRole !== 'manager-level-2' && limitedRows.length) {
+    if (currentRole !== 'manager-level-1' && limitedRows.length) {
       this.props.handleAdjustmentRequest(limitedRows)
     }
 
@@ -1285,7 +1285,7 @@ class TabAdjustment extends Component {
     if(zeroFilters === numfilters){
       let msg = this.formatTitle('adjustments.noInfo')
 
-      if (currentRole === 'manager-level-1' || currentRole === 'manager-level-2'){
+      if (currentRole === 'manager-level-1' ){
         msg = this.formatTitle('adjustments.nofilters')
       }
 
