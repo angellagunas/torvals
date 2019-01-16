@@ -127,11 +127,7 @@ module.exports = new Route({
       }
     }
 
-    if (
-      currentRole.slug === 'consultor-level-2' || currentRole.slug === 'manager-level-2'
-    ) {
-      filters['requestedBy'] = { '$ne': ctx.state.user }
-    }
+   
 
     var adjustmentRequests = await AdjustmentRequest.dataTables({
       limit: ctx.request.query.limit || 0,
@@ -149,46 +145,8 @@ module.exports = new Route({
       ],
       sort: ctx.request.query.sort || '-dateCreated'
     })
-
-    if (currentRole.slug === 'consultor-level-2' || currentRole.slug === 'manager-level-2') {
-      let ranges = dataset.rule.rangesLvl2
-      let cycles = await Cycle.find({
-        organization: ctx.state.organization,
-        rule: dataset.rule,
-        dateStart: {$lte: moment.utc(dataset.dateMax), $gte: moment.utc(dataset.dateMin).subtract(1, 'days')}
-      }).sort({'cycle': 1})
-
-      cycles = cycles.map(item => {
-        return {
-          cycle: item.cycle,
-          uuid: item.uuid,
-          dateStart: item.dateStart,
-          dateEnd: item.dateEnd
-        }
-      })
-
-      adjustmentRequests.data = adjustmentRequests.data.filter(item => {
-        let rangeIndex = _.findIndex(cycles, cycle => {
-          return moment(cycle.dateStart).utc() <= moment(item.datasetRow.data.forecastDate).utc() &&
-                 moment(cycle.dateEnd).utc() >= moment(item.datasetRow.data.forecastDate).utc()
-        })
-
-        let percentage = Math.round(((item.newAdjustment - item.lastAdjustment) / item.lastAdjustment) * 100)
-        return percentage <= ranges[rangeIndex]
-      })
-    }
-
-    adjustmentRequests.data = adjustmentRequests.data.map(item => {
-      return {
-        ...item.toPublic(),
-        product: item.newProduct,
-        requestedBy: item.requestedBy.toPublic(),
-        approvedBy: item.approvedBy ? item.approvedBy.toPublic() : undefined,
-        rejectedBy: item.rejectedBy ? item.rejectedBy.toPublic() : undefined,
-        datasetRow: item.datasetRow.toPublic()
-      }
-    })
-
+    
+    
     ctx.body = adjustmentRequests
   }
 })

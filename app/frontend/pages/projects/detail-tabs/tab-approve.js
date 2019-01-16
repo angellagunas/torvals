@@ -68,7 +68,6 @@ class TabApprove extends Component {
       let url = '/app/adjustmentRequests/dataset/' + this.props.project.activeDataset.uuid
       try {
         let data = await api.get(url)
-
         this.setState({
           dataRows: data.data
         }, () => {
