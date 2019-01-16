@@ -235,7 +235,7 @@ class StatusRepórt extends Component {
       const res = await api.post(
         '/app/reports/user',
         {
-          users: this.state.formData.user ? [this.state.formData.user] : undefined,
+          users: this.state.formData.user ? [this.state.formData.user] : this.state.filters.users.map(user => user.uuid),
           cycles: [cycle.uuid],
           projects: [this.state.projectSelected.uuid],
           sendRoles: rolesFlag,
@@ -250,12 +250,6 @@ class StatusRepórt extends Component {
       for (let user of res.data) {
         user.organizations[0].role = roles.find(role => role._id === user.organizations[0].role) || {}
         user.groups = user.groups.map(userGroup => groups.find(group => group._id === userGroup))
-      }
-
-      if (isState) {
-        this.setState({
-          users: res.data
-        })
       }
 
       if (rolesFlag || groupsFlag) {
@@ -348,7 +342,7 @@ class StatusRepórt extends Component {
       },
       {
         'title': 'Rol',
-        'property': 'role.name',
+        'property': 'role',
         'default': '',
         'sortable': true,
         formatter: (row) => {
@@ -481,9 +475,8 @@ class StatusRepórt extends Component {
     }
 
     const items = this.state.dataRows.filter(item => {
-      const user = item.user[0] || {}
-      const groups = (user.groups || []).map(group => group.name || '').join(' ')
-      const searchStr = `${user.name} ${groups}`
+      const groups = (item.groups || []).map(group => group.name || '').join(' ')
+      const searchStr = `${item.name} ${groups}`
 
       const regEx = new RegExp(validateRegText(searchTerm), 'gi')
 
@@ -536,7 +529,7 @@ class StatusRepórt extends Component {
   }
 
   findName = (name) => {
-    let find = ''
+    let find = {}
     this.rules.catalogs.map(item => {
       if (item.slug === name) {
         find = item
@@ -653,10 +646,10 @@ class StatusRepórt extends Component {
 
       for (let row of dataRows) {
         csv.push([
-          row.user[0].name || '',
-          row.user[0].organizations[0].role.name || '',
+          row.name || '',
+          row.organizations[0].role.name || '',
           row.status || 'Sin Ajustes',
-          (row.user[0].groups || []).map(group => group.name || '').join(' '),
+          (row.groups || []).map(group => group.name || '').join(' '),
           row.cycleName || cycle.viewName
         ].join(','))
       }
