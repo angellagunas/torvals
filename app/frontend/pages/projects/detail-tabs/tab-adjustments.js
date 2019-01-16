@@ -152,7 +152,7 @@ class TabAdjustment extends Component {
               isFinished,
               adjustmentRange: this.rules.rangesLvl2[key],
               name: moment.utc(item.dateStart).format('MMMM D') + ' - ' + moment.utc(item.dateEnd).format('MMMM D'),
-              viewName: `Ciclo ${item.cycle} (Periodo ${item.periodStart} - ${item.periodEnd}) ${isFinished ? '✔' : ''}`
+              viewName: `${isFinished ? '✔ ' : ''}Ciclo ${item.cycle} (Periodo ${item.periodStart} - ${item.periodEnd}) `
             }
           })
         } else {
@@ -163,7 +163,7 @@ class TabAdjustment extends Component {
               isFinished,
               adjustmentRange: this.rules.ranges[key],
               name: moment.utc(item.dateStart).format('MMMM D') + ' - ' + moment.utc(item.dateEnd).format('MMMM D'),
-              viewName: `Ciclo ${item.cycle} (Periodo ${item.periodStart} - ${item.periodEnd}) ${isFinished ? '✔' : ''}`
+              viewName: `${isFinished ? '✔ ' : ''} Ciclo ${item.cycle} (Periodo ${item.periodStart} - ${item.periodEnd})`
             }
           })
         }
