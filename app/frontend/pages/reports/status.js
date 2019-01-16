@@ -36,17 +36,18 @@ class StatusRepórt extends Component {
         cycles: [],
         users: [],
         status: [
-          { uuid: 0, name: 'Todos' },
-          { uuid: 1, name: 'Finalizado' },
-          { uuid: 2, name: 'En proceso' },
-          { uuid: 3, name: 'Inactivo' }
+          { uuid: '0', name: 'Todos' },
+          { uuid: '1', name: 'Finalizado' },
+          { uuid: '2', name: 'En proceso' },
+          { uuid: '3', name: 'Sin Ajustes' }
         ],
         exercise: [{ uuid: '1', name: 'Test' }]
       },
       formData: {
         cycle: 1,
         exercise: '',
-        user: undefined
+        user: undefined,
+        status: '0'
       },
       searchTerm: '',
       error: false,
@@ -64,6 +65,8 @@ class StatusRepórt extends Component {
       filterReady: false,
       filterProgress: false,
       filterInactive: false,
+      roles: [],
+      groups: []
     }
 
     this.currentRole = tree.get('user').currentRole.slug
@@ -222,24 +225,43 @@ class StatusRepórt extends Component {
 
   async getUsers(isState=true, dataCycle){
     const formCycle = dataCycle || this.state.formData.cycle
+    const rolesFlag = this.state.roles.length === 0
+    const groupsFlag = this.state.groups.length === 0
     const cycle = this.state.filters.cycles.find(item => {
       return item.cycle === formCycle
     })
 
-    const url = '/app/reports/user'
     try {
-
-      let res = await api.post(
-        url,
+      const res = await api.post(
+        '/app/reports/user',
         {
           users: this.state.formData.user ? [this.state.formData.user] : undefined,
           cycles: [cycle.uuid],
-          projects: [this.state.projectSelected.uuid]
+          projects: [this.state.projectSelected.uuid],
+          sendRoles: rolesFlag,
+          sendGroups: groupsFlag,
+          status: this.state.formData.status
         }
       )
+
+      const roles = rolesFlag ? res.roles : this.state.roles
+      const groups = groupsFlag ? res.groups : this.state.groups
+
+      for (let user of res.data) {
+        user.organizations[0].role = roles.find(role => role._id === user.organizations[0].role) || {}
+        user.groups = user.groups.map(userGroup => groups.find(group => group._id === userGroup))
+      }
+
       if (isState) {
         this.setState({
           users: res.data
+        })
+      }
+
+      if (rolesFlag || groupsFlag) {
+        this.setState({
+          roles,
+          groups
         })
       }
       return res.data
@@ -271,91 +293,21 @@ class StatusRepórt extends Component {
       return this.getAllDataRows()
     }
 
-    const apiUsers = await this.getUsers(isState, dataCycle)
-
-    const cycle = filters.cycles.find(item => {
-      return item.cycle === formCycle
-    })
-
-    if (isState) {
-      this.setState({
-        isLoading: ' is-loading',
-        isFiltered: false,
-        salesTable: [],
-        noSalesData: ''
-      })
-    }
-
-    const url = '/app/reports/adjustments'
     try {
-      let catalogItems = []
-      for (const key in formData) {
-        if (formData.hasOwnProperty(key)) {
-          const element = formData[key];
-          if(key !== 'cycle' && key !== 'user'){
-            catalogItems.push(element)
-          }
-        }
-      }
-
-      catalogItems = catalogItems.filter(item => item)
-
-      let users = formData.user ? [formData.user] : undefined
-      const userList = apiUsers || this.state.users
-
-      if(this.state.filterReady) {
-        users = userList.finishedUsers
-      }
-      else if (this.state.filterProgress) {
-        users = userList.inProgressUsers
-      }
-      else if (this.state.filterInactive) {
-        users = userList.inactiveUsers
-      }
-
-      let data = await api.post(
-        url,
-        {
-          users: users && users.length > 0 ? users : undefined,
-          catalogItems: catalogItems.length > 0 ? catalogItems : undefined,
-          cycles: [cycle.uuid],
-          projects: [this.state.projectSelected.uuid]
-        }
-      )
-
-      for (let activeUser of filters.users) {
-        const findUser = data.data.find(info => info.user[0].uuid === activeUser.uuid)
-        if (findUser) {
-          findUser.user[0].groups = activeUser.groups
-          continue
-        }
-
-        if (users || formData['centro-de-venta'] || formData.canal) continue
-
-        data.data.push({
-          approved: 0,
-          created: 0,
-          rejected: 0,
-          total: 0,
-          user: [activeUser],
-          _id: {
-            user: activeUser._id
-          }
+      if (isState) {
+        this.setState({
+          isLoading: ' is-loading',
+          isFiltered: false,
+          salesTable: [],
+          noSalesData: ''
         })
       }
 
-      for (let users of data.data) {
-        if (userList.finishedUsers.includes(users.user[0].uuid)) {
-          users.status = 'Finalizado'
-        }
-        if (userList.inProgressUsers.includes(users.user[0].uuid)) {
-          users.status = 'En proceso'
-        }
-      }
+      const data = await this.getUsers(isState, dataCycle)
 
       if (isState) {
         this.setState({
-          dataRows: data.data,
+          dataRows: data,
           isFiltered: true,
           isLoading: '',
           selectedCheckboxes: new Set(),
@@ -363,7 +315,8 @@ class StatusRepórt extends Component {
         })
         this.clearSearch()
       }
-      return data.data
+
+      return data
     } catch (e) {
       console.log(e)
       if (isState) {
@@ -382,13 +335,13 @@ class StatusRepórt extends Component {
     let cols = [
       {
         'title': this.formatTitle('tables.colUser'),
-        'property': 'user.name',
+        'property': 'name',
         'default': 'N/A',
         'sortable': true,
         formatter: (row) => {
           return (
-            <a className='' onClick={() => this.userDetail(row.user[0])}>
-              { row.user[0].name }
+            <a className='' onClick={() => this.userDetail(row)}>
+              { row.name }
             </a>
           )
         }
@@ -399,16 +352,7 @@ class StatusRepórt extends Component {
         'default': '',
         'sortable': true,
         formatter: (row) => {
-          return row.user[0].organizations[0].role.name
-        }
-      },
-      {
-        'title': this.formatTitle('tables.colAdjustmentsByPeriod'),
-        'property': 'user.total',
-        'default': '0',
-        'sortable': true,
-        formatter: (row) => {
-          return row.total - (row.approved + row.created + row.rejected)
+          return row.organizations[0].role.name
         }
       },
       {
@@ -423,7 +367,7 @@ class StatusRepórt extends Component {
         'default': '',
         'sortable': true,
         formatter: (row) => {
-          const groups = row.user[0].groups
+          const groups = row.groups
           if (groups.length > 2) {
             return (
               <div>
@@ -436,7 +380,7 @@ class StatusRepórt extends Component {
                   onClick={() => {
                     this.setState({
                       showModal: true,
-                      userName: row.user[0].name,
+                      userName: row.name,
                       userGroup: groups
                     })
                   }}
@@ -652,43 +596,6 @@ class StatusRepórt extends Component {
     return filters
   }
 
-  filterUsers(type) {
-    const baseFilter = {
-      filterReady: false,
-      filterProgress: false,
-      filterInactive: false
-    }
-
-    switch (type) {
-      case '1':
-        this.setState({
-          ...baseFilter,
-          filterReady: true
-        })
-      break
-
-      case '2':
-        this.setState({
-          ...baseFilter,
-          filterProgress: true
-        })
-      break
-
-      case '3':
-        this.setState({
-          ...baseFilter,
-          filterInactive: true
-        })
-      break
-
-      default:
-        this.setState({
-          ...baseFilter
-        })
-      break
-    }
-  }
-
   async getAllDataRows() {
     try {
       this.setState({
@@ -742,18 +649,14 @@ class StatusRepórt extends Component {
     try {
       const { dataRows, projectSelected, filters, formData } = this.state
       const cycle = filters.cycles.find(item => item.cycle === formData.cycle) || {}
-      const csv = ['Usuario,Rol,Ajustes por periodo,Estatus,Grupos,Aprobado,Rechazado,Pendientes,Ciclo']
+      const csv = ['Usuario,Rol,Estatus,Grupos,Ciclo']
 
       for (let row of dataRows) {
         csv.push([
           row.user[0].name || '',
           row.user[0].organizations[0].role.name || '',
-          row.total - (row.approved + row.created + row.rejected),
           row.status || 'Sin Ajustes',
           (row.user[0].groups || []).map(group => group.name || '').join(' '),
-          row.approved || 0,
-          row.rejected || 0,
-          row.created|| 0,
           row.cycleName || cycle.viewName
         ].join(','))
       }
@@ -865,7 +768,7 @@ class StatusRepórt extends Component {
                       optionValue='uuid'
                       optionName='name'
                       options={this.state.filters.status}
-                      onChange={(name, value) => { this.filterUsers(value) }}
+                      onChange={(name, value) => this.filterChangeHandler(name, value)}
                       disabled={this.state.filtersLoading}
                     />
                   </div>

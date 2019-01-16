@@ -339,5 +339,6 @@ export default Page({
   validate: loggedIn,
   component: injectIntl(DownloadReport),
   title: 'Descargas', 
+  roles: 'N/A',
   icon: 'download'
 })

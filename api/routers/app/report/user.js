@@ -1,6 +1,13 @@
 const Route = require('lib/router/route')
 const _ = require('lodash')
-const { UserReport, User, Cycle, Project } = require('models')
+const {
+  UserReport,
+  User,
+  Cycle,
+  Project,
+  Group,
+  Role
+} = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -99,8 +106,65 @@ module.exports = new Route({
     report['finishedUsers'] = finishedUsers
     report['inProgressUsers'] = inProgressUsers
 
+    const filterStatus = data.status
+    const anyStatus = filterStatus === '0'
+    let users = []
+
+    if (finishedUsers.length > 0 && (anyStatus || filterStatus === '1')) {
+      const finishedUsersItems = await User.find({uuid: {$in: finishedUsers}})
+      const newFinishedUsers = []
+      for (let finishedUser of finishedUsersItems) {
+        newFinishedUsers.push({
+          ...finishedUser._doc,
+          status: 'Finalizado'
+        })
+      }
+      users = [
+        ...users,
+        ...newFinishedUsers
+      ]
+    }
+
+    if (inProgressUsers.length > 0 && (anyStatus || filterStatus === '2')) {
+      const inProgressUsersItems = await User.find({uuid: {$in: inProgressUsers}})
+      const newInProgressUsers = []
+      for (let inProgressUser of inProgressUsersItems) {
+        newInProgressUsers.push({
+          ...inProgressUser._doc,
+          status: 'En proceso'
+        })
+      }
+      users = [
+        ...users,
+        ...newInProgressUsers
+      ]
+    }
+
+    if (inactiveUsers.length > 0 && (anyStatus || filterStatus === '3')) {
+      const inactiveUsersItems = await User.find({uuid: {$in: inactiveUsers}})
+      const newInactiveUsers = []
+      for (let inactiveUser of inactiveUsersItems) {
+        newInactiveUsers.push({
+          ...inactiveUser._doc,
+          status: 'Sin ajustes'
+        })
+      }
+      users = [
+        ...users,
+        ...newInactiveUsers
+      ]
+    }
+
+    const roles = data.sendRoles ? await Role.find({ isDeleted: false }) : []
+    const groupsItems = data.sendGroups ? await Group.find({
+      organization: ctx.state.organization,
+      isDeleted: false
+    }) : []
+
     ctx.body = {
-      data: report
+      data: users,
+      groups: groupsItems,
+      roles
     }
   }
 })
