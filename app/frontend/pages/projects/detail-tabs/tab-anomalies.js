@@ -176,11 +176,11 @@ class TabAnomalies extends Component {
             <Select
               label={this.findName(key)}
               name={key}
-              value={x.length > 1 ? this.state.formData[key] : "" }
-              placeholder={x.length > 1 ? this.formatTitle('anomalies.all') : null}
+              value={element.length > 1 ? this.state.formData[key] : "" }
+              placeholder={element.length > 1 ? this.formatTitle('anomalies.all') : null}
               optionValue='uuid'
               optionName='name'
-              options={x}
+              options={element}
               onChange={(name, value) => { this.filterChangeHandler(name, value) }}
             />
           </div >
