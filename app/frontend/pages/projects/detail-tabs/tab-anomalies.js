@@ -170,16 +170,17 @@ class TabAnomalies extends Component {
           key === 'precio' ) {
           continue
         }
+        
         filters.push(
           <div key={key} className='column is-narrow' >
             <Select
               label={this.findName(key)}
               name={key}
-              value={this.state.formData[key]}
-              placeholder={this.formatTitle('anomalies.all')}
+              value={x.length > 1 ? this.state.formData[key] : "" }
+              placeholder={x.length > 1 ? this.formatTitle('anomalies.all') : null}
               optionValue='uuid'
               optionName='name'
-              options={element}
+              options={x}
               onChange={(name, value) => { this.filterChangeHandler(name, value) }}
             />
           </div >
