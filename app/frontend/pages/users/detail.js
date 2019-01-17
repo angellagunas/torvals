@@ -184,6 +184,14 @@ class UserDetail extends Component {
     }, 300)
   }
 
+  filterChannels(elements) {
+    return elements.filter(item => item.name == "Autoservicio" || item.name == "Detalle" || item.name == "Conveniencia")
+  }
+
+  filterCeves(elements) {
+    return elements.filter(item => item.name != "Autoservicio" && item.name != "Detalle" && item.name != "Conveniencia")
+  }
+
   async resetOnClick () {
     await this.setState({
       resetLoading: true,
@@ -500,8 +508,33 @@ class UserDetail extends Component {
                       <Multiselect
                         availableTitle={this.formatTitle('user.multiselectAvailableTitle')}
                         assignedTitle={this.formatTitle('user.multiselectAssignedTitle')}
-                        assignedList={this.state.selectedGroups}
-                        availableList={availableList}
+                        assignedList={this.filterCeves(this.state.selectedGroups)}
+                        availableList={this.filterCeves(availableList)}
+                        dataFormatter={(item) => { return item.name || 'N/A' }}
+                        availableClickHandler={this.availableGroupOnClick.bind(this)}
+                        assignedClickHandler={this.assignedGroupOnClick.bind(this)}
+                        disabled={disabledForm}
+                        />
+                    </div>
+                  </div>
+                  <div className='card'>
+                    <header className='card-header'>
+                      <p className='card-header-title'>
+                        <FormattedMessage
+                          id='user.channels'
+                          defaultMessage={`Canales`}
+                        />
+                      </p>
+                      <div>
+                        {this.getSavingMessage()}
+                      </div>
+                    </header>
+                    <div className='card-content'>
+                      <Multiselect
+                        availableTitle={this.formatTitle('user.multiselectAvailableTitle')}
+                        assignedTitle={this.formatTitle('user.multiselectAssignedTitle')}
+                        assignedList={this.filterChannels(this.state.selectedGroups)}
+                        availableList={this.filterChannels(availableList)}
                         dataFormatter={(item) => { return item.name || 'N/A' }}
                         availableClickHandler={this.availableGroupOnClick.bind(this)}
                         assignedClickHandler={this.assignedGroupOnClick.bind(this)}
