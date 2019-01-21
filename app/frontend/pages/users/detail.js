@@ -185,11 +185,11 @@ class UserDetail extends Component {
   }
 
   filterChannels(elements) {
-    return elements.filter(item => item.name == "Autoservicio" || item.name == "Detalle" || item.name == "Conveniencia")
+    return elements.filter(item => item.name == 'Autoservicio' || item.name == 'Detalle' || item.name == 'Conveniencia')
   }
 
   filterCeves(elements) {
-    return elements.filter(item => item.name != "Autoservicio" && item.name != "Detalle" && item.name != "Conveniencia")
+    return elements.filter(item => item.name != 'Autoservicio' && item.name != 'Detalle' && item.name != 'Conveniencia')
   }
 
   async resetOnClick () {
@@ -514,7 +514,7 @@ class UserDetail extends Component {
                         availableClickHandler={this.availableGroupOnClick.bind(this)}
                         assignedClickHandler={this.assignedGroupOnClick.bind(this)}
                         disabled={disabledForm}
-                        />
+                      />
                     </div>
                   </div>
                   <div className='card'>
