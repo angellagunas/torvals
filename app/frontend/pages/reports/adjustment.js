@@ -325,9 +325,7 @@ class AdjustmentReport extends Component {
     if (!assigned) {
       const group = filters[isCeve ? 'centro-de-venta' : 'canal'].find(item => item.uuid === itemId)
 
-      if (selected.findIndex(item => item.uuid === itemId) !== -1) {
-        return
-      }
+      if (selected.findIndex(item => item.uuid === itemId) !== -1) return
 
       this.setState({
         [prop]: [...selected, group]
@@ -335,9 +333,7 @@ class AdjustmentReport extends Component {
     } else {
       const index = (isCeve ? ceves : channels).findIndex(item => item.uuid === itemId)
 
-      if (index === -1) {
-        return
-      }
+      if (index === -1) return
 
       selected.splice(index, 1)
 
@@ -517,7 +513,7 @@ class AdjustmentReport extends Component {
               <button
                 type="button"
                 className="button is-primary"
-                onClick={() => this.moveAll('asig', 'ceve')}
+                onClick={() => this.moveAll('add', 'ceve')}
               >
                 <p>Asignar Todos</p>
               </button>
@@ -566,7 +562,7 @@ class AdjustmentReport extends Component {
               <button
                 type="button"
                 className="button is-primary"
-                onClick={() => this.moveAll('asig', 'channel')}
+                onClick={() => this.moveAll('add', 'channel')}
               >
                 <p>Asignar Todos</p>
               </button>
