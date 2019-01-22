@@ -11,6 +11,7 @@ import Multiselect from '~base/components/base-multiselect';
 import tree from '~core/tree';
 import Breadcrumb from '~base/components/base-breadcrumb';
 import NotFound from '~base/components/not-found';
+import Checkbox from '../../../../lib/frontend/components/base-checkbox';
 
 class UserDetail extends Component {
   constructor (props) {
@@ -28,7 +29,8 @@ class UserDetail extends Component {
       selectedGroups: [],
       saving: false,
       saved: false,
-      isLoading: ''
+      isLoading: '',
+      isChecked: this.props.checked || false
     }
   }
 
@@ -120,6 +122,13 @@ class UserDetail extends Component {
     }
 
     return 'N/A'
+  }
+
+  toggleCheckboxChange = () => {
+    console.log('Cambio el checkbox')
+    this.setState({
+        isChecked: !this.state.isChecked
+      })
   }
 
   async availableGroupOnClick (uuid) {
@@ -384,6 +393,8 @@ class UserDetail extends Component {
       )
     }
 
+
+
     return (
       <div className='detail-page'>
 
@@ -467,6 +478,29 @@ class UserDetail extends Component {
                         disabled={disabledForm}
                         disabledRoles={disabledRoles}
                         >
+                        <div className='field is-grouped'>
+                          <div className='control'>
+                            <div className='label'>
+                            Usuario Operativo
+                            </div>
+                            <label className='md-checkbox block'>
+                              <input
+                                type='checkbox'
+                                //value={this.props.label}
+                                checked={this.state.isChecked}
+                                onChange={this.toggleCheckboxChange}
+                                disabled={this.props.disabled}
+                              />
+                              <span className={this.props.disabled ? 'md-checkbox--fake disabled' : 'md-checkbox--fake' } />
+                              {
+                                !this.props.hideLabel &&
+                                <div>
+                                  {this.props.label}
+                                </div>
+                              }
+                            </label>
+                          </div>
+                        </div>
                         <div className='field is-grouped'>
                           <div className='control'>
                             {!disabledForm &&
