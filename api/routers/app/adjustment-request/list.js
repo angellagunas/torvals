@@ -152,7 +152,8 @@ module.exports = new Route({
         product: item.newProduct,
         requestedBy: item.requestedBy.toPublic(),
         approvedBy: item.approvedBy ? item.approvedBy.toPublic() : undefined,
-        rejectedBy: item.rejectedBy ? item.rejectedBy.toPublic() : undefined
+        rejectedBy: item.rejectedBy ? item.rejectedBy.toPublic() : undefined,
+        datasetRow: item.datasetRow.toPublic()
       }
     })
     ctx.body = adjustmentRequests

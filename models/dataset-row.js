@@ -62,7 +62,8 @@ datasetRowSchema.methods.toPublic = function () {
     status: this.status,
     data: this.data,
     cycle: this.cycle,
-    period: this.period
+    period: this.period,
+    apiData: this.apiData
   }
 }
 
