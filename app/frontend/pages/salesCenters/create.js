@@ -52,7 +52,7 @@ class CreateSalesCenter extends Component {
           finishUp={this.props.finishUp}
           initialState={initialState}
           canEdit={this.props.canEdit}
-          submitHandler={(data) => this.submitHandler(data)}
+          submitHandler={(data) => this.submitHandler(data)}          
           errorHandler={(data) => this.errorHandler(data)}
         >
           <div className='field is-grouped'>
