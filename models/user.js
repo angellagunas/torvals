@@ -87,7 +87,8 @@ userSchema.methods.toPublic = function () {
     language: this.language,
     job: this.job,
     phone: this.phone,
-    isVerified: this.isVerified
+    isVerified: this.isVerified,
+    isOperationalUser: this.isOperationalUser
   }
 }
 

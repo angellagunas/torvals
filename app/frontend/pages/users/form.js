@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { FormattedMessage, injectIntl } from 'react-intl'
 import Loader from '~base/components/spinner'
 import tree from '~core/tree'
+import { testRoles } from '~base/tools'
 
 import api from '~base/api'
 
@@ -9,7 +10,9 @@ import {
   BaseForm,
   TextWidget,
   EmailWidget,
-  SelectWidget
+  SelectWidget,
+  CheckboxWidget,
+  PasswordWidget
 } from '~base/components/base-form'
 
 class UserForm extends Component {
@@ -18,7 +21,10 @@ class UserForm extends Component {
     super(props)
 
     this.state = {
-      formData: this.getData(),
+      formData: {
+        password: '',
+        ...this.getData()
+      },
       apiCallMessage: 'is-hidden',
       apiCallErrorMessage: 'is-hidden',
       projects: []
@@ -154,6 +160,30 @@ class UserForm extends Component {
       name: {'ui:widget': TextWidget},
       email: {'ui:widget': EmailWidget},
       role: {'ui:widget': SelectWidget}
+    }
+
+    if (testRoles('orgadmin')) {
+      schema.properties.password ={
+        type:'string',
+        title:'Clave'
+      }
+      schema.properties.isOperationalUser = {
+        type: 'boolean',
+        title: 'Usuario Operativo (Cliente)'
+      }
+      schema.properties.validEmail = {
+        type: 'boolean',
+        title: 'Validar Email'
+      }
+      schema.properties.isVerified = {
+        type: 'boolean',
+        title: 'Verificado'
+      }
+
+      uiSchema.password = {'ui:widget': PasswordWidget }
+      uiSchema.isOperationalUser = {'ui:widget': CheckboxWidget }
+      uiSchema.validEmail = {'ui:widget': CheckboxWidget }
+      uiSchema.isVerified = {'ui:widget': CheckboxWidget }
     }
 
     if (this.state.formData.roleDetail) {

@@ -34,6 +34,7 @@ class UserDetail extends Component {
       saving: false,
       saved: false,
       isLoading: '',
+      isChecked: this.props.checked || false,
       searchTermCeve: '',
       searchTermChannel: ''
     }
@@ -415,6 +416,8 @@ class UserDetail extends Component {
         </div>
       )
     }
+
+
 
     return (
       <div className='detail-page'>
