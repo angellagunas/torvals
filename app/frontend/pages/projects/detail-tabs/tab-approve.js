@@ -152,7 +152,7 @@ class TabApprove extends Component {
           if (!row.selected) {
             row.selected = false
           }
-          const id = row.product ? row.product.externalID : row.datasetRow.apiData.producto_id
+          const id = row.product ? row.product.externalId : row.datasetRow.apiData.producto_id
           return String(id)
         }
       },
