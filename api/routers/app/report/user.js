@@ -18,8 +18,11 @@ module.exports = new Route({
     let initialMatch = {}
 
     if (data.users) {
-      const users = await User.find({uuid: {$in: data.users}})
-      const usersIds = users.map(item => item._id)
+      const users = await User.find({
+        isOperationalUser: true,
+        uuid: { $in: data.users }
+      })
+      let usersIds = users.map(item => item._id)
       initialMatch['user'] = {
         '$in': usersIds
       }
@@ -114,6 +117,7 @@ module.exports = new Route({
 
     if (finishedUsers.length > 0 && (anyStatus || filterStatus === '1')) {
       const finishedUsersItems = await User.find({
+        isOperationalUser: true,
         isDeleted: false,
         uuid: { $in: finishedUsers }
       })
@@ -132,6 +136,7 @@ module.exports = new Route({
 
     if (inProgressUsers.length > 0 && (anyStatus || filterStatus === '2')) {
       const inProgressUsersItems = await User.find({
+        isOperationalUser: true,
         isDeleted: false,
         uuid: { $in: inProgressUsers }
       })
@@ -150,6 +155,7 @@ module.exports = new Route({
 
     if (inactiveUsers.length > 0 && (anyStatus || filterStatus === '3')) {
       const inactiveUsersItems = await User.find({
+        isOperationalUser: true,
         isDeleted: false,
         uuid: { $in: inactiveUsers }
       })

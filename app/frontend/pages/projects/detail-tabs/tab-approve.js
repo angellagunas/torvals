@@ -152,7 +152,8 @@ class TabApprove extends Component {
           if (!row.selected) {
             row.selected = false
           }
-          return String((row.product || {}).externalId)
+          const id = row.product ? row.product.externalId : row.datasetRow.apiData.producto_id
+          return String(id)
         }
       },
       {
@@ -161,7 +162,8 @@ class TabApprove extends Component {
         'default': 'N/A',
         'sortable': true,
         formatter: (row) => {
-          return String((row.product || {}).name)
+          const name = row.product ? row.product.name : row.datasetRow.apiData.producto_nombre
+          return String(name)
         }
       },
       {

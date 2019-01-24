@@ -143,7 +143,7 @@ class StatusRepórt extends Component {
       ]
 
       let formData = this.state.formData
-      formData.cycle = cycles[1].cycle
+      formData.cycle = cycles[0].cycle
 
       this.setState({
         filters: {
