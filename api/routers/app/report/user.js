@@ -75,6 +75,7 @@ module.exports = new Route({
     ]
 
     const stats = await UserReport.aggregate(statement)
+    console.log('stats', stats.map(stat => stat.uuid))
     let finishedUsers = []
     let inProgressUsers = []
     let report = {}
