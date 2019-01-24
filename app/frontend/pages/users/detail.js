@@ -11,6 +11,7 @@ import Multiselect from '~base/components/base-multiselect';
 import tree from '~core/tree';
 import Breadcrumb from '~base/components/base-breadcrumb';
 import NotFound from '~base/components/not-found';
+import { validateRegText } from '~base/tools'
 
 class UserDetail extends Component {
   constructor (props) {
@@ -26,9 +27,16 @@ class UserDetail extends Component {
       groups: [],
       projects: [],
       selectedGroups: [],
+      groupCeves: [],
+      groupChannels: [],
+      filteredCeve: [],
+      filteredChannel: [],
       saving: false,
       saved: false,
-      isLoading: ''
+      isLoading: '',
+      isChecked: this.props.checked || false,
+      searchTermCeve: '',
+      searchTermChannel: ''
     }
   }
 
@@ -65,7 +73,9 @@ class UserDetail extends Component {
         loading: false,
         loaded: true,
         user: body.data,
-        selectedGroups: groups
+        selectedGroups: groups,
+        ceves: this.filterCeves(groups),
+        channels: this.filterChannels(groups)
       })
     } catch (e) {
       await this.setState({
@@ -88,11 +98,14 @@ class UserDetail extends Component {
       }
     )
 
-    const groups = role == 'orgadmin' ? body.data : body.data.filter(item => tree._data.user.groups.includes(item._id))
+    const groups = role === 'orgadmin' ? body.data : body.data.filter(item => tree._data.user.groups.includes(item._id))
 
     this.setState({
-      ...this.state,
-      groups: groups
+      groups,
+      groupCeves: this.filterCeves(groups),
+      groupChannels: this.filterChannels(groups),
+      filteredCeve: this.filterCeves(groups),
+      filteredChannel: this.filterChannels(groups)
     })
   }
 
@@ -120,68 +133,6 @@ class UserDetail extends Component {
     }
 
     return 'N/A'
-  }
-
-  async availableGroupOnClick (uuid) {
-    this.setState({
-      saving: true
-    })
-
-    var selected = this.state.selectedGroups
-    var group = this.state.groups.find(item => { return item.uuid === uuid })
-
-    if (selected.findIndex(item => { return item.uuid === uuid }) !== -1) {
-      return
-    }
-
-    selected.push(group)
-
-    var url = '/app/users/' + this.props.user.uuid + '/add/group'
-    await api.post(url,
-      {
-        group: uuid
-      }
-    )
-
-    setTimeout(() => {
-      this.setState({
-        saving: false,
-        saved: true
-      })
-    }, 300)
-  }
-
-  async assignedGroupOnClick (uuid) {
-    this.setState({
-      saving: true
-    })
-
-    var index = this.state.selectedGroups.findIndex(item => { return item.uuid === uuid })
-    var selected = this.state.selectedGroups
-
-    if (index === -1) {
-      return
-    }
-
-    selected.splice(index, 1)
-
-    this.setState({
-      selectedGroups: selected
-    })
-
-    var url = '/app/users/' + this.props.user.uuid + '/remove/group'
-    await api.post(url,
-      {
-        group: uuid
-      }
-    )
-
-    setTimeout(() => {
-      this.setState({
-        saving: false,
-        saved: true
-      })
-    }, 300)
   }
 
   async resetOnClick () {
@@ -301,6 +252,96 @@ class UserDetail extends Component {
     }
   }
 
+  filterChannels(elements=[]) {
+    return elements.filter(item => item.name == 'Autoservicio' || item.name == 'Detalle' || item.name == 'Conveniencia')
+  }
+
+  filterCeves(elements=[]) {
+    return elements.filter(item => item.name != 'Autoservicio' && item.name != 'Detalle' && item.name != 'Conveniencia')
+  }
+
+  async moveItems(type, assigned, itemId) {
+    const { groupCeves, groupChannels, ceves, channels } = this.state
+    const isCeve = type === 'ceves'
+    const prop = isCeve ? 'ceves' : 'channels'
+    const selected = isCeve ? [...ceves] : [...channels]
+
+    this.setState({
+      saving: true
+    })
+
+    if (!assigned) {
+      const group = (isCeve ? groupCeves : groupChannels).find(item => item.uuid === itemId)
+
+      if (selected.findIndex(item => item.uuid === itemId) !== -1) return -1
+
+      this.setState({
+        [prop]: [...selected, group]
+      })
+    } else {
+      const index = (isCeve ? ceves : channels).findIndex(item => item.uuid === itemId)
+
+      if (index === -1) return -1
+
+      selected.splice(index, 1)
+
+      this.setState({
+        [prop]: selected
+      })
+    }
+
+    const userId = this.props.user.uuid
+    const url = `/app/users/${userId}/${!assigned ? 'add' : 'remove'}/group`
+
+    const res = await api.post(url, {
+      group: itemId
+    })
+
+    this.setState({
+      saving: false,
+      saved: true
+    })
+
+    return res
+  }
+
+  searchOnChange(event, type) {
+    const { groupCeves, groupChannels } = this.state
+    const isCeve = type === 'ceves'
+    const data = isCeve ? groupCeves : groupChannels
+    const searchTerm = event.target.value
+
+    const filteredData = data.filter((item) => {
+      const regEx = new RegExp(validateRegText(searchTerm), 'gi')
+
+      return regEx.test(item.name)
+    })
+
+    const propFiltered = isCeve ? 'filteredCeve' : 'filteredChannel'
+    const searchTermProp = isCeve ? 'searchTermCeve' : 'searchTermChannel'
+    this.setState({
+      [searchTermProp]: searchTerm,
+      [propFiltered]: filteredData
+    })
+  }
+
+  async moveAll(moveType, type) {
+    const { filteredCeve, filteredChannel, ceves, channels } = this.state
+    const isCeve = type === 'ceves'
+    const filteredData = moveType !== 'remove' ? isCeve ? filteredCeve : filteredChannel : isCeve ? ceves : channels
+    const assigned = moveType === 'remove'
+
+    try {
+      for (let item of filteredData) {
+        console.log(item)
+        const movement = await this.moveItems(type, assigned, item.uuid)
+        console.log(movement)
+      }
+    } catch (error) {
+      console.log('ERROR', error)
+    }
+  }
+
   render () {
     if (this.state.notFound) {
       return <NotFound msg={this.formatTitle('user.notFound')} />
@@ -375,6 +416,8 @@ class UserDetail extends Component {
         </div>
       )
     }
+
+
 
     return (
       <div className='detail-page'>
@@ -497,14 +540,119 @@ class UserDetail extends Component {
                       </div>
                     </header>
                     <div className='card-content'>
+                      <div className="level-left">
+                        <div className="level-item">
+                          <div className="control has-icons-right">
+                            <input
+                              className="input input-search"
+                              type="text"
+                              value={this.state.searchTermCeve}
+                              onChange={e => this.searchOnChange(e, 'ceves')}
+                              placeholder={this.formatTitle('dashboard.searchText')}
+                              disabled={this.state.saved}
+                            />
+
+                            <span className="icon is-small is-right">
+                              <i className="fa fa-search fa-xs" />
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="level-right">
+                        <div className="level-item">
+                          <button
+                            type="button"
+                            className="button is-primary"
+                            onClick={() => this.moveAll('add', 'ceves')}
+                            disabled={this.state.saved}
+                          >
+                            <p>Asignar Todos</p>
+                          </button>
+                        </div>
+                        <div className="level-item">
+                          <button
+                            type="button"
+                            className="button is-danger"
+                            onClick={() => this.moveAll('remove', 'ceves')}
+                            disabled={this.state.saved}
+                          >
+                            <p>Remover todos</p>
+                          </button>
+                        </div>
+                      </div>
                       <Multiselect
                         availableTitle={this.formatTitle('user.multiselectAvailableTitle')}
                         assignedTitle={this.formatTitle('user.multiselectAssignedTitle')}
-                        assignedList={this.state.selectedGroups}
-                        availableList={availableList}
-                        dataFormatter={(item) => { return item.name || 'N/A' }}
-                        availableClickHandler={this.availableGroupOnClick.bind(this)}
-                        assignedClickHandler={this.assignedGroupOnClick.bind(this)}
+                        assignedList={this.state.ceves}
+                        availableList={this.state.filteredCeve}
+                        dataFormatter={item => item.name || 'N/A' }
+                        availableClickHandler={itemId => this.moveItems('ceves', false, itemId)}
+                        assignedClickHandler={itemId => this.moveItems('ceves', true, itemId)}
+                        disabled={disabledForm}
+                      />
+                    </div>
+                  </div>
+                  <div className='card'>
+                    <header className='card-header'>
+                      <p className='card-header-title'>
+                        <FormattedMessage
+                          id='user.channels'
+                          defaultMessage={`Canales`}
+                        />
+                      </p>
+                      <div>
+                        {this.getSavingMessage()}
+                      </div>
+                    </header>
+                    <div className='card-content'>
+                      <div className="level-left">
+                        <div className="level-item">
+                          <div className="control has-icons-right">
+                            <input
+                              className="input input-search"
+                              type="text"
+                              value={this.state.searchTermChannel}
+                              onChange={e => this.searchOnChange(e, 'channels')}
+                              placeholder={this.formatTitle('dashboard.searchText')}
+                              disabled={this.state.saved}
+                            />
+
+                            <span className="icon is-small is-right">
+                              <i className="fa fa-search fa-xs" />
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="level-right">
+                        <div className="level-item">
+                          <button
+                            type="button"
+                            className="button is-primary"
+                            onClick={() => this.moveAll('add', 'channels')}
+                            disabled={this.state.saved}
+                          >
+                            <p>Asignar Todos</p>
+                          </button>
+                        </div>
+                        <div className="level-item">
+                          <button
+                            type="button"
+                            className="button is-danger"
+                            onClick={() => this.moveAll('remove', 'channels')}
+                            disabled={this.state.saved}
+                          >
+                            <p>Remover todos</p>
+                          </button>
+                        </div>
+                      </div>
+                      <Multiselect
+                        availableTitle={this.formatTitle('user.multiselectAvailableTitle')}
+                        assignedTitle={this.formatTitle('user.multiselectAssignedTitle')}
+                        availableList={this.state.filteredChannel}
+                        assignedList={this.state.channels}
+                        dataFormatter={item => item.name || 'N/A'}
+                        availableClickHandler={itemId => this.moveItems('channels', false, itemId)}
+                        assignedClickHandler={itemId => this.moveItems('channels', true, itemId)}
                         disabled={disabledForm}
                         />
                     </div>

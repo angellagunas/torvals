@@ -1,5 +1,6 @@
 const Route = require('lib/router/route')
-const { Organization, CatalogItem, Rule } = require('models')
+const ObjectId = require('mongodb').ObjectID
+const { Organization, CatalogItem, Catalog } = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -11,27 +12,21 @@ module.exports = new Route({
     const org = await Organization.findOne({'_id': organization, 'isDeleted': false})
     ctx.assert(org, 404, 'Organización no encontrada')
 
-    const rule = await Rule.findOne({
-      'organization': org._id,
-      'isCurrent': true,
-      'isDeleted': false
+    const catalog = await Catalog.findOne({
+      organization: ObjectId(org._id),
+      slug: data.type
     })
-    ctx.assert(rule, 404, 'Reglas no encontradas')
+    ctx.assert(catalog, 404, 'Catalogo no encontrado')
 
-    const findCatalog = rule.catalogs.find(item => { return item.slug === data.type })
-
-    if (!findCatalog) {
-      ctx.throw(404, 'Catálogo no encontrado')
-    }
-
-    var catalogItem = await CatalogItem.create({
+    let catalogItem = await CatalogItem.create({
       type: data.type,
       name: data.name,
       externalId: data.externalId,
-      organization: org._id
+      organization: org._id,
+      catalog: ObjectId(catalog._id)
     })
-
     catalogItem = await CatalogItem.findOne({_id: catalogItem._id}).populate('organization')
+
 
     ctx.body = {
       data: catalogItem.toPublic()

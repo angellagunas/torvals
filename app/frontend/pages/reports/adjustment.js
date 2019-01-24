@@ -12,6 +12,7 @@ import DatePicker from '~base/components/date-picker'
 import BaseModal from '~base/components/base-modal'
 import Spinner from '~base/components/spinner'
 import tree from '~core/tree'
+import { validateRegText } from '~base/tools'
 
 class AdjustmentReport extends Component {
   constructor(props) {
@@ -24,6 +25,8 @@ class AdjustmentReport extends Component {
       downloadInfo: '',
       ceves: [],
       channels: [],
+      filteredCeve: [],
+      filteredChannel: [],
       filters: {
         canal: [],
         cycles: [],
@@ -37,7 +40,9 @@ class AdjustmentReport extends Component {
       maxDate: null,
       endDate: null,
       error: false,
-      errorMessage: ''
+      errorMessage: '',
+      searchTermCeve: '',
+      searchTermChannel: ''
     }
     this.rules = tree.get('rule')
   }
@@ -79,6 +84,7 @@ class AdjustmentReport extends Component {
           ...filters,
           canal: res.data
         },
+        filteredChannel: [...res.data],
         channels: [...res.data]
       }, async () => {
         await this.getCeves()
@@ -96,6 +102,7 @@ class AdjustmentReport extends Component {
           ...filters,
           'centro-de-venta': res['centro-de-venta']
         },
+        filteredCeve: [...res['centro-de-venta']],
         ceves: [...res['centro-de-venta']]
       }, async () => {
         await this.getFilters()
@@ -318,9 +325,7 @@ class AdjustmentReport extends Component {
     if (!assigned) {
       const group = filters[isCeve ? 'centro-de-venta' : 'canal'].find(item => item.uuid === itemId)
 
-      if (selected.findIndex(item => item.uuid === itemId) !== -1) {
-        return
-      }
+      if (selected.findIndex(item => item.uuid === itemId) !== -1) return
 
       this.setState({
         [prop]: [...selected, group]
@@ -328,9 +333,7 @@ class AdjustmentReport extends Component {
     } else {
       const index = (isCeve ? ceves : channels).findIndex(item => item.uuid === itemId)
 
-      if (index === -1) {
-        return
-      }
+      if (index === -1) return
 
       selected.splice(index, 1)
 
@@ -340,11 +343,43 @@ class AdjustmentReport extends Component {
     }
   }
 
+  searchOnChange(event, type) {
+    const { filters } = this.state
+    const isCeve = type === 'ceve'
+    const data = isCeve ? filters['centro-de-venta'] : filters.canal
+    const searchTerm = event.target.value
+
+    const filteredData = data.filter((item) => {
+      const regEx = new RegExp(validateRegText(searchTerm), 'gi')
+
+      return regEx.test(item.name)
+    })
+
+    const propFiltered = isCeve ? 'filteredCeve' : 'filteredChannel'
+    const searchTermProp = isCeve ? 'searchTermCeve' : 'searchTermChannel'
+    this.setState({
+      [searchTermProp]: searchTerm,
+      [propFiltered]: filteredData
+    })
+  }
+
+  moveAll(moveType, type) {
+    const { filteredCeve, filteredChannel } = this.state
+    const isCeve = type === 'ceve'
+    const filteredProp = isCeve ? 'ceves' : 'channels'
+    const filteredData = isCeve ? filteredCeve : filteredChannel
+
+    this.setState({
+      [filteredProp]: moveType === 'remove' ? [] : filteredData
+    })
+  }
+
   render() {
     const {
-      filters,
       ceves,
       channels,
+      filteredCeve,
+      filteredChannel,
       projects,
       projectSelected,
       minDate,
@@ -355,7 +390,9 @@ class AdjustmentReport extends Component {
       downloadInfo,
       filtersLoading,
       error,
-      errorMessage
+      errorMessage,
+      searchTermCeve,
+      searchTermChannel
     } = this.state
 
     if (error) {
@@ -454,10 +491,47 @@ class AdjustmentReport extends Component {
         </div>
 
         <div className="card-content">
+          <div className="level-left">
+            <div className="level-item">
+              <div className="control has-icons-right">
+                <input
+                  className="input input-search"
+                  type="text"
+                  value={searchTermCeve}
+                  onChange={e => this.searchOnChange(e, 'ceve')}
+                  placeholder={this.formatTitle('dashboard.searchText')}
+                />
+
+                <span className="icon is-small is-right">
+                  <i className="fa fa-search fa-xs" />
+                </span>
+              </div>
+            </div>
+          </div>
+          <div className="level-right">
+            <div className="level-item">
+              <button
+                type="button"
+                className="button is-primary"
+                onClick={() => this.moveAll('add', 'ceve')}
+              >
+                <p>Asignar Todos</p>
+              </button>
+            </div>
+            <div className="level-item">
+              <button
+                type="button"
+                className="button is-danger"
+                onClick={() => this.moveAll('remove', 'ceve')}
+              >
+                <p>Remover todos</p>
+              </button>
+            </div>
+          </div>
           <Multiselect
             availableTitle="Centros de ventas disponibles"
             assignedTitle="Asignados"
-            availableList={filters['centro-de-venta']}
+            availableList={filteredCeve}
             assignedList={ceves}
             dataFormatter={item => item.name || 'N/A'}
             availableClickHandler={itemId => this.moveItems('ceves', false, itemId)}
@@ -466,10 +540,47 @@ class AdjustmentReport extends Component {
         </div>
 
         <div className="card-content">
+          <div className="level-left">
+            <div className="level-item">
+              <div className="control has-icons-right">
+                <input
+                  className="input input-search"
+                  type="text"
+                  value={searchTermChannel}
+                  onChange={e => this.searchOnChange(e, 'channel')}
+                  placeholder={this.formatTitle('dashboard.searchText')}
+                />
+
+                <span className="icon is-small is-right">
+                  <i className="fa fa-search fa-xs" />
+                </span>
+              </div>
+            </div>
+          </div>
+          <div className="level-right">
+            <div className="level-item">
+              <button
+                type="button"
+                className="button is-primary"
+                onClick={() => this.moveAll('add', 'channel')}
+              >
+                <p>Asignar Todos</p>
+              </button>
+            </div>
+            <div className="level-item">
+              <button
+                type="button"
+                className="button is-danger"
+                onClick={() => this.moveAll('remove', 'channel')}
+              >
+                <p>Remover todos</p>
+              </button>
+            </div>
+          </div>
           <Multiselect
             availableTitle="Canales disponibles"
             assignedTitle="Asignados"
-            availableList={filters.canal}
+            availableList={filteredChannel}
             assignedList={channels}
             dataFormatter={item => item.name || 'N/A'}
             availableClickHandler={itemId => this.moveItems('channels', false, itemId)}

@@ -160,6 +160,8 @@ module.exports = new Route({
         email: user.doc.email,
         isAdmin: user.doc.isAdmin,
         validEmail: user.doc.validEmail,
+        isVerified: user.doc.isVerified,
+        isOperationalUser: user.doc.isOperationalUser,
         organizations: user.doc.organizations,
         groups: user.group,
         profileUrl: user.doc.profileUrl,

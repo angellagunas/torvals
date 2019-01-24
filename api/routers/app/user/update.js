@@ -17,10 +17,25 @@ module.exports = new Route({
     const user = await User.findOne({ 'uuid': userId })
     ctx.assert(user, 404, 'Usuario no encontrado')
 
-    user.set({
+    let newUser = {
       name: data.name,
       isAdmin: data.isAdmin
-    })
+    }
+
+    if (ctx.state.user.organizations[0].role.slug === 'orgadmin') {
+      newUser = {
+        ...newUser,
+        isOperationalUser: data.isOperationalUser,
+        isVerified: data.isVerified,
+        validEmail: data.validEmail
+      }
+
+      if (data.password) {
+        newUser.password = data.password
+      }
+    }
+
+    user.set(newUser)
 
     let org = user.organizations.find(e => {
       return String(e.organization) === String(ctx.state.organization._id)
