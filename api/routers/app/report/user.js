@@ -19,9 +19,7 @@ module.exports = new Route({
 
     if (data.users) {
       const users = await User.find({uuid: {$in: data.users}})
-      let usersIds = users.map((item) => {
-        return item._id
-      })
+      const usersIds = users.map(item => item._id)
       initialMatch['user'] = {
         '$in': usersIds
       }
@@ -29,27 +27,30 @@ module.exports = new Route({
 
     if (data.projects) {
       const projects = await Project.find({uuid: {$in: data.projects}})
-      let projectsIds = projects.map((item) => {
-        return item._id
-      })
+      const projectsIds = projects.map(item => item._id)
+      const activeDatasetIds = projects.map(item => item.activeDataset)
       initialMatch['project'] = {
         '$in': projectsIds
+      }
+      initialMatch['dataset'] = {
+        '$in': activeDatasetIds
       }
     }
 
     if (data.cycles) {
       const cycles = await Cycle.find({uuid: {$in: data.cycles}})
-      let cyclesIds = cycles.map((item) => {
-        return item._id
-      })
+      const cyclesIds = cycles.map(item => item._id)
       initialMatch['cycle'] = {
         '$in': cyclesIds
       }
     }
 
-    var statement = [
+    const statement = [
       {
-        '$match': { ...initialMatch }
+        '$match': {
+          isDeleted: false,
+          ...initialMatch
+        }
       },
       {
         '$lookup': {
