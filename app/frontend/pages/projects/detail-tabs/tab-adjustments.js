@@ -1419,6 +1419,30 @@ class TabAdjustment extends Component {
         </div>
       )
     }
+    if( tree.get('selectedCycle') ? tree.get('selectedCycle').isFinished : false ){
+      banner =  (
+        <div className='section columns'>
+          <div className='column'>
+            <article className="message is-primary">
+              <div className="message-header">
+                <p>
+                  <FormattedMessage
+                    id="projects.info"
+                    defaultMessage={`Información`}
+                  />
+                </p>
+              </div>
+              <div className="message-body">
+                <FormattedMessage
+                  id="¡Este ciclo ya ha finalizado!"
+                  defaultMessage={`¡Este ciclo ya ha finalizado!`}
+                />
+              </div>
+            </article>
+          </div>
+        </div>
+      )
+    }
 
     const dataSetsNumber = this.props.project.datasets.length
     let adviseContent = null
