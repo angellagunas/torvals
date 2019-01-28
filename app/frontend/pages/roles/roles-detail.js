@@ -3,7 +3,7 @@ import { FormattedMessage, injectIntl } from 'react-intl'
 import { BranchedPaginatedTable } from '~base/components/base-paginated-table'
 import moment from 'moment'
 
-class GroupsDetail extends Component {
+class RolesDetail extends Component {
   constructor (props) {
     super(props)
     this.state = {
@@ -97,4 +97,4 @@ class GroupsDetail extends Component {
   }
 }
 
-export default injectIntl(GroupsDetail)
+export default injectIntl(RolesDetail)
