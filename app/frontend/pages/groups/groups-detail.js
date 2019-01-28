@@ -224,6 +224,7 @@ class GroupsDetail extends Component {
             <GroupDetail
               group={this.state.groupSelected}
               selectGroup={() => { this.selectGroup() }}
+              changeTab={(tab) => this.props.changeTab(tab)}
             />
           </div>
 

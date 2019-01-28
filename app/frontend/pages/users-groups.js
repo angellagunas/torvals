@@ -40,10 +40,12 @@ class UsersGroups extends Component {
       hide: false,
       reload: true,
       content: (
-        <GroupsDetail changeTab={(tab) => this.changeTab(tab)} />
+        <GroupsDetail
+        changeTab={(tab) => this.changeTab(tab)} />
         )
     }
     ]
+
     return (
       <div>
         <Tabs
