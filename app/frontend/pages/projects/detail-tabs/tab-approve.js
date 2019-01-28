@@ -97,7 +97,7 @@ class TabApprove extends Component {
     for (let saleCenter of this.state.salesCenters) {
       salesCenters.push({
         ...saleCenter,
-        name:`${saleCenter.externalId} - ${saleCenter.name} (${(approveReqs[saleCenter.uuid] || 0)})`
+        name: `(${(approveReqs[saleCenter.uuid] || 0)}) ${saleCenter.externalId} - ${saleCenter.name}`
       })
     }
 
@@ -782,7 +782,7 @@ class TabApprove extends Component {
     return (
       <div>
         <section>
-          {this.getModifyButtons()}          
+          {this.getModifyButtons()}
 
           {this.state.filteredData.length === 0 && this.state.filtersLoading ?
             <section className='section'>
@@ -820,7 +820,7 @@ class TabApprove extends Component {
             />
           }
 
-          
+
         </section>
       </div>
     )
