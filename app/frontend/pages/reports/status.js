@@ -796,6 +796,7 @@ class StatusRepórt extends Component {
           </div>
 
           <Timer
+            proyect={this.state.projectSelected}
             timerStart={this.state.projectSelected.timerStart}
             timerEnd={this.state.projectSelected.timerEnd}
           />

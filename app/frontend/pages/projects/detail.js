@@ -169,7 +169,7 @@ class ProjectDetail extends Component {
       catalogItems = [
         ...catalogItems,
         ...group.catalogItems
-      ]      
+      ]
     }
     return [...new Set(catalogItems)]
   }
@@ -184,7 +184,7 @@ class ProjectDetail extends Component {
         })
         if (this.state.counterAdjustments !== body.data.created) {
           this.setState({
-            counterAdjustments: body.data.created            
+            counterAdjustments: body.data.created
           })
         }
       } catch (e) {

@@ -138,6 +138,7 @@ class ProjectForm extends Component {
   }
 
   async submitHandler ({formData}) {
+    console.log(formData)
     if (this.props.submitHandler) this.props.submitHandler(formData)
     try {
       var data = await api.post(this.props.url, formData)

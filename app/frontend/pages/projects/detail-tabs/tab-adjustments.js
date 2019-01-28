@@ -1607,6 +1607,7 @@ class TabAdjustment extends Component {
             </div>
 
             <Timer
+              project= {this.props.project}
               timerStart={this.props.project.timerStart}
               timerEnd={this.props.project.timerEnd}
             />
