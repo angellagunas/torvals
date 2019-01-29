@@ -42,11 +42,12 @@ class UsersGroups extends Component {
       hide: false,
       reload: true,
       content: (
-        <GroupsDetail changeTab={(tab) => this.changeTab(tab)} />
+        <GroupsDetail
+        changeTab={(tab) => this.changeTab(tab)} />
         )
     }
     ]
-    
+
     if(testRoles('admin, orgadmin, analyst, consultor-level-2, manager-level-2'))
       tabs.push({
         name: 'rols',
@@ -57,6 +58,7 @@ class UsersGroups extends Component {
           <RolesDetail changeTab={(tab) => this.changeTab(tab)} />
           )
       })
+
     return (
       <div>
         <Tabs

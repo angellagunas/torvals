@@ -97,20 +97,15 @@ class TabAdjustment extends Component {
     if (nextProps.showedFinishBtn !== this.props.showedFinishBtn && !this.state.filtersLoading) {
       const selectedCycle = tree.get('selectedCycle')
       const cycles = this.state.filters.cycles
-      const finishedCycles = {}
 
       for (let cycle of cycles) {
         if (selectedCycle.uuid === cycle.uuid && !cycle.isFinished) {
           const isFinished = !nextProps.showedFinishBtn
           cycle.isFinished = isFinished
-          cycle.viewName = `${cycle.viewName} ${isFinished ? '✔' : ''}`
-          finishedCycles[cycle.uuid] = isFinished
-        } else {
-          finishedCycles[cycle.uuid] = JSON.parse(localStorage.getItem('finishedCycles') || '{}')[cycle.uuid] || false
+          cycle.viewName = `${isFinished ? '✔' : ''} ${cycle.viewName}`
         }
       }
 
-      localStorage.setItem('finishedCycles', JSON.stringify(finishedCycles))
       this.setState({
         filters: {
           ...this.state.filters,
@@ -135,42 +130,32 @@ class TabAdjustment extends Component {
 
       try {
         let res = await api.get(url + this.props.project.activeDataset.uuid)
-
-        let cycles = _.orderBy(res.cycles, 'dateStart', 'asc')
-
-        let finishedCycles = {}
-        for (let cycle of cycles) {
-          finishedCycles[cycle.uuid] = JSON.parse(localStorage.getItem('finishedCycles') || '{}')[cycle.uuid] || false
-        }
-        localStorage.setItem('finishedCycles', JSON.stringify(finishedCycles))
-
-        if (currentRole !== 'manager-level-1') {
-          cycles = cycles.map((item, key) => {
-            const isFinished = finishedCycles[item.uuid]
-            return {
-              ...item,
-              isFinished,
-              adjustmentRange: this.rules.rangesLvl2[key],
-              name: moment.utc(item.dateStart).format('MMMM D') + ' - ' + moment.utc(item.dateEnd).format('MMMM D'),
-              viewName: `${isFinished ? '✔ ' : ''}Ciclo ${item.cycle} (Periodo ${item.periodStart} - ${item.periodEnd}) `
-            }
-          })
-        } else {
-          cycles = cycles.map((item, key) => {
-            const isFinished = finishedCycles[item.uuid]
-            return {
-              ...item,
-              isFinished,
-              adjustmentRange: this.rules.ranges[key],
-              name: moment.utc(item.dateStart).format('MMMM D') + ' - ' + moment.utc(item.dateEnd).format('MMMM D'),
-              viewName: `${isFinished ? '✔ ' : ''} Ciclo ${item.cycle} (Periodo ${item.periodStart} - ${item.periodEnd})`
-            }
-          })
-        }
+        let cycles = _.orderBy(res.cycles, 'dateStart', 'asc').slice(2, 6)
         cycles = cycles.filter(cycle => cycle.adjustmentRange !== 0)
 
-        let formData = this.state.formData
+        cycles = await Promise.all(cycles.map(async (cycle, key) => {
+          const finishedCycles = await api.post(
+            '/app/reports/user',
+            {
+              users: [tree.get('user').uuid],
+              cycles: [cycle.uuid],
+              projects: [this.props.project.uuid],
+              status: '2'
+            }
+          )
 
+          const isFinished = finishedCycles.data.length > 0
+
+          return {
+            ...cycle,
+            isFinished,
+            adjustmentRange: currentRole !== 'manager-level-1' ? this.rules.rangesLvl2[key] : this.rules.ranges[key],
+            name: moment.utc(cycle.dateStart).format('MMMM D') + ' - ' + moment.utc(cycle.dateEnd).format('MMMM D'),
+            viewName: `${isFinished ? '✔ ' : ''} Ciclo ${cycle.cycle} (Periodo ${cycle.periodStart} - ${cycle.periodEnd})`
+          }
+        }))
+
+        let formData = this.state.formData
         formData.cycle = cycles[0].cycle
         tree.set('selectedCycle', cycles[0])
         tree.commit()
