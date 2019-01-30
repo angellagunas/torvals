@@ -42,9 +42,9 @@ class UserDetail extends Component {
 
   componentWillMount () {
     this.load()
-    this.loadGroups()
     this.loadRoles()
     this.loadProjects()
+    this.loadCatalogItems()
   }
 
   formatTitle (id) {
@@ -61,6 +61,35 @@ class UserDetail extends Component {
     this.setState({
       projects: body.data
     })
+  }
+
+  async loadCatalogItems(){
+    try{
+      let catalogs = await api.get('/app/catalogItems/centro-de-venta', {
+        limit: 500
+      })
+      console.log(catalogs)
+      await this.loadGroups()
+
+      const newFilterCeve = []
+      for (const filterCeve of this.state.filteredCeve) {
+        const catalog = catalogs.data.find(item => item.groups.find(group => group === filterCeve._id))
+        if (catalog) {
+          filterCeve.name = `${catalog.externalId} ${filterCeve.name}`
+        }
+        newFilterCeve.push(filterCeve)
+
+        console.log(catalog)
+      }
+      this.setState({
+        filteredCeve: newFilterCeve
+      })
+    }
+    catch (e){
+      console.log(e)
+    }
+
+
   }
   async load () {
     var url = '/app/users/' + this.props.user.uuid
