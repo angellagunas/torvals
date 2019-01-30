@@ -97,16 +97,22 @@ class AdjustmentReport extends Component {
 
     try {
       const res = await api.get(`/app/rows/filters/organization/${tree.get('organization').uuid}`)
+
+      const ceves = res['centro-de-venta'].map(ceve => ({
+        ...ceve,
+        name: `${ceve.externalId} - ${ceve.name}`
+      }))
       this.setState({
         filters: {
           ...filters,
-          'centro-de-venta': res['centro-de-venta']
+          'centro-de-venta': ceves
         },
-        filteredCeve: [...res['centro-de-venta']],
-        ceves: [...res['centro-de-venta']]
+        filteredCeve: [...ceves],
+        ceves: [...ceves]
       }, async () => {
         await this.getFilters()
       })
+
     } catch (error) {
       console.error('CEVES ERROR', error)
     }
@@ -150,7 +156,6 @@ class AdjustmentReport extends Component {
         filtersLoading: false,
         errorMessage: this.formatTitle('adjustments.noFilters')
       })
-
       this.notify(
         `${this.formatTitle('adjustments.noFilters')} ${e.message}`,
         5000,

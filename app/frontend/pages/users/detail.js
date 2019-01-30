@@ -66,31 +66,36 @@ class UserDetail extends Component {
   async loadCatalogItems(){
     try{
       let catalogs = await api.get('/app/catalogItems/centro-de-venta', {
-        limit: 500
+        limit: 500,
+        sort: 'name'
       })
-      console.log(catalogs)
       await this.loadGroups()
 
-      const newFilterCeve = []
-      for (const filterCeve of this.state.filteredCeve) {
-        const catalog = catalogs.data.find(item => item.groups.find(group => group === filterCeve._id))
-        if (catalog) {
-          filterCeve.name = `${catalog.externalId} ${filterCeve.name}`
-        }
-        newFilterCeve.push(filterCeve)
-
-        console.log(catalog)
-      }
+      const addCeve = this.addCeveId(this.state.filteredCeve, catalogs)
+      const userCeve = this.addCeveId(this.state.ceves, catalogs)
       this.setState({
-        filteredCeve: newFilterCeve
+        filteredCeve: addCeve,
+        ceves: userCeve
       })
     }
     catch (e){
       console.log(e)
     }
-
-
   }
+
+  addCeveId(ceves, catalogs){
+
+    const newFilterCeve = []
+      for (const filterCeve of ceves) {
+        const catalog = catalogs.data.find(item => item.groups.find(group => group === filterCeve._id))
+        if (catalog) {
+          filterCeve.name = `${catalog.externalId}  -  ${filterCeve.name}`
+        }
+        newFilterCeve.push(filterCeve)
+      }
+      return newFilterCeve
+  }
+
   async load () {
     var url = '/app/users/' + this.props.user.uuid
     try {

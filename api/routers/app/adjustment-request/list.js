@@ -127,7 +127,7 @@ module.exports = new Route({
       }
     }
 
-   
+
 
     var adjustmentRequests = await AdjustmentRequest.dataTables({
       limit: ctx.request.query.limit || 0,
@@ -145,7 +145,7 @@ module.exports = new Route({
       ],
       sort: ctx.request.query.sort || '-dateCreated'
     })
-    
+
     adjustmentRequests.data = adjustmentRequests.data.map(item => {
       return {
         ...item.toPublic(),

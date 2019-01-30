@@ -26,7 +26,7 @@ module.exports = new Route({
     }
 
     const organization = ctx.state.organization._id
-    const catalog = await Catalog.findOne({
+    let catalog = await Catalog.findOne({
       slug: type,
       organization: organization,
       isDeleted: false
