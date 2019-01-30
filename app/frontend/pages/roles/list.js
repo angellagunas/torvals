@@ -12,7 +12,7 @@ export default ListPage({
   title: 'sideMenu.roles',
   icon: 'sitemap',
   exact: true,
-  roles: 'admin, orgadmin, analyst, consultor-level-2, manager-level-2',
+  roles: 'N/A',
   validate: [loggedIn, verifyRole],
   titleSingular: 'Rol',
   breadcrumbs: true,
