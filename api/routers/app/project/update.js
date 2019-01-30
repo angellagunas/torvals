@@ -14,7 +14,6 @@ module.exports = new Route({
   handler: async function (ctx) {
     var projectId = ctx.params.uuid
     var data = ctx.request.body
-    console.log('DATA ', data)
 
     const project = await Project.findOne({'uuid': projectId, 'isDeleted': false}).populate('organization')
     ctx.assert(project, 404, 'Proyecto no encontrado')
@@ -31,7 +30,7 @@ module.exports = new Route({
       name: data.name,
       description: data.description,
       status: data.status,
-      cycleStatus: 'rangeAdjustment',
+      cycleStatus: data.cycleStatus,
       cycleType: data.cycleType || 'add',
       cycleTypeValue: data.cycleTypeValue || 6,
       mainDataset: mainDataset ? ObjectId(mainDataset._id) : null,
@@ -39,7 +38,7 @@ module.exports = new Route({
       timerStart: moment(data.timerStart).utc(),
       timerEnd: moment(data.timerEnd).utc()
     } : {
-      cycleStatus: 'forecastCreation'
+      cycleStatus: data.cycleStatus
     })
 
     if (data.showOnDashboard !== undefined) {
