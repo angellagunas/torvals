@@ -165,7 +165,7 @@ class UserForm extends Component {
     if (testRoles('orgadmin')) {
       schema.properties.password ={
         type:'string',
-        title:'Clave'
+        title:'Contraseña'
       }
       schema.properties.isOperationalUser = {
         type: 'boolean',
