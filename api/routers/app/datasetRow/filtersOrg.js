@@ -16,7 +16,7 @@ module.exports = new Route({
       isDeleted: false,
       organization: org._id,
       type: 'centro-de-venta'
-    })
+    }).sort('name')
 
     const catalogs = []
     const externalIds = new Set()
