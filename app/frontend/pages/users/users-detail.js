@@ -81,7 +81,7 @@ class UsersDetail extends Component {
           resetClass: 'button is-success',
           sendingEmail: this.state.sendingEmail
         })
-        
+
         this.notify('Se ha enviado el correo',5000, toast.TYPE.SUCCESS)
 
       }, 3000)
@@ -253,7 +253,7 @@ class UsersDetail extends Component {
                     onClick={() => this.resetOnClick(row.email)}>
                   <span className='icon is-small' title="Reset Password">
                     <i className='fa fa-envelope' />
-                  </span>   
+                  </span>
                 </button>
               )}
               </div>

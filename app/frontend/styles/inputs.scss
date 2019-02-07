@@ -76,3 +76,12 @@ option {
 .input-font{
     font-size: .85rem !important;
 }
+
+.Select-control {
+  @extend .input
+}
+
+.Select-placeholder, .Select--single > .Select-control .Select-value {
+  line-height: 25px;
+  padding-left: 15px;
+}
