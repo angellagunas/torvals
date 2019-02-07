@@ -341,7 +341,7 @@ class UsersDetail extends Component {
       //const { dataRows, projectSelected, filters, formData } = this.state
       //const cycle = filters.cycles.find(item => item.cycle === formData.cycle) || {}
 
-      const csv = ['Usuario,Email,Role,Verificado,Email Validado,Grupos']
+      const csv = ['Usuario,Email,Rol,Verificado,Email Validado,Grupos']
       for (let user of users) {
         if(user.isOperationalUser) continue
 
@@ -437,21 +437,6 @@ class UsersDetail extends Component {
             <div className='level-right'>
               <div className='level-item'>
               <div className='control level-item'>
-              {testRoles('orgadmin') &&
-              <div className='level-item'>
-                <a
-                  className='button is-info is-pulled-right'
-                  onClick={() => this.getUsers()}
-                >
-                  <span>
-                    <FormattedMessage
-                      id='user.detailBtnExportUsers'
-                      defaultMessage={`Exportar Usuarios`}
-                    />
-                  </span>
-                </a>
-              </div>
-              }
                 {this.slectionRoleComponent()}
               </div>
                 <div className='field'>
@@ -480,6 +465,21 @@ class UsersDetail extends Component {
                     <FormattedMessage
                       id='user.detailBtnNew'
                       defaultMessage={`Nuevo Usuario`}
+                    />
+                  </span>
+                </a>
+              </div>
+              }
+              {testRoles('orgadmin') &&
+              <div className='level-item'>
+                <a
+                  className='button is-info is-pulled-right'
+                  onClick={() => this.getUsers()}
+                >
+                  <span>
+                    <FormattedMessage
+                      id='user.detailBtnExportUsers'
+                      defaultMessage={`Exportar Usuarios`}
                     />
                   </span>
                 </a>
