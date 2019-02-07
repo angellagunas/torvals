@@ -437,6 +437,7 @@
       "createInviteTitle": "Invitar usuario",
       "createMsg": "Se ha creado correctamente al usuario",
       "createTitle": "Crear usuario",
+      "detailBtnExportUsers": "Exportar Usuarios",
       "delete": "Eliminar",
       "deleteMsg": "¿Estás seguro de querer desactivar a",
       "deleteObj": "Usuario",
