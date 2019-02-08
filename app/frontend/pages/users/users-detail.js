@@ -21,6 +21,9 @@ class UsersDetail extends Component {
       userRoles: [],
       selectedRole: '',
       modalClassName: '',
+      isDownloading: false,
+      downloadInfo: '',
+      usersList: [],
       canCreate: 'admin, orgadmin, analyst, consultor-level-3, manager-level-2, manager-level-3'
     }
   }
@@ -81,7 +84,7 @@ class UsersDetail extends Component {
           resetClass: 'button is-success',
           sendingEmail: this.state.sendingEmail
         })
-        
+
         this.notify('Se ha enviado el correo',5000, toast.TYPE.SUCCESS)
 
       }, 3000)
@@ -171,7 +174,6 @@ class UsersDetail extends Component {
 
             const cursor = tree.get('users-list')
             const users = await api.get('/app/users/')
-
             tree.set('users-list', {
               page: cursor.page,
               totalItems: users.total,
@@ -181,7 +183,6 @@ class UsersDetail extends Component {
             tree.commit()
             await updateStep()
           }
-
           const updateStep = async function () {
             try {
               let user = tree.get('user')
@@ -253,7 +254,7 @@ class UsersDetail extends Component {
                     onClick={() => this.resetOnClick(row.email)}>
                   <span className='icon is-small' title="Reset Password">
                     <i className='fa fa-envelope' />
-                  </span>   
+                  </span>
                 </button>
               )}
               </div>
@@ -316,6 +317,83 @@ class UsersDetail extends Component {
 
     this.setState({
       selectedRole: selection
+    })
+  }
+
+  async getUsers(){
+    try{
+      const users = await api.get(
+        '/app/users',
+        {
+          start: 0,
+          limit: 500
+        }
+      )
+      await this.download(users.data)
+      }catch(err){
+        console.log(err)
+      }
+  }
+
+
+  async download(users) {
+    try {
+      //const { dataRows, projectSelected, filters, formData } = this.state
+      //const cycle = filters.cycles.find(item => item.cycle === formData.cycle) || {}
+
+      const csv = ['Usuario,Email,Rol,Verificado,Email Validado,Grupos']
+      for (let user of users) {
+        if(user.isOperationalUser) continue
+
+        let verified = user.isVerified? 'Verificado': 'No Verificado'
+        let validate = user.validEmail? 'Si': 'No'
+        let userRole = this.state.userRoles.data.find(item => item._id === user.organizations.role)
+        csv.push([
+          user.name || '',
+          user.email,
+          userRole.name,
+          verified,
+          validate,
+          (user.groups || []).map(group => group.name || '').join(' ')
+
+        ].join(','))
+      }
+
+      // Download CSV file
+      this.downloadCSV(csv.join('\n'), `Reporte-Usuario.csv`)
+    } catch (error) {
+      console.log(error)
+      this.setState({
+        isDownloading: false,
+      })
+      this.notify('¡No se pudo completar la descarga!', 5000, toast.TYPE.ERROR)
+    }
+  }
+
+  downloadCSV(csv, filename) {
+    // CSV file
+    const csvFile = new Blob(['\ufeff', csv], {type: 'text/csv'})
+
+    // Download link
+    let downloadLink = document.createElement('a')
+
+    // File name
+    downloadLink.download = filename
+
+    // Create a link to the file
+    downloadLink.href = window.URL.createObjectURL(csvFile)
+
+    // Hide download link
+    downloadLink.style.display = 'none'
+
+    // Add the link to DOM
+    document.body.appendChild(downloadLink)
+
+    // Click download link
+    downloadLink.click()
+
+    this.setState({
+      isDownloading: false
     })
   }
 
@@ -387,6 +465,21 @@ class UsersDetail extends Component {
                     <FormattedMessage
                       id='user.detailBtnNew'
                       defaultMessage={`Nuevo Usuario`}
+                    />
+                  </span>
+                </a>
+              </div>
+              }
+              {testRoles('orgadmin') &&
+              <div className='level-item'>
+                <a
+                  className='button is-info is-pulled-right'
+                  onClick={() => this.getUsers()}
+                >
+                  <span>
+                    <FormattedMessage
+                      id='user.detailBtnExportUsers'
+                      defaultMessage={`Exportar Usuarios`}
                     />
                   </span>
                 </a>
