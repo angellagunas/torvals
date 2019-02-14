@@ -7,6 +7,7 @@ import DeleteButton from '~base/components/base-deleteButton'
 import tree from '~core/tree'
 import UserDetail from './detail'
 import CreateUser from './create'
+import CreateSendEmail from './create-send-email'
 import { testRoles } from '~base/tools'
 import env from '~base/env-variables'
 import { toast } from 'react-toastify'
@@ -21,6 +22,7 @@ class UsersDetail extends Component {
       userRoles: [],
       selectedRole: '',
       modalClassName: '',
+      modalSendEmail: '',
       isDownloading: false,
       downloadInfo: '',
       usersList: [],
@@ -312,6 +314,24 @@ class UsersDetail extends Component {
     this.selectUser(object)
   }
 
+  showModalEmail(){
+    this.setState({
+      modalSendEmail: ' is-active'
+    })
+  }
+
+  hideModalEmail(e){
+    this.setState({
+      modalSendEmail: ''
+    })
+  }
+
+  finishUpEmail (object) {
+    this.setState({
+      modalSendEmail: ''
+    })
+  }
+
   setSelectedRole(option) {
     const selection = option === null ? '' : option
 
@@ -397,6 +417,8 @@ class UsersDetail extends Component {
     })
   }
 
+
+
   slectionRoleComponent() {
     if (this.state.userRoles && this.state.userRoles.data) {
       let roles = this.state.userRoles.data.map(role => ({
@@ -419,6 +441,8 @@ class UsersDetail extends Component {
   }
 
   render () {
+
+
     return (
       <div className=''>
         {!this.state.userSelected &&
@@ -485,6 +509,21 @@ class UsersDetail extends Component {
                 </a>
               </div>
               }
+              {testRoles('orgadmin') &&
+              <div className='level-item'>
+                <a
+                  className='button is-warning is-pulled-right'
+                  onClick={() => this.showModalEmail()}
+                >
+                  <span>
+                    <FormattedMessage
+                      id='user.sendEmail'
+                      defaultMessage={`Enviar Correo`}
+                    />
+                  </span>
+                </a>
+              </div>
+              }
             </div>
           </div>
           <div className='list-page'>
@@ -498,7 +537,13 @@ class UsersDetail extends Component {
               filters={{ general: this.state.searchTerm, role: this.state.selectedRole.value }}
             />
           </div>
-
+          <CreateSendEmail
+            branchName=''
+            url='/app/users/sendEmail'
+            className={this.state.modalSendEmail}
+            hideModal={() => this.hideModalEmail()}
+            finishUp={(obj) => this.finishUpEmail(obj)}
+          />
           <CreateUser
             branchName='users-list'
             url='/app/users'
@@ -507,7 +552,7 @@ class UsersDetail extends Component {
             finishUp={(obj) => this.finishUp(obj)}
             />
         </div>
-      }
+        }
         {this.state.userSelected &&
           <div>
             <UserDetail user={this.state.userSelected} selectUser={() => { this.selectUser() }} />

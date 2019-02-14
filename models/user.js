@@ -323,7 +323,6 @@ userSchema.methods.sendResetPasswordEmail = async function (admin) {
 
   const data = this.toJSON()
   data.url = `${url}/emails/reset?token=${userToken.key}&email=${encodeURIComponent(this.email)}`
-
   sendEmail.run({
     args: data,
     recipients: {
