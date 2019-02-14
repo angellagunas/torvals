@@ -445,7 +445,7 @@ class UsersDetail extends Component {
 
     return (
       <div className=''>
-
+        {!this.state.userSelected &&
         <div>
           <div className='section level has-10-margin-top'>
             <div className='level-left'>
@@ -552,7 +552,7 @@ class UsersDetail extends Component {
             finishUp={(obj) => this.finishUp(obj)}
             />
         </div>
-
+        }
         {this.state.userSelected &&
           <div>
             <UserDetail user={this.state.userSelected} selectUser={() => { this.selectUser() }} />
