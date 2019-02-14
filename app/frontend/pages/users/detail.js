@@ -42,9 +42,9 @@ class UserDetail extends Component {
 
   componentWillMount () {
     this.load()
-    this.loadGroups()
     this.loadRoles()
     this.loadProjects()
+    this.loadCatalogItems()
   }
 
   formatTitle (id) {
@@ -62,6 +62,40 @@ class UserDetail extends Component {
       projects: body.data
     })
   }
+
+  async loadCatalogItems(){
+    try{
+      let catalogs = await api.get('/app/catalogItems/centro-de-venta', {
+        limit: 500,
+        sort: 'name'
+      })
+      await this.loadGroups()
+
+      const addCeve = this.addCeveId(this.state.filteredCeve, catalogs)
+      const userCeve = this.addCeveId(this.state.ceves, catalogs)
+      this.setState({
+        filteredCeve: addCeve,
+        ceves: userCeve
+      })
+    }
+    catch (e){
+      console.log(e)
+    }
+  }
+
+  addCeveId(ceves, catalogs){
+
+    const newFilterCeve = []
+      for (const filterCeve of ceves) {
+        const catalog = catalogs.data.find(item => item.groups.find(group => group === filterCeve._id))
+        if (catalog) {
+          filterCeve.name = `${catalog.externalId}  -  ${filterCeve.name}`
+        }
+        newFilterCeve.push(filterCeve)
+      }
+      return newFilterCeve
+  }
+
   async load () {
     var url = '/app/users/' + this.props.user.uuid
     try {

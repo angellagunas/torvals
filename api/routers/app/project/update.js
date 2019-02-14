@@ -26,8 +26,7 @@ module.exports = new Route({
     if (data.activeDatasetV) {
       activeDataset = await DataSet.findOne({ uuid: data.activeDatasetV })
     }
-
-    project.set({
+    project.set(!data.timerFlag ? {
       name: data.name,
       description: data.description,
       status: data.status,
@@ -38,6 +37,8 @@ module.exports = new Route({
       activeDataset: activeDataset ? ObjectId(activeDataset._id) : null,
       timerStart: moment(data.timerStart).utc(),
       timerEnd: moment(data.timerEnd).utc()
+    } : {
+      cycleStatus: data.cycleStatus
     })
 
     if (data.showOnDashboard !== undefined) {

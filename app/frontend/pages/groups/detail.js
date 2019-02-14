@@ -16,6 +16,7 @@ import BaseModal from '~base/components/base-modal'
 import tree from '~core/tree'
 import Breadcrumb from '~base/components/base-breadcrumb'
 import NotFound from '~base/components/not-found'
+import { withRouter } from 'react-router'
 
 var currentRole
 
@@ -91,10 +92,17 @@ class GroupDetail extends Component {
   getColumns () {
     return [
       {
-        'title': this.formatTitle('user.formName'),
+        'title': this.formatTitle('tables.colUser'),
         'property': 'name',
         'default': 'N/A',
-        'sortable': true
+        'sortable': true,
+        formatter: (row) => {
+          return (
+            <a className='' onClick={() => this.userDetail(row)}>
+              { row.name }
+            </a>
+          )
+        }
       },
       {
         'title': this.formatTitle('user.formEmail'),
@@ -103,6 +111,12 @@ class GroupDetail extends Component {
         'sortable': true
       }
     ]
+  }
+
+  userDetail(user) {
+    tree.set('userDetail', user)
+    tree.commit()
+    this.props.changeTab('users')
   }
 
   showModal () {
@@ -494,4 +508,4 @@ class GroupDetail extends Component {
   }
 }
 
-export default injectIntl(GroupDetail)
+export default injectIntl(withRouter(GroupDetail))

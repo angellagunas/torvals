@@ -7,6 +7,7 @@ import DeleteButton from '~base/components/base-deleteButton'
 import tree from '~core/tree'
 import UserDetail from './detail'
 import CreateUser from './create'
+import CreateSendEmail from './create-send-email'
 import { testRoles } from '~base/tools'
 import env from '~base/env-variables'
 import { toast } from 'react-toastify'
@@ -21,6 +22,10 @@ class UsersDetail extends Component {
       userRoles: [],
       selectedRole: '',
       modalClassName: '',
+      modalSendEmail: '',
+      isDownloading: false,
+      downloadInfo: '',
+      usersList: [],
       canCreate: 'admin, orgadmin, analyst, consultor-level-3, manager-level-2, manager-level-3'
     }
   }
@@ -81,7 +86,7 @@ class UsersDetail extends Component {
           resetClass: 'button is-success',
           sendingEmail: this.state.sendingEmail
         })
-        
+
         this.notify('Se ha enviado el correo',5000, toast.TYPE.SUCCESS)
 
       }, 3000)
@@ -171,7 +176,6 @@ class UsersDetail extends Component {
 
             const cursor = tree.get('users-list')
             const users = await api.get('/app/users/')
-
             tree.set('users-list', {
               page: cursor.page,
               totalItems: users.total,
@@ -181,7 +185,6 @@ class UsersDetail extends Component {
             tree.commit()
             await updateStep()
           }
-
           const updateStep = async function () {
             try {
               let user = tree.get('user')
@@ -253,7 +256,7 @@ class UsersDetail extends Component {
                     onClick={() => this.resetOnClick(row.email)}>
                   <span className='icon is-small' title="Reset Password">
                     <i className='fa fa-envelope' />
-                  </span>   
+                  </span>
                 </button>
               )}
               </div>
@@ -311,6 +314,24 @@ class UsersDetail extends Component {
     this.selectUser(object)
   }
 
+  showModalEmail(){
+    this.setState({
+      modalSendEmail: ' is-active'
+    })
+  }
+
+  hideModalEmail(e){
+    this.setState({
+      modalSendEmail: ''
+    })
+  }
+
+  finishUpEmail (object) {
+    this.setState({
+      modalSendEmail: ''
+    })
+  }
+
   setSelectedRole(option) {
     const selection = option === null ? '' : option
 
@@ -318,6 +339,85 @@ class UsersDetail extends Component {
       selectedRole: selection
     })
   }
+
+  async getUsers(){
+    try{
+      const users = await api.get(
+        '/app/users',
+        {
+          start: 0,
+          limit: 500
+        }
+      )
+      await this.download(users.data)
+      }catch(err){
+        console.log(err)
+      }
+  }
+
+
+  async download(users) {
+    try {
+      //const { dataRows, projectSelected, filters, formData } = this.state
+      //const cycle = filters.cycles.find(item => item.cycle === formData.cycle) || {}
+
+      const csv = ['Usuario,Email,Rol,Verificado,Email Validado,Grupos']
+      for (let user of users) {
+        if(user.isOperationalUser) continue
+
+        let verified = user.isVerified? 'Verificado': 'No Verificado'
+        let validate = user.validEmail? 'Si': 'No'
+        let userRole = this.state.userRoles.data.find(item => item._id === user.organizations.role)
+        csv.push([
+          user.name || '',
+          user.email,
+          userRole.name,
+          verified,
+          validate,
+          (user.groups || []).map(group => group.name || '').join(' ')
+
+        ].join(','))
+      }
+
+      // Download CSV file
+      this.downloadCSV(csv.join('\n'), `Reporte-Usuario.csv`)
+    } catch (error) {
+      console.log(error)
+      this.setState({
+        isDownloading: false,
+      })
+      this.notify('¡No se pudo completar la descarga!', 5000, toast.TYPE.ERROR)
+    }
+  }
+
+  downloadCSV(csv, filename) {
+    // CSV file
+    const csvFile = new Blob(['\ufeff', csv], {type: 'text/csv'})
+
+    // Download link
+    let downloadLink = document.createElement('a')
+
+    // File name
+    downloadLink.download = filename
+
+    // Create a link to the file
+    downloadLink.href = window.URL.createObjectURL(csvFile)
+
+    // Hide download link
+    downloadLink.style.display = 'none'
+
+    // Add the link to DOM
+    document.body.appendChild(downloadLink)
+
+    // Click download link
+    downloadLink.click()
+
+    this.setState({
+      isDownloading: false
+    })
+  }
+
+
 
   slectionRoleComponent() {
     if (this.state.userRoles && this.state.userRoles.data) {
@@ -341,6 +441,8 @@ class UsersDetail extends Component {
   }
 
   render () {
+
+
     return (
       <div className=''>
         {!this.state.userSelected &&
@@ -392,6 +494,36 @@ class UsersDetail extends Component {
                 </a>
               </div>
               }
+              {testRoles('orgadmin') &&
+              <div className='level-item'>
+                <a
+                  className='button is-info is-pulled-right'
+                  onClick={() => this.getUsers()}
+                >
+                  <span>
+                    <FormattedMessage
+                      id='user.detailBtnExportUsers'
+                      defaultMessage={`Exportar Usuarios`}
+                    />
+                  </span>
+                </a>
+              </div>
+              }
+              {testRoles('orgadmin') &&
+              <div className='level-item'>
+                <a
+                  className='button is-warning is-pulled-right'
+                  onClick={() => this.showModalEmail()}
+                >
+                  <span>
+                    <FormattedMessage
+                      id='user.sendEmail'
+                      defaultMessage={`Enviar Correo`}
+                    />
+                  </span>
+                </a>
+              </div>
+              }
             </div>
           </div>
           <div className='list-page'>
@@ -405,7 +537,13 @@ class UsersDetail extends Component {
               filters={{ general: this.state.searchTerm, role: this.state.selectedRole.value }}
             />
           </div>
-
+          <CreateSendEmail
+            branchName=''
+            url='/app/users/sendEmail'
+            className={this.state.modalSendEmail}
+            hideModal={() => this.hideModalEmail()}
+            finishUp={(obj) => this.finishUpEmail(obj)}
+          />
           <CreateUser
             branchName='users-list'
             url='/app/users'
@@ -414,7 +552,7 @@ class UsersDetail extends Component {
             finishUp={(obj) => this.finishUp(obj)}
             />
         </div>
-      }
+        }
         {this.state.userSelected &&
           <div>
             <UserDetail user={this.state.userSelected} selectUser={() => { this.selectUser() }} />

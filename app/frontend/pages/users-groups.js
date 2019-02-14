@@ -6,6 +6,8 @@ import Page from '~base/page'
 import tree from '~core/tree'
 import UsersDetail from './users/users-detail'
 import GroupsDetail from './groups/groups-detail'
+import RolesDetail from './roles/roles-detail'
+import { testRoles } from '~base/tools'
 
 class UsersGroups extends Component {
   constructor (props) {
@@ -40,10 +42,23 @@ class UsersGroups extends Component {
       hide: false,
       reload: true,
       content: (
-        <GroupsDetail changeTab={(tab) => this.changeTab(tab)} />
+        <GroupsDetail
+        changeTab={(tab) => this.changeTab(tab)} />
         )
     }
     ]
+
+    if(testRoles('admin, orgadmin, analyst, consultor-level-2, manager-level-2'))
+      tabs.push({
+        name: 'rols',
+        title: 'Roles',
+        hide: false,
+        reload: true,
+        content: (
+          <RolesDetail changeTab={(tab) => this.changeTab(tab)} />
+          )
+      })
+
     return (
       <div>
         <Tabs

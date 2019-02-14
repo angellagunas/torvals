@@ -208,6 +208,9 @@ class AdminLayout extends Component {
     });
 
     if (!this.state.loaded) {
+      setTimeout(() => {
+        if (!this.state.loaded) window.location.reload(false)
+      }, 2000)
       return <Loader />;
     }
 

@@ -6,7 +6,6 @@ import Dashboard from '../pages/dashboard'
 import Users from '../pages/users/list'
 import DeletedUsers from '../pages/users/list-deleted'
 import Organizations from '../pages/organizations/list'
-import Roles from '../pages/roles/list'
 import Groups from '../pages/groups/list'
 import Projects from '../pages/projects/list'
 import DeletedProjects from '../pages/projects/deleted-list'
@@ -94,7 +93,6 @@ class Sidebar extends Component {
         opened: false,
         dropdown: [
           Organizations.asSidebarItem(),
-          Roles.asSidebarItem(),
           Groups.asSidebarItem(),
           Users.asSidebarItem(),
           DeletedUsers.asSidebarItem(),
