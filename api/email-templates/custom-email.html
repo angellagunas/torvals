@@ -1,0 +1,148 @@
+<head>
+<style>
+.wrapper{
+  background-color:#fff;
+  margin:0 auto 0 auto;
+  padding:30px 0 30px 0;
+  color:#4f565d;
+  font-size:13px;
+  line-height:15px;
+  font-family:'Helvetica Neue',Arial,sans-serif;
+  text-align:left;
+}
+
+.container{
+  width:550px;
+  text-align:center;
+}
+
+.header{
+  padding:10px 0 20px 0;
+  border-bottom:1px solid hsl(192, 13%, 92%);
+  background-color: #FBFBFB;
+}
+
+.logo{
+  display:block;
+  margin:0 auto;
+}
+
+.logo img{
+  border: 0px;
+}
+
+.body{
+  padding:30px 0;
+}
+
+.main{
+  color:#1d2227;
+  line-height:28px;
+  font-size:22px;
+  margin:12px 10px 20px 10px;
+  font-weight:400;
+}
+
+.label{
+  margin:0 10px 10px 10px;
+  padding:0;
+}
+
+.label.status{
+  color: #0CB900;
+}
+
+.footer{
+  padding: 30px 30px 10px 30px;
+  border-top:1px solid #e9edee;
+  color:#9b9fa5;
+  background-color: #EFF1F9;
+}
+
+.footer p{
+  font-size: 11px;
+}
+.footer img{
+  padding: 0 0 10px 0;
+}
+
+.btn{
+  display:inline-block;
+  text-decoration:none;
+  padding:15px 20px;
+  background-color:#187FE6;
+  border:1px solid #187FE6;
+  border-radius:3px;
+  color:#FFF;
+  font-weight:bold;
+}
+
+.link{
+  color:#187FE6;
+  text-decoration:none;
+}
+</style>
+</head>
+
+<body>
+  <div class="wrapper">
+    <center>
+      <table class="container">
+        <tbody>
+          <tr>
+            <td class="header">
+              <a href="https://www.orax.io/" class="logo" target="_blank">
+                <img src="https://www.orax.io/admin/public/img/logo.png" width="100" height="auto" alt="Orax">
+              </a>
+            </td>
+          </tr>
+          {% block content %}
+            <tr>
+              <td colSpan="2" class="body">
+                <p class="label">¡Hola {{ name }}, este es un mensaje de Orax!:</p>
+                <p></p>
+                <br><br><br>
+                <p class="label">
+                  {{ body }}
+                </p>
+                <br><br><br><br>
+                <p></p>
+                <p>Recuerda que para entrar a la plataforma puede hacerlo desde aqui</p>
+                <p>
+                  <a class="btn" href="https://barcel.orax.io" target="_blank">Da click aquí</a>
+                </p>
+                <p>o copia esta url: <a class="link" >https://barcel.orax.io</a></p>
+              </td>
+            </tr>
+          {% endblock %}
+          <tr>
+            <td colSpan="2" class="footer">
+              <table>
+                <tr>
+                  <td align="left">
+                    <img src="https://www.orax.io/admin/public/img/abraxas_logo.png" width="120" height="auto" alt="Abraxas" />
+                  </td>
+                  <td align="right">
+                    <p>Soporte (55) 3703 8107</p>
+                    <p>
+                      <a class="link" href="mailto:contact@orax.io">
+                          contact@orax.io
+                      </a>
+                    </p>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="left">
+                    <p>
+                      <a class="link" href="http://www.grupoabraxas.com">www.grupoabraxas.com</a>
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </center>
+  </div>
+</body>

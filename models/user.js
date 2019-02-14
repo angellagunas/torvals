@@ -311,6 +311,29 @@ userSchema.methods.sendInviteEmail = async function () {
   })
 }
 
+userSchema.methods.sendCustomEmail = async function (subject, body) {
+  const UserToken = mongoose.model('UserToken')
+  let userToken = await UserToken.create({
+    user: this._id,
+    validUntil: moment().add(10, 'days').utc(),
+    type: 'invite'
+  })
+  const data = this.toJSON()
+  data.url = `${process.env.APP_HOST}/emails/invite?token=${userToken.key}&email=${encodeURIComponent(this.email)}`
+  data.body = body
+  data.name = this.name
+  const recipients = {
+    email: this.email,
+    name: this.name
+  }
+  sendEmail.run({
+    recipients,
+    args: data,
+    template: 'custom-email',
+    title: subject
+  })
+}
+
 userSchema.methods.sendResetPasswordEmail = async function (admin) {
   const UserToken = mongoose.model('UserToken')
   const userToken = await UserToken.create({
@@ -323,7 +346,6 @@ userSchema.methods.sendResetPasswordEmail = async function (admin) {
 
   const data = this.toJSON()
   data.url = `${url}/emails/reset?token=${userToken.key}&email=${encodeURIComponent(this.email)}`
-
   sendEmail.run({
     args: data,
     recipients: {
