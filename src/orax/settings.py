@@ -9,7 +9,6 @@ https://docs.djangoproject.com/en/1.11/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.11/ref/settings/
 """
-import datetime
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -38,11 +37,25 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'soft_drf',
-    'orax.datasets',
+    'soft_drf'
+]
+
+LOCAL_APPS = [
     'orax.utils',
+    'orax.datasets',
+    'orax.projects',
+    'orax.channels',
+    'orax.cycles',
+    'orax.datasetrows',
+    'orax.organizations',
+    'orax.periods',
+    'orax.products',
+    'orax.rules',
+    'orax.sales_centers',
     'orax.users'
 ]
+
+INSTALLED_APPS += LOCAL_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

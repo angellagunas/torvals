@@ -10,3 +10,4 @@ uWSGI==2.0.17.1
 django-redis==4.10.0
 celery==4.1.1
 redis==2.10.6
+Pillow
