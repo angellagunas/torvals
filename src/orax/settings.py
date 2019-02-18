@@ -58,6 +58,10 @@ LOCAL_APPS = [
 INSTALLED_APPS += LOCAL_APPS
 
 MIDDLEWARE = [
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.middleware.common.CommonMiddleware',
     'orax.utils.middlewares.AuthenticationMiddlewareJWT',
@@ -140,6 +144,16 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+#
+# api documentation
+#
+SHOW_DOCUMENTATION = False
+TITLE_DOCUMENTATION = "ORAX"
+
+MEDIA_ROOT = "".join([BASE_DIR, '/media'])
+MEDIA_URL = '/media/'
 
 SHOW_DOCUMENTATION = True
 TITLE_DOCUMENTATION = "Orax Docs"

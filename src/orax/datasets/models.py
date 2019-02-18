@@ -33,6 +33,8 @@ class Dataset(CatalogueMixin):
         verbose_name = 'dataset'
         verbose_name_plural = 'datasets'
 
+    file = models.FileField(upload_to="files")
+
     description = models.CharField(
         max_length=255,
         verbose_name='description'
