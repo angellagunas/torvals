@@ -42,15 +42,7 @@ class BaseJSONWebTokenAuthentication(BaseAuthentication):
         """
         try:
             unverified_payload = jwt.decode(token, None, False)
-            user_token = Mongo().usertokens.find_one({
-                'key': unverified_payload.get('key'),
-                'secret': unverified_payload.get('secret'),
-                'isDeleted': { '$ne': 'true' }
-            })
-            user = Mongo().users.find_one({'_id': user_token['user']})
-            user = User({
-                'name': user['name']
-            })
+            user = User.objects.get(email=unverified_payload['email'])
         except Exception as e:
             print(e)
             raise exceptions.AuthenticationFailed('Invalid signature.')

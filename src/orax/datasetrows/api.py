@@ -13,7 +13,7 @@ class DatasetrowViewSet(
         GenericViewSet):
     """Manage datasetrows endpoints."""
 
-    permission_classes = []
+    # permission_classes = []
     serializer_class = serializers.DatasetrowSerializer
     list_serializer_class = serializers.DatasetrowSerializer
     update_serializer_class = serializers.DatasetrowUpdateSerializer
