@@ -21,7 +21,7 @@ COPY supervisord.conf /etc/supervisor/conf.d/orax.conf
 RUN ln -s /pythia-kore/nginx-python /etc/nginx/sites-enabled/default
 
 RUN pip install -r src/requirements/base.txt
-RUN python /src/manage.py collectstatic
+RUN python /pythia-kore/src/manage.py collectstatic
 
 EXPOSE 8000
 
