@@ -31,6 +31,9 @@ class DatasetRow(TimeStampedMixin):
         verbose_name = 'dataset row'
         verbose_name_plural = 'dataset rows'
 
+    prediction = models.PositiveIntegerField()
+    adjustment = models.PositiveIntegerField()
+
     organization = models.ForeignKey(Organization)
     project = models.ForeignKey(Project)
     dataset = models.ForeignKey(Dataset)
@@ -48,3 +51,7 @@ class DatasetRow(TimeStampedMixin):
         default=True,
         verbose_name='is active'
     )
+
+    def __unicode__(self):
+        """Return the representation in String of this model."""
+        return self.adjustment

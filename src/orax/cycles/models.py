@@ -27,3 +27,7 @@ class Cycle(TimeStampedMixin):
         default=True,
         verbose_name='is active'
     )
+
+    def __unicode__(self):
+        """Return the representation in String of this model."""
+        return self.cycle
