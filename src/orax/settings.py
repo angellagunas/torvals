@@ -207,3 +207,5 @@ CACHES = {
 }
 
 CELERY_BROKER_URL = 'redis://{0}'.format(REDIS_HOST)
+
+AUTH_USER_MODEL = 'users.User'

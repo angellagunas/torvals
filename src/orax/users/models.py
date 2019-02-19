@@ -1,51 +1,86 @@
-from django.contrib.sites.shortcuts import get_current_site
+"""Representation of user in DB."""
 
+from django.contrib.auth.models import (
+    AbstractBaseUser,
+    BaseUserManager,
+    PermissionsMixin
+)
 from django.db import models
 
-from orax.utils.connections import Mongo
+from orax.organizations.models import Organization
+from orax.utils.models import TimeStampedMixin
 
 
-class User(models.Model):
-    name = models.CharField(max_length=300)
-    uuid = models.CharField(max_length=300)
-    
-    language = models.CharField(max_length=300)  # this is a ObjectId
-    validEmail = models.BooleanField(max_length=300)
-    isAdmin = models.BooleanField(max_length=300)
-    isVerified = models.BooleanField(max_length=300)
-    isDeleted = models.BooleanField(max_length=300)
-    isOperationalUser = models.BooleanField(max_length=300)
+class UserManager(BaseUserManager):
+    """Custom user manager."""
 
-    screenName = models.CharField(max_length=300)
-    displayName = models.CharField(max_length=300)
-    organizations = models.CharField(max_length=300)
-    groups = models.CharField(max_length=300)
+    use_in_migrations = True
+
+    def _create_user(self, email, password, **extra_fields):
+        """Create and save a User with the given email and password."""
+        if not email:
+            raise ValueError('The given email must be set')
+
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_user(self, email, password=None, **extra_fields):
+        """Create user who is not admin."""
+        extra_fields.setdefault('is_superuser', False)
+        extra_fields.setdefault('is_staff', False)
+        return self._create_user(email, password, **extra_fields)
+
+    def create_superuser(self, email, password, **extra_fields):
+        """Create user with admin persmisions."""
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('is_staff', True)
+
+        return self._create_user(email, password, **extra_fields)
 
 
-    @property
-    def is_authenticated(self):
-        """
-        Always return True. This is a way to tell if the user has been
-        authenticated in templates.
-        """
-        return True
-
-    def get_current_org(self, request):
-        """
-        Return the current organization object
-        """
-        domain = get_current_site(request).domain.split('.')[0]
-        organization = Mongo().organizations.find_one({
-            'slug': domain,
-            'isDeleted': False
-        })
-
-        return organization or None
-
-class AnonymousUser(User):
-    @property
-    def is_authenticated(self):
-        return False
+class User(AbstractBaseUser, PermissionsMixin, TimeStampedMixin):
+    """Custom user model to be used accross the app."""
 
     class Meta:
-        proxy = True
+        """Define the behavior of Model."""
+
+        verbose_name = 'usuario'
+        verbose_name_plural = 'usuarios'
+
+    email = models.EmailField(
+        max_length=254,
+        unique=True,
+        verbose_name='correo electronico'
+    )
+
+    name = models.CharField(
+        max_length=45,
+        blank=False,
+        verbose_name='nombre'
+    )
+
+    uuid = models.CharField(
+        max_length=300
+    )
+
+    organization = models.ForeignKey(
+        Organization,
+        blank=True,
+        null=True
+    )
+
+    is_staff = models.BooleanField(
+        default=False
+    )
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['name']
+
+    objects = UserManager()
+
+    def get_short_name(self):
+        """The user is identified by their email address."""
+        return self.email
