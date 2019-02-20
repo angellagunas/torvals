@@ -42,14 +42,20 @@ class Dataset(CatalogueMixin):
 
     error_msg = models.CharField(
         max_length=255,
+        null=True,
+        blank=True,
         verbose_name='error message'
     )
 
     max_date = models.DateField(
+        null=True,
+        blank=True,
         verbose_name='max date'
     )
 
     min_date = models.DateField(
+        null=True,
+        blank=True,
         verbose_name='min date'
     )
 
@@ -63,7 +69,11 @@ class Dataset(CatalogueMixin):
         choices=DATASET_STATUS
     )
 
-    rule = models.ForeignKey(Rule)
+    rule = models.ForeignKey(
+        Rule,
+        null=True,
+        blank=True
+    )
     organization = models.ForeignKey(Organization)
     project = models.ForeignKey(
         'projects.Project',

@@ -42,10 +42,14 @@ class Project(CatalogueMixin):
     organization = models.ForeignKey(Organization)
     main_dataset = models.ForeignKey(
         'datasets.Dataset',
+        null=True,
+        blank=True,
         related_name='main_datasets'
     )
     active_dataset = models.ForeignKey(
         'datasets.Dataset',
+        null=True,
+        blank=True,
         related_name='active_datasets'
     )
     status = models.CharField(
@@ -62,4 +66,8 @@ class Project(CatalogueMixin):
         max_length=255,
         verbose_name='description'
     )
-    rule = models.ForeignKey(Rule)
+    rule = models.ForeignKey(
+        Rule
+        null=True,
+        blank=True
+    )

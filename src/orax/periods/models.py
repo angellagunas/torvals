@@ -21,6 +21,8 @@ class Period(TimeStampedMixin):
     end_date = models.DateTimeField()
     rule = models.ForeignKey(
         Rule,
+        null=True,
+        blank=True,
         related_name='periods'
     )
     cycle = models.ForeignKey(Cycle)

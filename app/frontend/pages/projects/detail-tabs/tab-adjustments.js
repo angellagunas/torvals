@@ -136,7 +136,7 @@ class TabAdjustment extends Component {
     let adjustment = -1
 
     this.setState({
-      isLoading: ' is-loading',
+      isLoading: 'is-loading',
       isFiltered: false,
       generalAdjustment: adjustment,
       salesTable: [],
@@ -396,30 +396,7 @@ class TabAdjustment extends Component {
   }
 
   render () {
-    let banner =  (
-      <div className='section columns'>
-        <div className='column'>
-          <article className="message is-primary">
-            <div className="message-header">
-              <p>
-                <FormattedMessage
-                  id="projects.info"
-                  defaultMessage={`Información`}
-                />
-              </p>
-            </div>
-            <div className="message-body">
-              <FormattedMessage
-                id="projects.adjustmentSaved"
-                defaultMessage={`¡Sus ajustes se han guardado con éxito!`}
-              />
-            </div>
-          </article>
-        </div>
-      </div>
-    )
-
-    if (!this.state.filtersLoaded) {
+    if (this.state.isLoading==='is-loading') {
       return (
         <div className='section has-text-centered subtitle has-text-primary'>
           <FormattedMessage
@@ -433,7 +410,6 @@ class TabAdjustment extends Component {
 
     return (
       <div>
-        {banner}
         <div className='section level selects'>
           <div className='columns is-multiline is-mobile'>
             <div className='column is-narrow'>
@@ -444,7 +420,7 @@ class TabAdjustment extends Component {
                 optionValue='value'
                 optionName='label'
                 type='integer'
-                options={{'label': 'Ciclo1', value:'1'}}
+                options={[{'label': 'Ciclo1', value:'1'}]}
                 onChange={(name, value) => { this.filterChangeHandler(name, value) }}
               />
             </div>

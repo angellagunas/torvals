@@ -21,6 +21,8 @@ class Cycle(TimeStampedMixin):
     cycle = models.PositiveIntegerField()
     rule = models.ForeignKey(
         Rule,
+        null=True,
+        blank=True,
         related_name='cycles'
     )
     is_active = models.BooleanField(
