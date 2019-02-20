@@ -75,49 +75,16 @@ class ProjectDetail extends Component {
   }
 
   async load (tab) {
-    var url = '/app/projects/' + this.props.match.params.uuid
-
     try {
-      const body = await api.get(url)
-      const projectStatus = body.data.status
-      const currentRoleIsManagerLevel1 = currentRole === 'manager-level-1'
-
-      const projectStatusIsIn = (statuses) => _.includes(statuses, projectStatus)
-
-      if (!tab && !currentRoleIsManagerLevel1) {
-        if (projectStatus === 'empty') {
-          tab = 'datasets'
-        }
-        else if (
-          projectStatusIsIn(['pendingRows', 'processing', 'conciliating','adjustment'])
-        ) {
-          tab = 'ajustes'
-        }
-        else if (projectStatus === 'pending-configuration') {
-          this.datasetDetail = body.data.mainDataset
-          tab = 'datasets'
-        }
-        else if (projectStatus === 'updating-rules') {
-          tab = 'datasets'
-        }
-        else {
-          tab = this.state.selectedTab
-        }
-      }
-
-      else if (!tab && currentRoleIsManagerLevel1) {
-        tab = 'ajustes'
-      }
-
-      this.rules = body.data.rule
-
       this.setState({
         loading: false,
         loaded: true,
-        project: body.data,
-        selectedTab: tab,
-        actualTab: tab,
-        datasetDetail: this.datasetDetail
+        project: {
+          'name': 'Orax Ecuador'
+        },
+        selectedTab: 'ajustes',
+        actualTab: 'ajustes',
+        datasetDetail: {}
       })
     } catch (e) {
       await this.setState({
@@ -195,14 +162,12 @@ class ProjectDetail extends Component {
             load={() => {}}
             project={project}
             history={this.props.history}
-            canEdit={canEdit}
+            canEdit={true}
             setAlert={(type, data) => this.setAlert(type, data)}
             pendingDataRows={() => {}}
             handleAdjustmentRequest={(row) => { this.handleAdjustmentRequest(row) }}
             handleAllAdjustmentRequest={() => { this.handleAllAdjustmentRequest() }}
             selectedTab={this.state.actualTab}
-            adjustmentML1={this.state.adjustmentML1}
-            rules={this.rules}
           />
         )
       }
