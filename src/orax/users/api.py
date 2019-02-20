@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from soft_drf.api import mixins
 from soft_drf.api.viewsets import GenericViewSet
 from soft_drf.routing.v1.routers import router
-from soft_drf.routing.v1.routers.single import SingleObjectRouter
+from soft_drf.api.routers.single import SingleObjectRouter
 
 from orax.users import serializers
 

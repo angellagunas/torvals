@@ -43,14 +43,7 @@ class Dashboard extends Component {
   }
 
   render () {
-    const user = this.context.tree.get('user')
-    const { loading, outdated } = this.state
-
-    if (loading) {
-      return <Loader />
-    }
-
-    return <Redirect to={'/projects/' + user.currentProject.uuid} />
+    return <Redirect to={'/projects/basic'} />
   }
 }
 

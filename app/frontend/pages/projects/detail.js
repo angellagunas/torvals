@@ -192,7 +192,7 @@ class ProjectDetail extends Component {
             showFinishBtn={showFinishBtn => {
               this.setState({ showFinishBtn })
             }}
-            load={() => {}.bind(this)}
+            load={() => {}}
             project={project}
             history={this.props.history}
             canEdit={canEdit}

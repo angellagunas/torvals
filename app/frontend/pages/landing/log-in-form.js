@@ -61,7 +61,8 @@ class LogInButton extends Component {
 
     this.setState({loading: false})
 
-    localStorage.setItem('lang', 'es-MX')
+    window.localStorage.setItem('lang', 'es-MX')
+    window.localStorage.setItem('jwt', data.token)
 
     this.setState({
       jwt: data.token
@@ -70,7 +71,7 @@ class LogInButton extends Component {
     cookies.set('jwt', data.token)
     cookies.set('organization', 'barcel')
     tree.set('jwt', data.token)
-    window.location = '/dashboard'
+    window.location = '/projects/basic'
   }
 
   showModal () {
