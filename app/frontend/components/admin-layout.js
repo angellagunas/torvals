@@ -57,19 +57,15 @@ class AdminLayout extends Component {
       this.setState({ user });
     });
 
-    var me;
+    let me;
     if (tree.get('jwt')) {
       try {
-        me = await api.get('/user/me');
+        me = await api.get('/v2/auth/me');
       } catch (err) {
         if (err.status === 401) {
           cookies.remove('jwt')
           cookies.remove('organization')
           tree.set('jwt', null)
-          tree.set('user', null)
-          tree.set('rule', null)
-          tree.set('organization', null)
-          tree.set('role', null)
           tree.commit()
           window.localStorage.setItem('name', '')
           window.localStorage.setItem('email', '')
@@ -79,36 +75,9 @@ class AdminLayout extends Component {
       }
 
       tree.set('user', me.user);
-      tree.set('organization', me.user.currentOrganization);
-      tree.set('role', me.user.currentRole);
-      tree.set('rule', me.rule);
-      tree.set('loggedIn', me.loggedIn);
+      tree.set('loggedIn', true);
       tree.commit();
-
-      if (!me.user.currentOrganization) {
-        cookies.remove('jwt')
-        cookies.remove('organization')
-        tree.set('jwt', null)
-        tree.set('user', null)
-        tree.set('organization', null)
-        tree.set('role', null)
-        tree.set('rule', null)
-        tree.set('loggedIn', false)
-        await tree.commit()
-        window.localStorage.setItem('name', '')
-        window.localStorage.setItem('email', '')
-        window.localStorage.removeItem('_user')
-        return
-      }
-
-      if (me.user.currentOrganization.status === 'inactive' ||
-        me.user.currentOrganization.status === 'activationPending'){
-        activated = ' is-active'
-      }
-
-      if (me.user.languageCode) {
-        localStorage.setItem('lang', me.user.languageCode)
-      }
+      localStorage.setItem('lang', me.user.languageCode)
 
       window.localStorage.setItem('name', me.user.name)
       window.localStorage.setItem('email', me.user.email)
