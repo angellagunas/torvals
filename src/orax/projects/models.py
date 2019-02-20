@@ -67,7 +67,7 @@ class Project(CatalogueMixin):
         verbose_name='description'
     )
     rule = models.ForeignKey(
-        Rule
+        Rule,
         null=True,
         blank=True
     )
