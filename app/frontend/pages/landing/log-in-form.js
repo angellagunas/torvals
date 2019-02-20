@@ -70,6 +70,7 @@ class LogInButton extends Component {
     cookies.set('jwt', data.token)
     cookies.set('organization', 'barcel')
     tree.set('jwt', data.token)
+    window.location = '/dashboard'
   }
 
   showModal () {
