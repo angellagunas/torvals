@@ -145,7 +145,6 @@ class TabAdjustment extends Component {
 
     const url = '/v2/datasetrows'
     try{
-      // this.getSalesTable()
       let data = await api.get(url,
         {
           ...this.state.formData
@@ -277,8 +276,6 @@ class TabAdjustment extends Component {
       }
       this.props.pendingDataRows(pendingDataRows)
 
-      await this.updateSalesTable(obj)
-
     } catch (e) {
       this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
 
@@ -358,63 +355,6 @@ class TabAdjustment extends Component {
     </span>
   }
 
-  async updateSalesTable(row) {
-    if (!row.productPrice) {
-      row.productPrice = 10.00
-    }
-
-    let salesTable = this.state.salesTable
-
-    for (let i = 0; i < salesTable.length; i++) {
-
-      if (row.semanaBimbo === parseInt(salesTable[i].week)) {
-        let price = Math.abs((row.adjustmentForDisplay - row.lastLocalAdjustment) * row.productPrice)
-
-        if (row.lastLocalAdjustment > row.adjustmentForDisplay) {
-          price *= -1
-        }
-
-        salesTable[i].adjustment += price
-
-        let totalPrediction = 0
-        let totalAdjustment = 0
-
-        for (let i = 0; i < salesTable.length; i++) {
-          const element = salesTable[i];
-          totalAdjustment += element.adjustment
-          totalPrediction += element.prediction
-        }
-
-        this.setState({
-          salesTable: salesTable,
-          totalAdjustment: totalAdjustment,
-          totalPrediction: totalPrediction
-        })
-      }
-    }
-  }
-
-  loadTable() {
-    if (this.state.noSalesData === '') {
-      return (
-        <div className='is-fullwidth has-text-centered subtitle has-text-primary'>
-          <FormattedMessage
-            id="projects.loading"
-            defaultMessage={`Cargando, un momento por favor`}
-          />
-          <Loader />
-        </div>
-      )
-    }
-    else {
-      return (
-        <div className='is-fullwidth has-text-centered subtitle has-text-primary'>
-          {this.state.noSalesData}
-        </div>
-      )
-    }
-  }
-
   showByWeek = () => {
     this.setState({
       byWeek: true
@@ -427,84 +367,11 @@ class TabAdjustment extends Component {
     })
   }
 
-  toggleIndicators = () =>{
-    this.setState({
-      indicators: this.state.indicators === 'indicators-show' ? 'indicators-hide' : 'indicators-show'
-    })
-  }
-
   getCycleName() {
     let cycle = this.state.filters.cycles.find(item => {
       return item.cycle === this.state.formData.cycle
     })
     return moment.utc(cycle.dateStart).format('MMMM')
-  }
-
-  findName = (slug) => {
-    const find = this.rules.catalogs.find(item => {
-      return item.slug === slug
-    })
-
-    let title = find.name
-    if (this.findInCatalogs(find.slug)) {
-      title = this.formatTitle('catalogs.' + find.slug)
-    }
-    return title
-  }
-
-  showBy(prices) {
-    this.setState({
-      prices
-    }, () => {
-    })
-  }
-
-  getCallback() {
-    if (this.state.prices) {
-      return function (label, index, labels) {
-        return '$' + label.toFixed(0).replace(/./g, (c, i, a) => {
-          return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-        })
-      }
-    }
-    else {
-      return function (label, index, labels) {
-        return label.toFixed(0).replace(/./g, (c, i, a) => {
-          return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-        })
-      }
-    }
-  }
-
-  getTooltipCallback() {
-    if (this.state.prices) {
-      return function (tooltipItem, data) {
-        let label = ' '
-        label += data.datasets[tooltipItem.datasetIndex].label || ''
-
-        if (label) {
-          label += ': '
-        }
-        let yVal = '$' + tooltipItem.yLabel.toFixed(0).replace(/./g, (c, i, a) => {
-          return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-        })
-        return label + yVal
-      }
-    }
-    else {
-      return function (tooltipItem, data) {
-        let label = ' '
-        label += data.datasets[tooltipItem.datasetIndex].label || ''
-
-        if (label) {
-          label += ': '
-        }
-        let yVal = tooltipItem.yLabel.toFixed(0).replace(/./g, (c, i, a) => {
-          return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-        })
-        return label + yVal
-      }
-    }
   }
 
   formatTitle(id) {
@@ -564,28 +431,6 @@ class TabAdjustment extends Component {
       )
     }
 
-    const graphData = [
-      {
-        label: this.formatTitle('tables.colForecast'),
-        color: '#187FE6',
-        data: this.state.salesTable.map((item, key) => { return item.prediction.toFixed(0) })
-      },
-      {
-        label: this.formatTitle('tables.colAdjustment'),
-        color: '#30C6CC',
-        data: this.state.salesTable.map((item, key) => { return item.adjustment.toFixed(0) })
-      },
-      {
-        label: this.formatTitle('tables.colLast'),
-        color: '#EF6950',
-        data: this.state.prevData.map(item => item.sale)
-      }
-    ]
-
-    let labelCallback = this.getCallback()
-    let tooltipCallback = this.getTooltipCallback()
-
-
     return (
       <div>
         {banner}
@@ -595,11 +440,11 @@ class TabAdjustment extends Component {
               <Select
                 label={this.formatTitle('adjustments.cycle')}
                 name='cycle'
-                value={this.state.formData.cycle}
-                optionValue='cycle'
-                optionName='viewName'
+                value={'ciclo'}
+                optionValue='value'
+                optionName='label'
                 type='integer'
-                options={this.state.filters.cycles}
+                options={{'label': 'Ciclo1', value:'1'}}
                 onChange={(name, value) => { this.filterChangeHandler(name, value) }}
               />
             </div>
@@ -607,15 +452,7 @@ class TabAdjustment extends Component {
         </div>
 
         <section>
-          {!this.state.isFiltered || this.state.isLoading !== ''
-            ? <div className='section has-text-centered subtitle has-text-primary'>
-                <FormattedMessage
-                id="dashboard.tableLoading"
-                  defaultMessage={`Cargando, un momento por favor`}
-                />
-                <Loader />
-              </div>
-            : <div>
+            <div>
               { this.state.dataRows.length > 0 ?
                 <div>
                   <section className='section'>
@@ -670,7 +507,6 @@ class TabAdjustment extends Component {
                 </div>
               }
             </div>
-          }
         </section>
       </div>
     )
