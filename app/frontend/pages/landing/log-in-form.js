@@ -48,9 +48,9 @@ class LogInButton extends Component {
   async submitHandler ({formData}) {
     this.setState({loading: true})
 
-    var data
+    let data
     try {
-      data = await api.post('/user/login', formData)
+      data = await api.post('/v2/auth', formData)
     } catch (e) {
       return this.setState({
         error: e.message,
@@ -60,131 +60,16 @@ class LogInButton extends Component {
     }
 
     this.setState({loading: false})
-    let user = data.user
-    if (!user.organizations || user.organizations.length === 0) {
-      return this.setState({
-        error: '¡El usuario no tiene una organización asignada!',
-        loading: false,
-        apiCallErrorMessage: 'message is-danger',
-        formData: {
-          email: '',
-          password: ''
-        }
-      })
-    }
 
-    if (!user.languageCode) {
-      localStorage.setItem('lang', 'es-MX')
-    } else {
-      localStorage.setItem('lang', user.languageCode)
-    }
+    localStorage.setItem('lang', 'es-MX')
 
-    if (user.organizations && user.organizations.length > 1) {
-      this.setState({
-        organizations: user.organizations,
-        jwt: data.jwt,
-        shouldSelectOrg: true
-      })
-
-      cookies.set('jwt', data.jwt)
-      cookies.set('organization', user.organizations[0].organization.slug)
-      tree.set('jwt', data.jwt)
-    } else {
-      const hostname = window.location.hostname
-      const hostnameSplit = hostname.split('.')
-
-      const organization = user.organizations[0].organization
-      cookies.set('jwt', data.jwt)
-      cookies.set('organization', organization.slug)
-
-      if (env.ENV === 'production') {
-        if (hostname.indexOf('stage') >= 0 || hostname.indexOf('staging') >= 0) {
-          const newHostname = hostnameSplit.slice(-3).join('.')
-          window.location = `//${organization.slug}.${newHostname}/dashboard`
-        } else {
-          const newHostname = hostnameSplit.slice(-2).join('.')
-          window.location = `//${organization.slug}.${newHostname}/dashboard`
-        }
-      } else {
-        const baseUrl = env.APP_HOST.split('://')
-        window.location = baseUrl[0] + '://' + organization.slug + '.' + baseUrl[1] + '/dashboard'
-      }
-    }
-  }
-
-  selectOrgHandler (slug) {
-    const hostname = window.location.hostname
-    const hostnameSplit = hostname.split('.')
-    cookies.set('jwt', this.state.jwt)
-
-    if (env.ENV === 'production') {
-      if (hostname.indexOf('stage') >= 0 || hostname.indexOf('staging') >= 0) {
-        const newHostname = hostnameSplit.slice(-3).join('.')
-        window.location = `//${slug}.${newHostname}/dashboard`
-      } else {
-        const newHostname = hostnameSplit.slice(-2).join('.')
-        window.location = `//${slug}.${newHostname}/dashboard`
-      }
-    } else {
-      const baseUrl = env.APP_HOST.split('://')
-      window.location = baseUrl[0] + '://' + slug + '.' + baseUrl[1] + '/dashboard'
-    }
-  }
-
-  getDropdown () {
-    let listData = this.state.organizations.map(item => {
-      return {
-        id: item.organization.slug,
-        key: item.organization.uuid,
-        data: (
-          <div className='columns is-fullwidth'>
-            <div className='column is-one-third'>
-              <img className='is-rounded' src={item.organization.profileUrl} width='45' height='45' alt='Avatar' />
-            </div>
-            <div className='column is-two-thirds'>
-              <p>
-                <strong>{item.organization.name}</strong>
-                <br />
-                <small>{item.organization.description}</small>
-              </p>
-            </div>
-          </div>
-        )
-      }
+    this.setState({
+      jwt: data.token
     })
 
-    return (
-      <div className='navbar-item-height'>
-        {listData.map((d, index) => {
-          if (index < listData.length - 1) {
-            return (
-              <div key={d.key}>
-                <a
-                  className='navbar-item'
-                  href='#'
-                  onClick={e => { this.selectOrgHandler(d.id) }}
-                  >
-                  {d.data}
-                </a>
-                <hr className='navbar-divider' />
-              </div>
-            )
-          } else {
-            return (
-              <div key={d.key}>
-                <a
-                  className='navbar-item'
-                  href='#'
-                  onClick={e => { this.selectOrgHandler(d.id) }}
-                  >
-                  {d.data}
-                </a>
-              </div>
-            )
-          }
-        })}
-      </div>
-    )
+    cookies.set('jwt', data.token)
+    cookies.set('organization', 'barcel')
+    tree.set('jwt', data.token)
   }
 
   showModal () {
@@ -223,42 +108,6 @@ class LogInButton extends Component {
       error = <div>
         Error: {this.state.error}
       </div>
-    }
-
-    let resetLink
-    if (env.EMAIL_SEND) {
-      resetLink = (
-        <p>
-          <Link to='/password/forgotten/'>
-            {this.formatTitle('login.forgot')}
-          </Link>
-        </p>
-      )
-    }
-
-    if (this.state.shouldSelectOrg) {
-      return (
-        <div className='modal is-active'>
-          <div className='modal-background' />
-          <div className='modal-content'>
-            <div className={'LogIn single-form ' + this.props.className}>
-              <div className='card land-card'>
-                <header className='card-header'>
-                  <p className='card-header-title'>
-                    {this.formatTitle('login.select')}
-                  </p>
-                </header>
-                <div className='card-content'>
-                  <div className='content'>
-                    {spinner}
-                    {this.getDropdown()}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )
     }
 
     return (
@@ -302,7 +151,6 @@ class LogInButton extends Component {
                       </BaseForm>
                     </div>
                   </div>
-                  { resetLink }
                 </div>
               </div>
             </section>
