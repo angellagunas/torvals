@@ -5,6 +5,17 @@ from orax.users.models import User
 from orax.utils.tokens import create_token
 
 
+class MeSerializer(serializers.ModelSerializer):
+    """Manage the info in /me endpoint."""
+    class Meta:
+        model = User
+        fields = [
+            'id',
+            'email',
+            'name'
+        ]
+
+
 class AuthSerializer(serializers.Serializer):
     """Serializer for Auth API when POST method is used."""
 
