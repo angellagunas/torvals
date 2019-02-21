@@ -49,6 +49,10 @@ class TabAdjustment extends Component {
     moment.locale(this.formatTitle('dates.locale'))
   }
 
+  componentWillMount () {
+    this.getDataRows()
+  }
+
   async getDataRows () {
     this.setState({
       isLoading: 'is-loading',
@@ -90,123 +94,6 @@ class TabAdjustment extends Component {
       return false
     }
     return res
-  }
-
-  async handleChange(obj) {
-    let rowAux = []
-    let isLimited = false
-    let limitedRows = []
-    let pendingDataRows = {}
-    if (obj instanceof Array) {
-      rowAux = obj
-    } else {
-      rowAux.push(obj)
-    }
-
-    for (let row of rowAux) {
-      let base
-      if(row.lastAdjustment){
-        base = row.lastAdjustment
-      }else{
-        base = row.prediction
-      }
-
-      let maxAdjustment = Math.ceil(base * (1 + this.state.generalAdjustment))
-      let minAdjustment = Math.floor(base * (1 - this.state.generalAdjustment))
-
-      row.newAdjustment = Math.round(row.newAdjustment)
-      row.adjustmentForDisplay = Math.round(row.adjustmentForDisplay)
-      row.adjustmentForDisplayAux = row.adjustmentForDisplay
-      row.isLimitAux = row.isLimit
-
-      if (this.state.generalAdjustment > 0) {
-        row.isLimit = (row.newAdjustment > maxAdjustment || row.newAdjustment < minAdjustment)
-      }
-
-      if (row.isLimit && row.adjustmentRequest &&
-        (row.adjustmentRequest.status === 'approved' ||
-          row.adjustmentRequest.status === 'created')) {
-        row.adjustmentRequest.status = 'rejected'
-      }
-
-      row.adjustmentForDisplay = row.newAdjustment
-
-      row.edited = true
-      row.wasEdited = true
-
-      if (row.isLimit) {
-        isLimited = true
-
-        if (!pendingDataRows[row.uuid]) pendingDataRows[row.uuid] = row
-
-        rowAux = rowAux.filter((item) => { return row.uuid !== item.uuid })
-        limitedRows.push(row)
-      }
-    }
-
-    try {
-      var url = '/app/rows/'
-
-      if (rowAux.length > 0) {
-        const res = await api.post(url, rowAux)
-      }
-      if (isLimited && (currentRole === 'manager-level-1')) {
-        this.notify(
-          (<p>
-            <span className='icon'>
-              <i className='fa fa-warning fa-lg' />
-            </span>
-            <FormattedMessage
-              id="projects.limitInfo"
-              defaultMessage={`¡Debes pedir una solicitud de aprobación de ajuste haciendo click sobre el ícono rojo o el botón de finalizar!`}
-            />
-          </p>),
-          5000,
-          toast.TYPE.WARNING
-        )
-      } else {
-        this.notify('¡' + this.formatTitle('adjustments.save')+'!', 5000, toast.TYPE.INFO)
-      }
-      this.props.pendingDataRows(pendingDataRows)
-
-    } catch (e) {
-      this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
-
-      for (let row of rowAux) {
-        row.edited = false
-        row.adjustmentForDisplay = row.adjustmentForDisplayAux
-        if (row.isLimitAux !== row.isLimit) {
-          row.isLimit = false
-        }
-
-        delete row.adjustmentForDisplayAux
-        delete row.isLimitAux
-      }
-
-      for (let row of limitedRows) {
-        row.edited = false
-        row.adjustmentForDisplay = row.adjustmentForDisplayAux
-        if (row.isLimitAux !== row.isLimit) {
-          row.isLimit = false
-        }
-
-        delete row.adjustmentForDisplayAux
-        delete row.isLimitAux
-        delete pendingDataRows[row.uuid]
-      }
-
-      this.props.pendingDataRows(pendingDataRows)
-
-      return false
-    }
-
-    this.props.loadCounters()
-
-    if (currentRole !== 'manager-level-1' && limitedRows.length) {
-      this.props.handleAdjustmentRequest(limitedRows)
-    }
-
-    return true
   }
 
   notify (message = '', timeout = 5000, type = toast.TYPE.INFO) {
@@ -292,7 +179,7 @@ class TabAdjustment extends Component {
 
         <section>
             <div>
-              { this.state.dataRows.length > 0 ?
+              { this.state.rows.length > 0 ?
                 <div>
                   <section className='section'>
                   <h1 className='period-info'>
@@ -304,18 +191,9 @@ class TabAdjustment extends Component {
                     !this.state.byWeek ?
 
                       this.state.rows && this.state.rows.length > 0 ?
-
-                        <ProductTable
-                          show={this.showByWeek}
-                          currentRole={currentRole}
-                          data={this.state.rows}
-                          changeAdjustment={this.changeAdjustment}
-                          generalAdjustment={this.state.generalAdjustment}
-                          adjustmentRequestCount={Object.keys(this.state.pendingDataRows).length}
-                          handleAdjustmentRequest={(row) => { this.props.handleAdjustmentRequest(row) }}
-                          handleAllAdjustmentRequest={() => { this.props.handleAllAdjustmentRequest() }}
-                          rules={this.rules}
-                        />
+                        <StickyTable>
+                          {this.state.rows}
+                        </StickyTable>
                         :
                         <div className='section has-text-centered subtitle has-text-primary'>
                           {this.formatTitle('dashboard.productEmptyMsg')}
