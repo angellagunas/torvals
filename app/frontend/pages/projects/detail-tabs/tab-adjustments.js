@@ -1,34 +1,15 @@
-import React, { Component, Fragment } from 'react'
-import { FormattedMessage, injectIntl } from 'react-intl'
-import FontAwesome from 'react-fontawesome'
-import moment from 'moment'
-import _ from 'lodash'
-import tree from '~core/tree'
+import 'react-sticky-table/dist/react-sticky-table.css'
+
 import { toast } from 'react-toastify'
-import { defaultCatalogs } from '~base/tools'
+import { StickyTable, Row, Cell } from 'react-sticky-table'
+import { FormattedMessage, injectIntl } from 'react-intl'
 
 import api from '~base/api'
-import { validateRegText } from '~base/tools'
+import React, { Component, Fragment } from 'react'
+import moment from 'moment'
 import Loader from '~base/components/spinner'
-import Editable from '~base/components/base-editable'
-import Checkbox from '~base/components/base-checkbox'
-import Spinner from '~base/components/spinner'
-
-import WeekTable from './week-table'
-import ProductTable from './product-table'
 import Select from './select'
-import Graph from '~base/components/graph'
-import DatePicker from '~base/components/date-picker'
-import { Timer } from '~base/components/timer'
 
-const FileSaver = require('file-saver')
-
-import { StickyTable, Row, Cell } from 'react-sticky-table'
-import 'react-sticky-table/dist/react-sticky-table.css'
-import classNames from 'classnames'
-
-let currentRole
-let Allchannels
 
 class TabAdjustment extends Component {
   constructor (props) {
