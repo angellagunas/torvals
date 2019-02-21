@@ -23,148 +23,61 @@ import { Timer } from '~base/components/timer'
 
 const FileSaver = require('file-saver')
 
+import { StickyTable, Row, Cell } from 'react-sticky-table'
+import 'react-sticky-table/dist/react-sticky-table.css'
+import classNames from 'classnames'
+
 let currentRole
 let Allchannels
 
 class TabAdjustment extends Component {
   constructor (props) {
     super(props)
+    var rows = [];
     this.state = {
-      isUpdating: false,
+      rows: rows,
       dataRows: [],
-      pendingDataRows: {},
       isFiltered: false,
-      filtersLoaded: false,
-      filtersLoading: false,
       isLoading: '',
-      loadingIndicators: false,
-      isLoadingButtons: '',
-      modified: 0,
-      pending: 0,
-      filters: {
-        channels: [],
-        products: [],
-        salesCenters: [],
-        categories: [],
-        cycles: []
-      },
       formData: {
         cycle: 1
       },
-      timeRemaining: {},
-      disableButtons: true,
-      selectedCheckboxes: new Set(),
-      searchTerm: '',
-      isDownloading: '',
-      generalAdjustment: 0.1,
-      salesTable: [],
-      noSalesData: '',
-      byWeek: true,
-      indicators: 'indicators-hide',
-      quantity: 100,
-      percentage: 1,
       error: false,
-      errorMessage: '',
-      showAdjusted: true,
-      showNotAdjusted: true,
-      prices: false,
-      totalPrevSale: 0,
-      filteredData: [],
-      prevData: []
+      errorMessage: ''
     }
 
     moment.locale(this.formatTitle('dates.locale'))
   }
 
-  componentWillMount () {
-    this.getFilters()
-  }
-
-  componentWillReceiveProps(nextProps) {
-    this.getFilters()
-  }
-
-  componentDidUpdate(prevProps) {
-    if (this.props.project.status === 'adjustment' && prevProps.project.status !== 'adjustment') {
-      this.clearSearch()
-      this.getFilters()
-    }
-  }
-
-  async getFilters() {
-    this.getDataRows()
-  }
-
-  async filterChangeHandler(name, value) {
-    if(name === 'cycle') {
-      const cycle = this.state.filters.cycles.find(item => {
-        return item.cycle === value
-      })
-
-      const minDate = moment.utc(cycle.dateStart)
-      const maxDate = moment.utc(cycle.dateEnd)
-
-      this.props.showFinishBtn(!cycle.isFinished)
-      this.setState({
-        minDate,
-        startDate: minDate,
-        maxDate,
-        endDate: maxDate,
-        filters: {
-          ...this.state.filters
-        }
-      })
-      tree.set('selectedCycle', cycle)
-      tree.commit()
-    }
-
-    let aux = this.state.formData
-    aux[name] = value
-
-    this.setState({
-      formData: aux
-    }, () => {
-      this.getDataRows()
-    })
-  }
-
   async getDataRows () {
-    var cycle = this.state.filters.cycles.find(item => {
-      return item.cycle === this.state.formData.cycle
-    })
-
-    let adjustment = -1
-
     this.setState({
       isLoading: 'is-loading',
-      isFiltered: false,
-      generalAdjustment: adjustment,
-      salesTable: [],
-      noSalesData: ''
+      isFiltered: false
     })
 
-    const url = '/v2/datasetrows'
     try{
-      let data = await api.get(url,
-        {
-          ...this.state.formData
-        }
-      )
+      let data = await api.get('/v2/datasetrows', {...this.state.formData})
 
       this.setState({
         dataRows: data.results,
         isFiltered: true,
-        isLoading: '',
-        selectedCheckboxes: new Set()
+        isLoading: ''
       })
-      this.clearSearch()
+
+      let newRows = [];
+      for (var i=0; i<10; i++) {
+        newRows.push((<Row><Cell>a {i}</Cell><Cell>b {i}</Cell></Row>));
+      }
+  
+      this.setState({
+        rows: newRows
+      });
     }catch(e){
       console.log(e)
       this.setState({
         dataRows: [],
         isFiltered: true,
-        isLoading: '',
-        selectedCheckboxes: new Set()
+        isLoading: ''
       })
     }
   }
@@ -177,26 +90,6 @@ class TabAdjustment extends Component {
       return false
     }
     return res
-  }
-
-  onChangePercentage = (e) => {
-    let val = parseInt(e.target.value)
-    if (isNaN(val)) {
-      val = e.target.value
-    }
-    this.setState({
-      percentage: val
-    })
-  }
-
-  onChangeQuantity = (e) => {
-    let val = parseInt(e.target.value)
-    if (isNaN(val)) {
-      val = e.target.value
-    }
-    this.setState({
-      quantity: val
-    })
   }
 
   async handleChange(obj) {
@@ -340,12 +233,6 @@ class TabAdjustment extends Component {
     }
   }
 
-  clearSearch = () => {
-    this.setState({
-      searchTerm: ''
-    })
-  }
-
   setAlertMsg() {
     return <span>
       <FormattedMessage
@@ -367,32 +254,8 @@ class TabAdjustment extends Component {
     })
   }
 
-  getCycleName() {
-    let cycle = this.state.filters.cycles.find(item => {
-      return item.cycle === this.state.formData.cycle
-    })
-    return moment.utc(cycle.dateStart).format('MMMM')
-  }
-
   formatTitle(id) {
     return this.props.intl.formatMessage({ id: id })
-  }
-
-  findInCatalogs(slug) {
-    let find = false
-    defaultCatalogs.map(item => {
-      if (item.value === slug) {
-        find = true
-      }
-    })
-    return find
-  }
-
-  onDatesChange = ({ startDate, endDate }) => {
-    this.setState({
-      startDate,
-      endDate
-    })
   }
 
   render () {
@@ -433,7 +296,7 @@ class TabAdjustment extends Component {
                 <div>
                   <section className='section'>
                   <h1 className='period-info'>
-                    <span className='has-text-weight-semibold is-capitalized'>{this.formatTitle('adjustments.cycle')} {this.getCycleName()} - </span>
+                    <span className='has-text-weight-semibold is-capitalized'>{this.formatTitle('adjustments.cycle')} {'Lunes'} - </span>
                     <span className='has-text-info has-text-weight-semibold'> {this.setAlertMsg()}</span>
                   </h1>
                 </section>
@@ -460,17 +323,9 @@ class TabAdjustment extends Component {
                       :
 
                       this.state.filteredData && this.state.filteredData.length > 0 ?
-                        <WeekTable
-                          show={this.showByProduct}
-                          currentRole={currentRole}
-                          data={this.state.filteredData}
-                          checkAll={this.checkAll}
-                          changeAdjustment={this.changeAdjustment}
-                          generalAdjustment={this.state.generalAdjustment}
-                          adjustmentRequestCount={Object.keys(this.state.pendingDataRows).length}
-                          handleAdjustmentRequest={(row) => { this.props.handleAdjustmentRequest(row) }}
-                          handleAllAdjustmentRequest={() => { this.props.handleAllAdjustmentRequest() }}
-                        />
+                        <StickyTable>
+                          {this.state.rows}
+                        </StickyTable>
                         :
                         <div className='section has-text-centered subtitle has-text-primary'>
                           {this.formatTitle('dashboard.productEmptyMsg')}
