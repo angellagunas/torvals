@@ -303,12 +303,12 @@ class TabAdjustment extends Component {
                   {
                     !this.state.byWeek ?
 
-                      this.state.filteredData && this.state.filteredData.length > 0 ?
+                      this.state.rows && this.state.rows.length > 0 ?
 
                         <ProductTable
                           show={this.showByWeek}
                           currentRole={currentRole}
-                          data={this.state.filteredData}
+                          data={this.state.rows}
                           changeAdjustment={this.changeAdjustment}
                           generalAdjustment={this.state.generalAdjustment}
                           adjustmentRequestCount={Object.keys(this.state.pendingDataRows).length}
@@ -322,7 +322,7 @@ class TabAdjustment extends Component {
                         </div>
                       :
 
-                      this.state.filteredData && this.state.filteredData.length > 0 ?
+                      this.state.rows && this.state.rows.length > 0 ?
                         <StickyTable>
                           {this.state.rows}
                         </StickyTable>
