@@ -2,10 +2,19 @@
 from rest_framework import serializers
 
 from orax.datasetrows.models import DatasetRow
+from orax.channels.serializers import ChannelSerializer
+from orax.periods.serializers import PeriodSerializer
+from orax.products.serializers import ProductSerializer
+from orax.sales_centers.serializers import SaleCenterSerializer
 
 
 class DatasetrowSerializer(serializers.ModelSerializer):
     """Serializer for Datasetrows API when GET method is used."""
+
+    channel = ChannelSerializer()
+    product = ProductSerializer()
+    sale_center = SaleCenterSerializer()
+    period = PeriodSerializer()
 
     class Meta:
         """Define the behavior of Serializer."""

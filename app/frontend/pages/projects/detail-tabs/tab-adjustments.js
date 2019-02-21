@@ -69,8 +69,35 @@ class TabAdjustment extends Component {
       })
 
       let newRows = [];
-      for (var i=0; i<10; i++) {
-        newRows.push((<Row><Cell>a {i}</Cell><Cell>b {i}</Cell></Row>));
+      const headers = (
+        <Row key="headers_row">
+          <Cell key="header_product" className="table-product table-product-head is-clickable">
+            Producto
+          </Cell>
+          <Cell key="header_forecast" className="table-product table-product-head is-clickable">
+            Prediccion
+          </Cell>
+          <Cell key="header_adjustment" className="table-product table-product-head is-clickable">
+            Ajuste
+          </Cell>
+        </Row>
+      )
+      newRows.push(headers)
+
+      for (const row of data.results) {
+        newRows.push((
+          <Row key={'row_'+row.id}>
+            <Cell key={'cell_product_'+row.id} className="table-product productName">
+              {row.product.name}
+            </Cell>
+            <Cell key={'cell_prediction_'+row.id} className="table-product productName">
+              {row.prediction}
+            </Cell>
+            <Cell key={'cell_adjustment_'+row.id} className="table-product productName">
+              {row.adjustment}
+            </Cell>
+          </Row>
+        ));
       }
   
       this.setState({
@@ -201,9 +228,13 @@ class TabAdjustment extends Component {
                       :
 
                       this.state.rows && this.state.rows.length > 0 ?
-                        <StickyTable>
-                          {this.state.rows}
-                        </StickyTable>
+                        <div className='swrapper'>
+                          <div style={{ width: '100%', height: '600px' }}>
+                            <StickyTable>
+                              {this.state.rows}
+                            </StickyTable>
+                          </div>
+                        </div>
                         :
                         <div className='section has-text-centered subtitle has-text-primary'>
                           {this.formatTitle('dashboard.productEmptyMsg')}

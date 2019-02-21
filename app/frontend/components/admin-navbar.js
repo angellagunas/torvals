@@ -131,18 +131,8 @@ class NavBar extends Component {
   }
 
   stepsRemaining () {
-    let steps = 0
-    Object.values(this.props.user.currentOrganization.wizardSteps).map(item => {
-      if (!item) {
-        steps++
-      }
-    })
-    if (this.props.user.currentOrganization.isConfigured &&
-      !this.props.user.currentOrganization.wizardSteps.businessRules) {
-      steps--
-    }
     this.setState({
-      steps: steps
+      steps: 0
     })
   }
   showModalWizards () {
@@ -150,19 +140,9 @@ class NavBar extends Component {
   }
 
   render () {
-    let avatar
-    let username
-    let user = this.props.user
-    let org = user.currentOrganization
+    let avatar = 'https://cdn.orax.io/avatars/default.jpg';
+    let username = window.localStorage.getItem('email');
 
-    if (this.props.loggedIn) {
-      avatar = '/public/img/avt-default.jpg';
-
-      if (user) {
-        avatar = user.profileUrl;
-        username = user.name;
-      }
-    }
     return (
       <div>
         <nav className="navbar is-transparent">
@@ -175,40 +155,15 @@ class NavBar extends Component {
           </div>
           <div className='navbar-menu'>
             <div className='navbar-start'>
-              {
-                this.props.user.currentRole && this.props.user.currentRole.slug !== 'manager-level-1' &&
-                <div className='navbar-start'>
-                  <div className='navbar-burger burger-desktop' onClick={this.props.handleBurgerEvent}>
-                    <span />
-                    <span />
-                    <span />
-                  </div>
-                </div>
-              }
-
               <a
                 className="navbar-item is-size-6 is-capitalized has-text-weight-semibold"
                 onClick={() => this.toggleOrgs()}
               >
-                <img className="avatar" src={org.profileUrl} alt="Avatar org" />
-                {org.name}
-                {user.organizations.length > 1 && (
-                  <span className="icon">
-                    <i className={this.state.dropCaret} />
-                  </span>
-                )}
+                <img className="avatar" src="https://cdn.orax.io/logos/6ea527eb-657d-4995-83e0-e54174523520/profile.jpg" alt="Avatar org" />
+                Orax Ecuador
               </a>
             </div>
             <div className='navbar-end'>
-              { /* this.state.steps > 0 &&
-              <div className='navbar-item'>
-                <a className='navbar-link wizards-button' onClick={() => { this.showModalWizards() }}>
-                  <span className='icon is-medium badge is-badge-danger' data-badge={this.state.steps}>
-                    <i className='fa fa-2x fa-list-ul' />
-                  </span>
-                </a>
-              </div>
-              */ }
               <div className={'navbar-item has-dropdown ' + this.state.profileDropdown}
                 ref={this.setWrapperRef}>
                 <a className='navbar-link'
@@ -219,19 +174,6 @@ class NavBar extends Component {
                   </div>
                 </a>
                 <div className="navbar-dropdown is-right">
-                  <Link
-                    className="dropdown-item"
-                    onClick={() => this.toggleBtnClass()}
-                    to="/profile"
-                  >
-                    <span className="icon">
-                      <i className="fa fa-user-o" />
-                    </span>
-                    <FormattedMessage
-                      id='navbar.profile'
-                      defaultMessage={`Mi perfil`}
-                    />
-                  </Link>
                   <a
                     className="dropdown-item"
                     onClick={() => this.handleLogout()}
@@ -249,37 +191,6 @@ class NavBar extends Component {
             </div>
           </div>
         </nav>
-        <div
-          className={
-            'columns is-multiline is-mobile orgs ' + this.state.toggleOrgsClass
-          }
-        >
-          {user.organizations.map((item, key) => {
-            if (item.organization.slug !== user.currentOrganization.slug) {
-              return (
-                <div className="column is-narrow is-clickable" key={key}>
-                  <span
-                    className="media is-size-6 is-capitalized has-text-weight-semibold"
-                    onClick={() => {
-                      this.changeHandler(item.organization.slug);
-                    }}
-                  >
-                    <figure className="media-left image is-32x32">
-                      <img
-                        className="avatar"
-                        src={item.organization.profileUrl}
-                        alt="Avatar org"
-                      />
-                    </figure>
-                    <span className="media-content">
-                      {item.organization.name}
-                    </span>
-                  </span>
-                </div>
-              );
-            }
-          })}
-        </div>
       </div>
     );
   }
