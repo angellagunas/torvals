@@ -127,33 +127,35 @@ class AdminLayout extends Component {
       }, 2000)
       return <Loader />;
     }
-
-    return (
-      <div className="is-wrapper">
-        <AdminNavBar
-          handlePathChange={p => this.handlePathChange(p)}
-          collapsed={this.state.sidebarCollapsed}
-          handleBurgerEvent={() => this.handleBurgerEvent()}
-          openWizards={() => this.openWizards()} />
-        <div>
-          <div className='icon is-large is-clickable is-hamburguer'
-            onClick={() => {this.handleBurgerEvent()}}>
-              <i className={burguerIcon} />
-          </div>
-          <Sidebar
+    if (!isEmpty(this.state.user)) {
+      return (
+        <div className="is-wrapper">
+          <AdminNavBar
+            handlePathChange={p => this.handlePathChange(p)}
             collapsed={this.state.sidebarCollapsed}
-            activePath={this.state.activePath} />
-        </div>
+            handleBurgerEvent={() => this.handleBurgerEvent()}
+            openWizards={() => this.openWizards()} />
+          <div>
+            <div className='icon is-large is-clickable is-hamburguer'
+              onClick={() => {this.handleBurgerEvent()}}>
+                <i className={burguerIcon} />
+            </div>
+            <Sidebar
+              collapsed={this.state.sidebarCollapsed}
+              activePath={this.state.activePath} />
+          </div>
 
-        <div className={mainClass}>
-          <section className='card main'>
-            {this.props.children}
-            <ToastContainer />
-          </section>
+          <div className={mainClass}>
+            <section className='card main'>
+              {this.props.children}
+              <ToastContainer />
+            </section>
+          </div>
         </div>
-      </div>
-
-    );
+      );
+    } else {
+      return <div>{this.props.children}</div>;
+    }
   }
 }
 
