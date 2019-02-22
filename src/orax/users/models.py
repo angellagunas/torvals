@@ -8,6 +8,7 @@ from django.contrib.auth.models import (
 from django.db import models
 
 from orax.organizations.models import Organization
+from orax.routes.models import Route
 from orax.utils.models import TimeStampedMixin
 
 
@@ -74,6 +75,11 @@ class User(AbstractBaseUser, PermissionsMixin, TimeStampedMixin):
 
     is_staff = models.BooleanField(
         default=False
+    )
+
+    route = models.ForeignKey(
+        Route,
+        null=True
     )
 
     USERNAME_FIELD = 'email'

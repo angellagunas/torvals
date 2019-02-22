@@ -51,6 +51,7 @@ LOCAL_APPS = [
     'orax.periods',
     'orax.products',
     'orax.rules',
+    'orax.routes',
     'orax.sales_centers',
     'orax.users'
 ]

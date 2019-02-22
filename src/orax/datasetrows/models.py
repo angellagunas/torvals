@@ -9,6 +9,7 @@ from orax.organizations.models import Organization
 from orax.periods.models import Period
 from orax.projects.models import Project
 from orax.products.models import Product
+from orax.routes.models import Route
 from orax.sales_centers.models import SaleCenter
 
 DATASETROW_STATUS = [
@@ -39,6 +40,10 @@ class DatasetRow(TimeStampedMixin):
     dataset = models.ForeignKey(Dataset)
     product = models.ForeignKey(Product)
     channel = models.ForeignKey(Channel)
+    route = models.ForeignKey(
+        Route,
+        null=True
+    )
     sale_center = models.ForeignKey(SaleCenter)
     cycle = models.ForeignKey(Cycle)
     period = models.ForeignKey(Period)
