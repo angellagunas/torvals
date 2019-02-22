@@ -42,6 +42,7 @@ INSTALLED_APPS = [
 
 LOCAL_APPS = [
     'orax.utils',
+    'orax.batch',
     'orax.datasets',
     'orax.projects',
     'orax.channels',
