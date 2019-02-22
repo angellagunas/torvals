@@ -74,7 +74,8 @@ class AdminLayout extends Component {
         return this.setState({ loaded: true });
       }
 
-      tree.set('user', me.user);
+      this.setState({ user: me });
+      tree.set('user', me);
       tree.set('loggedIn', true);
       tree.commit();
       window.localStorage.setItem('lang', 'es-MX')
