@@ -63,6 +63,7 @@ class DatasetAdmin(admin.ModelAdmin):
                 organization_id=org.id,
                 project_id=project.id,
                 product_id=1,
+
                 channel_id=1,
                 sale_center_id=1,
                 route=1,

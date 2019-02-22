@@ -47,15 +47,17 @@ class DatasetRow(TimeStampedMixin):
     product = models.ForeignKey(
         Product
     )
-    channel = models.ForeignKey(
-        Channel
+    sale_center = models.ForeignKey(
+        SaleCenter
     )
     route = models.ForeignKey(
         Route,
         null=True
     )
-    sale_center = models.ForeignKey(
-        SaleCenter
+
+    channel = models.ForeignKey(
+        Channel,
+        null=True
     )
     cycle = models.ForeignKey(
         Cycle,

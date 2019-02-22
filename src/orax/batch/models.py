@@ -2,7 +2,6 @@
 from django.db import models
 
 from orax.utils.models import CatalogueMixin
-from orax.organizations.models import Organization
 
 BATCH_TYPE = [
     ('channel', 'channel'),
@@ -32,4 +31,10 @@ class Batch(CatalogueMixin):
         max_length=255,
         verbose_name='type',
         choices=BATCH_TYPE
+    )
+
+    separated_by = models.CharField(
+        max_length=1,
+        verbose_name='separated_by',
+        default=','
     )
