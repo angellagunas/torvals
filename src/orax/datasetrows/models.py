@@ -35,18 +35,36 @@ class DatasetRow(TimeStampedMixin):
     prediction = models.PositiveIntegerField()
     adjustment = models.PositiveIntegerField()
 
-    organization = models.ForeignKey(Organization)
-    project = models.ForeignKey(Project)
-    dataset = models.ForeignKey(Dataset)
-    product = models.ForeignKey(Product)
-    channel = models.ForeignKey(Channel)
+    organization = models.ForeignKey(
+        Organization
+    )
+    project = models.ForeignKey(
+        Project
+    )
+    dataset = models.ForeignKey(
+        Dataset
+    )
+    product = models.ForeignKey(
+        Product
+    )
+    channel = models.ForeignKey(
+        Channel
+    )
     route = models.ForeignKey(
         Route,
         null=True
     )
-    sale_center = models.ForeignKey(SaleCenter)
-    cycle = models.ForeignKey(Cycle)
-    period = models.ForeignKey(Period)
+    sale_center = models.ForeignKey(
+        SaleCenter
+    )
+    cycle = models.ForeignKey(
+        Cycle,
+        null=True
+    )
+    period = models.ForeignKey(
+        Period,
+        null=True
+    )
     status = models.CharField(
         max_length=255,
         verbose_name='status',
