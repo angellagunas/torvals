@@ -18,21 +18,15 @@ pipeline {
     stage("Test") {
       when { anyOf { branch "dev" } }
       steps {
-        sh "cp .env.ci .env"
-        sh "make post-ci"
-        sh "make ci"
       }
       post {
         always {
-          sh "make post-ci"
         }
       }
     }
     stage("Build") {
       when { anyOf { branch "master"; branch "release" } }
       steps {
-        script { load "${env.JENKINS_HOME}/.envvars/orax/${env.BRANCH_NAME}/env.groovy" }
-        sh "make build"
       }
       post {
         failure {

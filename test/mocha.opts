@@ -1,3 +1,0 @@
---require test/testConfig.js
---ui bdd
---recursive
