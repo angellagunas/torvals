@@ -20,8 +20,16 @@ class DefaultLayout extends Component {
 
   loading = () => <div className="animated fadeIn pt-1 text-center">Loading...</div>
 
+  componentWillMount(){
+    const jwt = window.localStorage.getItem('jwt');
+    if(!jwt){
+      this.props.history.push('/login')
+    }
+  }
+
   signOut(e) {
     e.preventDefault()
+    window.localStorage.removeItem('jwt')
     this.props.history.push('/login')
   }
 

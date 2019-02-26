@@ -3,8 +3,8 @@ services:
   web:
     restart: always
     build:
-      context: .
-      dockerfile: DockerfileNginxApp
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
       - "3002:80"
     cpu_shares: 50
@@ -15,16 +15,14 @@ services:
   python:
     restart: always
     build:
-      context: .
-      dockerfile: DockerfilePython
+      context: ./backend
+      dockerfile: Dockerfile
     ports:
      - "8000:8000"
     links:
-      - mongodb
       - redisdb
       - postgresdb
     depends_on:
-      - mongodb
       - redisdb
       - postgresdb
     cpu_shares: 20
