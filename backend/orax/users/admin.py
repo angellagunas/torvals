@@ -5,7 +5,8 @@ from orax.users.models import User
 
 
 class CustomUserAdmin(UserAdmin):
-	"""Admin for user."""
+    """Admin for user."""
+
     pass
 
 

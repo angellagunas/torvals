@@ -77,6 +77,10 @@ class User(AbstractBaseUser, PermissionsMixin, TimeStampedMixin):
         default=False
     )
 
+    is_active = models.BooleanField(
+        default=False
+    )
+
     route = models.ForeignKey(
         Route,
         null=True
