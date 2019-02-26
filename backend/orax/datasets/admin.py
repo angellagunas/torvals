@@ -1,5 +1,6 @@
 """Admin for dataset module."""
 import csv
+import math
 import pandas as pd
 from datetime import datetime
 
@@ -141,22 +142,42 @@ class DatasetAdmin(admin.ModelAdmin):
             product_id = products_dict[str(row['product_id'])]
             route_id = routes_dict[str(row['cod_ruta_id'])]
             sale_center_id = sales_centers_dict[str(row['cod_agencia_id'])]
-            date = datetime.strptime(row['date'], "%m/%d/%Y").date()
+            date = datetime.strptime(row['date'], "%Y-%m-%d").date()
 
-            DatasetRow.objects.create(
-                dataset_id=dataset.id,
-                organization_id=org.id,
-                project_id=project.id,
-                product_id=product_id,
-                route_id=route_id,
-                sale_center_id=sale_center_id,
-                status='unmodified',
-                sale=row['last_8wk_avg_sales_units'],
-                refund=row['last_8wk_avg_return_units'],
-                prediction=row['units'],
-                adjustment=row['units'],
-                date=date
-            )
+            sale = float(row['last_8wk_avg_sales_units'])
+            sale = 0 if math.isnan(sale) else sale
+
+            refund = float(row['last_8wk_avg_return_units'])
+            refund = 0 if math.isnan(refund) else refund
+
+            prediction = int(float(row['Units']))
+            prediction = prediction if prediction >= 0 else (prediction * -1)
+
+            adjustment = int(float(row['Units']))
+            adjustment = adjustment if adjustment >= 0 else (adjustment * -1)
+
+            try:
+                DatasetRow.objects.create(
+                    dataset_id=dataset.id,
+                    organization_id=org.id,
+                    project_id=project.id,
+                    product_id=product_id,
+                    route_id=route_id,
+                    sale_center_id=sale_center_id,
+                    status='unmodified',
+                    sale=sale,
+                    refund=refund,
+                    prediction=prediction,
+                    adjustment=adjustment,
+                    date=date
+                )
+            except Exception as e:
+                print(row)
+                print('*************************')
+                print(prediction)
+                print(adjustment)
+                print(e)
+                raise e
 
 
 admin.site.register(Dataset, DatasetAdmin)
