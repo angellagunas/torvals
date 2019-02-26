@@ -34,10 +34,10 @@ class DatasetRow(TimeStampedMixin):
 
     prediction = models.PositiveIntegerField()
     adjustment = models.PositiveIntegerField()
-    sale = models.PositiveIntegerField(
+    sale = models.IntegerField(
         default=0
     )
-    refund = models.PositiveIntegerField(
+    refund = models.IntegerField(
         default=0
     )
     date = models.DateField()
