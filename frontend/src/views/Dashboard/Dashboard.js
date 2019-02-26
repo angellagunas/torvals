@@ -169,6 +169,10 @@ class Dashboard extends Component {
   }
 
   componentWillMount(){
+    const jwt = window.localStorage.getItem('jwt');
+    if (!jwt){
+      this.props.history.push('/login')
+    }
     this.loadData()
   }
 
@@ -209,7 +213,6 @@ class Dashboard extends Component {
         console.info(res)
       })
       .catch(error => {
-        alert('Error')
         console.error(error)
       });
   }
@@ -232,7 +235,6 @@ class Dashboard extends Component {
         this.getTableRows();
       })
       .catch(error => {
-        alert('Error')
         console.error(error)
       });
   }
