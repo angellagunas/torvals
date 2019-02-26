@@ -145,6 +145,8 @@ class Dashboard extends Component {
     this.handleChange = this.handleChange.bind(this);
     this.handleSearch = this.handleSearch.bind(this);
 
+    this.percentage = this.percentage.bind(this)
+
     // colapse
     this.toggleCustom = this.toggleCustom.bind(this);
 
@@ -174,6 +176,18 @@ class Dashboard extends Component {
       this.props.history.push('/login')
     }
     this.loadData()
+  }
+
+  percentage(prediction, adjustment){
+    let percentage = (
+      ((adjustment - prediction) / prediction) * 100
+    )
+
+    if(isNaN(percentage) || !isFinite(percentage)){
+      percentage = 0
+    }
+
+    return Math.round(percentage);
   }
 
   toggle() {
@@ -277,7 +291,7 @@ class Dashboard extends Component {
           </td>
           <td key={"cell_venta_" + this.random()} className="text-center">
             <div>
-              <strong>10%</strong>
+              <strong>{this.percentage(row.prediction, row.adjustment)}</strong>
             </div>
           </td>
         </tr>
