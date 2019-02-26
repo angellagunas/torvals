@@ -20,11 +20,15 @@ class DatasetrowViewSet(
 
     def get_queryset(self):
         """Return the universe of objects in API."""
+        route = self.request.user.route
         query_params = self.request.GET.get('q', None)
-        queryset = DatasetRow.objects.filter(is_active=True)
+        queryset = DatasetRow.objects.filter(
+            is_active=True,
+            route=route
+        )
 
         if query_params:
-            queryset = queryset.filter(product__name__contains=query_params)
+            queryset = queryset.filter(product__name__icontains=query_params)
 
         return queryset
 

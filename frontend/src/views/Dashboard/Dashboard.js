@@ -153,6 +153,7 @@ class Dashboard extends Component {
     this.state = {
       dropdownOpen: false,
       radioSelected: 2,
+
       // colapse vars
       collapse: false,
       accordion: [true, false, false],
@@ -161,8 +162,18 @@ class Dashboard extends Component {
       fadeIn: true,
       timeout: 300,
 
+      // user data
+      user_email: "",
+      user_route: "",
+
       // input search
       query_search: '',
+
+      //indicators
+      total_forecast: 0,
+      total_adjustment: 0,
+      average_sales: 0,
+      average_return: 0,
 
       // table data
       rows: [],
@@ -175,6 +186,11 @@ class Dashboard extends Component {
     if (!jwt){
       this.props.history.push('/login')
     }
+
+    const profile = window.localStorage.getItem('profile');
+    const route = window.localStorage.getItem('route');
+    this.setState({user_email: profile})
+    this.setState({user_route: route})
     this.loadData()
   }
 
@@ -243,8 +259,19 @@ class Dashboard extends Component {
     await axios
       .get(url, config)
       .then(res => {
+        const data_response = res.data.results;
+
+        const prediction = data_response.reduce((a, b) => +a + +b.prediction, 0);
+        const adjustment = data_response.reduce((a, b) => +a + +b.adjustment, 0);
+        const sales = data_response.reduce((a, b) => +a + +b.sale, 0);
+        const returns = data_response.reduce((a, b) => +a + +b.refund, 0);
+
         this.setState({
-          'rows': res.data.results
+          'rows': data_response,
+          'total_forecast': prediction,
+          'total_adjustment': adjustment,
+          'average_sales': sales,
+          'average_return': returns
         });
         this.getTableRows();
       })
@@ -253,8 +280,12 @@ class Dashboard extends Component {
       });
   }
 
-  random() {
-    return Math.floor(Math.random() * (100000 - 1 + 1) + 1);
+  _random(){
+    return Math.floor(Math.random() * 1000);
+  }
+
+  random(num) {
+    return (this._random() * num) + 1
   }
 
   getTableRows(){
@@ -262,8 +293,8 @@ class Dashboard extends Component {
 
     for(const row of this.state.rows){
       tableRows.push((
-        <tr key={"row_" + this.random()}>
-          <td key={"cell_product_name_" + this.random()}>
+        <tr key={"row_" + this.random(row.id)}>
+          <td key={"cell_product_name_" + this.random(row.id)}>
             <div>
               {row.product.name}
             </div>
@@ -271,27 +302,27 @@ class Dashboard extends Component {
               <span>ID</span> | {row.product.externalId}
             </div>
           </td>
-          <td key={"cell_suggest_" + this.random()} className="text-center">
+          <td key={"cell_suggest_" + this.random(row.id)} className="text-center">
             <div>
               <strong>{row.prediction}</strong>
             </div>
           </td>
-          <td key={"cell_adjustment_" + this.random()} className="text-center justify-content-center align-items-center" style={{ width: 80 + 'px' }}>
+          <td key={"cell_adjustment_" + this.random(row.id)} className="text-center justify-content-center align-items-center" style={{ width: 80 + 'px' }}>
             <Input type="text" id="input3-group2" name="input3-group2" defaultValue={row.adjustment} onChange={(e) => {this.handleChange(e, row.id)}} />
           </td>
-          <td key={"cell_devolucion_" + this.random()} className="text-center">
+          <td key={"cell_devolucion_" + this.random(row.id)} className="text-center">
             <div>
               <strong>{row.refund || 0}</strong>
             </div>
           </td>
-          <td key={"cell_venta_" + this.random()} className="text-center">
+          <td key={"cell_venta_" + this.random(row.id)} className="text-center">
             <div>
               <strong>{row.sale || 0}</strong>
             </div>
           </td>
-          <td key={"cell_venta_" + this.random()} className="text-center">
+          <td key={"cell_venta_" + this.random(row.id)} className="text-center">
             <div>
-              <strong>{this.percentage(row.prediction, row.adjustment)}</strong>
+              <strong>{this.percentage(row.prediction, row.adjustment)} %</strong>
             </div>
           </td>
         </tr>
@@ -334,7 +365,7 @@ class Dashboard extends Component {
                         <Col xs={{ size: 12, offset: 0 }} sm={{ size: 6, offset: 0 }} md={{ size: 3 }} lg={{ size: 3 }}>
                           <Card className="text-white bg-info">
                             <CardBody className="pb-0">
-                              <div className="text-value">9.823</div>
+                              <div className="text-value">{ this.state.total_forecast }</div>
                               <div>Predicción total</div>
                             </CardBody>
                             <div className="chart-wrapper mx-3" style={{ height: '70px' }}>
@@ -346,7 +377,7 @@ class Dashboard extends Component {
                         <Col xs={{ size: 12, offset: 0 }} sm={{ size: 6, offset: 0 }} md={{ size: 3 }} lg={{ size: 3 }}>
                           <Card className="text-white bg-primary">
                             <CardBody className="pb-0">
-                              <div className="text-value">9.823</div>
+                              <div className="text-value">{ this.state.total_adjustment }</div>
                               <div>Ajuste Total</div>
                             </CardBody>
                             <div className="chart-wrapper mx-3" style={{ height: '70px' }}>
@@ -358,7 +389,7 @@ class Dashboard extends Component {
                         <Col xs={{ size: 12, offset: 0 }} sm={{ size: 6, offset: 0 }} md={{ size: 3 }} lg={{ size: 3 }}>
                           <Card className="text-white bg-info">
                             <CardBody className="pb-0">
-                              <div className="text-value">9.823</div>
+                              <div className="text-value">{ this.state.average_sales }</div>
                               <div>Venta Promedio Total</div>
                             </CardBody>
                             <div className="chart-wrapper mx-3" style={{ height: '70px' }}>
@@ -370,7 +401,7 @@ class Dashboard extends Component {
                         <Col xs={{ size: 12, offset: 0 }} sm={{ size: 6, offset: 0 }} md={{ size: 3 }} lg={{ size: 3 }}>
                           <Card className="text-white bg-primary">
                             <CardBody className="pb-0">
-                              <div className="text-value">9.823</div>
+                              <div className="text-value">{ this.state.average_return }</div>
                               <div>Devolución Promedio Total</div>
                             </CardBody>
                             <div className="chart-wrapper mx-3" style={{ height: '70px' }}>
@@ -392,7 +423,9 @@ class Dashboard extends Component {
               <CardBody>
                 <Row>
                   <Col xs="12" sm="12" md="5">
-                    <CardTitle className="mb-0">Ajustes - Agencia 12858 - Ruta 601</CardTitle>
+                    <CardTitle className="mb-0">
+                      Ajustes - Ruta {this.state.user_route}
+                    </CardTitle>
                     <div className="small text-muted">Pedido sugerido para el 04 de Marzo del 2019 </div>
                   </Col>
                   <Col xs="12" sm="12" md="7" className="d-none d-sm-inline-block">
@@ -408,7 +441,7 @@ class Dashboard extends Component {
                         </InputGroup>
                       </Col>
                       <Col xs={{size: 1, offset: 0}} sm={{size: 1, offset: 0}} md={{size: 1, offset: 1}} lg={{size: 1, offset: 0}}>
-                        <Button color="primary" className="float-right"><i className="icon-cloud-download"></i></Button>
+                        <Button disabled={true} color="primary" className="float-right"><i className="icon-cloud-download"></i></Button>
                       </Col>
                     </Row>
                   </Col>
@@ -428,7 +461,7 @@ class Dashboard extends Component {
                           Ajuste
                         </th>
                         <th className="text-center">
-                          Devolucion
+                          Devolución
                         </th>
                         <th className="text-center">
                           Venta

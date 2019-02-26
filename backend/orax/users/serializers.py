@@ -3,16 +3,23 @@ from rest_framework import serializers
 
 from orax.users.models import User
 from orax.utils.tokens import create_token
+from orax.routes.serializers import RouteSerializer
 
 
 class MeSerializer(serializers.ModelSerializer):
     """Manage the info in /me endpoint."""
+
+    route = RouteSerializer()
+
     class Meta:
+        """Define behavior of class."""
+
         model = User
         fields = [
             'id',
             'email',
-            'name'
+            'name',
+            'route'
         ]
 
 
@@ -49,13 +56,16 @@ class AuthResponseSerializer(serializers.ModelSerializer):
     """Serializer for Auth API when GET method is used."""
 
     token = serializers.SerializerMethodField()
+    route = RouteSerializer()
 
     class Meta:
         """Define the behavior of Serializer."""
 
         model = User
         fields = [
-            'token'
+            'token',
+            'email',
+            'route'
         ]
 
     def get_token(self, obj):

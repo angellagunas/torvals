@@ -40,6 +40,7 @@ class DatasetRow(TimeStampedMixin):
     refund = models.PositiveIntegerField(
         default=0
     )
+    date = models.DateField()
 
     organization = models.ForeignKey(
         Organization

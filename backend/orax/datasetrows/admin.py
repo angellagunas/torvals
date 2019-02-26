@@ -12,7 +12,8 @@ class DatasetRowsAdmin(admin.ModelAdmin):
         'prediction',
         'adjustment',
         'refund',
-        'sale'
+        'sale',
+        'date'
     ]
     search_fields = ['product']
 

@@ -4,7 +4,6 @@ from django.db import models
 from orax.utils.models import CatalogueMixin
 
 BATCH_TYPE = [
-    ('channel', 'channel'),
     ('products', 'products'),
     ('routes', 'routes'),
     ('sales_centers', 'sales_centers'),

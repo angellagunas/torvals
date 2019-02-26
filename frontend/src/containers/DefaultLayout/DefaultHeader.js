@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Badge, DropdownItem, DropdownMenu, DropdownToggle, Nav, NavItem, NavLink } from 'reactstrap';
+import { DropdownItem, DropdownMenu, DropdownToggle, Nav } from 'reactstrap';
 import PropTypes from 'prop-types';
 
 import { AppHeaderDropdown, AppNavbarBrand } from '@coreui/react';
@@ -17,6 +17,7 @@ class DefaultHeader extends Component {
 
     // eslint-disable-next-line
     const { children, ...attributes } = this.props;
+    const email = window.localStorage.getItem('profile');
 
     return (
       <React.Fragment>
@@ -26,15 +27,9 @@ class DefaultHeader extends Component {
         />
 
         <Nav className="ml-auto" navbar>
-          <NavItem className="d-md-down-none">
-            <NavLink href="#">
-              <i className="icon-bell"></i>
-              <Badge pill color="danger">5</Badge>
-            </NavLink>
-          </NavItem>
-
           <AppHeaderDropdown direction="down">
             <DropdownToggle nav>
+              <span>{ email }</span>
               <img src={'../../assets/img/avatars/default.jpg'} className="img-avatar" alt="User in session" />
             </DropdownToggle>
             <DropdownMenu right style={{ right: 'auto' }}>

@@ -4,7 +4,6 @@ import pandas as pd
 from django import forms
 from django.contrib import admin
 from orax.batch.models import Batch
-from orax.channels.models import Channel
 from orax.organizations.models import Organization
 from orax.products.models import Product
 from orax.routes.models import Route
@@ -37,11 +36,6 @@ class BatchAdmin(admin.ModelAdmin):
                 'name': 'product_name',
                 'model': Product
             },
-            'channel': {
-                'id': 'channel_id',
-                'name': 'channel_name',
-                'model': Channel
-            },
             'routes': {
                 'id': 'route_id',
                 'name': 'route_name',
@@ -70,10 +64,22 @@ class BatchAdmin(admin.ModelAdmin):
 
         super(BatchAdmin, self).save_model(request, obj, form, change)
 
+        #
+        # only the new catalog should be active.
+        #
+        config['model'].objects.filter(is_active=True).update(is_active=False)
+
+        #
+        # save all new catalogs
+        #
         for index, row in file.iterrows():
+            _id = row.get(config['id'], None)
+
+            external_id = int(float(_id)) if _id else 'N/A'
+
             config['model'].objects.create(
                 organization_id=org.id,
-                external_id=row.get(config['id'], 'N/A'),
+                external_id=external_id,
                 name=row.get(config['name'], 'N/A')
             )
 

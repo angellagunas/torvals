@@ -19,3 +19,7 @@ class Route(CatalogueMixin):
         max_length=255,
         verbose_name='external id'
     )
+
+    def __str__(self):
+        """Return the representation in String of this model."""
+        return self.name

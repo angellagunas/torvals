@@ -43,6 +43,9 @@ class Login extends Component {
       .post("api/v2/auth", this.state)
       .then(res => {
         window.localStorage.setItem('jwt', res.data.token);
+        window.localStorage.setItem('profile', res.data.email);
+        window.localStorage.setItem('route', res.data.route.externalId);
+
         this.props.history.push('/dashboard');
       })
       .catch(error => {
