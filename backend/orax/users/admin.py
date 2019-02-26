@@ -7,7 +7,8 @@ from orax.users.models import User
 class CustomUserAdmin(UserAdmin):
     """Admin for user."""
 
-    pass
+    ordering = ['email']
+    list_display = ['email', 'name', 'is_active']
 
 
 admin.site.register(User, CustomUserAdmin)
