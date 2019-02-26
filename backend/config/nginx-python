@@ -7,7 +7,7 @@ server {
     error_log /var/log/nginx/pow_error.log;
 
     location /static {
-        alias /pythia-kore/src/static;
+        alias /orax/static;
     }
 
     location / {
