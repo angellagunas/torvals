@@ -17,19 +17,9 @@ class CustomUserAdmin(UserAdmin):
     fieldsets = (
         ('Personal info', {'fields': ('email', 'password')}),
         ('Important dates', {'fields': ('last_login',)}),
-        ('Organization config', {'fields': ('route',)}),
-        ('Permissions', {'fields': (
-            'is_active',
-            'is_staff',
-            'is_superuser',
-            'groups', 'user_permissions')
+        ('Organization config', {
+            'fields': ('agency', 'route',)
         }),
-    )
-
-    add_fieldsets = (
-        ('Personal info', {'fields': ('email', 'password')}),
-        ('Important dates', {'fields': ('last_login',)}),
-        ('Organization config', {'fields': ('route',)}),
         ('Permissions', {'fields': (
             'is_active',
             'is_staff',

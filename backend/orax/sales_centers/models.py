@@ -19,3 +19,7 @@ class SaleCenter(CatalogueMixin):
         max_length=255,
         verbose_name='external id'
     )
+
+    def __str__(self):
+        """Return the representation in String of this model."""
+        return '{0}-{1}'.format(self.external_id, self.name)

@@ -32,6 +32,7 @@ class DefaultLayout extends Component {
     window.localStorage.removeItem('jwt')
     window.localStorage.removeItem('profile')
     window.localStorage.removeItem('route')
+    window.localStorage.removeItem('agency')
     this.props.history.push('/login')
   }
 

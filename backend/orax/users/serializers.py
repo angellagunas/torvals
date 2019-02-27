@@ -4,12 +4,14 @@ from rest_framework import serializers
 from orax.users.models import User
 from orax.utils.tokens import create_token
 from orax.routes.serializers import RouteSerializer
+from orax.sales_centers.serializers import SaleCenterSerializer
 
 
 class MeSerializer(serializers.ModelSerializer):
     """Manage the info in /me endpoint."""
 
     route = RouteSerializer()
+    agency = SaleCenterSerializer()
 
     class Meta:
         """Define behavior of class."""
@@ -19,7 +21,8 @@ class MeSerializer(serializers.ModelSerializer):
             'id',
             'email',
             'name',
-            'route'
+            'route',
+            'agency'
         ]
 
 
@@ -57,6 +60,7 @@ class AuthResponseSerializer(serializers.ModelSerializer):
 
     token = serializers.SerializerMethodField()
     route = RouteSerializer()
+    agency = SaleCenterSerializer()
 
     class Meta:
         """Define the behavior of Serializer."""
@@ -65,7 +69,8 @@ class AuthResponseSerializer(serializers.ModelSerializer):
         fields = [
             'token',
             'email',
-            'route'
+            'route',
+            'agency'
         ]
 
     def get_token(self, obj):

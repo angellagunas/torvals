@@ -22,4 +22,4 @@ class Route(CatalogueMixin):
 
     def __str__(self):
         """Return the representation in String of this model."""
-        return '{0}-{1}'.format(self.id, self.name)
+        return '{0}-{1}'.format(self.external_id, self.name)

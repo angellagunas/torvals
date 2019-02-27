@@ -75,6 +75,11 @@ class Dataset(CatalogueMixin):
         null=True,
         blank=True
     )
+
+    date_adjustment = models.DateField(
+        help_text="Fecha en la cual se va a ajustar el forecast."
+    )
+
     organization = models.ForeignKey(Organization)
     project = models.ForeignKey(
         'projects.Project',

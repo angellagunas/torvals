@@ -9,6 +9,7 @@ from django.db import models
 
 from orax.organizations.models import Organization
 from orax.routes.models import Route
+from orax.sales_centers.models import SaleCenter
 from orax.utils.models import TimeStampedMixin
 
 
@@ -83,6 +84,11 @@ class User(AbstractBaseUser, PermissionsMixin, TimeStampedMixin):
 
     route = models.ForeignKey(
         Route,
+        null=True
+    )
+
+    agency = models.ForeignKey(
+        SaleCenter,
         null=True
     )
 

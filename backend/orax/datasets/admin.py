@@ -29,7 +29,13 @@ class DatasetForm(forms.ModelForm):
 class DatasetAdmin(admin.ModelAdmin):
     """Admin to manage datasets."""
 
-    list_display = ['name', 'description', 'is_active', 'is_main']
+    list_display = [
+        'name',
+        'description',
+        'is_active',
+        'is_main',
+        'date_adjustment'
+    ]
     search_fields = ['name', 'description']
     actions = ["export_as_csv"]
 
@@ -53,11 +59,9 @@ class DatasetAdmin(admin.ModelAdmin):
         writer = csv.writer(response)
         writer.writerow(columns)
 
-        date = datetime.strptime('27-02-2019', '%d-%m-%Y')
-
         rows = DatasetRow.objects.filter(
             dataset_id=dataset.id,
-            date=date.date()
+            date=dataset.date_adjustment
         )
 
         for row in rows:
@@ -101,7 +105,8 @@ class DatasetAdmin(admin.ModelAdmin):
         #
         # Open the new dataset file.
         #
-        file = pd.read_csv(obj.file, sep=',', index_col=False)
+        original_file = pd.read_csv(obj.file, sep=',', index_col=False)
+        file = original_file[original_file['date'] == '2019-02-28']
 
         #
         # Execute the normal flow of admin save.

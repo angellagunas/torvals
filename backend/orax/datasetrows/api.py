@@ -1,5 +1,5 @@
 """API for datasetrows."""
-from datetime import datetime
+from django.db.models import Q
 
 from soft_drf.api import mixins
 from soft_drf.api.viewsets import GenericViewSet
@@ -24,22 +24,26 @@ class DatasetrowViewSet(
     def get_queryset(self):
         """Return the universe of objects in API."""
         route = self.request.user.route
+        agency = self.request.user.agency
         query_params = self.request.GET.get('q', None)
 
         dataset = Dataset.objects.get(is_main=True)
-        date = datetime.strptime('27-02-2019', '%d-%m-%Y')
 
         queryset = DatasetRow.objects.filter(
             is_active=True,
             route=route,
+            sale_center=agency,
             dataset=dataset,
-            date=date.date()
+            date=dataset.date_adjustment
         )
 
         if query_params:
-            queryset = queryset.filter(product__name__icontains=query_params)
+            queryset = queryset.filter(
+                Q(product__name__icontains=query_params) |
+                Q(product__external_id__icontains=query_params)
+            )
 
-        return queryset
+        return queryset.order_by('-prediction')
 
 
 router.register(
