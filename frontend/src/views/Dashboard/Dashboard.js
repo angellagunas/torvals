@@ -6,6 +6,7 @@ import {
   CardBody,
   CardTitle,
   Collapse,
+  Form,
   Row,
   Table,
   Col,
@@ -20,107 +21,6 @@ import axios from "axios";
 const brandPrimary = getStyle('--primary')
 const brandInfo = getStyle('--info')
 
-// Card Chart 1
-const cardChartData1 = {
-  labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-  datasets: [],
-};
-
-const cardChartOpts1 = {
-  tooltips: {
-    enabled: false,
-    custom: CustomTooltips
-  },
-  maintainAspectRatio: false,
-  legend: {
-    display: false,
-  },
-  scales: {
-    xAxes: [
-      {
-        gridLines: {
-          color: 'transparent',
-          zeroLineColor: 'transparent',
-        },
-        ticks: {
-          fontSize: 2,
-          fontColor: 'transparent',
-        },
-
-      }],
-    yAxes: [
-      {
-        display: false,
-        ticks: {
-          display: false,
-          min: Math.min.apply(Math, [65, 59, 84, 84, 51, 55, 40]) - 5,
-          max: Math.max.apply(Math, [65, 59, 84, 84, 51, 55, 40]) + 5,
-        },
-      }],
-  },
-  elements: {
-    line: {
-      borderWidth: 1,
-    },
-    point: {
-      radius: 4,
-      hitRadius: 10,
-      hoverRadius: 4,
-    },
-  }
-}
-
-
-// Card Chart 2
-const cardChartData2 = {
-  labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-  datasets: [],
-};
-
-const cardChartOpts2 = {
-  tooltips: {
-    enabled: false,
-    custom: CustomTooltips
-  },
-  maintainAspectRatio: false,
-  legend: {
-    display: false,
-  },
-  scales: {
-    xAxes: [
-      {
-        gridLines: {
-          color: 'transparent',
-          zeroLineColor: 'transparent',
-        },
-        ticks: {
-          fontSize: 2,
-          fontColor: 'transparent',
-        },
-
-      }],
-    yAxes: [
-      {
-        display: false,
-        ticks: {
-          display: false,
-          min: Math.min.apply(Math,  [1, 18, 9, 17, 34, 22, 11]) - 5,
-          max: Math.max.apply(Math,  [1, 18, 9, 17, 34, 22, 11]) + 5,
-        },
-      }],
-  },
-  elements: {
-    line: {
-      tension: 0.00001,
-      borderWidth: 1,
-    },
-    point: {
-      radius: 4,
-      hitRadius: 10,
-      hoverRadius: 4,
-    },
-  },
-};
 
 class Dashboard extends Component {
   constructor(props) {
@@ -164,6 +64,62 @@ class Dashboard extends Component {
       // table data
       rows: [],
       tableRows: [],
+
+      // Card Chart
+      cardChartData: {
+        labels: ['Sugerido', 'Ajuste', 'Venta Promedio', 'Devolución Promedio'],
+        datasets: [
+          {
+            label: 'Total',
+            backgroundColor: brandPrimary,
+            borderColor: 'rgba(255,255,255,.55)',
+            data: [65, 59, 84, 84],
+          }
+        ],
+      },
+      cardChartOpts: {
+        tooltips: {
+          enabled: false,
+          custom: CustomTooltips
+        },
+        maintainAspectRatio: false,
+        legend: {
+          display: false,
+        },
+        scales: {
+          xAxes: [
+            {
+              gridLines: {
+                color: 'transparent',
+                zeroLineColor: 'transparent',
+              },
+              ticks: {
+                fontSize: 2,
+                fontColor: 'transparent',
+              },
+
+            }],
+          yAxes: [
+            {
+              display: false,
+              ticks: {
+                display: false,
+                min: Math.min.apply(Math, [65, 59, 84, 84]) - 5,
+                max: Math.max.apply(Math, [65, 59, 84, 84]) + 5,
+              },
+            }],
+        },
+        elements: {
+          line: {
+            borderWidth: 1,
+          },
+          point: {
+            radius: 4,
+            hitRadius: 10,
+            hoverRadius: 4,
+          },
+        }
+      }
     };
   }
 
@@ -216,6 +172,8 @@ class Dashboard extends Component {
   }
 
   async handleChange (e, row_id) {
+    e.preventDefault();
+
     const config = {
       'headers': {
         'Authorization': 'Bearer ' + window.localStorage.getItem('jwt')
@@ -248,7 +206,11 @@ class Dashboard extends Component {
       });
   }
 
-  async loadData(){
+  async loadData(e){
+    if (e){
+      e.preventDefault();
+    }
+
     const config = {
       'headers': {
         'Authorization': 'Bearer ' + window.localStorage.getItem('jwt')
@@ -267,7 +229,14 @@ class Dashboard extends Component {
         const sales = data_response.reduce((a, b) => +a + +b.sale, 0);
         const returns = data_response.reduce((a, b) => +a + +b.refund, 0);
 
+        const cardChartData = this.state.cardChartData
+
+        // ['Sugerido', 'Ajuste', 'Venta Promedio', 'Devolución Promedio'],
+        cardChartData.datasets.data = [prediction, adjustment, sales, returns]
+
         this.setState({
+          'cardChartData': cardChartData,
+          'cardChartOpts': this.state.cardChartOpts,
           'rows': data_response,
           'total_forecast': prediction,
           'total_adjustment': adjustment,
@@ -308,7 +277,7 @@ class Dashboard extends Component {
             </div>
           </td>
           <td key={"cell_adjustment_" + this.random(row.id)} className="text-center justify-content-center align-items-center" style={{ width: 80 + 'px' }}>
-            <Input type="text" id="input3-group2" name="input3-group2" defaultValue={row.adjustment} onChange={(e) => {this.handleChange(e, row.id)}} />
+            <Input type="text" id="input3-group2" name="input3-group2" defaultValue={row.adjustment} onBlur={(e) => {this.handleChange(e, row.id)}} />
           </td>
           <td key={"cell_devolucion_" + this.random(row.id)} className="text-center">
             <div>
@@ -363,13 +332,13 @@ class Dashboard extends Component {
                       <Row className="row">
 
                         <Col xs={{ size: 12, offset: 0 }} sm={{ size: 6, offset: 0 }} md={{ size: 3 }} lg={{ size: 3 }}>
-                          <Card className="text-white bg-info">
+                          <Card className="text-white bg-primary">
                             <CardBody className="pb-0">
                               <div className="text-value">{ this.state.total_forecast }</div>
                               <div>Predicción total</div>
                             </CardBody>
                             <div className="chart-wrapper mx-3" style={{ height: '70px' }}>
-                              <Line data={cardChartData2} options={cardChartOpts2} height={70} />
+                              <Line data={this.state.cardChartData} options={this.state.cardChartOpts} height={70} />
                             </div>
                           </Card>
                         </Col>
@@ -381,19 +350,19 @@ class Dashboard extends Component {
                               <div>Ajuste Total</div>
                             </CardBody>
                             <div className="chart-wrapper mx-3" style={{ height: '70px' }}>
-                              <Line data={cardChartData1} options={cardChartOpts1} height={70} />
+                              <Line data={this.state.cardChartData} options={this.state.cardChartOpts} height={70} />
                             </div>
                           </Card>
                         </Col>
 
                         <Col xs={{ size: 12, offset: 0 }} sm={{ size: 6, offset: 0 }} md={{ size: 3 }} lg={{ size: 3 }}>
-                          <Card className="text-white bg-info">
+                          <Card className="text-white bg-primary">
                             <CardBody className="pb-0">
                               <div className="text-value">{ this.state.average_sales }</div>
                               <div>Venta Promedio Total</div>
                             </CardBody>
                             <div className="chart-wrapper mx-3" style={{ height: '70px' }}>
-                              <Line data={cardChartData2} options={cardChartOpts2} height={70} />
+                              <Line data={this.state.cardChartData} options={this.state.cardChartOpts} height={70} />
                             </div>
                           </Card>
                         </Col>
@@ -405,7 +374,7 @@ class Dashboard extends Component {
                               <div>Devolución Promedio Total</div>
                             </CardBody>
                             <div className="chart-wrapper mx-3" style={{ height: '70px' }}>
-                              <Line data={cardChartData1} options={cardChartOpts1} height={70} />
+                              <Line data={this.state.cardChartData} options={this.state.cardChartOpts} height={70} />
                             </div>
                           </Card>
                         </Col>
@@ -433,14 +402,16 @@ class Dashboard extends Component {
                   <Col xs="12" sm="12" md="7" className="d-none d-sm-inline-block">
                     <Row className="justify-content-end">
                       <Col xs="11" sm="11" md="10" lg="11">
-                        <InputGroup>
-                          <Input type="text" id="input3-group2" name="input3-group2" placeholder="Search" onChange={this.handleSearch} />
-                          <InputGroupAddon addonType="append">
-                            <Button type="button" color="primary" onClick={this.loadData}>
-                              <i className="fa fa-search"></i>
-                            </Button>
-                          </InputGroupAddon>
-                        </InputGroup>
+                        <Form onSubmit={this.loadData} autoComplete="off">
+                          <InputGroup>
+                              <Input type="text" id="input3-group2" name="input3-group2" placeholder="Search" onChange={this.handleSearch} />
+                              <InputGroupAddon addonType="append">
+                                <Button type="button" color="primary">
+                                  <i className="fa fa-search"></i>
+                                </Button>
+                              </InputGroupAddon>
+                          </InputGroup>
+                        </Form>
                       </Col>
                       <Col xs={{size: 1, offset: 0}} sm={{size: 1, offset: 0}} md={{size: 1, offset: 1}} lg={{size: 1, offset: 0}}>
                         <Button disabled={true} color="primary" className="float-right"><i className="icon-cloud-download"></i></Button>
