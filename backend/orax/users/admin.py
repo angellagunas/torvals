@@ -28,5 +28,19 @@ class CustomUserAdmin(UserAdmin):
         }),
     )
 
+    add_fieldsets = (
+        ('Personal info', {'fields': ('email', 'password1', 'password2')}),
+        ('Important dates', {'fields': ('last_login',)}),
+        ('Organization config', {
+            'fields': ('agency', 'route',)
+        }),
+        ('Permissions', {'fields': (
+            'is_active',
+            'is_staff',
+            'is_superuser',
+            'groups', 'user_permissions')
+        }),
+    )
+
 
 admin.site.register(User, CustomUserAdmin)
