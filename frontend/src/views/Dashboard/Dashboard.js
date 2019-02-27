@@ -440,7 +440,9 @@ class Dashboard extends Component {
                     <CardTitle className="mb-0">
                       Ruta {this.state.user_route} - Agencia {this.state.user_agency}
                     </CardTitle>
-                    <div className="small text-muted">Pedido sugerido para el 28 de Febrero del 2019 </div>
+                    <div className="small text-muted">
+                      Pedido sugerido para el 28 de Febrero del 2019
+                    </div>
                   </Col>
                   <Col xs="12" sm="12" md="7" className="d-none d-sm-inline-block">
                     <Row className="justify-content-end">
@@ -475,10 +477,10 @@ class Dashboard extends Component {
                           Ajuste
                         </th>
                         <th className="text-center">
-                          Devolución
+                          Dev. Prom
                         </th>
                         <th className="text-center">
-                          Venta
+                          Vta. Prom
                         </th>
                         <th className="text-center">
                           Porcentaje Ajustado
