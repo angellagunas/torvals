@@ -1,9 +1,12 @@
 """API for datasetrows."""
+from datetime import datetime
+
 from soft_drf.api import mixins
 from soft_drf.api.viewsets import GenericViewSet
 from soft_drf.routing.v1.routers import router
 
 from orax.datasetrows import serializers
+from orax.datasets.models import Dataset
 from orax.datasetrows.models import DatasetRow
 
 
@@ -22,9 +25,15 @@ class DatasetrowViewSet(
         """Return the universe of objects in API."""
         route = self.request.user.route
         query_params = self.request.GET.get('q', None)
+
+        dataset = Dataset.objects.get(is_main=True)
+        date = datetime.strptime('27-02-2019', '%d-%m-%Y')
+
         queryset = DatasetRow.objects.filter(
             is_active=True,
-            route=route
+            route=route,
+            dataset=dataset,
+            date=date.date()
         )
 
         if query_params:

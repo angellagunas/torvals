@@ -53,7 +53,12 @@ class DatasetAdmin(admin.ModelAdmin):
         writer = csv.writer(response)
         writer.writerow(columns)
 
-        rows = DatasetRow.objects.filter(dataset_id=dataset.id)
+        date = datetime.strptime('27-02-2019', '%d-%m-%Y')
+
+        rows = DatasetRow.objects.filter(
+            dataset_id=dataset.id,
+            date=date.date()
+        )
 
         for row in rows:
             product_id = row.product.external_id

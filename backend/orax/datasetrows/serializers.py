@@ -29,7 +29,8 @@ class DatasetrowSerializer(serializers.ModelSerializer):
             'adjustment',
             'period',
             'sale',
-            'refund'
+            'refund',
+            'date'
         ]
 
 
