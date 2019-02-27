@@ -349,7 +349,7 @@ class Dashboard extends Component {
   }
 
   getIconCollapse(){
-    return this.state.indicadorsCollapsed ? 'icon-size-actual' : 'icon-size-fullscreen'
+    return this.state.indicadorsCollapsed ? 'fa fa-angle-up' : 'fa fa-angle-down'
   }
 
   loading = () => <div className="animated fadeIn pt-1 text-center">Loading...</div>
@@ -368,7 +368,7 @@ class Dashboard extends Component {
                   </Col>
                   <Col sm="7" className="col d-none d-sm-inline-block">
                     <Button color="primary" className="float-right" onClick={() => this.toggleCustom()}>
-                      <i className={this.getIconCollapse()}></i>
+                      <i style={{ fontSize: '1.4rem' }} className={this.getIconCollapse()}></i>
                     </Button>
                   </Col>
                 </Row>
@@ -440,7 +440,9 @@ class Dashboard extends Component {
                     <CardTitle className="mb-0">
                       Ruta {this.state.user_route} - Agencia {this.state.user_agency}
                     </CardTitle>
-                    <div className="small text-muted">Pedido sugerido para el 28 de Febrero del 2019 </div>
+                    <div className="small text-muted">
+                      Pedido sugerido para el 28 de Febrero del 2019
+                    </div>
                   </Col>
                   <Col xs="12" sm="12" md="7" className="d-none d-sm-inline-block">
                     <Row className="justify-content-end">
@@ -475,10 +477,10 @@ class Dashboard extends Component {
                           Ajuste
                         </th>
                         <th className="text-center">
-                          Devolución
+                          Dev. Prom
                         </th>
                         <th className="text-center">
-                          Venta
+                          Vta. Prom
                         </th>
                         <th className="text-center">
                           Porcentaje Ajustado
