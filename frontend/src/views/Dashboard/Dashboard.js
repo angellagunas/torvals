@@ -324,27 +324,21 @@ class Dashboard extends Component {
           'average_sales': sales,
           'average_return': returns
         });
-        this.getTableRows();
       })
       .catch(error => {
         console.error(error)
       });
   }
 
-  _random(){
-    return Math.floor(Math.random() * 1000);
-  }
-
-  random(num) {
-    return (this._random() * num) + 1
-  }
-
   getTableRows(){
     let tableRows = [];
-    for(const row of this.state.rows){
+
+    for(let i = 0; i < this.state.rows.length; i++){
+      const row = this.state.rows[i];
+
       tableRows.push((
-        <tr key={"row_" + this.random(row.id)}>
-          <td key={"cell_product_name_" + this.random(row.id)}>
+        <tr key={"row_" + i}>
+          <td key={"cell_product_name_" + i}>
             <div>
               {row.product.name}
             </div>
@@ -352,40 +346,40 @@ class Dashboard extends Component {
               <span>ID</span> | {row.product.externalId}
             </div>
           </td>
-          <td key={"cell_suggest_" + this.random(row.id)} className="text-center">
+          <td key={"cell_suggest_" + i} className="text-center">
             <div>
               <strong>{row.prediction}</strong>
             </div>
           </td>
-          <td key={"cell_adjustment_" + this.random(row.id)} className="text-center justify-content-center align-items-center" style={{ width: 80 + 'px' }}>
-            <Input type="text" id="input3-group2" name="input3-group2" defaultValue={row.adjustment} onBlur={(e) => {this.handleChange(e, row.id)}} />
+          <td key={"cell_adjustment_" + i} className="text-center justify-content-center align-items-center" style={{ width: 80 + 'px' }}>
+            <Input tabIndex={i + 1} type="text" id="input3-group2" name="input3-group2" defaultValue={row.adjustment} onBlur={(e) => {this.handleChange(e, row.id)}} />
           </td>
-          <td key={"cell_devolucion_" + this.random(row.id)} className="text-center">
+          <td key={"cell_devolucion_" + i} className="text-center">
             <div>
               <strong>{row.refund || 0}</strong>
             </div>
           </td>
-          <td key={"cell_venta_" + this.random(row.id)} className="text-center">
+          <td key={"cell_venta_" + i} className="text-center">
             <div>
               <strong>{row.sale || 0}</strong>
             </div>
           </td>
-          <td key={"cell_venta_" + this.random(row.id)} className="text-center">
+          <td key={"cell_percentage_" + i} className="text-center">
             <div>
-              <strong>{this.percentage(row.prediction, row.adjustment)} %</strong>
+              <strong>
+                {this.percentage(this.state.rows[i].prediction, this.state.rows[i].adjustment) } %
+              </strong>
             </div>
           </td>
         </tr>
       ));
     }
 
-    this.setState({
-      'tableRows': tableRows
-    });
+    return tableRows;
   }
 
   getIconCollapse(){
-    return this.state.indicadorsCollapsed ? 'fa fa-angle-up' : 'fa fa-angle-down'
+    return this.state.indicadorsCollapsed ? 'fa fa-angle-up' : 'fa fa-angle-down';
   }
 
   loading = () => <div className="animated fadeIn pt-1 text-center">Loading...</div>
@@ -526,7 +520,7 @@ class Dashboard extends Component {
                       </tr>
                     </thead>
                     <tbody>
-                      {this.state.tableRows}
+                      { this.getTableRows() }
                     </tbody>
                   </Table>
                 </div>
