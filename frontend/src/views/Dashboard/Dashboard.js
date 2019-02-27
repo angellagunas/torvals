@@ -23,14 +23,7 @@ const brandInfo = getStyle('--info')
 // Card Chart 1
 const cardChartData1 = {
   labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-  datasets: [
-    {
-      label: 'My First dataset',
-      backgroundColor: brandPrimary,
-      borderColor: 'rgba(255,255,255,.55)',
-      data: [65, 59, 84, 84, 51, 55, 40],
-    },
-  ],
+  datasets: [],
 };
 
 const cardChartOpts1 = {
@@ -60,8 +53,8 @@ const cardChartOpts1 = {
         display: false,
         ticks: {
           display: false,
-          min: Math.min.apply(Math, cardChartData1.datasets[0].data) - 5,
-          max: Math.max.apply(Math, cardChartData1.datasets[0].data) + 5,
+          min: Math.min.apply(Math, [65, 59, 84, 84, 51, 55, 40]) - 5,
+          max: Math.max.apply(Math, [65, 59, 84, 84, 51, 55, 40]) + 5,
         },
       }],
   },
@@ -81,14 +74,7 @@ const cardChartOpts1 = {
 // Card Chart 2
 const cardChartData2 = {
   labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-  datasets: [
-    {
-      label: 'My First dataset',
-      backgroundColor: brandInfo,
-      borderColor: 'rgba(255,255,255,.55)',
-      data: [1, 18, 9, 17, 34, 22, 11],
-    },
-  ],
+  datasets: [],
 };
 
 const cardChartOpts2 = {
@@ -118,8 +104,8 @@ const cardChartOpts2 = {
         display: false,
         ticks: {
           display: false,
-          min: Math.min.apply(Math, cardChartData2.datasets[0].data) - 5,
-          max: Math.max.apply(Math, cardChartData2.datasets[0].data) + 5,
+          min: Math.min.apply(Math,  [1, 18, 9, 17, 34, 22, 11]) - 5,
+          max: Math.max.apply(Math,  [1, 18, 9, 17, 34, 22, 11]) + 5,
         },
       }],
   },
