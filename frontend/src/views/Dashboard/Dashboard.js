@@ -19,7 +19,6 @@ import { getStyle } from '@coreui/coreui/dist/js/coreui-utilities';
 import axios from "axios";
 
 const brandPrimary = getStyle('--primary')
-const brandInfo = getStyle('--info')
 
 
 class Dashboard extends Component {
@@ -30,6 +29,7 @@ class Dashboard extends Component {
     this.loadData = this.loadData.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.handleSearch = this.handleSearch.bind(this);
+    this._getCardChartData = this._getCardChartData.bind(this);
 
     this.percentage = this.percentage.bind(this)
 
@@ -120,6 +120,8 @@ class Dashboard extends Component {
           },
         }
       }
+
+
     };
   }
 
@@ -136,6 +138,68 @@ class Dashboard extends Component {
     this.setState({user_route: route})
     this.setState({user_agency: agency})
     this.loadData()
+  }
+
+  _getCardChartData(data){
+    return {
+      labels: ['Sugerido', 'Ajuste', 'Venta Promedio', 'Devolución Promedio'],
+      datasets: [
+        {
+          label: 'Total',
+          backgroundColor: brandPrimary,
+          borderColor: 'rgba(255,255,255,.55)',
+          data: data
+        }
+      ]
+    };
+  }
+
+  _getCardChartOpts(data){
+    const min = Math.min.apply(Math, data) - 5;
+    const max = Math.max.apply(Math, data) + 5;
+    return {
+      tooltips: {
+        enabled: false,
+        custom: CustomTooltips
+      },
+      maintainAspectRatio: false,
+      legend: {
+        display: false,
+      },
+      scales: {
+        xAxes: [
+          {
+            gridLines: {
+              color: 'transparent',
+              zeroLineColor: 'transparent',
+            },
+            ticks: {
+              fontSize: 2,
+              fontColor: 'transparent',
+            },
+
+          }],
+        yAxes: [
+          {
+            display: false,
+            ticks: {
+              display: false,
+              min: min,
+              max: max,
+            },
+          }],
+      },
+      elements: {
+        line: {
+          borderWidth: 1,
+        },
+        point: {
+          radius: 4,
+          hitRadius: 10,
+          hoverRadius: 4,
+        },
+      }
+    };
   }
 
   percentage(prediction, adjustment){
@@ -180,13 +244,30 @@ class Dashboard extends Component {
       }
     }
 
+    let originalAdjustment = 0;
     const updatedRows = this.state.rows.map(x => {
       if (x.id === row_id){
+        originalAdjustment = x.adjustment;
         x.adjustment = e.target.value;
       }
 
       return x;
     });
+
+    let {
+      total_forecast,
+      total_adjustment,
+      average_sales,
+      average_return
+    } = this.state;
+
+    if(originalAdjustment > e.target.value){
+      const diferenceBeetwenAdjustments = originalAdjustment - e.target.value;
+      total_adjustment -= diferenceBeetwenAdjustments;
+    } else {
+      const diferenceBeetwenAdjustments = e.target.value - originalAdjustment;
+      total_adjustment += diferenceBeetwenAdjustments;
+    }
 
     await axios
       .patch(
@@ -196,7 +277,12 @@ class Dashboard extends Component {
       ).then(res => {
 
         this.setState({
-          rows: updatedRows
+          rows: updatedRows,
+          total_adjustment: total_adjustment,
+          'cardChartData': this._getCardChartData([
+            total_forecast, total_adjustment, average_sales, average_return]),
+          'cardChartOpts': this._getCardChartOpts([
+            total_forecast, total_adjustment, average_sales, average_return]),
         });
 
         this.getTableRows();
@@ -229,14 +315,9 @@ class Dashboard extends Component {
         const sales = data_response.reduce((a, b) => +a + +b.sale, 0);
         const returns = data_response.reduce((a, b) => +a + +b.refund, 0);
 
-        const cardChartData = this.state.cardChartData
-
-        // ['Sugerido', 'Ajuste', 'Venta Promedio', 'Devolución Promedio'],
-        cardChartData.datasets.data = [prediction, adjustment, sales, returns]
-
         this.setState({
-          'cardChartData': cardChartData,
-          'cardChartOpts': this.state.cardChartOpts,
+          'cardChartData': this._getCardChartData([prediction, adjustment, sales, returns]),
+          'cardChartOpts': this._getCardChartOpts([prediction, adjustment, sales, returns]),
           'rows': data_response,
           'total_forecast': prediction,
           'total_adjustment': adjustment,
@@ -335,7 +416,7 @@ class Dashboard extends Component {
                           <Card className="text-white bg-primary">
                             <CardBody className="pb-0">
                               <div className="text-value">{ this.state.total_forecast }</div>
-                              <div>Predicción total</div>
+                              <div>Sugerido total</div>
                             </CardBody>
                             <div className="chart-wrapper mx-3" style={{ height: '70px' }}>
                               <Line data={this.state.cardChartData} options={this.state.cardChartOpts} height={70} />
