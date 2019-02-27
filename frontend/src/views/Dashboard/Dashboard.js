@@ -234,13 +234,26 @@ class Dashboard extends Component {
       }
     }
 
+    const updatedRows = this.state.rows.map(x => {
+      if (x.id === row_id){
+        x.adjustment = e.target.value;
+      }
+
+      return x;
+    });
+
     await axios
       .patch(
         "api/v2/datasetrows/" + row_id,
         {'adjustment': e.target.value},
         config
       ).then(res => {
-        console.info(res)
+
+        this.setState({
+          rows: updatedRows
+        });
+
+        this.getTableRows();
       })
       .catch(error => {
         console.error(error)
@@ -290,7 +303,6 @@ class Dashboard extends Component {
 
   getTableRows(){
     let tableRows = [];
-
     for(const row of this.state.rows){
       tableRows.push((
         <tr key={"row_" + this.random(row.id)}>
