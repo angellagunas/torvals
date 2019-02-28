@@ -15,6 +15,18 @@ class Product(CatalogueMixin):
         verbose_name_plural = 'products'
 
     organization = models.ForeignKey(Organization)
+
+    price = models.DecimalField(
+        max_digits=19,
+        decimal_places=3,
+        default=0
+    )
+
+    quota = models.IntegerField(
+        default=1,
+        help_text="Cantidad de productos para llenar un corrugado."
+    )
+
     external_id = models.CharField(
         max_length=255,
         verbose_name='external id'

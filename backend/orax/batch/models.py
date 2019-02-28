@@ -6,7 +6,7 @@ from orax.utils.models import CatalogueMixin
 BATCH_TYPE = [
     ('products', 'products'),
     ('routes', 'routes'),
-    ('sales_centers', 'sales_centers'),
+    ('sales_centers', 'sales_centers')
 ]
 
 

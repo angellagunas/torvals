@@ -1,4 +1,5 @@
 """Admin for routes module."""
+import math
 import pandas as pd
 
 from django import forms
@@ -77,11 +78,23 @@ class BatchAdmin(admin.ModelAdmin):
 
             external_id = int(float(_id)) if _id else 'N/A'
 
-            config['model'].objects.create(
-                organization_id=org.id,
-                external_id=external_id,
-                name=row.get(config['name'], 'N/A')
-            )
+            data = {
+                'organization_id': org.id,
+                'external_id': external_id,
+                'name': row.get(config['name'], 'N/A')
+            }
+
+            if obj.type == 'products':
+                price = float(row['price'])
+                price = 0 if math.isnan(price) else price
+
+                quota = float(row['quota'])
+                quota = 0 if math.isnan(quota) else quota
+
+                data['price'] = price
+                data['quota'] = quota
+
+            config['model'].objects.create(**data)
 
 
 admin.site.register(Batch, BatchAdmin)
