@@ -93,9 +93,7 @@ class DatasetAdmin(admin.ModelAdmin):
         # Set property is_main to all datasets. The new dataset should be only
         # one with this property as True.
         #
-        Dataset.objects.filter(
-            is_main=True
-        ).update(is_main=False)
+        Dataset.objects.filter(is_main=True).update(is_main=False)
 
         #
         # The new dataset always be main dataset.
@@ -103,15 +101,19 @@ class DatasetAdmin(admin.ModelAdmin):
         obj.is_main = True
 
         #
-        # Open the new dataset file.
-        #
-        original_file = pd.read_csv(obj.file, sep=',', index_col=False)
-        file = original_file[original_file['date'] == '2019-02-28']
-
-        #
         # Execute the normal flow of admin save.
         #
         super(DatasetAdmin, self).save_model(request, obj, form, change)
+
+        #
+        # Open the new dataset file.
+        #
+        original_file = pd.read_csv(obj.file, sep=',', index_col=False)
+
+        #
+        # Take only the rows with date equals adjustment date.
+        #
+        file = original_file[original_file['date'] == str(obj.date_adjustment)]
 
         #
         # Get the new dataset, the last organization and project.
@@ -149,9 +151,30 @@ class DatasetAdmin(admin.ModelAdmin):
         # Save all dataset rows.
         #
         for index, row in file.iterrows():
-            product_id = products_dict[str(row['product_id'])]
-            route_id = routes_dict[str(row['cod_ruta_id'])]
-            sale_center_id = sales_centers_dict[str(row['cod_agencia_id'])]
+            product_id = self._get_or_create(
+                'product_id',
+                row,
+                products_dict,
+                Product,
+                org
+            )
+
+            route_id = self._get_or_create(
+                'cod_ruta_id',
+                row,
+                routes_dict,
+                Route,
+                org
+            )
+
+            sale_center_id = self._get_or_create(
+                'cod_agencia_id',
+                row,
+                sales_centers_dict,
+                SaleCenter,
+                org
+            )
+
             date = datetime.strptime(row['date'], "%Y-%m-%d").date()
 
             sale = float(row['last_8wk_avg_sales_units'])
@@ -183,11 +206,22 @@ class DatasetAdmin(admin.ModelAdmin):
                 )
             except Exception as e:
                 print(row)
-                print('*************************')
-                print(prediction)
-                print(adjustment)
                 print(e)
                 raise e
 
+    def _get_or_create(self, key, row, dict_data, model, org):
+        external_id = str(row[key])
+        internal_id = dict_data.get(external_id, None)
+
+        if not internal_id:
+            obj = model.objects.create(
+                external_id=external_id,
+                organization=org,
+                name='nan'
+            )
+
+            internal_id = obj.id
+
+        return internal_id
 
 admin.site.register(Dataset, DatasetAdmin)

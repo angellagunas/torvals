@@ -9,7 +9,7 @@ class DatasetRowsAdmin(admin.ModelAdmin):
 
     model = DatasetRow
     list_display = [
-        'get_product_name',
+        'product',
         'sale_center',
         'route',
         'prediction',
@@ -19,10 +19,6 @@ class DatasetRowsAdmin(admin.ModelAdmin):
         'date'
     ]
     search_fields = ['product']
-
-    def get_product_name(self, obj):
-        """Return product name."""
-        return obj.product.name
 
     def get_queryset(self, request):
         """Overwrite queryset."""

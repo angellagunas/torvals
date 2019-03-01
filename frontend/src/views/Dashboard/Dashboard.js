@@ -61,6 +61,11 @@ class Dashboard extends Component {
       average_sales: 0,
       average_return: 0,
 
+      total_forecast_money: 0,
+      total_adjustment_money: 0,
+      average_sales_money: 0,
+      average_return_money: 0,
+
       // table data
       rows: [],
       tableRows: [],
@@ -245,10 +250,13 @@ class Dashboard extends Component {
     }
 
     let originalAdjustment = 0;
+    let priceOfProductUpdated = 0;
     const updatedRows = this.state.rows.map(x => {
       if (x.id === row_id){
         originalAdjustment = x.adjustment;
         x.adjustment = e.target.value;
+
+        priceOfProductUpdated = x.product.price;
       }
 
       return x;
@@ -258,15 +266,21 @@ class Dashboard extends Component {
       total_forecast,
       total_adjustment,
       average_sales,
-      average_return
+      average_return,
+
+      total_adjustment_money,
     } = this.state;
 
     if(originalAdjustment > e.target.value){
       const diferenceBeetwenAdjustments = originalAdjustment - e.target.value;
       total_adjustment -= diferenceBeetwenAdjustments;
+
+      total_adjustment_money -= (diferenceBeetwenAdjustments * priceOfProductUpdated);
     } else {
       const diferenceBeetwenAdjustments = e.target.value - originalAdjustment;
       total_adjustment += diferenceBeetwenAdjustments;
+
+      total_adjustment_money += (diferenceBeetwenAdjustments * priceOfProductUpdated);
     }
 
     await axios
@@ -278,6 +292,7 @@ class Dashboard extends Component {
 
         this.setState({
           rows: updatedRows,
+          total_adjustment_money: total_adjustment_money,
           total_adjustment: total_adjustment,
           'cardChartData': this._getCardChartData([
             total_forecast, total_adjustment, average_sales, average_return]),
@@ -315,14 +330,25 @@ class Dashboard extends Component {
         const sales = data_response.reduce((a, b) => +a + +b.sale, 0);
         const returns = data_response.reduce((a, b) => +a + +b.refund, 0);
 
+        const forecast_money = data_response.reduce((a, b) => +a + +(b.prediction * b.product.price), 0);
+        const adjustment_money = data_response.reduce((a, b) => +a + +(b.adjustment * b.product.price), 0);
+        const sales_money = data_response.reduce((a, b) => +a + +(b.sale * b.product.price), 0);
+        const return_money = data_response.reduce((a, b) => +a + +(b.refund * b.product.price), 0);
+
         this.setState({
           'cardChartData': this._getCardChartData([prediction, adjustment, sales, returns]),
           'cardChartOpts': this._getCardChartOpts([prediction, adjustment, sales, returns]),
           'rows': data_response,
+
           'total_forecast': prediction,
           'total_adjustment': adjustment,
           'average_sales': sales,
-          'average_return': returns
+          'average_return': returns,
+
+          'total_forecast_money': forecast_money,
+          'total_adjustment_money': adjustment_money,
+          'average_sales_money': sales_money,
+          'average_return_money': return_money
         });
       })
       .catch(error => {
@@ -354,6 +380,23 @@ class Dashboard extends Component {
           <td key={"cell_adjustment_" + i} className="text-center justify-content-center align-items-center" style={{ width: 80 + 'px' }}>
             <Input tabIndex={i + 1} type="text" id="input3-group2" name="input3-group2" defaultValue={row.adjustment} onBlur={(e) => {this.handleChange(e, row.id)}} />
           </td>
+          <td key={"cell_suggest_corr_" + i} className="text-center">
+            <div>
+              <strong>{ Math.round(row.adjustment / row.product.quota) }</strong>
+            </div>
+          </td>
+          <td key={"cell_percentage_" + i} className="text-center">
+            <div>
+              <strong>
+                {this.percentage(this.state.rows[i].prediction, this.state.rows[i].adjustment) } %
+              </strong>
+            </div>
+          </td>
+          <td key={"cell_quota" + i} className="text-center">
+            <div>
+              <strong>{ row.product.quota }</strong>
+            </div>
+          </td>
           <td key={"cell_devolucion_" + i} className="text-center">
             <div>
               <strong>{row.refund || 0}</strong>
@@ -362,13 +405,6 @@ class Dashboard extends Component {
           <td key={"cell_venta_" + i} className="text-center">
             <div>
               <strong>{row.sale || 0}</strong>
-            </div>
-          </td>
-          <td key={"cell_percentage_" + i} className="text-center">
-            <div>
-              <strong>
-                {this.percentage(this.state.rows[i].prediction, this.state.rows[i].adjustment) } %
-              </strong>
             </div>
           </td>
         </tr>
@@ -409,7 +445,9 @@ class Dashboard extends Component {
                         <Col xs={{ size: 12, offset: 0 }} sm={{ size: 6, offset: 0 }} md={{ size: 3 }} lg={{ size: 3 }}>
                           <Card className="text-white bg-primary">
                             <CardBody className="pb-0">
-                              <div className="text-value">{ this.state.total_forecast }</div>
+                              <div className="text-value">
+                                { this.state.total_forecast + ' - $' + this.state.total_forecast_money }
+                              </div>
                               <div>Sugerido total</div>
                             </CardBody>
                             <div className="chart-wrapper mx-3" style={{ height: '70px' }}>
@@ -421,7 +459,9 @@ class Dashboard extends Component {
                         <Col xs={{ size: 12, offset: 0 }} sm={{ size: 6, offset: 0 }} md={{ size: 3 }} lg={{ size: 3 }}>
                           <Card className="text-white bg-primary">
                             <CardBody className="pb-0">
-                              <div className="text-value">{ this.state.total_adjustment }</div>
+                              <div className="text-value">
+                                { this.state.total_adjustment +' - $' + this.state.total_adjustment_money }
+                              </div>
                               <div>Ajuste Total</div>
                             </CardBody>
                             <div className="chart-wrapper mx-3" style={{ height: '70px' }}>
@@ -433,7 +473,9 @@ class Dashboard extends Component {
                         <Col xs={{ size: 12, offset: 0 }} sm={{ size: 6, offset: 0 }} md={{ size: 3 }} lg={{ size: 3 }}>
                           <Card className="text-white bg-primary">
                             <CardBody className="pb-0">
-                              <div className="text-value">{ this.state.average_sales }</div>
+                              <div className="text-value">
+                                { this.state.average_sales +' - $' + this.state.average_sales_money }
+                              </div>
                               <div>Venta Promedio Total</div>
                             </CardBody>
                             <div className="chart-wrapper mx-3" style={{ height: '70px' }}>
@@ -445,7 +487,9 @@ class Dashboard extends Component {
                         <Col xs={{ size: 12, offset: 0 }} sm={{ size: 6, offset: 0 }} md={{ size: 3 }} lg={{ size: 3 }}>
                           <Card className="text-white bg-primary">
                             <CardBody className="pb-0">
-                              <div className="text-value">{ this.state.average_return }</div>
+                              <div className="text-value">
+                                { this.state.average_return + ' - $' + this.state.average_return_money }
+                              </div>
                               <div>Devolución Promedio Total</div>
                             </CardBody>
                             <div className="chart-wrapper mx-3" style={{ height: '70px' }}>
@@ -509,13 +553,19 @@ class Dashboard extends Component {
                           Ajuste
                         </th>
                         <th className="text-center">
+                          Corrugados
+                        </th>
+                        <th className="text-center">
+                          % Ajustado
+                        </th>
+                        <th className="text-center">
+                          Cupos
+                        </th>
+                        <th className="text-center">
                           Dev. Prom
                         </th>
                         <th className="text-center">
                           Vta. Prom
-                        </th>
-                        <th className="text-center">
-                          Porcentaje Ajustado
                         </th>
                       </tr>
                     </thead>
