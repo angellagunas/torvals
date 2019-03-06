@@ -25,28 +25,27 @@ class Dashboard extends Component {
   constructor(props) {
     super(props);
 
-    this.toggle = this.toggle.bind(this);
+    // load data from API
     this.loadData = this.loadData.bind(this);
+
+    // is executed when user make adjustment
     this.handleChange = this.handleChange.bind(this);
+
+    // take the search query an filter data.
     this.handleSearch = this.handleSearch.bind(this);
+
+    // calculate graph data in indicators.
     this._getCardChartData = this._getCardChartData.bind(this);
 
+    // calculate the percentage changed of adjustment.
     this.percentage = this.percentage.bind(this)
 
     // colapse
     this.toggleCustom = this.toggleCustom.bind(this);
 
     this.state = {
-      dropdownOpen: false,
-      radioSelected: 2,
-
       // colapse vars
-      collapse: false,
-      accordion: [true, false, false],
       indicadorsCollapsed: false,
-      status: 'Closed',
-      fadeIn: true,
-      timeout: 300,
 
       // user data
       user_email: "",
@@ -68,7 +67,6 @@ class Dashboard extends Component {
 
       // table data
       rows: [],
-      tableRows: [],
 
       // Card Chart
       cardChartData: {
@@ -125,7 +123,6 @@ class Dashboard extends Component {
           },
         }
       }
-
 
     };
   }
@@ -217,12 +214,6 @@ class Dashboard extends Component {
     }
 
     return Math.round(percentage);
-  }
-
-  toggle() {
-    this.setState({
-      dropdownOpen: !this.state.dropdownOpen,
-    });
   }
 
   handleSearch(event){
@@ -325,6 +316,7 @@ class Dashboard extends Component {
       .then(res => {
         const data_response = res.data.results;
 
+        // hacemos sumatoria para los indicadores
         const prediction = data_response.reduce((a, b) => +a + +b.prediction, 0);
         const adjustment = data_response.reduce((a, b) => +a + +b.adjustment, 0);
         const sales = data_response.reduce((a, b) => +a + +b.sale, 0);
@@ -525,7 +517,7 @@ class Dashboard extends Component {
                           <InputGroup>
                               <Input type="text" id="input3-group2" name="input3-group2" placeholder="Search" onChange={this.handleSearch} />
                               <InputGroupAddon addonType="append">
-                                <Button type="button" color="primary">
+                                <Button type="button" color="primary" onClick={this.loadData}>
                                   <i className="fa fa-search"></i>
                                 </Button>
                               </InputGroupAddon>
