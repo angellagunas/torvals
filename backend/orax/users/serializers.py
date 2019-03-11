@@ -7,25 +7,6 @@ from orax.routes.serializers import RouteSerializer
 from orax.sales_centers.serializers import SaleCenterSerializer
 
 
-class MeSerializer(serializers.ModelSerializer):
-    """Manage the info in /me endpoint."""
-
-    route = RouteSerializer()
-    agency = SaleCenterSerializer()
-
-    class Meta:
-        """Define behavior of class."""
-
-        model = User
-        fields = [
-            'id',
-            'email',
-            'name',
-            'route',
-            'agency'
-        ]
-
-
 class AuthSerializer(serializers.Serializer):
     """Serializer for Auth API when POST method is used."""
 
