@@ -1,8 +1,60 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
 import { Button, Card, CardBody, CardGroup, Col, Container, Form, Input, InputGroup, InputGroupAddon, InputGroupText, Row } from 'reactstrap';
+import axios from "axios";
+
 
 class Login extends Component {
+
+  constructor(props){
+    super(props);
+    this.login = this.login.bind(this);
+    this.state = {
+      'email': '',
+      'password': ''
+    }
+
+    this.handleEmail = this.handleEmail.bind(this)
+    this.handlePassword = this.handlePassword.bind(this)
+  }
+
+  componentWillMount(){
+    const jwt = window.localStorage.getItem('jwt');
+    if(jwt){
+      this.props.history.push('/dashboard')
+    }
+  }
+
+  handleEmail(event){
+    this.setState({
+      email: event.target.value
+    })
+  }
+
+  handlePassword(event){
+    this.setState({
+      password: event.target.value
+    })
+  }
+
+  async login(event){
+      event.preventDefault();
+
+      await axios
+      .post("api/v2/auth", this.state)
+      .then(res => {
+        window.localStorage.setItem('jwt', res.data.token);
+        window.localStorage.setItem('profile', res.data.email);
+        window.localStorage.setItem('route', res.data.route.externalId);
+        window.localStorage.setItem('agency', res.data.agency.externalId);
+
+        this.props.history.push('/dashboard');
+      })
+      .catch(error => {
+        alert('Usuario no valido.')
+        console.error(error)
+      });
+  }
+
   render() {
     return (
       <div className="app flex-row align-items-center">
@@ -12,16 +64,16 @@ class Login extends Component {
               <CardGroup>
                 <Card className="p-4">
                   <CardBody>
-                    <Form>
+                    <Form onSubmit={this.login} autoComplete="off">
                       <h1>Login</h1>
-                      <p className="text-muted">Sign In to your account</p>
+                      <p className="text-muted">Accede a tu cuenta.</p>
                       <InputGroup className="mb-3">
                         <InputGroupAddon addonType="prepend">
                           <InputGroupText>
                             <i className="icon-user"></i>
                           </InputGroupText>
                         </InputGroupAddon>
-                        <Input type="text" placeholder="Username" autoComplete="username" />
+                        <Input autoComplete="off" id="email" type="email" placeholder="Email" onChange={this.handleEmail}/>
                       </InputGroup>
                       <InputGroup className="mb-4">
                         <InputGroupAddon addonType="prepend">
@@ -29,14 +81,13 @@ class Login extends Component {
                             <i className="icon-lock"></i>
                           </InputGroupText>
                         </InputGroupAddon>
-                        <Input type="password" placeholder="Password" autoComplete="current-password" />
+                        <Input autoComplete="off" id="password" type="password" placeholder="Password" onChange={this.handlePassword}/>
                       </InputGroup>
                       <Row>
-                        <Col xs="6">
-                          <Button color="primary" className="px-4">Login</Button>
-                        </Col>
-                        <Col xs="6" className="text-right">
-                          <Button color="link" className="px-0">Forgot password?</Button>
+                        <Col xs={{ size: 4, offset: 8 }}>
+                          <Button color="primary" className="px-4">
+                            Login
+                          </Button>
                         </Col>
                       </Row>
                     </Form>
@@ -45,12 +96,8 @@ class Login extends Component {
                 <Card className="text-white bg-primary py-5 d-md-down-none" style={{ width: '44%' }}>
                   <CardBody className="text-center">
                     <div>
-                      <h2>Sign up</h2>
-                      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut
-                        labore et dolore magna aliqua.</p>
-                      <Link to="/register">
-                        <Button color="primary" className="mt-3" active tabIndex={-1}>Register Now!</Button>
-                      </Link>
+                      <h2>Bienvenido a Orax.</h2>
+                      <p>Behaviour intelligence for your bussines</p>
                     </div>
                   </CardBody>
                 </Card>

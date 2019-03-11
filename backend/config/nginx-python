@@ -1,0 +1,16 @@
+server {
+    listen 8000;
+    server_name localhost;
+    client_max_body_size 75M;
+
+    access_log /var/log/nginx/pow_access.log;
+    error_log /var/log/nginx/pow_error.log;
+
+    location /static {
+        alias /orax/static;
+    }
+
+    location / {
+        proxy_pass  http://localhost:8001;
+    }
+}

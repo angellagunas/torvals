@@ -6,16 +6,9 @@ import {
   AppAside,
   AppBreadcrumb,
   AppFooter,
-  AppHeader,
-  AppSidebar,
-  AppSidebarFooter,
-  AppSidebarForm,
-  AppSidebarHeader,
-  AppSidebarMinimizer,
-  AppSidebarNav,
+  AppHeader
 } from '@coreui/react';
-// sidebar nav config
-import navigation from '../../_nav';
+
 // routes config
 import routes from '../../routes';
 
@@ -27,8 +20,19 @@ class DefaultLayout extends Component {
 
   loading = () => <div className="animated fadeIn pt-1 text-center">Loading...</div>
 
+  componentWillMount(){
+    const jwt = window.localStorage.getItem('jwt');
+    if(!jwt){
+      this.props.history.push('/login')
+    }
+  }
+
   signOut(e) {
     e.preventDefault()
+    window.localStorage.removeItem('jwt')
+    window.localStorage.removeItem('profile')
+    window.localStorage.removeItem('route')
+    window.localStorage.removeItem('agency')
     this.props.history.push('/login')
   }
 
@@ -41,15 +45,6 @@ class DefaultLayout extends Component {
           </Suspense>
         </AppHeader>
         <div className="app-body">
-          <AppSidebar fixed display="lg">
-            <AppSidebarHeader />
-            <AppSidebarForm />
-            <Suspense>
-            <AppSidebarNav navConfig={navigation} {...this.props} />
-            </Suspense>
-            <AppSidebarFooter />
-            <AppSidebarMinimizer />
-          </AppSidebar>
           <main className="main">
             <AppBreadcrumb appRoutes={routes}/>
             <Container fluid>

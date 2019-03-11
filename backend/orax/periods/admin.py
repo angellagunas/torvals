@@ -1,0 +1,1 @@
+"""Admin for organizations module."""
