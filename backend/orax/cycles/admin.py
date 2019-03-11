@@ -1,0 +1,1 @@
+"""Admin for cycles module."""

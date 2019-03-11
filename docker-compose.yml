@@ -1,20 +1,10 @@
 version: '2.3'
 services:
-  admin:
-    restart: always
-    build:
-      context: .
-      dockerfile: DockerfileNginxAdmin
-    ports:
-      - "3001:80"
-    cpu_shares: 50
-    mem_limit: 1000M
-    mem_reservation: 500m
   web:
     restart: always
     build:
-      context: .
-      dockerfile: DockerfileNginxApp
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
       - "3002:80"
     cpu_shares: 50
@@ -22,63 +12,23 @@ services:
     mem_reservation: 500m
     env_file:
       - .env
-  api:
-    restart: always
-    build: .
-    ports:
-     - "3000:3000"
-    links:
-      - mongodb
-      - redisdb
-    depends_on:
-      - mongodb
-      - redisdb
-    cpu_shares: 1200
-    cpus: 12
-    mem_limit: 32000M
-    mem_reservation: 16000m
-    env_file:
-      - .env
-    volumes:
-      - /data/db:/data/db
-      - /data/media/uploads:/app/media/uploads
   python:
     restart: always
     build:
-      context: .
-      dockerfile: DockerfilePython
+      context: ./backend
+      dockerfile: Dockerfile
     ports:
      - "8000:8000"
     links:
-      - mongodb
       - redisdb
+      - postgresdb
     depends_on:
-      - mongodb
       - redisdb
-    cpu_shares: 200
+      - postgresdb
+    cpu_shares: 20
     cpus: 2
-    mem_limit: 6000M
+    mem_limit: 5000M
     mem_reservation: 2000m
-    env_file:
-      - .env
-    volumes:
-      - /data/db:/data/db
-      - /data/media/uploads:/app/media/uploads
-  queues:
-    restart: always
-    build:
-      context: .
-      dockerfile: DockerfileQueues
-    links:
-      - mongodb
-      - redisdb
-    depends_on:
-      - mongodb
-      - redisdb
-    cpu_shares: 800
-    cpus: 8
-    mem_limit: 16000M
-    mem_reservation: 10000m
     env_file:
       - .env
     volumes:
@@ -89,23 +39,22 @@ services:
     image: "redis:alpine"
     ports:
       - "6379:6379"
-    cpu_shares: 200
-    cpus: 2
-    mem_limit: 16000M
-    mem_reservation: 8000m
-  mongodb:
+    cpu_shares: 100
+    cpus: 1
+    mem_limit: 1000M
+    mem_reservation: 1000m
+  postgresdb:
     restart: always
-    image: mongo:3.6.3
-    container_name: "mongodb"
-    environment:
-      - MONGO_DATA_DIR=/data/db
-      - MONGO_LOG_DIR=/dev/null
-    volumes:
-      - /data/db:/data/db
+    image: "postgres:11.1-alpine"
     ports:
-        - 27017:27017
-    cpu_shares: 2400
-    cpus: 16
-    mem_limit: 50000M
-    mem_reservation: 32000m
-    command: mongod --smallfiles --logpath=/dev/null --wiredTigerCacheSizeGB 24 # --quiet
+      - "5432:5432"
+    cpu_shares: 100
+    cpus: 1
+    mem_limit: 6000M
+    mem_reservation: 1000m
+    environment:
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_USER: postgres
+        POSTGRES_DB: orax
+    volumes:
+      - /data/postgres:/var/lib/postgresql/data:Z

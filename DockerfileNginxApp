@@ -1,7 +1,0 @@
-FROM grupoabraxas/nginx-spa:latest
-
-MAINTAINER rrodriguez@grupoabraxas.com
-
-ADD ./app/dist/index.html /usr/share/nginx/html
-ADD ./app/dist /usr/share/nginx/html/assets
-ADD ./app/public /usr/share/nginx/html/app/public

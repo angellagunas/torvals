@@ -1,0 +1,82 @@
+"""User API."""
+from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
+
+from rest_framework import status
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+
+from soft_drf.api import mixins
+from soft_drf.api.viewsets import GenericViewSet
+from soft_drf.routing.v1.routers import router
+from soft_drf.api.routers.single import SingleObjectRouter
+
+from orax.users import serializers
+
+# User model
+User = get_user_model()
+
+
+class AuthViewSet(GenericViewSet):
+    """Manage the Authentication process."""
+
+    serializer_class = serializers.AuthSerializer
+    create_serializer_class = serializers.AuthSerializer
+    retrieve_serializer_class = serializers.AuthResponseSerializer
+
+    queryset = User.objects.all()
+
+    permission_classes = [AllowAny]
+
+    def get_object(self, email):
+        """Return the user with given email."""
+        queryset = self.get_queryset()
+        return get_object_or_404(queryset, email=email)
+
+    def create(self, request, *args, **kwargs):
+        """User login with local credentials."""
+        login_serializer = self.get_serializer(
+            data=request.data,
+            action='create'
+        )
+
+        validation_response = login_serializer.is_valid(raise_exception=True)
+
+        if validation_response:
+            user = self.get_object(login_serializer.data['email'])
+
+            response_serializer = self.get_serializer(
+                user,
+                action='retrieve'
+            )
+
+            return Response(response_serializer.data)
+        return Response(
+            login_serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+
+class MeViewSet(mixins.RetrieveModelMixin, GenericViewSet):
+    """Manage the profile process."""
+
+    serializer_class = serializers.MeSerializer
+    retrieve_serializer_class = serializers.MeSerializer
+
+    def get_object(self):
+        """Get the user in session."""
+        return self.request.user
+
+
+router.register(
+    r'auth',
+    AuthViewSet,
+    base_name="auth",
+)
+
+router.register(
+    r'auth/me',
+    MeViewSet,
+    base_name="auth/me",
+    router_class=SingleObjectRouter
+)
