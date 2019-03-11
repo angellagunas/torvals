@@ -8,7 +8,7 @@ class CustomUserAdmin(UserAdmin):
     """Admin for user."""
 
     ordering = ['email']
-    list_display = ['email', 'name', 'is_active', 'route']
+    list_display = ['email', 'name', 'is_active']
     exclude = ['first_name', 'last_name', 'username', 'date_joined']
 
     list_filter = ['is_staff', 'is_superuser', 'is_active', 'groups']

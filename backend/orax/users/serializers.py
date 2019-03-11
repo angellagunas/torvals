@@ -3,7 +3,6 @@ from rest_framework import serializers
 
 from orax.users.models import User
 from orax.utils.tokens import create_token
-from orax.routes.serializers import RouteSerializer
 from orax.sales_centers.serializers import SaleCenterSerializer
 
 
@@ -40,7 +39,6 @@ class AuthResponseSerializer(serializers.ModelSerializer):
     """Serializer for Auth API when GET method is used."""
 
     token = serializers.SerializerMethodField()
-    route = RouteSerializer()
     agency = SaleCenterSerializer()
 
     class Meta:
@@ -50,7 +48,6 @@ class AuthResponseSerializer(serializers.ModelSerializer):
         fields = [
             'token',
             'email',
-            'route',
             'agency'
         ]
 

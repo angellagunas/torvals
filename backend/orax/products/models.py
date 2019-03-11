@@ -2,7 +2,6 @@
 from django.db import models
 
 from orax.utils.models import CatalogueMixin
-from orax.organizations.models import Organization
 
 
 class Product(CatalogueMixin):
@@ -13,8 +12,6 @@ class Product(CatalogueMixin):
 
         verbose_name = 'product'
         verbose_name_plural = 'products'
-
-    organization = models.ForeignKey(Organization)
 
     price = models.DecimalField(
         max_digits=19,

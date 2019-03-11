@@ -5,9 +5,7 @@ import pandas as pd
 from django import forms
 from django.contrib import admin
 from orax.batch.models import Batch
-from orax.organizations.models import Organization
 from orax.products.models import Product
-from orax.routes.models import Route
 from orax.sales_centers.models import SaleCenter
 
 
@@ -30,17 +28,11 @@ class BatchAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         """Save instance."""
-        org = Organization.objects.latest('created_date')
         model_config = {
             'products': {
                 'id': 'product_id',
                 'name': 'product_name',
                 'model': Product
-            },
-            'routes': {
-                'id': 'route_id',
-                'name': 'route_name',
-                'model': Route
             },
             'sales_centers': {
                 'id': 'sale_center_id',
@@ -79,7 +71,6 @@ class BatchAdmin(admin.ModelAdmin):
             external_id = int(float(_id)) if _id else 'N/A'
 
             data = {
-                'organization_id': org.id,
                 'external_id': external_id,
                 'name': row.get(config['name'], 'N/A')
             }

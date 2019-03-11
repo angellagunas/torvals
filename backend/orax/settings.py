@@ -45,17 +45,10 @@ LOCAL_APPS = [
     'orax.utils',
     'orax.batch',
     'orax.datasets',
-    'orax.projects',
-    'orax.channels',
-    'orax.cycles',
-    'orax.datasetrows',
-    'orax.organizations',
-    'orax.periods',
     'orax.products',
-    'orax.rules',
-    'orax.routes',
+    'orax.projects',
     'orax.sales_centers',
-    'orax.users'
+    'orax.users',
 ]
 
 INSTALLED_APPS += LOCAL_APPS
@@ -100,16 +93,11 @@ WSGI_APPLICATION = 'orax.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.environ.get('POSTGRES_DB', 'orax'),
+        'NAME': os.environ.get('POSTGRES_DB', 'bec'),
         'USER': os.environ.get('POSTGRES_USER', 'postgres'),
         'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'postgres'),
         'HOST': os.environ.get('POSTGRES_HOST', 'localhost'),
         'PORT': os.environ.get('POSTGRES_PORT', '5432'),
-    },
-    'mongo': {
-        'NAME': os.environ['MONGO_DB'] if not DEBUG else 'marble-seeds-db',
-        'HOST': os.environ['MONGO_HOST'] if not DEBUG else '127.0.0.1',
-        'PORT': int(os.environ['MONGO_PORT']) if not DEBUG else 27017
     }
 }
 

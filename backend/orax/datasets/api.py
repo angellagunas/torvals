@@ -1,65 +1,52 @@
-from rest_framework import status
-from rest_framework.exceptions import NotFound, ValidationError
-from rest_framework.response import Response
+"""API for datasetrows."""
+from django.db.models import Q
 
 from soft_drf.api import mixins
 from soft_drf.api.viewsets import GenericViewSet
 from soft_drf.routing.v1.routers import router
 
-from orax.datasets.serializers import graph
-from orax.utils.connections import Mongo
-from orax.utils.cache import Cache
+from orax.datasets import serializers
+from orax.datasets.models import Dataset, DatasetRow
 
 
-class DatasetGraphViewSet(mixins.CreateModelMixin, GenericViewSet):
+class DatasetrowViewSet(
+        mixins.ListModelMixin,
+        mixins.PartialUpdateModelMixin,
+        GenericViewSet):
+    """Manage datasetrows endpoints."""
 
-    serializer_class = graph.DatasetGraphSerializer
-    retrieve_serializer_class = graph.DatasetGraphRetrieveSerializer
-    create_serializer_class = graph.DatasetGraphSerializer
-    queryset = []
+    serializer_class = serializers.DatasetrowSerializer
+    list_serializer_class = serializers.DatasetrowSerializer
+    retrieve_serializer_class = serializers.DatasetrowUpdateSerializer
+    update_serializer_class = serializers.DatasetrowUpdateSerializer
 
-    def create(self, request, *args, **kwargs):
-        self._validate(request, *args, **kwargs)
+    def get_queryset(self):
+        """Return the universe of objects in API."""
+        route = self.request.user.route
+        agency = self.request.user.agency
+        query_params = self.request.GET.get('q', None)
 
-        key_cache = str(Cache.get_key_from_request(request, *args, **kwargs))
+        dataset = Dataset.objects.get(is_main=True)
 
-        if(Cache.exists(key_cache)):
-            return Response(Cache.get(key_cache))
-
-        data = request.data
-        data['centro_de_venta'] = data['centro-de-venta']
-        del data['centro-de-venta']
-
-        create_serializer = self.get_serializer(
-            data=data,
-            action='create'
+        queryset = DatasetRow.objects.filter(
+            is_active=True,
+            route=route,
+            sale_center=agency,
+            dataset=dataset,
+            date=dataset.date_adjustment
         )
-        create_serializer.is_valid(raise_exception=True)
 
-        try:
-            data = create_serializer.save()
-            Cache.set(key_cache, data)
+        if query_params:
+            queryset = queryset.filter(
+                Q(product__name__icontains=query_params) |
+                Q(product__external_id__icontains=query_params)
+            )
 
-            return Response(data)
-        except Exception as e:
-            print(e)
-            return Response({})
-
-    def _validate(self, request, *args, **kwargs):
-        dataset = Mongo().datasets.find_one({
-            'uuid': kwargs.get('uuid'),
-            'isDeleted': False
-        })
-
-        if dataset is None:
-            raise NotFound()
-
-        if 'centro-de-venta' not in request.data:
-            raise ValidationError({'centro-de-venta': ['This field is required.']})
+        return queryset.order_by('-prediction')
 
 
 router.register(
-    r"datasets/sales/(?P<uuid>[0-9A-Fa-f-]+)",
-    DatasetGraphViewSet,
-    base_name="datasets/graph",
+    r"datasetrows",
+    DatasetrowViewSet,
+    base_name="datasetrows",
 )

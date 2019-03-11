@@ -12,7 +12,6 @@ from rest_framework.authentication import (
 )
 from rest_framework_jwt.settings import api_settings
 
-from orax.utils.connections import Mongo
 from orax.users.models import User
 
 

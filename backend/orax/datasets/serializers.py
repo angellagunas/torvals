@@ -1,9 +1,7 @@
 """Serializer for Dataset rows API."""
 from rest_framework import serializers
 
-from orax.datasetrows.models import DatasetRow
-from orax.channels.serializers import ChannelSerializer
-from orax.periods.serializers import PeriodSerializer
+from orax.datasets.models import DatasetRow
 from orax.products.serializers import ProductSerializer
 from orax.sales_centers.serializers import SaleCenterSerializer
 
@@ -11,10 +9,8 @@ from orax.sales_centers.serializers import SaleCenterSerializer
 class DatasetrowSerializer(serializers.ModelSerializer):
     """Serializer for Datasetrows API when GET method is used."""
 
-    channel = ChannelSerializer()
     product = ProductSerializer()
     sale_center = SaleCenterSerializer()
-    period = PeriodSerializer()
 
     class Meta:
         """Define the behavior of Serializer."""
@@ -23,11 +19,9 @@ class DatasetrowSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'product',
-            'channel',
             'sale_center',
             'prediction',
             'adjustment',
-            'period',
             'sale',
             'refund',
             'date'
@@ -35,7 +29,7 @@ class DatasetrowSerializer(serializers.ModelSerializer):
 
 
 class DatasetrowUpdateSerializer(serializers.ModelSerializer):
-    """Serializer for Elasticity API when PATCH method is used."""
+    """Serializer for Datasetrows API when PATCH method is used."""
 
     class Meta:
         """Define the behavior of Serializer."""
