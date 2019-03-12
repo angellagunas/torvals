@@ -71,7 +71,7 @@ class User(AbstractBaseUser, PermissionsMixin, TimeStampedMixin):
     )
 
     is_active = models.BooleanField(
-        default=False
+        default=True
     )
 
     sale_center = models.ForeignKey(

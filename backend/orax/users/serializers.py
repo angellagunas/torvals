@@ -39,7 +39,7 @@ class AuthResponseSerializer(serializers.ModelSerializer):
     """Serializer for Auth API when GET method is used."""
 
     token = serializers.SerializerMethodField()
-    agency = SaleCenterSerializer()
+    sale_center = SaleCenterSerializer()
 
     class Meta:
         """Define the behavior of Serializer."""
@@ -48,7 +48,7 @@ class AuthResponseSerializer(serializers.ModelSerializer):
         fields = [
             'token',
             'email',
-            'agency'
+            'sale_center'
         ]
 
     def get_token(self, obj):

@@ -110,10 +110,9 @@ class DatasetAdmin(admin.ModelAdmin):
         file = original_file[original_file['fecha_de_venta'] == str(obj.date_adjustment)]
 
         #
-        # Get the new dataset, the last project.
+        # Get the new dataset.
         #
         dataset = Dataset.objects.order_by('-created_date')[0]
-        project = Project.objects.order_by('-created_date')[0]
 
         products = Product.objects.filter(is_active=True)
         sales_centers = SaleCenter.objects.filter(is_active=True)
@@ -166,7 +165,6 @@ class DatasetAdmin(admin.ModelAdmin):
             try:
                 DatasetRow.objects.create(
                     dataset_id=dataset.id,
-                    project_id=project.id,
                     product_id=product_id,
                     sale_center_id=sale_center_id,
                     prediction=prediction,

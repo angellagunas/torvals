@@ -22,8 +22,6 @@ class DatasetrowSerializer(serializers.ModelSerializer):
             'sale_center',
             'prediction',
             'adjustment',
-            'sale',
-            'refund',
             'date'
         ]
 

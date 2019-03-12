@@ -22,16 +22,14 @@ class DatasetrowViewSet(
 
     def get_queryset(self):
         """Return the universe of objects in API."""
-        route = self.request.user.route
-        agency = self.request.user.agency
+        sale_center = self.request.user.sale_center
         query_params = self.request.GET.get('q', None)
 
         dataset = Dataset.objects.get(is_main=True)
 
         queryset = DatasetRow.objects.filter(
             is_active=True,
-            route=route,
-            sale_center=agency,
+            sale_center=sale_center,
             dataset=dataset,
             date=dataset.date_adjustment
         )

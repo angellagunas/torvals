@@ -134,11 +134,9 @@ class Dashboard extends Component {
     }
 
     const profile = window.localStorage.getItem('profile');
-    const route = window.localStorage.getItem('route');
-    const agency = window.localStorage.getItem('agency');
+    const sale_center = window.localStorage.getItem('sale_center');
     this.setState({user_email: profile})
-    this.setState({user_route: route})
-    this.setState({user_agency: agency})
+    this.setState({user_sale_center: sale_center})
     this.loadData()
   }
 
@@ -504,7 +502,7 @@ class Dashboard extends Component {
                 <Row>
                   <Col xs="12" sm="12" md="5">
                     <CardTitle className="mb-0">
-                      Ruta {this.state.user_route} - Agencia {this.state.user_agency}
+                      Centro de Venta {this.state.user_sale_center}
                     </CardTitle>
                     <div className="small text-muted">
                       Pedido sugerido para el 28 de Febrero del 2019

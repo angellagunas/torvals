@@ -35,3 +35,7 @@ class Project(CatalogueMixin):
         max_length=255,
         verbose_name='description'
     )
+
+    def __str__(self):
+        """Representation in string."""
+        return self.name
