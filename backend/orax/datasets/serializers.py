@@ -22,7 +22,12 @@ class DatasetrowSerializer(serializers.ModelSerializer):
             'sale_center',
             'prediction',
             'adjustment',
-            'date'
+            'date',
+            'transit',
+            'in_stock',
+            'safety_stock',
+            'bed',
+            'pallet',
         ]
 
 

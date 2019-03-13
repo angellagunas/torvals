@@ -29,7 +29,7 @@ class DefaultHeader extends Component {
         <Nav className="ml-auto" navbar>
           <AppHeaderDropdown direction="down">
             <DropdownToggle nav>
-              <span>{ email }</span>
+              <span className="d-none">{ email }</span>
               <img src={'../../assets/img/avatars/default.jpg'} className="img-avatar" alt="User in session" />
             </DropdownToggle>
             <DropdownMenu right style={{ right: 'auto' }}>

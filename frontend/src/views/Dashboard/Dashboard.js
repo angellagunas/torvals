@@ -67,6 +67,7 @@ class Dashboard extends Component {
 
       // table data
       rows: [],
+      date: "",
 
       // Card Chart
       cardChartData: {
@@ -362,39 +363,35 @@ class Dashboard extends Component {
               <span>ID</span> | {row.product.externalId}
             </div>
           </td>
-          <td key={"cell_suggest_" + i} className="text-center">
-            <div>
-              <strong>{row.prediction}</strong>
+          <td key={"cell_adjustment_" + i} className="text-center justify-content-center align-items-center" style={{ width: 120 + 'px' }}>
+            <Input tabIndex={i + 1} type="number" className="text-center" id="input3-group2" name="input3-group2" defaultValue={row.adjustment} onBlur={(e) => {this.handleChange(e, row.id)}} />
+          </td>
+          <td key={"cell_empty_" + i}>
+          </td>
+          <td key={"cell_stocks_" + i}>
+            <div className="medium text-muted">
+              <span><strong>Transito:</strong></span> {row.transit}
+            </div>
+            <div className="medium text-muted">
+              <span><strong>Existencia:</strong></span> {row.inStock}
+            </div>
+            <div className="medium text-muted">
+              <span><strong>Safety Stock:</strong></span> {row.safetyStock}
             </div>
           </td>
-          <td key={"cell_adjustment_" + i} className="text-center justify-content-center align-items-center" style={{ width: 80 + 'px' }}>
-            <Input tabIndex={i + 1} type="text" id="input3-group2" name="input3-group2" defaultValue={row.adjustment} onBlur={(e) => {this.handleChange(e, row.id)}} />
-          </td>
-          <td key={"cell_suggest_corr_" + i} className="text-center">
-            <div>
-              <strong>{ Math.round(row.adjustment / row.product.quota) }</strong>
+          <td key={"cell_prediction_" + i}>
+            <div className="medium text-muted">
+              <span><strong>Ajustado: </strong></span>
+              {this.percentage(this.state.rows[i].prediction, this.state.rows[i].adjustment) } %
             </div>
-          </td>
-          <td key={"cell_percentage_" + i} className="text-center">
-            <div>
-              <strong>
-                {this.percentage(this.state.rows[i].prediction, this.state.rows[i].adjustment) } %
-              </strong>
+            <div className="medium text-muted">
+              <span><strong>Sugerido: </strong></span> {row.prediction}
             </div>
-          </td>
-          <td key={"cell_quota" + i} className="text-center">
-            <div>
-              <strong>{ row.product.quota }</strong>
+            <div className="medium text-muted">
+              <span><strong>Pedido Camas: </strong></span> {row.bed}
             </div>
-          </td>
-          <td key={"cell_devolucion_" + i} className="text-center">
-            <div>
-              <strong>{row.refund || 0}</strong>
-            </div>
-          </td>
-          <td key={"cell_venta_" + i} className="text-center">
-            <div>
-              <strong>{row.sale || 0}</strong>
+            <div className="medium text-muted">
+              <span><strong>Pedido Tarimas: </strong></span> {row.pallet}
             </div>
           </td>
         </tr>
@@ -510,12 +507,12 @@ class Dashboard extends Component {
                   </Col>
                   <Col xs="12" sm="12" md="7" className="d-none d-sm-inline-block">
                     <Row className="justify-content-end">
-                      <Col xs="11" sm="11" md="10" lg="11">
+                      <Col xs="10" sm="10" md="9" lg="10">
                         <Form onSubmit={this.loadData} autoComplete="off">
                           <InputGroup>
                               <Input type="text" id="input3-group2" name="input3-group2" placeholder="Search" onChange={this.handleSearch} />
                               <InputGroupAddon addonType="append">
-                                <Button type="button" color="primary" onClick={this.loadData}>
+                                <Button type="button" color="primary" onClick={this.loadData} title="Buscar productos por nombre o ID">
                                   <i className="fa fa-search"></i>
                                 </Button>
                               </InputGroupAddon>
@@ -523,40 +520,32 @@ class Dashboard extends Component {
                         </Form>
                       </Col>
                       <Col xs={{size: 1, offset: 0}} sm={{size: 1, offset: 0}} md={{size: 1, offset: 1}} lg={{size: 1, offset: 0}}>
-                        <Button disabled={true} color="primary" className="float-right"><i className="icon-cloud-download"></i></Button>
+                        <Button disabled={false} color="primary" className="float-right" title="Descargar reporte">
+                          <i className="icon-cloud-download"></i>
+                        </Button>
+                      </Col>
+                      <Col xs={{size: 1, offset: 0}} sm={{size: 1, offset: 0}} md={{size: 1, offset: 0}} lg={{size: 1, offset: 0}}>
+                        <Button disabled={false} color="primary" className="float-right" title="Enviar pedido por E-mail">
+                          <i className="fa fa-envelope"></i>
+                        </Button>
                       </Col>
                     </Row>
                   </Col>
                 </Row>
 
                 <div className="chart-wrapper" style={{ marginTop: 40 + 'px' }}>
-                  <Table hover responsive className="table-outline mb-0 d-none d-sm-table">
+                  <Table hover responsive className="table-outline mb-0 d-sm-table">
                     <thead className="thead-light">
                       <tr>
-                        <th>
+                        <th className="text-center">
                           Producto
                         </th>
                         <th className="text-center">
-                          Sugerido
+                          Pedido Final
                         </th>
-                        <th className="text-center">
-                          Ajuste
-                        </th>
-                        <th className="text-center">
-                          Corrugados
-                        </th>
-                        <th className="text-center">
-                          % Ajustado
-                        </th>
-                        <th className="text-center">
-                          Cupos
-                        </th>
-                        <th className="text-center">
-                          Dev. Prom
-                        </th>
-                        <th className="text-center">
-                          Vta. Prom
-                        </th>
+                        <th className="text-center"></th>
+                        <th className="text-center"></th>
+                        <th className="text-center"></th>
                       </tr>
                     </thead>
                     <tbody>
