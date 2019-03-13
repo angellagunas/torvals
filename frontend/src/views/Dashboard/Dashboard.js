@@ -314,6 +314,26 @@ class Dashboard extends Component {
       .get(url, config)
       .then(res => {
         const data_response = res.data.results;
+        let date = "";
+        const months = [
+          'Enero',
+          'Febrero',
+          'Marzo',
+          'Abril',
+          'Mayo',
+          'Junio',
+          'Julio',
+          'Agosto',
+          'Septiembre',
+          'Octubre',
+          'Noviembre',
+          'Diciembre'
+        ]
+
+        if(data_response.length > 0){
+          date = new Date(data_response[0].date);
+          date = date.getDate() + ' de ' + months[date.getMonth()] + ' del ' + date.getFullYear();
+        }
 
         // hacemos sumatoria para los indicadores
         const prediction = data_response.reduce((a, b) => +a + +b.prediction, 0);
@@ -330,6 +350,7 @@ class Dashboard extends Component {
           'cardChartData': this._getCardChartData([prediction, adjustment, sales, returns]),
           'cardChartOpts': this._getCardChartOpts([prediction, adjustment, sales, returns]),
           'rows': data_response,
+          'date': date,
 
           'total_forecast': prediction,
           'total_adjustment': adjustment,
@@ -502,7 +523,7 @@ class Dashboard extends Component {
                       Centro de Venta {this.state.user_sale_center}
                     </CardTitle>
                     <div className="small text-muted">
-                      Pedido sugerido para el 28 de Febrero del 2019
+                      Pedido sugerido para el {this.state.date}
                     </div>
                   </Col>
                   <Col xs="12" sm="12" md="7" className="d-none d-sm-inline-block">
