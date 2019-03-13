@@ -1,6 +1,5 @@
 """API for datasetrows."""
 import csv
-import math
 
 from django.db.models import Q
 from django.http import HttpResponse
@@ -52,6 +51,7 @@ class DatasetDownloadViewSet(mixins.ListModelMixin, GenericViewSet):
 
     def list(self, request, *args, **kwargs):
         """Download current dataset"""
+        print('Entro al list')
         dataset = Dataset.objects.get(is_main=True)
         columns = [
             'Producto',
@@ -71,7 +71,7 @@ class DatasetDownloadViewSet(mixins.ListModelMixin, GenericViewSet):
         writer = csv.writer(response)
         writer.writerow(columns)
 
-        sale_center = User.objects.get(name=request.user).sale_center
+        sale_center = self.request.user.sale_center
 
         rows = DatasetRow.objects.filter(
             dataset_id=dataset.id,
@@ -84,7 +84,7 @@ class DatasetDownloadViewSet(mixins.ListModelMixin, GenericViewSet):
             product_name = row.product.name
             prediction = row.prediction
             adjustment = row.adjustment
-            corrugados = math.round(row.adjustment / row.product.quota)
+            corrugados = round(row.adjustment / row.product.quota)
             percent_adjustment = ((adjustment - prediction) / prediction) * 100
             quota = row.product.quota
             dev_prom = 1
@@ -115,7 +115,7 @@ router.register(
 )
 
 router.register(
-    r"datasetrows",
+    r"datasetdownload",
     DatasetDownloadViewSet,
-    base_name="datasetrows",
+    base_name="datasetdownload",
 )
