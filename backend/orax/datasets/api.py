@@ -1,12 +1,18 @@
 """API for datasetrows."""
-from django.db.models import Q
+import csv
+import Math
 
+from django.db.models import Q
+from django.http import HttpResponse
+from rest_framework.response import Responses
 from soft_drf.api import mixins
 from soft_drf.api.viewsets import GenericViewSet
 from soft_drf.routing.v1.routers import router
 
+
 from orax.datasets import serializers
 from orax.datasets.models import Dataset, DatasetRow
+from orax.users.models import User
 
 
 class DatasetrowViewSet(
@@ -39,8 +45,65 @@ class DatasetrowViewSet(
                 Q(product__name__icontains=query_params) |
                 Q(product__external_id__icontains=query_params)
             )
-
+        print('Entro')
         return queryset.order_by('-prediction')
+
+
+class DatasetDonwload(mixins.ListModelMixin, GenericViewSet):
+
+    def list(self, request, *args, **kwargs):
+        """Download current dataset"""
+        dataset = Dataset.objects.get(is_main=True)
+        columns = [
+            'Producto',
+            'Sugerido',
+            'Ajuste',
+            'Corrugados',
+            '% Ajustado',
+            'Cupos',
+            'Dev. Prom',
+            'Vta. Prom'
+        ]
+
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename={}.csv'.format(
+            dataset.name + '_adjustements'
+        )
+        writer = csv.writer(response)
+        writer.writerow(columns)
+
+        sale_center = User.objects.get(name=request.user).sale_center
+
+        rows = DatasetRow.objects.filter(
+            dataset_id=dataset.id,
+            date=dataset.date_adjustment,
+            sale_center=sale_center
+        )
+
+        for row in rows:
+            # product_id = row.product.external_id
+            product_name = row.product.name
+            prediction = row.prediction
+            adjustment = row.adjustment
+            corrugados = Math.round(row.adjustment / row.product.quota)
+            percent_adjustment = ((adjustment - prediction) / prediction) * 100
+            quota = row.product.quota
+            # sale_center_id = row.sale_center.external_id
+            # date = row.date
+            # suggested = row.prediction
+            # adjustment = row.adjustment
+
+            row = writer.writerow([
+                product_name,
+                prediction,
+                adjustment,
+                corrugados,
+                percent_adjustment,
+                quota
+
+            ])
+
+        return response
 
 
 router.register(
