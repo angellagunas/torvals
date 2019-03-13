@@ -3,14 +3,17 @@ import csv
 
 from django.db.models import Q
 from django.http import HttpResponse
+
+from rest_framework import status
+from rest_framework.decorators import list_route
+from rest_framework.response import Response
+
 from soft_drf.api import mixins
 from soft_drf.api.viewsets import GenericViewSet
 from soft_drf.routing.v1.routers import router
 
-
 from orax.datasets import serializers
 from orax.datasets.models import Dataset, DatasetRow
-from orax.users.models import User
 
 
 class DatasetrowViewSet(
@@ -45,11 +48,17 @@ class DatasetrowViewSet(
             )
         return queryset.order_by('-prediction')
 
+    @list_route(methods=["GET"])
+    def send(self, request, *args, **kwargs):
+        """Send the adjustment report of user in session."""
+        print('yeah!!!!')
+        return Response(status=status.HTTP_200_OK)
+
 
 class DatasetDownloadViewSet(mixins.ListModelMixin, GenericViewSet):
 
     def list(self, request, *args, **kwargs):
-        """Download current dataset"""
+        """Download current dataset."""
         dataset = Dataset.objects.get(is_main=True)
         columns = [
             'fecha_de_venta',
