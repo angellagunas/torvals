@@ -127,20 +127,20 @@ class Dashboard extends Component {
     };
   }
 
-  componentWillMount(){
+  componentWillMount() {
     const jwt = window.localStorage.getItem('jwt');
-    if (!jwt){
+    if (!jwt) {
       this.props.history.push('/login')
     }
 
     const profile = window.localStorage.getItem('profile');
     const sale_center = window.localStorage.getItem('sale_center');
-    this.setState({user_email: profile})
-    this.setState({user_sale_center: sale_center})
+    this.setState({ user_email: profile })
+    this.setState({ user_sale_center: sale_center })
     this.loadData()
   }
 
-  _getCardChartData(data){
+  _getCardChartData(data) {
     return {
       labels: ['Sugerido', 'Ajuste', 'Venta Promedio', 'Devolución Promedio'],
       datasets: [
@@ -154,7 +154,7 @@ class Dashboard extends Component {
     };
   }
 
-  _getCardChartOpts(data){
+  _getCardChartOpts(data) {
     const min = Math.min.apply(Math, data) - 5;
     const max = Math.max.apply(Math, data) + 5;
     return {
@@ -202,19 +202,19 @@ class Dashboard extends Component {
     };
   }
 
-  percentage(prediction, adjustment){
+  percentage(prediction, adjustment) {
     let percentage = (
       ((adjustment - prediction) / prediction) * 100
     )
 
-    if(isNaN(percentage) || !isFinite(percentage)){
+    if (isNaN(percentage) || !isFinite(percentage)) {
       percentage = 0
     }
 
     return Math.round(percentage);
   }
 
-  handleSearch(event){
+  handleSearch(event) {
     this.setState({
       query_search: event.target.value
     })
@@ -229,7 +229,7 @@ class Dashboard extends Component {
     });
   }
 
-  async handleChange (e, row_id) {
+  async handleChange(e, row_id) {
     e.preventDefault();
 
     const config = {
@@ -241,7 +241,7 @@ class Dashboard extends Component {
     let originalAdjustment = 0;
     let priceOfProductUpdated = 0;
     const updatedRows = this.state.rows.map(x => {
-      if (x.id === row_id){
+      if (x.id === row_id) {
         originalAdjustment = x.adjustment;
         x.adjustment = e.target.value;
 
@@ -260,7 +260,7 @@ class Dashboard extends Component {
       total_adjustment_money,
     } = this.state;
 
-    if(originalAdjustment > e.target.value){
+    if (originalAdjustment > e.target.value) {
       const diferenceBeetwenAdjustments = originalAdjustment - e.target.value;
       total_adjustment -= diferenceBeetwenAdjustments;
 
@@ -275,7 +275,7 @@ class Dashboard extends Component {
     await axios
       .patch(
         "api/v2/datasetrows/" + row_id,
-        {'adjustment': e.target.value},
+        { 'adjustment': e.target.value },
         config
       ).then(res => {
 
@@ -296,8 +296,8 @@ class Dashboard extends Component {
       });
   }
 
-  async loadData(e){
-    if (e){
+  async loadData(e) {
+    if (e) {
       e.preventDefault();
     }
 
@@ -346,10 +346,10 @@ class Dashboard extends Component {
       });
   }
 
-  getTableRows(){
+  getTableRows() {
     let tableRows = [];
 
-    for(let i = 0; i < this.state.rows.length; i++){
+    for (let i = 0; i < this.state.rows.length; i++) {
       const row = this.state.rows[i];
 
       tableRows.push((
@@ -368,23 +368,23 @@ class Dashboard extends Component {
             </div>
           </td>
           <td key={"cell_adjustment_" + i} className="text-center justify-content-center align-items-center" style={{ width: 80 + 'px' }}>
-            <Input tabIndex={i + 1} type="text" id="input3-group2" name="input3-group2" defaultValue={row.adjustment} onBlur={(e) => {this.handleChange(e, row.id)}} />
+            <Input tabIndex={i + 1} type="text" id="input3-group2" name="input3-group2" defaultValue={row.adjustment} onBlur={(e) => { this.handleChange(e, row.id) }} />
           </td>
           <td key={"cell_suggest_corr_" + i} className="text-center">
             <div>
-              <strong>{ Math.round(row.adjustment / row.product.quota) }</strong>
+              <strong>{Math.round(row.adjustment / row.product.quota)}</strong>
             </div>
           </td>
           <td key={"cell_percentage_" + i} className="text-center">
             <div>
               <strong>
-                {this.percentage(this.state.rows[i].prediction, this.state.rows[i].adjustment) } %
+                {this.percentage(this.state.rows[i].prediction, this.state.rows[i].adjustment)} %
               </strong>
             </div>
           </td>
           <td key={"cell_quota" + i} className="text-center">
             <div>
-              <strong>{ row.product.quota }</strong>
+              <strong>{row.product.quota}</strong>
             </div>
           </td>
           <td key={"cell_devolucion_" + i} className="text-center">
@@ -404,11 +404,46 @@ class Dashboard extends Component {
     return tableRows;
   }
 
-  getIconCollapse(){
+  getIconCollapse() {
     return this.state.indicadorsCollapsed ? 'fa fa-angle-up' : 'fa fa-angle-down';
   }
 
   loading = () => <div className="animated fadeIn pt-1 text-center">Loading...</div>
+
+  async downloadReport(e) {
+    console.log('entro a la funcion')
+    if (e) {
+      e.preventDefault();
+    }
+
+    const config = {
+      'headers': {
+        'Authorization': 'Bearer ' + window.localStorage.getItem('jwt')
+      }
+    }
+
+    const url = "api/v2/datasetdownload";
+    const responseType = 'blob'
+    await axios
+      .get(url, config, responseType)
+      .then(response => {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'file.csv');
+        document.body.appendChild(link);
+        link.click();
+
+      })
+      .catch(error => {
+        console.error(error)
+      });
+  }
+
+
+
+
+
 
   render() {
 
@@ -429,72 +464,72 @@ class Dashboard extends Component {
                   </Col>
                 </Row>
                 <div className="chart-wrapper" style={{ marginTop: 5 + 'px' }}>
-                    <Collapse isOpen={this.state.indicadorsCollapsed} data-parent="#exampleAccordion" id="exampleAccordion2">
-                      <Row className="row">
+                  <Collapse isOpen={this.state.indicadorsCollapsed} data-parent="#exampleAccordion" id="exampleAccordion2">
+                    <Row className="row">
 
-                        <Col xs={{ size: 12, offset: 0 }} sm={{ size: 6, offset: 0 }} md={{ size: 3 }} lg={{ size: 3 }}>
-                          <Card className="text-white bg-primary">
-                            <CardBody className="pb-0">
-                              <div className="text-value">
-                                { this.state.total_forecast + ' - $' + this.state.total_forecast_money }
-                              </div>
-                              <div>Sugerido total</div>
-                            </CardBody>
-                            <div className="chart-wrapper mx-3" style={{ height: '70px' }}>
-                              <Line data={this.state.cardChartData} options={this.state.cardChartOpts} height={70} />
+                      <Col xs={{ size: 12, offset: 0 }} sm={{ size: 6, offset: 0 }} md={{ size: 3 }} lg={{ size: 3 }}>
+                        <Card className="text-white bg-primary">
+                          <CardBody className="pb-0">
+                            <div className="text-value">
+                              {this.state.total_forecast + ' - $' + this.state.total_forecast_money}
                             </div>
-                          </Card>
-                        </Col>
+                            <div>Sugerido total</div>
+                          </CardBody>
+                          <div className="chart-wrapper mx-3" style={{ height: '70px' }}>
+                            <Line data={this.state.cardChartData} options={this.state.cardChartOpts} height={70} />
+                          </div>
+                        </Card>
+                      </Col>
 
-                        <Col xs={{ size: 12, offset: 0 }} sm={{ size: 6, offset: 0 }} md={{ size: 3 }} lg={{ size: 3 }}>
-                          <Card className="text-white bg-primary">
-                            <CardBody className="pb-0">
-                              <div className="text-value">
-                                { this.state.total_adjustment +' - $' + this.state.total_adjustment_money }
-                              </div>
-                              <div>Ajuste Total</div>
-                            </CardBody>
-                            <div className="chart-wrapper mx-3" style={{ height: '70px' }}>
-                              <Line data={this.state.cardChartData} options={this.state.cardChartOpts} height={70} />
+                      <Col xs={{ size: 12, offset: 0 }} sm={{ size: 6, offset: 0 }} md={{ size: 3 }} lg={{ size: 3 }}>
+                        <Card className="text-white bg-primary">
+                          <CardBody className="pb-0">
+                            <div className="text-value">
+                              {this.state.total_adjustment + ' - $' + this.state.total_adjustment_money}
                             </div>
-                          </Card>
-                        </Col>
+                            <div>Ajuste Total</div>
+                          </CardBody>
+                          <div className="chart-wrapper mx-3" style={{ height: '70px' }}>
+                            <Line data={this.state.cardChartData} options={this.state.cardChartOpts} height={70} />
+                          </div>
+                        </Card>
+                      </Col>
 
-                        <Col xs={{ size: 12, offset: 0 }} sm={{ size: 6, offset: 0 }} md={{ size: 3 }} lg={{ size: 3 }}>
-                          <Card className="text-white bg-primary">
-                            <CardBody className="pb-0">
-                              <div className="text-value">
-                                { this.state.average_sales +' - $' + this.state.average_sales_money }
-                              </div>
-                              <div>Venta Promedio Total</div>
-                            </CardBody>
-                            <div className="chart-wrapper mx-3" style={{ height: '70px' }}>
-                              <Line data={this.state.cardChartData} options={this.state.cardChartOpts} height={70} />
+                      <Col xs={{ size: 12, offset: 0 }} sm={{ size: 6, offset: 0 }} md={{ size: 3 }} lg={{ size: 3 }}>
+                        <Card className="text-white bg-primary">
+                          <CardBody className="pb-0">
+                            <div className="text-value">
+                              {this.state.average_sales + ' - $' + this.state.average_sales_money}
                             </div>
-                          </Card>
-                        </Col>
+                            <div>Venta Promedio Total</div>
+                          </CardBody>
+                          <div className="chart-wrapper mx-3" style={{ height: '70px' }}>
+                            <Line data={this.state.cardChartData} options={this.state.cardChartOpts} height={70} />
+                          </div>
+                        </Card>
+                      </Col>
 
-                        <Col xs={{ size: 12, offset: 0 }} sm={{ size: 6, offset: 0 }} md={{ size: 3 }} lg={{ size: 3 }}>
-                          <Card className="text-white bg-primary">
-                            <CardBody className="pb-0">
-                              <div className="text-value">
-                                { this.state.average_return + ' - $' + this.state.average_return_money }
-                              </div>
-                              <div>Devolución Promedio Total</div>
-                            </CardBody>
-                            <div className="chart-wrapper mx-3" style={{ height: '70px' }}>
-                              <Line data={this.state.cardChartData} options={this.state.cardChartOpts} height={70} />
+                      <Col xs={{ size: 12, offset: 0 }} sm={{ size: 6, offset: 0 }} md={{ size: 3 }} lg={{ size: 3 }}>
+                        <Card className="text-white bg-primary">
+                          <CardBody className="pb-0">
+                            <div className="text-value">
+                              {this.state.average_return + ' - $' + this.state.average_return_money}
                             </div>
-                          </Card>
-                        </Col>
-                      </Row>
-                    </Collapse>
+                            <div>Devolución Promedio Total</div>
+                          </CardBody>
+                          <div className="chart-wrapper mx-3" style={{ height: '70px' }}>
+                            <Line data={this.state.cardChartData} options={this.state.cardChartOpts} height={70} />
+                          </div>
+                        </Card>
+                      </Col>
+                    </Row>
+                  </Collapse>
                 </div>
               </CardBody>
             </Card>
           </Col>
         </Row>
-        
+
         <Row>
           <Col>
             <Card>
@@ -513,17 +548,17 @@ class Dashboard extends Component {
                       <Col xs="11" sm="11" md="10" lg="11">
                         <Form onSubmit={this.loadData} autoComplete="off">
                           <InputGroup>
-                              <Input type="text" id="input3-group2" name="input3-group2" placeholder="Search" onChange={this.handleSearch} />
-                              <InputGroupAddon addonType="append">
-                                <Button type="button" color="primary" onClick={this.loadData}>
-                                  <i className="fa fa-search"></i>
-                                </Button>
-                              </InputGroupAddon>
+                            <Input type="text" id="input3-group2" name="input3-group2" placeholder="Search" onChange={this.handleSearch} />
+                            <InputGroupAddon addonType="append">
+                              <Button type="button" color="primary" onClick={this.loadData}>
+                                <i className="fa fa-search"></i>
+                              </Button>
+                            </InputGroupAddon>
                           </InputGroup>
                         </Form>
                       </Col>
-                      <Col xs={{size: 1, offset: 0}} sm={{size: 1, offset: 0}} md={{size: 1, offset: 1}} lg={{size: 1, offset: 0}}>
-                        <Button disabled={true} color="primary" className="float-right"><i className="icon-cloud-download"></i></Button>
+                      <Col xs={{ size: 1, offset: 0 }} sm={{ size: 1, offset: 0 }} md={{ size: 1, offset: 1 }} lg={{ size: 1, offset: 0 }}>
+                        <Button color="primary" className="float-right" onClick={this.downloadReport}><i className="icon-cloud-download"></i></Button>
                       </Col>
                     </Row>
                   </Col>
@@ -560,7 +595,7 @@ class Dashboard extends Component {
                       </tr>
                     </thead>
                     <tbody>
-                      { this.getTableRows() }
+                      {this.getTableRows()}
                     </tbody>
                   </Table>
                 </div>
