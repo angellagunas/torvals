@@ -43,7 +43,6 @@ class DatasetrowViewSet(
                 Q(product__name__icontains=query_params) |
                 Q(product__external_id__icontains=query_params)
             )
-        print('Entro')
         return queryset.order_by('-prediction')
 
 
@@ -51,17 +50,19 @@ class DatasetDownloadViewSet(mixins.ListModelMixin, GenericViewSet):
 
     def list(self, request, *args, **kwargs):
         """Download current dataset"""
-        print('Entro al list')
         dataset = Dataset.objects.get(is_main=True)
         columns = [
-            'Producto',
-            'Sugerido',
-            'Ajuste',
-            'Corrugados',
-            '% Ajustado',
-            'Cupos',
-            'Dev. Prom',
-            'Vta. Prom'
+            'fecha_de_venta',
+            'CEVE',
+            'item',
+            'producto',
+            'transitos',
+            'existencia',
+            'safety_stock',
+            'sugerido',
+            'pedido_final',
+            'pedido_final_camas',
+            'pedido_final_tarimas'
         ]
 
         response = HttpResponse(content_type='text/csv')
@@ -76,33 +77,35 @@ class DatasetDownloadViewSet(mixins.ListModelMixin, GenericViewSet):
         rows = DatasetRow.objects.filter(
             dataset_id=dataset.id,
             date=dataset.date_adjustment,
-            sale_center=sale_center
+            sale_center=sale_center,
+            is_active=True
         )
 
         for row in rows:
-            # product_id = row.product.external_id
-            product_name = row.product.name
+            date = row.date
+            sale_center_id = row.sale_center.external_id
+            item = row.product.external_id
+            product = row.product.name
+            transits = row.transit
+            stocks = row.in_stock
+            safety_stock = row.safety_stock
             prediction = row.prediction
             adjustment = row.adjustment
-            corrugados = round(row.adjustment / row.product.quota)
-            percent_adjustment = ((adjustment - prediction) / prediction) * 100
-            quota = row.product.quota
-            dev_prom = 1
-            vta_prom = 1
-            # sale_center_id = row.sale_center.external_id
-            # date = row.date
-            # suggested = row.prediction
-            # adjustment = row.adjustment
+            beds = row.bed
+            pallets = row.pallet
 
             row = writer.writerow([
-                product_name,
+                date,
+                sale_center_id,
+                item,
+                product,
+                transits,
+                stocks,
+                safety_stock,
                 prediction,
                 adjustment,
-                corrugados,
-                percent_adjustment,
-                quota,
-                dev_prom,
-                vta_prom
+                beds,
+                pallets
             ])
 
         return response
