@@ -1,10 +1,9 @@
 """API for datasetrows."""
 import csv
-import Math
+import math
 
 from django.db.models import Q
 from django.http import HttpResponse
-from rest_framework.response import Responses
 from soft_drf.api import mixins
 from soft_drf.api.viewsets import GenericViewSet
 from soft_drf.routing.v1.routers import router
@@ -49,7 +48,7 @@ class DatasetrowViewSet(
         return queryset.order_by('-prediction')
 
 
-class DatasetDonwload(mixins.ListModelMixin, GenericViewSet):
+class DatasetDownloadViewSet(mixins.ListModelMixin, GenericViewSet):
 
     def list(self, request, *args, **kwargs):
         """Download current dataset"""
@@ -85,9 +84,11 @@ class DatasetDonwload(mixins.ListModelMixin, GenericViewSet):
             product_name = row.product.name
             prediction = row.prediction
             adjustment = row.adjustment
-            corrugados = Math.round(row.adjustment / row.product.quota)
+            corrugados = math.round(row.adjustment / row.product.quota)
             percent_adjustment = ((adjustment - prediction) / prediction) * 100
             quota = row.product.quota
+            dev_prom = 1
+            vta_prom = 1
             # sale_center_id = row.sale_center.external_id
             # date = row.date
             # suggested = row.prediction
@@ -99,8 +100,9 @@ class DatasetDonwload(mixins.ListModelMixin, GenericViewSet):
                 adjustment,
                 corrugados,
                 percent_adjustment,
-                quota
-
+                quota,
+                dev_prom,
+                vta_prom
             ])
 
         return response
@@ -109,5 +111,11 @@ class DatasetDonwload(mixins.ListModelMixin, GenericViewSet):
 router.register(
     r"datasetrows",
     DatasetrowViewSet,
+    base_name="datasetrows",
+)
+
+router.register(
+    r"datasetrows",
+    DatasetDownloadViewSet,
     base_name="datasetrows",
 )
