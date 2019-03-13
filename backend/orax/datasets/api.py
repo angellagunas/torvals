@@ -1,6 +1,10 @@
 """API for datasetrows."""
 from django.db.models import Q
 
+from rest_framework import status
+from rest_framework.decorators import list_route
+from rest_framework.response import Response
+
 from soft_drf.api import mixins
 from soft_drf.api.viewsets import GenericViewSet
 from soft_drf.routing.v1.routers import router
@@ -41,6 +45,12 @@ class DatasetrowViewSet(
             )
 
         return queryset.order_by('-prediction')
+
+    @list_route(methods=["GET"])
+    def send(self, request, *args, **kwargs):
+        """Send the adjustment report of user in session."""
+        print('yeah!!!!')
+        return Response(status=status.HTTP_200_OK)
 
 
 router.register(

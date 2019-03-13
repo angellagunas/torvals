@@ -230,6 +230,24 @@ class Dashboard extends Component {
     });
   }
 
+  async sendReport(e){
+    e.preventDefault();
+        const config = {
+      'headers': {
+        'Authorization': 'Bearer ' + window.localStorage.getItem('jwt')
+      }
+    }
+
+    await axios
+      .get("api/v2/datasetrows/send", config)
+      .then(res => {
+        console.info('email sent');
+      })
+      .catch(error => {
+        console.error(error)
+      });
+  }
+
   async handleChange (e, row_id) {
     e.preventDefault();
 
@@ -546,7 +564,7 @@ class Dashboard extends Component {
                         </Button>
                       </Col>
                       <Col xs={{size: 1, offset: 0}} sm={{size: 1, offset: 0}} md={{size: 1, offset: 0}} lg={{size: 1, offset: 0}}>
-                        <Button disabled={false} color="primary" className="float-right" title="Enviar pedido por E-mail">
+                        <Button disabled={false} color="primary" className="float-right" title="Enviar pedido por E-mail" onClick={this.sendReport}>
                           <i className="fa fa-envelope"></i>
                         </Button>
                       </Col>
