@@ -43,6 +43,9 @@ class Dashboard extends Component {
     // colapse
     this.toggleCustom = this.toggleCustom.bind(this);
 
+    //download report
+    this.downloadReport = this.downloadReport.bind(this);
+
     this.state = {
       // colapse vars
       indicadorsCollapsed: false,
@@ -230,14 +233,14 @@ class Dashboard extends Component {
     });
   }
 
-  async sendReport(e){
+  async sendReport(e) {
     e.preventDefault();
-        const config = {
+    const config = {
       'headers': {
         'Authorization': 'Bearer ' + window.localStorage.getItem('jwt')
       }
     }
-
+    console.log('Entro')
     await axios
       .get("api/v2/datasetrows/send", config)
       .then(res => {
@@ -348,7 +351,7 @@ class Dashboard extends Component {
           'Diciembre'
         ]
 
-        if(data_response.length > 0){
+        if (data_response.length > 0) {
           date = new Date(data_response[0].date);
           date = date.getDate() + ' de ' + months[date.getMonth()] + ' del ' + date.getFullYear();
         }
@@ -447,7 +450,6 @@ class Dashboard extends Component {
   loading = () => <div className="animated fadeIn pt-1 text-center">Loading...</div>
 
   async downloadReport(e) {
-    console.log('entro a la funcion')
     if (e) {
       e.preventDefault();
     }
@@ -457,8 +459,8 @@ class Dashboard extends Component {
         'Authorization': 'Bearer ' + window.localStorage.getItem('jwt')
       }
     }
-
-    const url = "api/v2/datasetdownload";
+    const file_name = 'adjustment_report_ceve_' + this.state.user_sale_center + '_' + this.state.date.replace(/ /g, '_') + '.csv';
+    const url = "api/v2/datasetrows/download";
     const responseType = 'blob'
     await axios
       .get(url, config, responseType)
@@ -466,7 +468,7 @@ class Dashboard extends Component {
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement('a');
         link.href = url;
-        link.setAttribute('download', 'file.csv');
+        link.setAttribute('download', file_name);
         document.body.appendChild(link);
         link.click();
 
