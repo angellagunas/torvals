@@ -67,7 +67,6 @@ class BatchAdmin(admin.ModelAdmin):
         #
         for index, row in file.iterrows():
             _id = row.get(config['id'], None)
-
             external_id = int(float(_id)) if _id else 'N/A'
 
             data = {
@@ -78,12 +77,19 @@ class BatchAdmin(admin.ModelAdmin):
             if obj.type == 'products':
                 price = float(row['price'])
                 price = 0 if math.isnan(price) else price
+                data['price'] = price
 
                 quota = float(row['quota'])
                 quota = 0 if math.isnan(quota) else quota
-
-                data['price'] = price
                 data['quota'] = quota
+
+                bed = float(row['bed'])
+                bed = 0 if math.isnan(bed) else bed
+                data['bed'] = bed
+
+                pallet = float(row['pallet'])
+                pallet = 0 if math.isnan(pallet) else pallet
+                data['pallet'] = pallet
 
             config['model'].objects.create(**data)
 
