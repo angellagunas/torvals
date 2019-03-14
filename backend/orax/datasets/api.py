@@ -41,8 +41,7 @@ class DatasetrowViewSet(
         queryset = DatasetRow.objects.filter(
             is_active=True,
             sale_center=sale_center,
-            dataset=dataset,
-            date=dataset.date_adjustment
+            dataset=dataset
         )
 
         if query_params:
@@ -159,7 +158,6 @@ class DatasetrowViewSet(
 
         rows = DatasetRow.objects.filter(
             dataset_id=dataset.id,
-            date=dataset.date_adjustment,
             sale_center=sale_center,
             is_active=True
         )
