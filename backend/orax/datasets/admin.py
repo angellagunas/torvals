@@ -8,7 +8,6 @@ from django import forms
 from django.contrib import admin
 from django.http import HttpResponse
 from orax.datasets.models import Dataset, DatasetRow
-from orax.projects.models import Project
 from orax.products.models import Product
 from orax.sales_centers.models import SaleCenter
 
@@ -102,12 +101,7 @@ class DatasetAdmin(admin.ModelAdmin):
         #
         # Open the new dataset file.
         #
-        original_file = pd.read_csv(obj.file, sep=',', index_col=False)
-
-        #
-        # Take only the rows with date equals adjustment date.
-        #
-        file = original_file[original_file['fecha_de_venta'] == str(obj.date_adjustment)]
+        file = pd.read_csv(obj.file, sep=',', index_col=False)
 
         #
         # Get the new dataset.
@@ -139,14 +133,14 @@ class DatasetAdmin(admin.ModelAdmin):
         #
         for index, row in file.iterrows():
             product_id = self._get_or_create(
-                'item',
+                'ITEM',
                 row,
                 products_dict,
                 Product
             )
 
             sale_center_id = self._get_or_create(
-                'CEVE',
+                'ceve_id',
                 row,
                 sales_centers_dict,
                 SaleCenter

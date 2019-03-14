@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { Line } from 'react-chartjs-2';
 import {
   Button,
   Card,
@@ -353,7 +352,7 @@ class Dashboard extends Component {
 
         if (data_response.length > 0) {
           date = new Date(data_response[0].date);
-          date = date.getDate() + ' de ' + months[date.getMonth()] + ' del ' + date.getFullYear();
+          date = date.getUTCDate() + ' de ' + months[date.getUTCMonth()] + ' del ' + date.getUTCFullYear();
         }
 
         // hacemos sumatoria para los indicadores
@@ -486,73 +485,50 @@ class Dashboard extends Component {
           <Col>
             <Card>
               <CardBody>
-                <Row className="row align-items-center" onClick={() => this.toggleCustom()}>
-                  <Col className="col" sm="5">
-                    <CardTitle className="mb-0">Indicadores</CardTitle>
-                  </Col>
-                  <Col sm="7" className="col d-none d-sm-inline-block">
-                    <Button color="primary" className="float-right" onClick={() => this.toggleCustom()}>
-                      <i style={{ fontSize: '1.4rem' }} className={this.getIconCollapse()}></i>
-                    </Button>
-                  </Col>
-                </Row>
-                <div className="chart-wrapper" style={{ marginTop: 5 + 'px' }}>
-                  <Collapse isOpen={this.state.indicadorsCollapsed} data-parent="#exampleAccordion" id="exampleAccordion2">
+                <div className="chart-wrapper" style={{ marginTop: 20 + 'px' }}>
+                  <Collapse isOpen={true}>
                     <Row className="row">
-
                       <Col xs={{ size: 12, offset: 0 }} sm={{ size: 6, offset: 0 }} md={{ size: 3 }} lg={{ size: 3 }}>
                         <Card className="text-white bg-primary">
-                          <CardBody className="pb-0">
+                          <CardBody>
                             <div className="text-value">
-                              {this.state.ind_transit + ' - $' + this.state.ind_transit_money}
+                              {this.state.ind_transit + ' - $' + Math.round(this.state.ind_transit_money)}
                             </div>
                             <div>Tránsito</div>
                           </CardBody>
-                          <div className="chart-wrapper mx-3" style={{ height: '70px' }}>
-                            <Line data={this.state.cardChartData} options={this.state.cardChartOpts} height={70} />
-                          </div>
                         </Card>
                       </Col>
 
                       <Col xs={{ size: 12, offset: 0 }} sm={{ size: 6, offset: 0 }} md={{ size: 3 }} lg={{ size: 3 }}>
                         <Card className="text-white bg-primary">
-                          <CardBody className="pb-0">
+                          <CardBody>
                             <div className="text-value">
-                              {this.state.ind_exists + ' - $' + this.state.ind_exists_money}
+                              {this.state.ind_exists + ' - $' + Math.round(this.state.ind_exists_money)}
                             </div>
                             <div>Existencia</div>
                           </CardBody>
-                          <div className="chart-wrapper mx-3" style={{ height: '70px' }}>
-                            <Line data={this.state.cardChartData} options={this.state.cardChartOpts} height={70} />
-                          </div>
                         </Card>
                       </Col>
 
                       <Col xs={{ size: 12, offset: 0 }} sm={{ size: 6, offset: 0 }} md={{ size: 3 }} lg={{ size: 3 }}>
                         <Card className="text-white bg-primary">
-                          <CardBody className="pb-0">
+                          <CardBody>
                             <div className="text-value">
-                              {this.state.ind_safety_stock + ' - $' + this.state.ind_safety_stock_money}
+                              {this.state.ind_safety_stock + ' - $' + Math.round(this.state.ind_safety_stock_money)}
                             </div>
                             <div>Safety Stock</div>
                           </CardBody>
-                          <div className="chart-wrapper mx-3" style={{ height: '70px' }}>
-                            <Line data={this.state.cardChartData} options={this.state.cardChartOpts} height={70} />
-                          </div>
                         </Card>
                       </Col>
 
                       <Col xs={{ size: 12, offset: 0 }} sm={{ size: 6, offset: 0 }} md={{ size: 3 }} lg={{ size: 3 }}>
                         <Card className="text-white bg-primary">
-                          <CardBody className="pb-0">
+                          <CardBody>
                             <div className="text-value">
-                              {this.state.ind_adjustments + ' - $' + this.state.ind_adjustment_money}
+                              {this.state.ind_adjustments + ' - $' + Math.round(this.state.ind_adjustment_money)}
                             </div>
                             <div>Pedido Final</div>
                           </CardBody>
-                          <div className="chart-wrapper mx-3" style={{ height: '70px' }}>
-                            <Line data={this.state.cardChartData} options={this.state.cardChartOpts} height={70} />
-                          </div>
                         </Card>
                       </Col>
                     </Row>
@@ -596,7 +572,7 @@ class Dashboard extends Component {
                         </Button>
                       </Col>
                       <Col xs={{ size: 1, offset: 0 }} sm={{ size: 1, offset: 0 }} md={{ size: 1, offset: 0 }} lg={{ size: 1, offset: 0 }}>
-                        <Button disabled={false} color="primary" className="float-right" title="Enviar pedido por E-mail" onClick={this.sendReport}>
+                        <Button disabled={true} color="primary" className="float-right" title="Enviar pedido por E-mail" onClick={this.sendReport}>
                           <i className="fa fa-envelope"></i>
                         </Button>
                       </Col>
