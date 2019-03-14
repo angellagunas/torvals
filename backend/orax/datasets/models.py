@@ -52,6 +52,8 @@ class Dataset(CatalogueMixin):
     )
 
     date_adjustment = models.DateField(
+        null=True,
+        blank=True,
         help_text="Fecha en la cual se va a ajustar el forecast."
     )
 
