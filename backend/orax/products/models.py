@@ -24,6 +24,16 @@ class Product(CatalogueMixin):
         help_text="Cantidad de productos para llenar un corrugado."
     )
 
+    bed = models.IntegerField(
+        default=1,
+        help_text="Cantidad de corrugados para llenar una cama."
+    )
+
+    pallet = models.IntegerField(
+        default=1,
+        help_text="Cantidad de corrugados para llenar una tarima."
+    )
+
     external_id = models.CharField(
         max_length=255,
         verbose_name='external id'

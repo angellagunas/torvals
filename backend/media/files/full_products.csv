@@ -1,0 +1,459 @@
+product_id,product_name,price,quota,tarima,cama
+800,Chips Jalapeno 170g BAR,26.45,11,49,7
+1078,Cajeta 50pct Menos Azucar 370g COR,28.17,12,0,0
+1940,Spirrones 100g BAR,10.92,60,0,0
+2530,Chips Sal 170g BAR,26.45,11,49,7
+4624,Cajeta Espreable Envinada 660g COR,40.95,12,0,0
+4625,Cajeta Vainilla 660g COR,43.05,12,0,0
+4919,Cajeta Espreable Quemada 660g COR,43.05,12,0,0
+124823,Chips Jalapeño 120g,15.56,0,0,0
+6012,Chips Sal 100g BAR,15.56,20,56,7
+6444,Karameladas 260g CB2 BAR,16.33,16,49,7
+7557,Dulcigomas 112g RIC,9.47,45,80,4
+7829,Bubulubu 35g RIC,4.33,150,96,4
+7840,Paleta Payaso 45g RIC,5.78,70,80,40
+7947,Lunetas Sobre 227g Auto RIC,11.8,16,0,0
+8362,Cajeta Envinada 370g COR,25.64,25,0,0
+8364,Cajeta Vainilla 370g COR,25.64,25,0,0
+8365,Cajeta Quemada 370g COR,28.46,25,50,10
+8769,Chocoretas Vertical 65g RIC,8.68,60,80,4
+8773,Kranky Vertical 70g RIC,8.68,60,80,4
+8775,Dulcigomas Vertical 70g RIC,8.68,60,80,4
+8779,Panditas Rojos Vertical 70g RIC,8.68,60,80,4
+8785,Panditas Acidos Vertical 70g RIC,8.68,60,80,4
+8786,Panditas Vertical 70g RIC,8.68,60,80,4
+8790,Tira Paleta 20p 5.5g COR,13.89,50,45,9
+8804,Tira Paleton 10p 14g COR,9.41,50,0,0
+8809,Paleta Agrimiel 20p 5g COR,5.17,50,0,0
+8827,Pack Cajeta Yopi Doy 250g YOP,12.2,24,50,7
+8830,Cubeta Cajeta Quemada 24Kg COR,758.2,1,0,0
+9488,Toreadas Habanero 170g BAR,26.46,11,49,7
+9745,Big Mix Queso 200g BAR,16.79,10,56,7
+9840,Chips Jalapeno 350g BAR,31.93,8,0,0
+9841,Chips Sal 350g BAR,34.48,8,0,0
+30244,Pasitas 90g RIC,10.84,30,0,0
+30245,Almendras 82g RIC,10.84,30,0,0
+30246,Kranky 80g RIC,8.67,30,0,0
+30248,Mini Paleta Payaso 4p 25g RIC,11.56,13,80,4
+30269,Duvalin Avellana Vainilla 6p 15g RIC,8.67,52,0,0
+30301,Spirrones 100g BAR,16.8,25,49,7
+31088,Chips Fuego 55g BAR,7.36,35,49,7
+31090,Chips Fuego 170g BAR,26.45,11,49,7
+31237,Bolsa Chocoretas 125g RIC,10.84,23,0,0
+31246,Bolsa Bubulubu Twin Pack 70g RIC,6.14,108,80,4
+31560,Chips Diabla 60g BAR,6.23,35,0,0
+31561,Chips Jalapeno 60g BAR,6.69,35,49,7
+31562,Chips Sal 60g BAR,6.69,35,49,7
+31808,Takis Fuego 90g BAR,9.33,42,49,7
+31809,Takis Original 90g BAR,7.78,42,49,7
+31910,Cajilla Dulcigomas 12p 45g RIC,5.14,108,80,4
+31911,Cajilla Panditas 12p 45g RIC,5.58,108,57,4
+32097,Bolsa Bubulubu 15p 20g RIC,19.13,12,80,4
+33500,Paleta Elote Chile 10p 16g VER,10.92,30,0,0
+33510,Paleta Mango Chile 10p 16g VER,10.92,50,0,0
+33563,Pica Goma Fresa 30p 180g VER,10.92,30,0,0
+33969,Rellerindo 13p 11g VER,10.11,24,0,0
+34285,Chips Jalapeno 245g BAR,21.25,11,0,0
+34286,Chips Sal de Sal 245g BAR,21.25,11,0,0
+34287,Chips Fuego 245g BAR,21.25,11,0,0
+34602,Chocoretas Horizontal 44G Ric,5.16,100,0,0
+35549,Chicharron de Cerdo 90g BAR,17.11,10,0,0
+37144,Chips Fuego 350g BAR,46.46,8,0,0
+37226,Bolsa Bocadin 158g RIC,14.74,40,96,6
+37782,Cajilla Paleton 18p 20g LC,1.95,432,0,0
+37783,Bolsa 5 Paletones de 20g LC,15.39,30,0,0
+38310,Paleta Payaso As Prom 47g RICC,6.16,70,0,0
+38319,Paquete Paletas Mix Dulce 20p 320g VER,17.24,24,0,0
+38320,Paquete Paletas Mix Picoso 20p 310g VER,17.24,20,0,0
+124822,Chips Fuego 120g,15.56,0,0,0
+38579,Golden Nuts Surtido Selecto 190g BAR,16,24,0,0
+38582,Golden Nuts Enchilados 100g BAR,11.67,40,0,0
+38585,Golden Nuts Salados 100g BAR,11.67,40,0,0
+38612,Hot Nuts Original 100g BAR,11.67,35,110,10
+40263,Moritas 112g RIC,9.47,45,0,0
+41998,Gomilocas Dientes Horizontal 60g RIC,5.21,60,0,0
+42001,Kranky Horizontal 40g RIC,4.77,100,80,4
+42124,Takis Original 190g BAR,11.9,25,0,0
+42126,Runners 200g BAR,11.9,25,0,0
+42158,Toreadas Habanero 40g BAR,7.78,25,91,7
+42458,Takis Fuego 190g BAR,12.64,25,49,7
+45250,Panditas 115g RIC,9.39,32,80,4
+45973,Karameladas Pop 119g BAR,9.33,26,49,7
+48205,Valentones SP 175g BAR,17.11,8,49,49
+49703,Gomita Manita Horizontal 70g VER,8.68,42,0,0
+49728,Gomita Tarrito Horizontal 70g VER,8.68,42,0,0
+122897,Chips Chipotle Limon CA 100g BAR,13.1,20,0,0
+122898,Chips Chipotle Limon CA 170g BAR,19.45,11,0,0
+123165,Papatinas Chilix PC 250g BAR,30.97,15,0,0
+123236,Snaps Esquites PC 110g CB3 BAR,23.15,10,0,0
+123238,Snaps Cheddar Blanco PC 140g CB3 BAR,23.15,10,0,0
+123240,Snaps Chile y Especias PC 140g CB3 BAR,23.15,10,0,0
+123242,Snaps Pimienta Sal/Mar PC 110g CB3 BAR,23.15,10,0,0
+123254,Takis Fuego 280g PC BAR,27.1,15,0,0
+123256,Takis Fajitas PC 280g BAR,27.1,12,0,0
+123258,Runners 280g PC BAR,27.1,15,0,0
+123308,Golden Nuts Salado PC 150g BAR,19.36,25,0,0
+123310,Golden Nuts Enchilado PC 150g BAR,19.36,25,0,0
+123316,Hot Nuts PC 200g BAR,23.39,24,0,0
+123341,Cajeta Quemada 400g CU COR,42.61,24,0,0
+123417,Chips Queso PC 170g CB2 BAR,29.61,11,0,0
+123418,Chips Queso PC 100g CU BAR,17.89,20,0,0
+123460,Takis Fuego 280g CU BAR,23.46,12,0,0
+123536,Panditas Enchilados 70g,10.11,60,80,4
+123656,Chiclosos PC 93g Bolsa CU COR,14.4,27,0,0
+123657,Oblea PC 72g Bolsa CU COR,14.4,27,0,0
+123658,Paleta PC 82.5g Bolsa CU COR,14.4,27,0,0
+123693,Chips Queso Pc 55g CB2 BAR,10.73,35,0,0
+123743,Takis Cobra Pc 280g Bolsa CU BAR,27.1,15,0,0
+123745,Takis Cobra Pc 190g Bolsa CU BAR,19.44,25,0,0
+123852,Karameladas Cuexh 260g Bolsa CU BAR,16.33,16,0,0
+124235,Big Mix Clasico Nvo 200g CB2 BAR,17.12,10,0,0
+124237,Big Mix Fuego NVO 200g CB2 BAR,8.03,10,0,0
+124239,Takis Fuego 56g CT1,7.78,48,91,91
+124357,Takis Cobra 56g CT1,7.78,48,91,7
+124358,Takis Fajitas 56g CT1,7.78,48,91,49
+124359,Takis Huakamole 56g CT1,7.78,48,91,7
+124440,Golden Nuts Japones Nvo PC 100g C3H BAR,11.67,35,110,10
+124442,Golden Nuts Japones Nvo PC 190g C3H BAR,16,24,0,0
+124447,Kiyakis PC 150g C3H BAR,11.2,34,110,10
+800,Chips Jalapeño 170g BAR_800,26.45,11,49,7
+1078,Cajeta 50pct Menos Azucar 370g COR_1078,28.17,12,0,0
+1940,huevito pinto chocolate 200g  lc_1940,10.92,60,0,0
+2530,Chips Sal 170g BAR_2530,26.45,11,49,7
+4624,Cajeta Espreable Envinada 660g COR_4624,40.95,12,0,0
+4625,Cajeta Espreable Vainilla 660g COR_4625,43.05,12,0,0
+4919,Cajeta Espreable Quemada 660g COR_4919,43.05,12,0,0
+124823,Chips Jalapeño 120g,15.56,0,0,0
+6012,chips sal 100g bar_6012,15.56,20,56,7
+6420,Tortilla Nachos 3pq 1Kg BAR_6420,94.32,1,72,9
+6444,Karameladas 260g BAR_6444,16.33,16,49,7
+6476,Tostachos Queso CB1 70g BAR_6476,6.22,25,91,7
+6490,Chipotles 52g BAR_6490,6.22,25,91,7
+6820,golden nuts semilla 20g bar_6820,6.22,100,91,7
+7557,Dulcigomas 112g RIC_7557,9.47,45,80,4
+7761,bubulubu 20g ric_7761,1.26,250,0,0
+7762,Kranky 15g RIC_7762,1.44,250,0,0
+7766,Panditas 15g RIC_7766,1.94,250,0,0
+7780,Dulcigomas Granel Bs 1Kg RIC_7780,45,6,0,0
+7796,Golden Nuts Semillas 60g_7796,14.2,48,91,7
+7829,Bubulubu 1p 35g RIC_7829,4.33,150,96,4
+7840,Paleta Payaso 1p 45g RIC_7840,5.78,70,80,40
+7978,Rellerindo Conv 65p 11g VER_7978,0.72,1560,0,0
+8362,Cajeta Espreable Envinada 370g COR_8362,25.64,25,0,0
+8364,Cajeta Espreable Vainilla 370g COR_8364,25.64,25,0,0
+8365,Cajeta Espreable Quemada 370g COR_8365,28.46,25,50,10
+8769,Chocoretas Vertical 65g RIC_8769,8.68,60,80,4
+8773,Kranky Vertical 70g RIC_8773,8.68,60,80,4
+8775,Dulcigomas Vertical 70g RIC_8775,8.68,60,80,4
+8779,Panditas Rojos Vertical 70g RIC_8779,8.68,60,80,4
+8785,Panditas Acidos Vertical 70g RIC_8785,8.68,60,80,4
+8786,Panditas Vertical 70g RIC_8786,8.68,60,80,4
+8790,Paleta Cajeta Tira 20p 110g COR_8790,13.89,50,45,9
+8804,Paleton Tira 10p 140g COR_8804,9.41,50,0,0
+8809,paleta agrimiel 20p 100g tira cor_8809,5.17,50,0,0
+8827,Cajeta Quemada Doy Pack 250g YOP_8827,12.2,24,50,7
+8990,Papatinas Fuego 25g BAR_8990,5.44,56,91,7
+9396,Pika Fresa 1p 12g VER_9396,0.72,1440,0,0
+9488,Toreadas Habanero 170g BAR_9488,26.46,11,49,7
+9745,Big Mix Queso 200g BAR_9745,16.79,10,56,7
+9784,Karameladas 120g BAR_9784,10.89,26,49,7
+9840,Chips Jalapeño 350g BAR_9840,31.93,8,0,0
+30206,bon o bon cafe display 15p 15g ric_30206,3.59,300,60,10
+30244,Pasitas Cubiertas de Chocolate 90g RIC_30244,10.84,30,0,0
+30245,Almendras 82g RIC_30245,10.84,30,0,0
+30246,Kranky 80g RIC_30246,8.67,30,0,0
+30248,Mini Paleta Payaso 4p RIC_30248,11.56,13,80,4
+30269,duvalin avellana vainilla 6p 90g ric_30269,8.67,52,0,0
+30301,Spirrones 100g BAR_30301,16.8,25,49,7
+31088,Chips Fuego 55g BAR_31088,7.36,35,49,7
+31090,Chips Fuego 170g BAR_31090,26.45,11,49,7
+31211,Churritos Chile y Limon 50g BAR_31211,4.67,35,91,7
+31237,Bolsa Chocoretas 125g RIC_31237,10.84,23,0,0
+31246,Bubulubu Twin Pack 70g Bolsa TR RIC_31246,6.14,108,80,4
+31560,Chips Diabla 60g BAR_31560,6.23,35,0,0
+31561,Chips Jalapeno 60g BAR_31561,6.69,35,49,7
+31562,Chips Sal 60g BAR_31562,6.69,35,49,7
+31702,Toreadas Habanero 55g BAR_31702,7.36,35,49,7
+31808,Takis Fuego 90g BAR_31808,9.33,42,49,7
+31809,Takis Fajitas 90g BAR_31809,7.78,42,49,7
+31810,Runners 90g BAR_31810,6.69,42,49,7
+31811,Chipotles 80g BAR_31811,6.69,35,49,7
+31910,Dulcigomas 12p 45g Cj RIC_31910,5.14,108,80,4
+31911,panditas 12p 45g cj ric_31911,5.58,108,57,4
+32097,Bolsa Bubulubu 15p 20g RIC_32097,19.13,12,80,4
+32354,paleta cupido fresa cereza 18p 16g ver_32354,18.8,30,36,4
+32355,paleta tarrito 18p 16g ver_32355,18.8,30,40,4
+32356,paleta manita suerte 18p 16g ver_32356,18.8,30,40,4
+32357,paleta elote con chile 18p 16g ver_32357,18.8,30,40,4
+32387,Bolsa Pika Fresa 60p 12g VER_32387,43.33,24,32,4
+33258,Paleton 50p 700g Cj COR_33258,71.22,4,60,4
+33259,Macarrones 24p 480g Cj COR_33259,51.28,12,80,4
+33563,pica goma fresa 30p 180g ver_33563,10.92,30,0,0
+33969,rellerindo 5oz 13p 143g ver_33969,10.11,24,0,0
+34161,Gomilocas Dientes Granel 1Kg RIC_34161,45,10,0,0
+34166,Gomitas Sharks Granel 1kg RIC_34166,45,10,0,0
+34167,Gomilocas Pinguinos Granel 1kg RIC_34167,45,10,0,0
+34490,Panditas 1Kg RIC_34490,45,10,0,0
+34587,Bolsa Paleta Mango c/Chile 18p 16g VER_34587,18.8,30,0,0
+34597,Almendras Horizontal 40G Ric,6.26,100,0,0
+34602,Chocoretas Horizontal 44G Ric,5.16,100,0,0
+34780,Rellerindo 1p 11g VER_34780,46.94,24,28,7
+35239,Spirrones 25g CB2 BAR_35239,8.4,70,0,0
+35549,Chicharron Cerdo 90g CB2 BAR_35549,17.11,10,0,0
+36685,Oblea Cajeta 40p 560g Cj COR_36685,71.28,6,112,4
+37226,Bocadin Bolsa FP 15p 158g Auto RIC_37226,14.74,40,96,6
+37631,Chocoreta Granel 500g RIC_37631,45,12,0,0
+37632,Kranky Granel 500g RIC_37632,45,12,0,0
+37633,Pasitas Granel 500g RIC_37633,45,12,0,0
+37732,Chicloso 130p 806g Cj COR_37732,92.69,4,80,4
+37782,Paleton 18p 20g Cj LC_37782,1.95,432,0,0
+37987,Churritos Fuego 50g BAR_37987,4.67,40,91,7
+124822,Chips Fuego 120g,15.56,0,0,0
+38579,Golden Nuts Surtido Selecto 190G C3h Bar,16,24,0,0
+124692,Golden Nuts Enchilado 78g,11.67,0,0,0
+124693,Golden Nuts Salado 78g,11.67,0,0,0
+38587,Hot Nuts Fuego 50g C3H BAR_38587,6.22,67,110,10
+38590,Hot Nuts Multintenso 50g C3H BAR_38590,6.22,67,110,10
+38611,Golden Nuts Surtido Selecto 40G C3h Bar,6.22,85,0,0
+38612,Hot Nuts Multintenso 100g C3H BAR_38612,11.67,35,110,10
+39109,Semillas Big Mix Party 100g BAR_39109,11.67,40,130,10
+41620,chutazo 1110g ric_41620,170.94,12,30,3
+41624,moneda ricolino 800g ric_41624,142.45,12,36,3
+42001,Kranky Horizontal 40g RIC_42001,4.77,100,80,4
+42124,Takis 190g BAR_42124,11.9,25,0,0
+42126,Runners 200g BAR_42126,11.9,25,0,0
+42158,Toreadas Habanero 40g BAR_42158,7.78,25,91,7
+42458,Takis Fuego 190g BAR_42458,12.64,25,49,7
+45238,Papatinas Chilix  25g Tira 8 p BAR_45238,5.44,56,91,7
+45250,Panditas 115g RIC_45250,9.39,32,80,4
+45552,pikaros 30p 16.5 cj ric_45552,1.81,240,56,4
+45973,Karameladas POP 119g BAR_45973,9.33,26,49,7
+46749,bon o bon leche 15p ric_46749,3.59,300,60,10
+46842,Karameladas POP 50g BAR_46842,5.44,35,91,91
+48205,valentones 175g sp bar_48205,17.11,8,49,49
+122928,Pecositas 70p 9.8g RIC_122928,1.08,560,88,4
+123023,Panditas Rellenos Chamoy 66g RIC_123023,8.68,60,0,0
+123141,Papas Toreadas 100g BAR,15.43,20,0,0
+124699,Not Nuts Multintenso 160g,23.39,0,0,0
+123339,Pasitas Vertical 70g ,8.68,60,80,4
+123460,Takis Fuego 280gr,23.46,12,0,0
+123536,Panditas Enchilados 70g,10.11,60,80,4
+123575,Chocoretas 55g Bolsa CTR RIC,7.22,60,80,4
+123576,Dulcigomas 63g Bolsa CTR RIC,7.22,60,80,4
+123577,Gomilocas Dientes 60g Bolsa CTR RIC,7.22,60,80,4
+123578,Gomilocas Hamburguesas 60g Bolsa CTR RIC,7.22,60,0,0
+123579,Gomilocas Pinguinos 60g Bolsa CTR RIC,7.22,60,80,4
+123580,Kranky 55g Bolsa CTR RIC,7.22,60,80,4
+123581,Moritas 60g Bolsa CTR Ric,7.22,60,80,4
+123582,Panditas 62.5g Bolsa CTR RIC,7.22,60,91,4
+123583,Panditas aciditos 62.5g Bolsa CTR Ric,7.22,60,80,4
+123586,Pasitas 55g Bolsa CTR RIC,7.22,60,80,4
+123594,Golden Nuts Enchilado 40g Bolsa C3H BAR,6.22,85,110,10
+123595,Golden Nuts Salado 40g Bolsa C3H BAR,6.22,85,110,10
+123693,Chips Queso 55g,10.73,35,0,0
+123698,Spirriones 105g,26.67,12,0,0
+123699,Spirrones 60g,16.67,25,0,0
+123706,Papatinas Chilix 90g CB2 BAR_123706,14.81,35,49,7
+123790,Chicharron Cerdo 110g,30,12,0,0
+124234,BIG MIX NVO 70G BOLSA CB2 BAR,7.78,20,49,49
+124235,Big Mix Clasico Nvo 200g CB2 BAR,17.12,10,0,0
+124237,Big Mix Fuego NVO 200g CB2 BAR,8.03,10,0,0
+124239,Takis Fuego 56g CT1,7.78,48,91,91
+124240,Chips Sal 46g CT1,9.33,20,91,7
+124241,Chips Fuego 46g CT1,9.33,20,91,91
+124243,Runners 58g CT1,6.22,48,91,91
+124244,Chips Jalapeño 46g CT1,9.33,20,91,91
+124357,Takis Cobra 56g CT1,7.78,48,91,7
+124358,Takis Fajitas 56g CT1,7.78,48,91,49
+124359,Takis Huakamole 56g CT1,7.78,48,91,7
+124360,Takis Salsa Brava 56g CT1,7.78,48,91,49
+124381,Chips Fuego 42g CT1,9.33,30,91,7
+124382,Chips Jalapeño 42g CT1,9.33,30,0,0
+124383,Chips Sal 42g CT1,9.33,30,0,0
+124758,Golden Nuts Japones 78g,6.22,0,0,0
+124442,Golden Nuts Japones Nvo PC 190g C3H BAR,16,24,0,0
+124443,Kiyakis Nvo PC 50g C3H BAR,5.44,88,110,10
+124445,Kiyakis Nvo PC 95g C3H BAR,7.41,40,110,10
+124447,Kiyakis PC 150g C3H BAR,11.2,34,110,10
+800,Chips Jalapeño 170g BAR_800,26.45,11,49,7
+1280,pollitos chocolate 390g 20d60 lc_1280,42.73,20,44,4
+2530,Chips Sal 170g BAR_2530,26.45,11,49,7
+3422,Canasta Choc Relleno Rompope 325g LC_3422,35.61,24,56,7
+4624,Cajeta Espreable Envinada 660g COR_4624,40.95,12,0,0
+4625,Cajeta Espreable Vainilla 660g COR_4625,43.05,12,0,0
+4919,Cajeta Espreable Quemada 660g COR_4919,43.05,12,0,0
+6420,Tortilla Nachos 3pq 1Kg BAR_6420,94.32,1,72,9
+6444,Karameladas 260g BAR_6444,16.33,16,49,7
+6476,Tostachos Queso CB1 70g BAR_6476,6.22,25,91,7
+6490,Chipotles 52g BAR_6490,6.22,25,91,7
+6820,golden nuts semilla 20g bar_6820,6.22,100,91,7
+7230,Paquete Diversion 1.5Kg RIC_7230,98.2,6,0,0
+7557,Dulcigomas 112g RIC_7557,9.47,45,80,4
+7761,bubulubu 20g ric_7761,1.26,250,0,0
+7762,Kranky 15g RIC_7762,1.44,250,0,0
+7766,Panditas 15g RIC_7766,1.94,250,0,0
+7796,Golden Nuts Semillas 60g_7796,14.2,48,91,7
+7829,Bubulubu 1p 35g RIC_7829,4.33,150,96,4
+7840,Paleta Payaso 1p 45g RIC_7840,5.78,70,80,40
+8362,Cajeta Espreable Envinada 370g COR_8362,25.64,25,0,0
+8364,Cajeta Espreable Vainilla 370g COR_8364,25.64,25,0,0
+8365,Cajeta Espreable Quemada 370g COR_8365,28.46,25,50,10
+8773,Kranky Vertical 70g RIC_8773,8.68,60,80,4
+8775,Dulcigomas Vertical 70g RIC_8775,8.68,60,80,4
+8779,Panditas Rojos Vertical 70g RIC_8779,8.68,60,80,4
+8785,Panditas Acidos Vertical 70g RIC_8785,8.68,60,80,4
+8786,Panditas Vertical 70g RIC_8786,8.68,60,80,4
+8790,Paleta Cajeta Tira 20p 110g COR_8790,13.89,50,45,9
+8804,Paleton Tira 10p 140g COR_8804,9.41,50,0,0
+8827,Cajeta Quemada Doy Pack 250g YOP_8827,12.2,24,50,7
+8990,Papatinas Fuego 25g BAR_8990,5.44,56,91,7
+9017,Golden Nuts Semilla 28g BAR_9017,7.78,100,91,7
+9274,Fuego POP Det 23g BAR_9274,5.44,25,91,7
+9488,Toreadas Habanero 170g BAR_9488,26.46,11,49,7
+9745,Big Mix Queso 200g BAR_9745,16.79,10,56,7
+9784,Karameladas 120g BAR_9784,10.89,26,49,7
+9840,Chips Jalapeño 350g BAR_9840,31.93,8,0,0
+30206,bon o bon cafe display 15p 15g ric_30206,3.59,300,60,10
+30245,Almendras 82g RIC_30245,10.84,30,0,0
+30246,Kranky 80g RIC_30246,8.67,30,0,0
+30301,Spirrones 100g BAR_30301,16.8,25,49,7
+31088,Chips Fuego 55g BAR_31088,7.36,35,49,7
+31090,Chips Fuego 170g BAR_31090,26.45,11,49,7
+31211,Churritos Chile y Limon 50g BAR_31211,4.67,35,91,7
+31237,Bolsa Chocoretas 125g RIC_31237,10.84,23,0,0
+31560,Chips Diabla 60g BAR_31560,6.23,35,0,0
+31561,Chips Jalapeno 60g BAR_31561,6.69,35,49,7
+31562,Chips Sal 60g BAR_31562,6.69,35,49,7
+31702,Toreadas Habanero 55g BAR_31702,7.36,35,49,7
+31808,Takis Fuego 90g BAR_31808,9.33,42,49,7
+31809,Takis Fajitas 90g BAR_31809,7.78,42,49,7
+31810,Runners 90g BAR_31810,6.69,42,49,7
+31811,Chipotles 80g BAR_31811,6.69,35,49,7
+31910,Dulcigomas 12p 45g Cj RIC_31910,5.14,108,80,4
+31911,panditas 12p 45g cj ric_31911,5.58,108,57,4
+32097,Bolsa Bubulubu 15p 20g RIC_32097,19.13,12,80,4
+32354,paleta cupido fresa cereza 18p 16g ver_32354,18.8,30,36,4
+32355,paleta tarrito 18p 16g ver_32355,18.8,30,40,4
+32356,paleta manita suerte 18p 16g ver_32356,18.8,30,40,4
+32357,paleta elote con chile 18p 16g ver_32357,18.8,30,40,4
+32387,Bolsa Pika Fresa 60p 12g VER_32387,43.33,24,32,4
+33258,Paleton 50p 700g Cj COR_33258,71.22,4,60,4
+33259,Macarrones 24p 480g Cj COR_33259,51.28,12,80,4
+34587,Bolsa Paleta Mango c/Chile 18p 16g VER_34587,18.8,30,0,0
+34589,Bolsa Paleta Bomba Chile 18p 15g VER_34589,18.8,30,0,0
+34780,Rellerindo 1p 11g VER_34780,46.94,24,28,7
+35239,Spirrones 25g CB2 BAR_35239,8.4,70,0,0
+36047,Paleta Takis 1p 24g Tira VER_36047,2.53,432,28,7
+36685,Oblea Cajeta 40p 560g Cj COR_36685,71.28,6,112,4
+37256,Chicks Vitrolero DT 110p 539g CHK_37256,70.17,14,40,10
+37732,Chicloso 130p 806g Cj COR_37732,92.69,4,80,4
+37782,Paleton 18p 20g Cj LC_37782,1.95,432,0,0
+37987,Churritos Fuego 50g BAR_37987,4.67,40,91,7
+38242,Hot Nuts Multintenso 80g BAR,7.78,68,63,7
+38582,Golden Nuts Enchilado 100g C3H BAR_38582,11.67,40,0,0
+38585,Golden Nuts Salado 100g C3H BAR_38585,11.67,40,0,0
+38587,Hot Nuts Fuego 50g C3H BAR_38587,6.22,67,110,10
+38590,Hot Nuts Multintenso 50g C3H BAR_38590,6.22,67,110,10
+38611,Golden Nuts Surtido Selecto 40G C3h Bar,6.22,85,0,0
+38612,Hot Nuts Multintenso 100g C3H BAR_38612,11.67,35,110,10
+39109,Semillas Big Mix Party 100g BAR_39109,11.67,40,130,10
+41620,chutazo 1110g ric_41620,170.94,12,30,3
+41624,moneda ricolino 800g ric_41624,142.45,12,36,3
+41653,huevito pinto 1500g vitrolero lc_41653,128.21,12,30,3
+41655,Jelly X-Treme 1300g LC_41655,70.51,12,30,3
+42001,Kranky Horizontal 40g RIC_42001,4.77,100,80,4
+42124,Takis 190g BAR_42124,11.9,25,0,0
+42126,Runners 200g BAR_42126,11.9,25,0,0
+42158,Toreadas Habanero 40g BAR_42158,7.78,25,91,7
+42458,Takis Fuego 190g BAR_42458,12.64,25,49,7
+44114,Clever Adulto Original 20kg INT_44114,471.31,1,21,4
+44117,Clever Cachorro Original 15kg INT_44117,406.3,1,32,4
+45238,Papatinas Chilix  25g Tira 8 p BAR_45238,5.44,56,91,7
+45250,Panditas 115g RIC_45250,9.39,32,80,4
+45552,pikaros 30p 16.5 cj ric_45552,1.81,240,56,4
+46749,bon o bon leche 15p ric_46749,3.59,300,60,10
+46842,Karameladas POP 50g BAR_46842,5.44,35,91,91
+48205,valentones 175g sp bar_48205,17.11,8,49,49
+48600,CHIPS SAL 500G BAR,35.77,3,0,0
+124144,Almendras NF,7.22,100,80,4
+122928,Pecositas 70p 9.8g RIC_122928,1.08,560,88,4
+123023,Panditas Rellenos Chamoy 66g RIC_123023,8.68,60,0,0
+123264,Pop Cinemania,6.22,26,49,7
+123276,Gomita Tarrito Vertical 35g,3.61,96,0,0
+123277,Gomita Manita Vertical 35g,3.61,96,80,4
+123327,Bolsita Chutazo 3p 55.5g LC_123327,7.22,100,72,4
+123331,Bolsita Jelly XTreme 40g LC_123331,3.61,150,72,4
+123332,Bolsita Huevito Pinto 36g LC_123332,3.61,150,72,4
+123334,Bolsita Oblea Cajeta 2p 28g COR_123334,3.61,100,72,4
+123335,Bolsita Macarrones 3p 60g COR_123335,7.22,75,72,4
+123337,Bolsita Pica Fresa 4p 48g VER_123337,3.61,100,72,4
+123431,Panditas Enchilados 62.5 g,7.22,60,80,4
+123460,Takis Fuego 280gr,23.46,12,0,0
+123513,Chicharrón de cerdo 75g,18.48,10,0,0
+123532,Sushitlan 10p 34g Tira CU VER_123532,3.61,120,21,4
+123535,Totopos Mi Tierra 310g CB2 BAR_123535,17.11,8,0,0
+123575,Chocoretas 55g Bolsa CTR RIC,7.22,60,80,4
+123576,Dulcigomas 63g Bolsa CTR RIC,7.22,60,80,4
+123577,Gomilocas Dientes 60g Bolsa CTR RIC,7.22,60,80,4
+123578,Gomilocas Hamburguesas 60g Bolsa CTR RIC,7.22,60,0,0
+123579,Gomilocas Pinguinos 60g Bolsa CTR RIC,7.22,60,80,4
+123580,Kranky 55g Bolsa CTR RIC,7.22,60,80,4
+123581,Moritas 60g Bolsa CTR Ric,7.22,60,80,4
+123582,Panditas 62.5g Bolsa CTR RIC,7.22,60,91,4
+123583,Panditas aciditos 62.5g Bolsa CTR Ric,7.22,60,80,4
+123584,Panditas rellenos 60g Bolsa CTR Ric,7.22,60,80,4
+123585,Panditas Rojos 62.5g Bolsa CTR RIC,7.22,60,80,4
+123586,Pasitas 55g Bolsa CTR RIC,7.22,60,80,4
+123594,Golden Nuts Enchilado 40g Bolsa C3H BAR,6.22,85,110,10
+123595,Golden Nuts Salado 40g Bolsa C3H BAR,6.22,85,110,10
+123641,Choc Kracao Cacao PC 38g CU RIC_123641,8.67,90,80,10
+123643,Choc Kracao Pepita PC 38g CU RIC_123643,8.67,90,80,10
+123644,Choc Kracao Pina PC 38g CU RIC_123644,8.67,90,80,10
+123736,Big Mix Queso 70g Bolsa CB2 BAR,7.78,20,49,49
+123787,Arelos Queso 25g,4.67,20,91,7
+123788,Arelos Fuego 25g,4.67,20,91,7
+123984,Gummy Yummy Frutal 1p 90g Bolsa CU RIC_123984,10.83,32,80,4
+123988,Gummy Yummy Cubos 1p 90g Bolsa CU RIC_123988,10.83,32,80,4
+123992,Gummy Yummy Flan 1p 90g Bolsa CU RIC_123992,10.83,32,80,4
+123996,Gummy Yummy Vipers AP 90g CU RIC_123996,10.83,32,80,4
+124008,Gummy Yummy Mangos 1p 90g Bolsa CU RIC_124008,10.83,32,80,4
+124012,Gummy Yummy Crowns 1p 90g Bolsa CU RIC_124012,10.83,32,80,4
+124016,Gummy Yummy Aros 1p 90g Bolsa CU RIC_124016,10.83,32,80,4
+124020,Gummy Yummy Glows 1p 90g Bolsa CU RIC_124020,10.83,32,80,4
+124024,Gummy Yummy Vipers 1p 90g Bolsa CU RIC_124024,10.83,32,80,4
+124028,Gummy Yummy Tags 1p 90g Bolsa CU RIC_124028,10.83,32,80,4
+124064,Lunetas 1p 55g RIC,7.22,84,104,0
+124072,Bolsita cacahuate Salado 70g C3H BAR,7.78,70,110,10
+124073,Bolsita cacahuate enchilado 70g C3H BAR ,7.78,70,110,10
+124074,Bolsita cacahuate Japones 70g C3H BAR ,7.78,70,110,10
+124096,Hot Nuts Fuego 80g Bolsa CH BAR,7.78,54,110,10
+124144,Almendras NF ,7.22,100,80,4
+124234,BIG MIX NVO 70G BOLSA CB2 BAR,7.78,20,49,49
+124235,Big Mix Clasico Nvo 200g CB2 BAR,17.12,10,0,0
+124236,BIG MIX FUEGO NVO 70G BOLSA CB2 BAR,7.78,20,49,49
+124237,Big Mix Fuego NVO 200g CB2 BAR,8.03,10,0,0
+124238,Big Mix Jalapeno 80g BAR,7.78,20,49,7
+124239,Takis Fuego 56g CT1,7.78,48,91,91
+124240,Chips Sal 46g CT1,9.33,20,91,7
+124241,Chips Fuego 46g CT1,9.33,20,91,91
+124242,Chips Diabla 46g CT1,9.33,20,91,7
+124243,Runners 58g CT1,6.22,48,91,91
+124244,Chips Jalapeño 46g CT1,9.33,20,91,91
+124245,Chips Adobadas 46g CT1,9.33,20,91,7
+124358,Takis Fajitas 56g CT1,7.78,48,91,49
+124359,Takis Huakamole 56g CT1,7.78,48,91,7
+124360,Takis Salsa Brava 56g CT1,7.78,48,91,49
+124368,Chips Queso 46g CT1,9.33,20,0,0
+124426,GN Salado 60gr,7.78,64,110,10
+124427,GN Enchilado 60gr,7.78,64,110,10
+124430,Kiyakis 75gr,7.78,64,110,10
+124443,Kiyakis Nvo PC 50g C3H BAR,5.44,88,110,10
+124445,Kiyakis Nvo PC 95g C3H BAR,7.41,40,110,10
+124447,Kiyakis PC 150g C3H BAR,11.2,34,110,10
+123678,Paleta Sandibrocha 18P 252G Cu Ver_123678,18.8,30,0,0
+123308,Golden Nuts Salado PC 150g BAR,0,25,0,0
+123310,Golden Nuts Enchilado PC 150g BAR,0,25,0,0
+124485,Big Mix Queso 70g,0,0,0,0
+124657,Maxi Duvalin 23g,0,0,0,0
+124757,Big Mix Party 70g,0,0,0,0
+124824,Takis Fuego 200g,0,0,0,0
