@@ -39,6 +39,7 @@ class DatasetrowUpdateSerializer(serializers.ModelSerializer):
 
         model = DatasetRow
         fields = [
-            'id',
-            'adjustment'
+            'adjustment',
+            'bed',
+            'pallet'
         ]
