@@ -44,8 +44,7 @@ class Login extends Component {
       .then(res => {
         window.localStorage.setItem('jwt', res.data.token);
         window.localStorage.setItem('profile', res.data.email);
-        window.localStorage.setItem('route', res.data.route.externalId);
-        window.localStorage.setItem('agency', res.data.agency.externalId);
+        window.localStorage.setItem('sale_center', res.data.saleCenter.externalId);
 
         this.props.history.push('/dashboard');
       })

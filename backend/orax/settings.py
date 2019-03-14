@@ -22,7 +22,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'py8t-$h^5@g*ihu5-(#+%k%70i87fr-3ju$jc^ez_*#!$7w1@a'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = int(os.environ['DEBUG']) == 1 if os.environ.get('DEBUG',None) else True
+DEBUG = int(os.environ['DEBUG']) == 1 if os.environ.get(
+    'DEBUG', None) else True
 
 ALLOWED_HOSTS = ['*']
 
@@ -45,17 +46,10 @@ LOCAL_APPS = [
     'orax.utils',
     'orax.batch',
     'orax.datasets',
-    'orax.projects',
-    'orax.channels',
-    'orax.cycles',
-    'orax.datasetrows',
-    'orax.organizations',
-    'orax.periods',
     'orax.products',
-    'orax.rules',
-    'orax.routes',
+    'orax.projects',
     'orax.sales_centers',
-    'orax.users'
+    'orax.users',
 ]
 
 INSTALLED_APPS += LOCAL_APPS
@@ -100,16 +94,11 @@ WSGI_APPLICATION = 'orax.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.environ.get('POSTGRES_DB', 'orax'),
+        'NAME': os.environ.get('POSTGRES_DB', 'bec'),
         'USER': os.environ.get('POSTGRES_USER', 'postgres'),
         'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'postgres'),
         'HOST': os.environ.get('POSTGRES_HOST', 'localhost'),
         'PORT': os.environ.get('POSTGRES_PORT', '5432'),
-    },
-    'mongo': {
-        'NAME': os.environ['MONGO_DB'] if not DEBUG else 'marble-seeds-db',
-        'HOST': os.environ['MONGO_HOST'] if not DEBUG else '127.0.0.1',
-        'PORT': int(os.environ['MONGO_PORT']) if not DEBUG else 27017
     }
 }
 
@@ -212,3 +201,10 @@ CACHES = {
 CELERY_BROKER_URL = 'redis://{0}'.format(REDIS_HOST)
 
 AUTH_USER_MODEL = 'users.User'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'user@gmail.com'
+EMAIL_HOST_PASSWORD = '123'
+EMAIL_PORT = 587

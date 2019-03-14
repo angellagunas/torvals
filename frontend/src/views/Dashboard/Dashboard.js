@@ -43,6 +43,9 @@ class Dashboard extends Component {
     // colapse
     this.toggleCustom = this.toggleCustom.bind(this);
 
+    //download report
+    this.downloadReport = this.downloadReport.bind(this);
+
     this.state = {
       // colapse vars
       indicadorsCollapsed: false,
@@ -55,22 +58,23 @@ class Dashboard extends Component {
       query_search: '',
 
       //indicators
-      total_forecast: 0,
-      total_adjustment: 0,
-      average_sales: 0,
-      average_return: 0,
+      ind_transit: 0,
+      ind_exists: 0,
+      ind_safety_stock: 0,
+      ind_adjustments: 0,
 
-      total_forecast_money: 0,
-      total_adjustment_money: 0,
-      average_sales_money: 0,
-      average_return_money: 0,
+      ind_transit_money: 0,
+      ind_exists_money: 0,
+      ind_safety_stock_money: 0,
+      ind_adjustment_money: 0,
 
       // table data
       rows: [],
+      date: "",
 
       // Card Chart
       cardChartData: {
-        labels: ['Sugerido', 'Ajuste', 'Venta Promedio', 'Devolución Promedio'],
+        labels: ['Tránsito', 'Existencia', 'Safety Stock', 'Pedido Final'],
         datasets: [
           {
             label: 'Total',
@@ -127,24 +131,22 @@ class Dashboard extends Component {
     };
   }
 
-  componentWillMount(){
+  componentWillMount() {
     const jwt = window.localStorage.getItem('jwt');
-    if (!jwt){
+    if (!jwt) {
       this.props.history.push('/login')
     }
 
     const profile = window.localStorage.getItem('profile');
-    const route = window.localStorage.getItem('route');
-    const agency = window.localStorage.getItem('agency');
-    this.setState({user_email: profile})
-    this.setState({user_route: route})
-    this.setState({user_agency: agency})
+    const sale_center = window.localStorage.getItem('sale_center');
+    this.setState({ user_email: profile })
+    this.setState({ user_sale_center: sale_center })
     this.loadData()
   }
 
-  _getCardChartData(data){
+  _getCardChartData(data) {
     return {
-      labels: ['Sugerido', 'Ajuste', 'Venta Promedio', 'Devolución Promedio'],
+      labels: ['Tránsito', 'Existencia', 'Safety Stock', 'Pedido Final'],
       datasets: [
         {
           label: 'Total',
@@ -156,7 +158,7 @@ class Dashboard extends Component {
     };
   }
 
-  _getCardChartOpts(data){
+  _getCardChartOpts(data) {
     const min = Math.min.apply(Math, data) - 5;
     const max = Math.max.apply(Math, data) + 5;
     return {
@@ -204,19 +206,19 @@ class Dashboard extends Component {
     };
   }
 
-  percentage(prediction, adjustment){
+  percentage(prediction, adjustment) {
     let percentage = (
       ((adjustment - prediction) / prediction) * 100
     )
 
-    if(isNaN(percentage) || !isFinite(percentage)){
+    if (isNaN(percentage) || !isFinite(percentage)) {
       percentage = 0
     }
 
     return Math.round(percentage);
   }
 
-  handleSearch(event){
+  handleSearch(event) {
     this.setState({
       query_search: event.target.value
     })
@@ -231,7 +233,25 @@ class Dashboard extends Component {
     });
   }
 
-  async handleChange (e, row_id) {
+  async sendReport(e) {
+    e.preventDefault();
+    const config = {
+      'headers': {
+        'Authorization': 'Bearer ' + window.localStorage.getItem('jwt')
+      }
+    }
+    console.log('Entro')
+    await axios
+      .get("api/v2/datasetrows/send", config)
+      .then(res => {
+        console.info('email sent');
+      })
+      .catch(error => {
+        console.error(error)
+      });
+  }
+
+  async handleChange(e, row_id) {
     e.preventDefault();
 
     const config = {
@@ -243,7 +263,7 @@ class Dashboard extends Component {
     let originalAdjustment = 0;
     let priceOfProductUpdated = 0;
     const updatedRows = this.state.rows.map(x => {
-      if (x.id === row_id){
+      if (x.id === row_id) {
         originalAdjustment = x.adjustment;
         x.adjustment = e.target.value;
 
@@ -254,41 +274,41 @@ class Dashboard extends Component {
     });
 
     let {
-      total_forecast,
-      total_adjustment,
-      average_sales,
-      average_return,
+      ind_transit,
+      ind_adjustments,
+      ind_exists,
+      ind_safety_stock,
 
-      total_adjustment_money,
+      ind_adjustment_money,
     } = this.state;
 
-    if(originalAdjustment > e.target.value){
+    if (originalAdjustment > e.target.value) {
       const diferenceBeetwenAdjustments = originalAdjustment - e.target.value;
-      total_adjustment -= diferenceBeetwenAdjustments;
+      ind_adjustments -= diferenceBeetwenAdjustments;
 
-      total_adjustment_money -= (diferenceBeetwenAdjustments * priceOfProductUpdated);
+      ind_adjustment_money -= (diferenceBeetwenAdjustments * priceOfProductUpdated);
     } else {
       const diferenceBeetwenAdjustments = e.target.value - originalAdjustment;
-      total_adjustment += diferenceBeetwenAdjustments;
+      ind_adjustments += diferenceBeetwenAdjustments;
 
-      total_adjustment_money += (diferenceBeetwenAdjustments * priceOfProductUpdated);
+      ind_adjustment_money += (diferenceBeetwenAdjustments * priceOfProductUpdated);
     }
 
     await axios
       .patch(
         "api/v2/datasetrows/" + row_id,
-        {'adjustment': e.target.value},
+        { 'adjustment': e.target.value },
         config
       ).then(res => {
 
         this.setState({
           rows: updatedRows,
-          total_adjustment_money: total_adjustment_money,
-          total_adjustment: total_adjustment,
+          ind_adjustment_money: ind_adjustment_money,
+          ind_adjustments: ind_adjustments,
           'cardChartData': this._getCardChartData([
-            total_forecast, total_adjustment, average_sales, average_return]),
+            ind_transit, ind_adjustments, ind_exists, ind_safety_stock]),
           'cardChartOpts': this._getCardChartOpts([
-            total_forecast, total_adjustment, average_sales, average_return]),
+            ind_transit, ind_adjustments, ind_exists, ind_safety_stock]),
         });
 
         this.getTableRows();
@@ -298,8 +318,8 @@ class Dashboard extends Component {
       });
   }
 
-  async loadData(e){
-    if (e){
+  async loadData(e) {
+    if (e) {
       e.preventDefault();
     }
 
@@ -315,32 +335,53 @@ class Dashboard extends Component {
       .get(url, config)
       .then(res => {
         const data_response = res.data.results;
+        let date = "";
+        const months = [
+          'Enero',
+          'Febrero',
+          'Marzo',
+          'Abril',
+          'Mayo',
+          'Junio',
+          'Julio',
+          'Agosto',
+          'Septiembre',
+          'Octubre',
+          'Noviembre',
+          'Diciembre'
+        ]
+
+        if (data_response.length > 0) {
+          date = new Date(data_response[0].date);
+          date = date.getDate() + ' de ' + months[date.getMonth()] + ' del ' + date.getFullYear();
+        }
 
         // hacemos sumatoria para los indicadores
-        const prediction = data_response.reduce((a, b) => +a + +b.prediction, 0);
+        const transit = data_response.reduce((a, b) => +a + +b.transit, 0);
+        const stock = data_response.reduce((a, b) => +a + +b.inStock, 0);
+        const safetyStock = data_response.reduce((a, b) => +a + +b.safetyStock, 0);
         const adjustment = data_response.reduce((a, b) => +a + +b.adjustment, 0);
-        const sales = data_response.reduce((a, b) => +a + +b.sale, 0);
-        const returns = data_response.reduce((a, b) => +a + +b.refund, 0);
 
-        const forecast_money = data_response.reduce((a, b) => +a + +(b.prediction * b.product.price), 0);
+        const transit_money = data_response.reduce((a, b) => +a + +(b.transit * b.product.price), 0);
+        const exists_money = data_response.reduce((a, b) => +a + +(b.inStock * b.product.price), 0);
+        const safety_stock_money = data_response.reduce((a, b) => +a + +(b.safetyStock * b.product.price), 0);
         const adjustment_money = data_response.reduce((a, b) => +a + +(b.adjustment * b.product.price), 0);
-        const sales_money = data_response.reduce((a, b) => +a + +(b.sale * b.product.price), 0);
-        const return_money = data_response.reduce((a, b) => +a + +(b.refund * b.product.price), 0);
 
         this.setState({
-          'cardChartData': this._getCardChartData([prediction, adjustment, sales, returns]),
-          'cardChartOpts': this._getCardChartOpts([prediction, adjustment, sales, returns]),
+          'cardChartData': this._getCardChartData([transit, stock, safetyStock, adjustment]),
+          'cardChartOpts': this._getCardChartOpts([transit, stock, safetyStock, adjustment]),
           'rows': data_response,
+          'date': date,
 
-          'total_forecast': prediction,
-          'total_adjustment': adjustment,
-          'average_sales': sales,
-          'average_return': returns,
+          'ind_transit': transit,
+          'ind_exists': stock,
+          'ind_safety_stock': safetyStock,
+          'ind_adjustments': adjustment,
 
-          'total_forecast_money': forecast_money,
-          'total_adjustment_money': adjustment_money,
-          'average_sales_money': sales_money,
-          'average_return_money': return_money
+          'ind_transit_money': transit_money,
+          'ind_exists_money': exists_money,
+          'ind_safety_stock_money': safety_stock_money,
+          'ind_adjustment_money': adjustment_money,
         });
       })
       .catch(error => {
@@ -348,10 +389,10 @@ class Dashboard extends Component {
       });
   }
 
-  getTableRows(){
+  getTableRows() {
     let tableRows = [];
 
-    for(let i = 0; i < this.state.rows.length; i++){
+    for (let i = 0; i < this.state.rows.length; i++) {
       const row = this.state.rows[i];
 
       tableRows.push((
@@ -364,39 +405,35 @@ class Dashboard extends Component {
               <span>ID</span> | {row.product.externalId}
             </div>
           </td>
-          <td key={"cell_suggest_" + i} className="text-center">
-            <div>
-              <strong>{row.prediction}</strong>
+          <td key={"cell_adjustment_" + i} className="text-center justify-content-center align-items-center" style={{ width: 120 + 'px' }}>
+            <Input tabIndex={i + 1} type="number" className="text-center" id="input3-group2" name="input3-group2" defaultValue={row.adjustment} onBlur={(e) => { this.handleChange(e, row.id) }} />
+          </td>
+          <td key={"cell_empty_" + i}>
+          </td>
+          <td key={"cell_stocks_" + i}>
+            <div className="medium text-muted">
+              <span><strong>Transito:</strong></span> {row.transit}
+            </div>
+            <div className="medium text-muted">
+              <span><strong>Existencia:</strong></span> {row.inStock}
+            </div>
+            <div className="medium text-muted">
+              <span><strong>Safety Stock:</strong></span> {row.safetyStock}
             </div>
           </td>
-          <td key={"cell_adjustment_" + i} className="text-center justify-content-center align-items-center" style={{ width: 80 + 'px' }}>
-            <Input tabIndex={i + 1} type="text" id="input3-group2" name="input3-group2" defaultValue={row.adjustment} onBlur={(e) => {this.handleChange(e, row.id)}} />
-          </td>
-          <td key={"cell_suggest_corr_" + i} className="text-center">
-            <div>
-              <strong>{ Math.round(row.adjustment / row.product.quota) }</strong>
+          <td key={"cell_prediction_" + i}>
+            <div className="medium text-muted">
+              <span><strong>Ajustado: </strong></span>
+              {this.percentage(this.state.rows[i].prediction, this.state.rows[i].adjustment)} %
             </div>
-          </td>
-          <td key={"cell_percentage_" + i} className="text-center">
-            <div>
-              <strong>
-                {this.percentage(this.state.rows[i].prediction, this.state.rows[i].adjustment) } %
-              </strong>
+            <div className="medium text-muted">
+              <span><strong>Sugerido: </strong></span> {row.prediction}
             </div>
-          </td>
-          <td key={"cell_quota" + i} className="text-center">
-            <div>
-              <strong>{ row.product.quota }</strong>
+            <div className="medium text-muted">
+              <span><strong>Pedido Camas: </strong></span> {row.bed}
             </div>
-          </td>
-          <td key={"cell_devolucion_" + i} className="text-center">
-            <div>
-              <strong>{row.refund || 0}</strong>
-            </div>
-          </td>
-          <td key={"cell_venta_" + i} className="text-center">
-            <div>
-              <strong>{row.sale || 0}</strong>
+            <div className="medium text-muted">
+              <span><strong>Pedido Tarimas: </strong></span> {row.pallet}
             </div>
           </td>
         </tr>
@@ -406,11 +443,40 @@ class Dashboard extends Component {
     return tableRows;
   }
 
-  getIconCollapse(){
+  getIconCollapse() {
     return this.state.indicadorsCollapsed ? 'fa fa-angle-up' : 'fa fa-angle-down';
   }
 
   loading = () => <div className="animated fadeIn pt-1 text-center">Loading...</div>
+
+  async downloadReport(e) {
+    if (e) {
+      e.preventDefault();
+    }
+
+    const config = {
+      'headers': {
+        'Authorization': 'Bearer ' + window.localStorage.getItem('jwt')
+      }
+    }
+    const file_name = 'adjustment_report_ceve_' + this.state.user_sale_center + '_' + this.state.date.replace(/ /g, '_') + '.csv';
+    const url = "api/v2/datasetrows/download";
+    const responseType = 'blob'
+    await axios
+      .get(url, config, responseType)
+      .then(response => {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', file_name);
+        document.body.appendChild(link);
+        link.click();
+
+      })
+      .catch(error => {
+        console.error(error)
+      });
+  }
 
   render() {
 
@@ -431,72 +497,72 @@ class Dashboard extends Component {
                   </Col>
                 </Row>
                 <div className="chart-wrapper" style={{ marginTop: 5 + 'px' }}>
-                    <Collapse isOpen={this.state.indicadorsCollapsed} data-parent="#exampleAccordion" id="exampleAccordion2">
-                      <Row className="row">
+                  <Collapse isOpen={this.state.indicadorsCollapsed} data-parent="#exampleAccordion" id="exampleAccordion2">
+                    <Row className="row">
 
-                        <Col xs={{ size: 12, offset: 0 }} sm={{ size: 6, offset: 0 }} md={{ size: 3 }} lg={{ size: 3 }}>
-                          <Card className="text-white bg-primary">
-                            <CardBody className="pb-0">
-                              <div className="text-value">
-                                { this.state.total_forecast + ' - $' + this.state.total_forecast_money }
-                              </div>
-                              <div>Sugerido total</div>
-                            </CardBody>
-                            <div className="chart-wrapper mx-3" style={{ height: '70px' }}>
-                              <Line data={this.state.cardChartData} options={this.state.cardChartOpts} height={70} />
+                      <Col xs={{ size: 12, offset: 0 }} sm={{ size: 6, offset: 0 }} md={{ size: 3 }} lg={{ size: 3 }}>
+                        <Card className="text-white bg-primary">
+                          <CardBody className="pb-0">
+                            <div className="text-value">
+                              {this.state.ind_transit + ' - $' + this.state.ind_transit_money}
                             </div>
-                          </Card>
-                        </Col>
+                            <div>Tránsito</div>
+                          </CardBody>
+                          <div className="chart-wrapper mx-3" style={{ height: '70px' }}>
+                            <Line data={this.state.cardChartData} options={this.state.cardChartOpts} height={70} />
+                          </div>
+                        </Card>
+                      </Col>
 
-                        <Col xs={{ size: 12, offset: 0 }} sm={{ size: 6, offset: 0 }} md={{ size: 3 }} lg={{ size: 3 }}>
-                          <Card className="text-white bg-primary">
-                            <CardBody className="pb-0">
-                              <div className="text-value">
-                                { this.state.total_adjustment +' - $' + this.state.total_adjustment_money }
-                              </div>
-                              <div>Ajuste Total</div>
-                            </CardBody>
-                            <div className="chart-wrapper mx-3" style={{ height: '70px' }}>
-                              <Line data={this.state.cardChartData} options={this.state.cardChartOpts} height={70} />
+                      <Col xs={{ size: 12, offset: 0 }} sm={{ size: 6, offset: 0 }} md={{ size: 3 }} lg={{ size: 3 }}>
+                        <Card className="text-white bg-primary">
+                          <CardBody className="pb-0">
+                            <div className="text-value">
+                              {this.state.ind_exists + ' - $' + this.state.ind_exists_money}
                             </div>
-                          </Card>
-                        </Col>
+                            <div>Existencia</div>
+                          </CardBody>
+                          <div className="chart-wrapper mx-3" style={{ height: '70px' }}>
+                            <Line data={this.state.cardChartData} options={this.state.cardChartOpts} height={70} />
+                          </div>
+                        </Card>
+                      </Col>
 
-                        <Col xs={{ size: 12, offset: 0 }} sm={{ size: 6, offset: 0 }} md={{ size: 3 }} lg={{ size: 3 }}>
-                          <Card className="text-white bg-primary">
-                            <CardBody className="pb-0">
-                              <div className="text-value">
-                                { this.state.average_sales +' - $' + this.state.average_sales_money }
-                              </div>
-                              <div>Venta Promedio Total</div>
-                            </CardBody>
-                            <div className="chart-wrapper mx-3" style={{ height: '70px' }}>
-                              <Line data={this.state.cardChartData} options={this.state.cardChartOpts} height={70} />
+                      <Col xs={{ size: 12, offset: 0 }} sm={{ size: 6, offset: 0 }} md={{ size: 3 }} lg={{ size: 3 }}>
+                        <Card className="text-white bg-primary">
+                          <CardBody className="pb-0">
+                            <div className="text-value">
+                              {this.state.ind_safety_stock + ' - $' + this.state.ind_safety_stock_money}
                             </div>
-                          </Card>
-                        </Col>
+                            <div>Safety Stock</div>
+                          </CardBody>
+                          <div className="chart-wrapper mx-3" style={{ height: '70px' }}>
+                            <Line data={this.state.cardChartData} options={this.state.cardChartOpts} height={70} />
+                          </div>
+                        </Card>
+                      </Col>
 
-                        <Col xs={{ size: 12, offset: 0 }} sm={{ size: 6, offset: 0 }} md={{ size: 3 }} lg={{ size: 3 }}>
-                          <Card className="text-white bg-primary">
-                            <CardBody className="pb-0">
-                              <div className="text-value">
-                                { this.state.average_return + ' - $' + this.state.average_return_money }
-                              </div>
-                              <div>Devolución Promedio Total</div>
-                            </CardBody>
-                            <div className="chart-wrapper mx-3" style={{ height: '70px' }}>
-                              <Line data={this.state.cardChartData} options={this.state.cardChartOpts} height={70} />
+                      <Col xs={{ size: 12, offset: 0 }} sm={{ size: 6, offset: 0 }} md={{ size: 3 }} lg={{ size: 3 }}>
+                        <Card className="text-white bg-primary">
+                          <CardBody className="pb-0">
+                            <div className="text-value">
+                              {this.state.ind_adjustments + ' - $' + this.state.ind_adjustment_money}
                             </div>
-                          </Card>
-                        </Col>
-                      </Row>
-                    </Collapse>
+                            <div>Pedido Final</div>
+                          </CardBody>
+                          <div className="chart-wrapper mx-3" style={{ height: '70px' }}>
+                            <Line data={this.state.cardChartData} options={this.state.cardChartOpts} height={70} />
+                          </div>
+                        </Card>
+                      </Col>
+                    </Row>
+                  </Collapse>
                 </div>
               </CardBody>
             </Card>
           </Col>
         </Row>
-        
+
         <Row>
           <Col>
             <Card>
@@ -504,65 +570,57 @@ class Dashboard extends Component {
                 <Row>
                   <Col xs="12" sm="12" md="5">
                     <CardTitle className="mb-0">
-                      Ruta {this.state.user_route} - Agencia {this.state.user_agency}
+                      Centro de Venta {this.state.user_sale_center}
                     </CardTitle>
                     <div className="small text-muted">
-                      Pedido sugerido para el 28 de Febrero del 2019
+                      Pedido sugerido para el {this.state.date}
                     </div>
                   </Col>
                   <Col xs="12" sm="12" md="7" className="d-none d-sm-inline-block">
                     <Row className="justify-content-end">
-                      <Col xs="11" sm="11" md="10" lg="11">
+                      <Col xs="10" sm="10" md="9" lg="10">
                         <Form onSubmit={this.loadData} autoComplete="off">
                           <InputGroup>
-                              <Input type="text" id="input3-group2" name="input3-group2" placeholder="Search" onChange={this.handleSearch} />
-                              <InputGroupAddon addonType="append">
-                                <Button type="button" color="primary" onClick={this.loadData}>
-                                  <i className="fa fa-search"></i>
-                                </Button>
-                              </InputGroupAddon>
+                            <Input type="text" id="input3-group2" name="input3-group2" placeholder="Search" onChange={this.handleSearch} />
+                            <InputGroupAddon addonType="append">
+                              <Button type="button" color="primary" onClick={this.loadData} title="Buscar productos por nombre o ID">
+                                <i className="fa fa-search"></i>
+                              </Button>
+                            </InputGroupAddon>
                           </InputGroup>
                         </Form>
                       </Col>
-                      <Col xs={{size: 1, offset: 0}} sm={{size: 1, offset: 0}} md={{size: 1, offset: 1}} lg={{size: 1, offset: 0}}>
-                        <Button disabled={true} color="primary" className="float-right"><i className="icon-cloud-download"></i></Button>
+                      <Col xs={{ size: 1, offset: 0 }} sm={{ size: 1, offset: 0 }} md={{ size: 1, offset: 1 }} lg={{ size: 1, offset: 0 }}>
+                        <Button disabled={false} color="primary" className="float-right" title="Descargar reporte" onClick={this.downloadReport}>
+                          <i className="icon-cloud-download"></i>
+                        </Button>
+                      </Col>
+                      <Col xs={{ size: 1, offset: 0 }} sm={{ size: 1, offset: 0 }} md={{ size: 1, offset: 0 }} lg={{ size: 1, offset: 0 }}>
+                        <Button disabled={false} color="primary" className="float-right" title="Enviar pedido por E-mail" onClick={this.sendReport}>
+                          <i className="fa fa-envelope"></i>
+                        </Button>
                       </Col>
                     </Row>
                   </Col>
                 </Row>
 
                 <div className="chart-wrapper" style={{ marginTop: 40 + 'px' }}>
-                  <Table hover responsive className="table-outline mb-0 d-none d-sm-table">
+                  <Table hover responsive className="table-outline mb-0 d-sm-table">
                     <thead className="thead-light">
                       <tr>
-                        <th>
+                        <th className="text-center">
                           Producto
                         </th>
                         <th className="text-center">
-                          Sugerido
+                          Pedido Final
                         </th>
-                        <th className="text-center">
-                          Ajuste
-                        </th>
-                        <th className="text-center">
-                          Corrugados
-                        </th>
-                        <th className="text-center">
-                          % Ajustado
-                        </th>
-                        <th className="text-center">
-                          Cupos
-                        </th>
-                        <th className="text-center">
-                          Dev. Prom
-                        </th>
-                        <th className="text-center">
-                          Vta. Prom
-                        </th>
+                        <th className="text-center"></th>
+                        <th className="text-center"></th>
+                        <th className="text-center"></th>
                       </tr>
                     </thead>
                     <tbody>
-                      { this.getTableRows() }
+                      {this.getTableRows()}
                     </tbody>
                   </Table>
                 </div>

@@ -1,65 +1,201 @@
+"""API for datasetrows."""
+import csv
+from io import StringIO
+
+from django.core.mail import EmailMessage
+from django.db.models import Q
+from django.http import HttpResponse
+
+
 from rest_framework import status
-from rest_framework.exceptions import NotFound, ValidationError
+from rest_framework.decorators import list_route
 from rest_framework.response import Response
 
 from soft_drf.api import mixins
 from soft_drf.api.viewsets import GenericViewSet
 from soft_drf.routing.v1.routers import router
 
-from orax.datasets.serializers import graph
-from orax.utils.connections import Mongo
-from orax.utils.cache import Cache
+from orax.datasets import serializers
+from orax.datasets.models import Dataset, DatasetRow
+from orax import settings
 
 
-class DatasetGraphViewSet(mixins.CreateModelMixin, GenericViewSet):
+class DatasetrowViewSet(
+        mixins.ListModelMixin,
+        mixins.PartialUpdateModelMixin,
+        GenericViewSet):
+    """Manage datasetrows endpoints."""
 
-    serializer_class = graph.DatasetGraphSerializer
-    retrieve_serializer_class = graph.DatasetGraphRetrieveSerializer
-    create_serializer_class = graph.DatasetGraphSerializer
-    queryset = []
+    serializer_class = serializers.DatasetrowSerializer
+    list_serializer_class = serializers.DatasetrowSerializer
+    retrieve_serializer_class = serializers.DatasetrowUpdateSerializer
+    update_serializer_class = serializers.DatasetrowUpdateSerializer
 
-    def create(self, request, *args, **kwargs):
-        self._validate(request, *args, **kwargs)
+    def get_queryset(self):
+        """Return the universe of objects in API."""
+        sale_center = self.request.user.sale_center
+        query_params = self.request.GET.get('q', None)
 
-        key_cache = str(Cache.get_key_from_request(request, *args, **kwargs))
+        dataset = Dataset.objects.get(is_main=True)
 
-        if(Cache.exists(key_cache)):
-            return Response(Cache.get(key_cache))
-
-        data = request.data
-        data['centro_de_venta'] = data['centro-de-venta']
-        del data['centro-de-venta']
-
-        create_serializer = self.get_serializer(
-            data=data,
-            action='create'
+        queryset = DatasetRow.objects.filter(
+            is_active=True,
+            sale_center=sale_center,
+            dataset=dataset,
+            date=dataset.date_adjustment
         )
-        create_serializer.is_valid(raise_exception=True)
 
-        try:
-            data = create_serializer.save()
-            Cache.set(key_cache, data)
+        if query_params:
+            queryset = queryset.filter(
+                Q(product__name__icontains=query_params) |
+                Q(product__external_id__icontains=query_params)
+            )
+        return queryset.order_by('-prediction')
 
-            return Response(data)
-        except Exception as e:
-            print(e)
-            return Response({})
+    @list_route(methods=["GET"])
+    def send(self, request, *args, **kwargs):
+        """Send the adjustment report of user in session."""
+        csv_file = StringIO()
 
-    def _validate(self, request, *args, **kwargs):
-        dataset = Mongo().datasets.find_one({
-            'uuid': kwargs.get('uuid'),
-            'isDeleted': False
-        })
+        fieldnames = [
+            'fecha_de_venta',
+            'CEVE',
+            'item',
+            'producto',
+            'transitos',
+            'existencia',
+            'safety_stock',
+            'sugerido',
+            'pedido_final',
+            'pedido_final_camas',
+            'pedido_final_tarimas'
+        ]
 
-        if dataset is None:
-            raise NotFound()
+        writer = csv.writer(csv_file)
+        writer.writerow(fieldnames)
 
-        if 'centro-de-venta' not in request.data:
-            raise ValidationError({'centro-de-venta': ['This field is required.']})
+        dataset = Dataset.objects.get(is_main=True)
+        sale_center = self.request.user.sale_center
+        sale_center_id = self.request.user.sale_center.external_id
+
+        date_adjustment_label = dataset.date_adjustment
+        str_date = date_adjustment_label.strftime('%d/%m/%Y')
+        str_date = str_date.replace('/', '_de_', 1)
+        str_date = str_date.replace('/', '_del_')
+
+        email_to = self.request.user.email
+
+        rows = DatasetRow.objects.filter(
+            dataset_id=dataset.id,
+            date=dataset.date_adjustment,
+            sale_center=sale_center,
+            is_active=True
+        )
+
+        for row in rows:
+            date = row.date
+            sale_center_id = row.sale_center.external_id
+            item = row.product.external_id
+            product = row.product.name
+            transits = row.transit
+            stocks = row.in_stock
+            safety_stock = row.safety_stock
+            prediction = row.prediction
+            adjustment = row.adjustment
+            beds = row.bed
+            pallets = row.pallet
+
+            row = writer.writerow([
+                date,
+                sale_center_id,
+                item,
+                product,
+                transits,
+                stocks,
+                safety_stock,
+                prediction,
+                adjustment,
+                beds,
+                pallets
+            ])
+            msg = EmailMessage(
+                'Reporte Diario', 'Reporte de Ajustes', settings.EMAIL_HOST_USER, [email_to])
+            msg.content_subtype = "html"
+            file_name = 'adjustment_report_ceve_' + \
+                str(sale_center_id) + '_' + str_date + '.csv'
+
+            msg.attach(file_name,
+                       csv_file.getvalue(), 'text/csv')
+            msg.send()
+
+        return Response(status=status.HTTP_200_OK)
+
+    @list_route(methods=["GET"])
+    def download(self, request, *args, **kwargs):
+        """Download current dataset."""
+        dataset = Dataset.objects.get(is_main=True)
+        columns = [
+            'fecha_de_venta',
+            'CEVE',
+            'item',
+            'producto',
+            'transitos',
+            'existencia',
+            'safety_stock',
+            'sugerido',
+            'pedido_final',
+            'pedido_final_camas',
+            'pedido_final_tarimas'
+        ]
+
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename={}.csv'.format(
+            dataset.name + '_adjustements'
+        )
+        writer = csv.writer(response)
+        writer.writerow(columns)
+
+        sale_center = self.request.user.sale_center
+
+        rows = DatasetRow.objects.filter(
+            dataset_id=dataset.id,
+            date=dataset.date_adjustment,
+            sale_center=sale_center,
+            is_active=True
+        )
+
+        for row in rows:
+            date = row.date
+            sale_center_id = row.sale_center.external_id
+            item = row.product.external_id
+            product = row.product.name
+            transits = row.transit
+            stocks = row.in_stock
+            safety_stock = row.safety_stock
+            prediction = row.prediction
+            adjustment = row.adjustment
+            beds = row.bed
+            pallets = row.pallet
+
+            row = writer.writerow([
+                date,
+                sale_center_id,
+                item,
+                product,
+                transits,
+                stocks,
+                safety_stock,
+                prediction,
+                adjustment,
+                beds,
+                pallets
+            ])
+
+        return response
 
 
 router.register(
-    r"datasets/sales/(?P<uuid>[0-9A-Fa-f-]+)",
-    DatasetGraphViewSet,
-    base_name="datasets/graph",
+    r"datasetrows",
+    DatasetrowViewSet,
+    base_name="datasetrows",
 )

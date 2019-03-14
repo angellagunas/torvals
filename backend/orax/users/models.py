@@ -7,8 +7,6 @@ from django.contrib.auth.models import (
 )
 from django.db import models
 
-from orax.organizations.models import Organization
-from orax.routes.models import Route
 from orax.sales_centers.models import SaleCenter
 from orax.utils.models import TimeStampedMixin
 
@@ -68,26 +66,15 @@ class User(AbstractBaseUser, PermissionsMixin, TimeStampedMixin):
         max_length=300
     )
 
-    organization = models.ForeignKey(
-        Organization,
-        blank=True,
-        null=True
-    )
-
     is_staff = models.BooleanField(
         default=False
     )
 
     is_active = models.BooleanField(
-        default=False
+        default=True
     )
 
-    route = models.ForeignKey(
-        Route,
-        null=True
-    )
-
-    agency = models.ForeignKey(
+    sale_center = models.ForeignKey(
         SaleCenter,
         null=True
     )

@@ -8,7 +8,7 @@ class CustomUserAdmin(UserAdmin):
     """Admin for user."""
 
     ordering = ['email']
-    list_display = ['email', 'name', 'is_active', 'route']
+    list_display = ['email', 'name', 'is_active']
     exclude = ['first_name', 'last_name', 'username', 'date_joined']
 
     list_filter = ['is_staff', 'is_superuser', 'is_active', 'groups']
@@ -18,7 +18,7 @@ class CustomUserAdmin(UserAdmin):
         ('Personal info', {'fields': ('email', 'password')}),
         ('Important dates', {'fields': ('last_login',)}),
         ('Organization config', {
-            'fields': ('agency', 'route',)
+            'fields': ('sale_center',)
         }),
         ('Permissions', {'fields': (
             'is_active',
@@ -32,7 +32,7 @@ class CustomUserAdmin(UserAdmin):
         ('Personal info', {'fields': ('email', 'password1', 'password2')}),
         ('Important dates', {'fields': ('last_login',)}),
         ('Organization config', {
-            'fields': ('agency', 'route',)
+            'fields': ('sale_center',)
         }),
         ('Permissions', {'fields': (
             'is_active',
