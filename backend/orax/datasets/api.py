@@ -1,8 +1,11 @@
 """API for datasetrows."""
 import csv
+from io import StringIO
 
+from django.core.mail import EmailMessage
 from django.db.models import Q
 from django.http import HttpResponse
+
 
 from rest_framework import status
 from rest_framework.decorators import list_route
@@ -14,6 +17,7 @@ from soft_drf.routing.v1.routers import router
 
 from orax.datasets import serializers
 from orax.datasets.models import Dataset, DatasetRow
+from orax import settings
 
 
 class DatasetrowViewSet(
@@ -51,13 +55,83 @@ class DatasetrowViewSet(
     @list_route(methods=["GET"])
     def send(self, request, *args, **kwargs):
         """Send the adjustment report of user in session."""
-        print('yeah!!!!')
+        csv_file = StringIO()
+
+        fieldnames = [
+            'fecha_de_venta',
+            'CEVE',
+            'item',
+            'producto',
+            'transitos',
+            'existencia',
+            'safety_stock',
+            'sugerido',
+            'pedido_final',
+            'pedido_final_camas',
+            'pedido_final_tarimas'
+        ]
+
+        writer = csv.writer(csv_file)
+        writer.writerow(fieldnames)
+
+        dataset = Dataset.objects.get(is_main=True)
+        sale_center = self.request.user.sale_center
+        sale_center_id = self.request.user.sale_center.external_id
+
+        date_adjustment_label = dataset.date_adjustment
+        str_date = date_adjustment_label.strftime('%d/%m/%Y')
+        str_date = str_date.replace('/', '_de_', 1)
+        str_date = str_date.replace('/', '_del_')
+
+        email_to = self.request.user.email
+
+        rows = DatasetRow.objects.filter(
+            dataset_id=dataset.id,
+            date=dataset.date_adjustment,
+            sale_center=sale_center,
+            is_active=True
+        )
+
+        for row in rows:
+            date = row.date
+            sale_center_id = row.sale_center.external_id
+            item = row.product.external_id
+            product = row.product.name
+            transits = row.transit
+            stocks = row.in_stock
+            safety_stock = row.safety_stock
+            prediction = row.prediction
+            adjustment = row.adjustment
+            beds = row.bed
+            pallets = row.pallet
+
+            row = writer.writerow([
+                date,
+                sale_center_id,
+                item,
+                product,
+                transits,
+                stocks,
+                safety_stock,
+                prediction,
+                adjustment,
+                beds,
+                pallets
+            ])
+            msg = EmailMessage(
+                'Reporte Diario', 'Reporte de Ajustes', settings.EMAIL_HOST_USER, [email_to])
+            msg.content_subtype = "html"
+            file_name = 'adjustment_report_ceve_' + \
+                str(sale_center_id) + '_' + str_date + '.csv'
+
+            msg.attach(file_name,
+                       csv_file.getvalue(), 'text/csv')
+            msg.send()
+
         return Response(status=status.HTTP_200_OK)
 
-
-class DatasetDownloadViewSet(mixins.ListModelMixin, GenericViewSet):
-
-    def list(self, request, *args, **kwargs):
+    @list_route(methods=["GET"])
+    def download(self, request, *args, **kwargs):
         """Download current dataset."""
         dataset = Dataset.objects.get(is_main=True)
         columns = [
@@ -124,10 +198,4 @@ router.register(
     r"datasetrows",
     DatasetrowViewSet,
     base_name="datasetrows",
-)
-
-router.register(
-    r"datasetdownload",
-    DatasetDownloadViewSet,
-    base_name="datasetdownload",
 )
