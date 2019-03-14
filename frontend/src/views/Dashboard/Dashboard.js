@@ -261,10 +261,17 @@ class Dashboard extends Component {
 
     let originalAdjustment = 0;
     let priceOfProductUpdated = 0;
+    let bed = 0;
+    let pallet = 0;
     const updatedRows = this.state.rows.map(x => {
       if (x.id === row_id) {
         originalAdjustment = x.adjustment;
         x.adjustment = e.target.value;
+        x.bed = Math.round(x.adjustment / x.product.bed);
+        x.pallet = Math.round(x.adjustment / x.product.pallet);
+
+        bed = x.bed;
+        pallet = x.pallet;
 
         priceOfProductUpdated = x.product.price;
       }
@@ -296,7 +303,11 @@ class Dashboard extends Component {
     await axios
       .patch(
         "api/v2/datasetrows/" + row_id,
-        { 'adjustment': e.target.value },
+        {
+          'adjustment': e.target.value,
+          'bed': bed,
+          'pallet': pallet
+        },
         config
       ).then(res => {
 
