@@ -22,7 +22,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'py8t-$h^5@g*ihu5-(#+%k%70i87fr-3ju$jc^ez_*#!$7w1@a'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = int(os.environ['DEBUG']) == 1 if os.environ.get('DEBUG',None) else True
+DEBUG = int(os.environ['DEBUG']) == 1 if os.environ.get(
+    'DEBUG', None) else True
 
 ALLOWED_HOSTS = ['*']
 
@@ -200,3 +201,10 @@ CACHES = {
 CELERY_BROKER_URL = 'redis://{0}'.format(REDIS_HOST)
 
 AUTH_USER_MODEL = 'users.User'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'user@gmail.com'
+EMAIL_HOST_PASSWORD = '123'
+EMAIL_PORT = 587
