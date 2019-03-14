@@ -55,8 +55,7 @@ class DatasetAdmin(admin.ModelAdmin):
         writer.writerow(columns)
 
         rows = DatasetRow.objects.filter(
-            dataset_id=dataset.id,
-            date=dataset.date_adjustment
+            dataset_id=dataset.id
         )
 
         for row in rows:

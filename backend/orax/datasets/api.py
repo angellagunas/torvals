@@ -86,7 +86,6 @@ class DatasetrowViewSet(
 
         rows = DatasetRow.objects.filter(
             dataset_id=dataset.id,
-            date=dataset.date_adjustment,
             sale_center=sale_center,
             is_active=True
         )
