@@ -55,15 +55,15 @@ class Dashboard extends Component {
       query_search: '',
 
       //indicators
-      total_forecast: 0,
-      total_adjustment: 0,
-      average_sales: 0,
-      average_return: 0,
+      ind_transit: 0,
+      ind_exists: 0,
+      ind_safety_stock: 0,
+      ind_adjustments: 0,
 
-      total_forecast_money: 0,
-      total_adjustment_money: 0,
-      average_sales_money: 0,
-      average_return_money: 0,
+      ind_transit_money: 0,
+      ind_exists_money: 0,
+      ind_safety_stock_money: 0,
+      ind_adjustment_money: 0,
 
       // table data
       rows: [],
@@ -71,7 +71,7 @@ class Dashboard extends Component {
 
       // Card Chart
       cardChartData: {
-        labels: ['Sugerido', 'Ajuste', 'Venta Promedio', 'Devolución Promedio'],
+        labels: ['Tránsito', 'Existencia', 'Safety Stock', 'Pedido Final'],
         datasets: [
           {
             label: 'Total',
@@ -143,7 +143,7 @@ class Dashboard extends Component {
 
   _getCardChartData(data) {
     return {
-      labels: ['Sugerido', 'Ajuste', 'Venta Promedio', 'Devolución Promedio'],
+      labels: ['Tránsito', 'Existencia', 'Safety Stock', 'Pedido Final'],
       datasets: [
         {
           label: 'Total',
@@ -271,24 +271,24 @@ class Dashboard extends Component {
     });
 
     let {
-      total_forecast,
-      total_adjustment,
-      average_sales,
-      average_return,
+      ind_transit,
+      ind_adjustments,
+      ind_exists,
+      ind_safety_stock,
 
-      total_adjustment_money,
+      ind_adjustment_money,
     } = this.state;
 
     if (originalAdjustment > e.target.value) {
       const diferenceBeetwenAdjustments = originalAdjustment - e.target.value;
-      total_adjustment -= diferenceBeetwenAdjustments;
+      ind_adjustments -= diferenceBeetwenAdjustments;
 
-      total_adjustment_money -= (diferenceBeetwenAdjustments * priceOfProductUpdated);
+      ind_adjustment_money -= (diferenceBeetwenAdjustments * priceOfProductUpdated);
     } else {
       const diferenceBeetwenAdjustments = e.target.value - originalAdjustment;
-      total_adjustment += diferenceBeetwenAdjustments;
+      ind_adjustments += diferenceBeetwenAdjustments;
 
-      total_adjustment_money += (diferenceBeetwenAdjustments * priceOfProductUpdated);
+      ind_adjustment_money += (diferenceBeetwenAdjustments * priceOfProductUpdated);
     }
 
     await axios
@@ -300,12 +300,12 @@ class Dashboard extends Component {
 
         this.setState({
           rows: updatedRows,
-          total_adjustment_money: total_adjustment_money,
-          total_adjustment: total_adjustment,
+          ind_adjustment_money: ind_adjustment_money,
+          ind_adjustments: ind_adjustments,
           'cardChartData': this._getCardChartData([
-            total_forecast, total_adjustment, average_sales, average_return]),
+            ind_transit, ind_adjustments, ind_exists, ind_safety_stock]),
           'cardChartOpts': this._getCardChartOpts([
-            total_forecast, total_adjustment, average_sales, average_return]),
+            ind_transit, ind_adjustments, ind_exists, ind_safety_stock]),
         });
 
         this.getTableRows();
@@ -354,31 +354,31 @@ class Dashboard extends Component {
         }
 
         // hacemos sumatoria para los indicadores
-        const prediction = data_response.reduce((a, b) => +a + +b.prediction, 0);
+        const transit = data_response.reduce((a, b) => +a + +b.transit, 0);
+        const stock = data_response.reduce((a, b) => +a + +b.inStock, 0);
+        const safetyStock = data_response.reduce((a, b) => +a + +b.safetyStock, 0);
         const adjustment = data_response.reduce((a, b) => +a + +b.adjustment, 0);
-        const sales = data_response.reduce((a, b) => +a + +b.sale, 0);
-        const returns = data_response.reduce((a, b) => +a + +b.refund, 0);
 
-        const forecast_money = data_response.reduce((a, b) => +a + +(b.prediction * b.product.price), 0);
+        const transit_money = data_response.reduce((a, b) => +a + +(b.transit * b.product.price), 0);
+        const exists_money = data_response.reduce((a, b) => +a + +(b.inStock * b.product.price), 0);
+        const safety_stock_money = data_response.reduce((a, b) => +a + +(b.safetyStock * b.product.price), 0);
         const adjustment_money = data_response.reduce((a, b) => +a + +(b.adjustment * b.product.price), 0);
-        const sales_money = data_response.reduce((a, b) => +a + +(b.sale * b.product.price), 0);
-        const return_money = data_response.reduce((a, b) => +a + +(b.refund * b.product.price), 0);
 
         this.setState({
-          'cardChartData': this._getCardChartData([prediction, adjustment, sales, returns]),
-          'cardChartOpts': this._getCardChartOpts([prediction, adjustment, sales, returns]),
+          'cardChartData': this._getCardChartData([transit, stock, safetyStock, adjustment]),
+          'cardChartOpts': this._getCardChartOpts([transit, stock, safetyStock, adjustment]),
           'rows': data_response,
           'date': date,
 
-          'total_forecast': prediction,
-          'total_adjustment': adjustment,
-          'average_sales': sales,
-          'average_return': returns,
+          'ind_transit': transit,
+          'ind_exists': stock,
+          'ind_safety_stock': safetyStock,
+          'ind_adjustments': adjustment,
 
-          'total_forecast_money': forecast_money,
-          'total_adjustment_money': adjustment_money,
-          'average_sales_money': sales_money,
-          'average_return_money': return_money
+          'ind_transit_money': transit_money,
+          'ind_exists_money': exists_money,
+          'ind_safety_stock_money': safety_stock_money,
+          'ind_adjustment_money': adjustment_money,
         });
       })
       .catch(error => {
@@ -502,9 +502,9 @@ class Dashboard extends Component {
                         <Card className="text-white bg-primary">
                           <CardBody className="pb-0">
                             <div className="text-value">
-                              {this.state.total_forecast + ' - $' + this.state.total_forecast_money}
+                              {this.state.ind_transit + ' - $' + this.state.ind_transit_money}
                             </div>
-                            <div>Sugerido total</div>
+                            <div>Tránsito</div>
                           </CardBody>
                           <div className="chart-wrapper mx-3" style={{ height: '70px' }}>
                             <Line data={this.state.cardChartData} options={this.state.cardChartOpts} height={70} />
@@ -516,9 +516,9 @@ class Dashboard extends Component {
                         <Card className="text-white bg-primary">
                           <CardBody className="pb-0">
                             <div className="text-value">
-                              {this.state.total_adjustment + ' - $' + this.state.total_adjustment_money}
+                              {this.state.ind_exists + ' - $' + this.state.ind_exists_money}
                             </div>
-                            <div>Ajuste Total</div>
+                            <div>Existencia</div>
                           </CardBody>
                           <div className="chart-wrapper mx-3" style={{ height: '70px' }}>
                             <Line data={this.state.cardChartData} options={this.state.cardChartOpts} height={70} />
@@ -530,9 +530,9 @@ class Dashboard extends Component {
                         <Card className="text-white bg-primary">
                           <CardBody className="pb-0">
                             <div className="text-value">
-                              {this.state.average_sales + ' - $' + this.state.average_sales_money}
+                              {this.state.ind_safety_stock + ' - $' + this.state.ind_safety_stock_money}
                             </div>
-                            <div>Venta Promedio Total</div>
+                            <div>Safety Stock</div>
                           </CardBody>
                           <div className="chart-wrapper mx-3" style={{ height: '70px' }}>
                             <Line data={this.state.cardChartData} options={this.state.cardChartOpts} height={70} />
@@ -544,9 +544,9 @@ class Dashboard extends Component {
                         <Card className="text-white bg-primary">
                           <CardBody className="pb-0">
                             <div className="text-value">
-                              {this.state.average_return + ' - $' + this.state.average_return_money}
+                              {this.state.ind_adjustments + ' - $' + this.state.ind_adjustment_money}
                             </div>
-                            <div>Devolución Promedio Total</div>
+                            <div>Pedido Final</div>
                           </CardBody>
                           <div className="chart-wrapper mx-3" style={{ height: '70px' }}>
                             <Line data={this.state.cardChartData} options={this.state.cardChartOpts} height={70} />
