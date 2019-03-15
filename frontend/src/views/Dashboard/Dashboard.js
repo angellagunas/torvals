@@ -415,12 +415,12 @@ class Dashboard extends Component {
               <span>ID</span> | {row.product.externalId}
             </div>
           </td>
-          <td key={"cell_adjustment_" + i} className="text-center justify-content-center align-items-center" style={{ width: 120 + 'px' }}>
+          <td key={"cell_adjustment_" + i + '_' + Math.random()} className="text-center justify-content-center align-items-center" style={{ width: 120 + 'px' }}>
             <Input tabIndex={i + 1} type="number" className="text-center" id="input3-group2" name="input3-group2" defaultValue={row.adjustment} onBlur={(e) => { this.handleChange(e, row.id) }} />
           </td>
           <td key={"cell_empty_" + i}>
           </td>
-          <td key={"cell_stocks_" + i}>
+          <td key={"cell_stocks_" + i + '_' + Math.random()}>
             <div className="medium text-muted">
               <span><strong>Transito:</strong></span> {row.transit}
             </div>
@@ -431,7 +431,7 @@ class Dashboard extends Component {
               <span><strong>Safety Stock:</strong></span> {row.safetyStock}
             </div>
           </td>
-          <td key={"cell_prediction_" + i}>
+          <td key={"cell_prediction_" + i + '_' + Math.random()}>
             <div className="medium text-muted">
               <span><strong>Ajustado: </strong></span>
               {this.percentage(this.state.rows[i].prediction, this.state.rows[i].adjustment)} %
