@@ -16,6 +16,8 @@ import {
 import { CustomTooltips } from '@coreui/coreui-plugin-chartjs-custom-tooltips';
 import { getStyle } from '@coreui/coreui/dist/js/coreui-utilities';
 import axios from "axios";
+import '../../App.scss';
+
 
 const brandPrimary = getStyle('--primary')
 
@@ -138,8 +140,10 @@ class Dashboard extends Component {
 
     const profile = window.localStorage.getItem('profile');
     const sale_center = window.localStorage.getItem('sale_center');
+    const center_name = window.localStorage.getItem('name_center')
     this.setState({ user_email: profile })
     this.setState({ user_sale_center: sale_center })
+    this.setState({ user_center_name: center_name })
     this.loadData()
   }
 
@@ -416,7 +420,7 @@ class Dashboard extends Component {
             </div>
           </td>
           <td key={"cell_adjustment_" + i + '_' + Math.random()} className="text-center justify-content-center align-items-center" style={{ width: 120 + 'px' }}>
-            <Input tabIndex={i + 1} type="number" className="text-center" id="input3-group2" name="input3-group2" defaultValue={row.adjustment} onBlur={(e) => { this.handleChange(e, row.id) }} />
+            <Input tabIndex={i + 1} type="number" id="input3-group2" name="input3-group2" defaultValue={row.adjustment} onBlur={(e) => { this.handleChange(e, row.id) }} />
           </td>
           <td key={"cell_empty_" + i}>
           </td>
@@ -557,7 +561,7 @@ class Dashboard extends Component {
                 <Row>
                   <Col xs="12" sm="12" md="5">
                     <CardTitle className="mb-0">
-                      Centro de Venta {this.state.user_sale_center}
+                      Centro de Venta {this.state.user_sale_center} - {this.state.user_center_name}
                     </CardTitle>
                     <div className="small text-muted">
                       Pedido sugerido para el {this.state.date}
