@@ -1,12 +1,15 @@
 """Admin for dataset module."""
 import csv
 import math
-import pandas as pd
+
 from datetime import datetime
 
 from django import forms
 from django.contrib import admin
 from django.http import HttpResponse
+
+import pandas as pd
+
 from orax.datasets.models import Dataset, DatasetRow
 from orax.products.models import Product
 from orax.sales_centers.models import SaleCenter

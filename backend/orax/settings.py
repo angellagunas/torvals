@@ -54,6 +54,13 @@ LOCAL_APPS = [
 
 INSTALLED_APPS += LOCAL_APPS
 
+DEBUG_APPS = [
+    'debug_toolbar'
+]
+
+if DEBUG:
+    INSTALLED_APPS += DEBUG_APPS
+
 MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
