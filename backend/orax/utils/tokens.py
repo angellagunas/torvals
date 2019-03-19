@@ -1,6 +1,7 @@
 """Manage tokens."""
 from calendar import timegm
 from datetime import datetime
+
 from jwt import decode
 
 from rest_framework_jwt.settings import api_settings

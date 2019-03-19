@@ -1,9 +1,9 @@
 """Serializer for Dataset rows API."""
 from rest_framework import serializers
 
+from orax.sales_centers.serializers import SaleCenterSerializer
 from orax.users.models import User
 from orax.utils.tokens import create_token
-from orax.sales_centers.serializers import SaleCenterSerializer
 
 
 class AuthSerializer(serializers.Serializer):

@@ -15,9 +15,9 @@ from soft_drf.api import mixins
 from soft_drf.api.viewsets import GenericViewSet
 from soft_drf.routing.v1.routers import router
 
+from orax import settings
 from orax.datasets import serializers
 from orax.datasets.models import Dataset, DatasetRow
-from orax import settings
 
 
 class DatasetrowViewSet(
@@ -117,7 +117,11 @@ class DatasetrowViewSet(
                 pallets
             ])
             msg = EmailMessage(
-                'Reporte Diario', 'Reporte de Ajustes', settings.EMAIL_HOST_USER, [email_to])
+                'Reporte Diario',
+                'Reporte de Ajustes',
+                settings.EMAIL_HOST_USER,
+                [email_to]
+            )
             msg.content_subtype = "html"
             file_name = 'adjustment_report_ceve_' + \
                 str(sale_center_id) + '_' + str_date + '.csv'

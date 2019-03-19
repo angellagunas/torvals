@@ -1,9 +1,11 @@
 """Admin for routes module."""
 import math
-import pandas as pd
 
 from django import forms
 from django.contrib import admin
+
+import pandas as pd
+
 from orax.batch.models import Batch
 from orax.products.models import Product
 from orax.sales_centers.models import SaleCenter
