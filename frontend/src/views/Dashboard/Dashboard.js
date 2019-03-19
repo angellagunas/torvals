@@ -17,6 +17,7 @@ import { CustomTooltips } from "@coreui/coreui-plugin-chartjs-custom-tooltips";
 import { getStyle } from "@coreui/coreui/dist/js/coreui-utilities";
 import axios from "axios";
 import "../../App.scss";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 const brandPrimary = getStyle("--primary");
 
@@ -44,6 +45,8 @@ class Dashboard extends Component {
 
     //download report
     this.downloadReport = this.downloadReport.bind(this);
+
+    //
 
     this.state = {
       // colapse vars
@@ -126,7 +129,8 @@ class Dashboard extends Component {
             hoverRadius: 4
           }
         }
-      }
+      },
+      page_number: 1
     };
   }
 
@@ -348,13 +352,12 @@ class Dashboard extends Component {
         Authorization: "Bearer " + window.localStorage.getItem("jwt")
       }
     };
-
-    const url = "api/v2/datasetrows?q=" + this.state.query_search;
+    const url = "api/v2/datasetrows?page=" + this.state.page_number + "&q=" + this.state.query_search;
 
     await axios
       .get(url, config)
       .then(res => {
-        const data_response = res.data.results;
+        const data_response = [...this.state.rows, ...res.data.results];
         let date = "";
         const months = [
           "Enero",
@@ -384,10 +387,7 @@ class Dashboard extends Component {
         // hacemos sumatoria para los indicadores
         const transit = data_response.reduce((a, b) => +a + +b.transit, 0);
         const stock = data_response.reduce((a, b) => +a + +b.inStock, 0);
-        const safetyStock = data_response.reduce(
-          (a, b) => +a + +b.safetyStock,
-          0
-        );
+        const safetyStock = data_response.reduce((a, b) => +a + +b.safetyStock, 0);
         const adjustment = data_response.reduce(
           (a, b) => +a + +b.adjustment,
           0
@@ -423,7 +423,7 @@ class Dashboard extends Component {
             safetyStock,
             adjustment
           ]),
-          rows: data_response,
+          rows: [...this.state.rows, ...data_response],
           date: date,
 
           ind_transit: transit,
@@ -573,197 +573,220 @@ class Dashboard extends Component {
       });
   }
 
+  fetchMoreData = () => {
+    console.log('Entro al fetch')
+    setTimeout(() => {
+      this.setState({
+        page_number: this.state.page_number + 1
+      });
+      this.loadData();
+    }, 1500);
+  };
+
   render() {
     return (
       <div className="animated fadeIn">
-        <Row>
-          <Col>
-            <Card>
-              <CardBody>
-                <div className="chart-wrapper" style={{ marginTop: 20 + "px" }}>
-                  <Collapse isOpen={true}>
-                    <Row className="row">
-                      <Col
-                        xs={{ size: 12, offset: 0 }}
-                        sm={{ size: 6, offset: 0 }}
-                        md={{ size: 3 }}
-                        lg={{ size: 3 }}
-                      >
-                        <Card className="text-white bg-primary">
-                          <CardBody>
-                            <div className="text-value">
-                              {this.state.ind_transit +
-                                " - $" +
-                                Math.round(this.state.ind_transit_money)}
-                            </div>
-                            <div>Tránsito</div>
-                          </CardBody>
-                        </Card>
-                      </Col>
-
-                      <Col
-                        xs={{ size: 12, offset: 0 }}
-                        sm={{ size: 6, offset: 0 }}
-                        md={{ size: 3 }}
-                        lg={{ size: 3 }}
-                      >
-                        <Card className="text-white bg-primary">
-                          <CardBody>
-                            <div className="text-value">
-                              {this.state.ind_exists +
-                                " - $" +
-                                Math.round(this.state.ind_exists_money)}
-                            </div>
-                            <div>Existencia</div>
-                          </CardBody>
-                        </Card>
-                      </Col>
-
-                      <Col
-                        xs={{ size: 12, offset: 0 }}
-                        sm={{ size: 6, offset: 0 }}
-                        md={{ size: 3 }}
-                        lg={{ size: 3 }}
-                      >
-                        <Card className="text-white bg-primary">
-                          <CardBody>
-                            <div className="text-value">
-                              {this.state.ind_safety_stock +
-                                " - $" +
-                                Math.round(this.state.ind_safety_stock_money)}
-                            </div>
-                            <div>Safety Stock</div>
-                          </CardBody>
-                        </Card>
-                      </Col>
-
-                      <Col
-                        xs={{ size: 12, offset: 0 }}
-                        sm={{ size: 6, offset: 0 }}
-                        md={{ size: 3 }}
-                        lg={{ size: 3 }}
-                      >
-                        <Card className="text-white bg-primary">
-                          <CardBody>
-                            <div className="text-value">
-                              {this.state.ind_adjustments +
-                                " - $" +
-                                Math.round(this.state.ind_adjustment_money)}
-                            </div>
-                            <div>Pedido Final</div>
-                          </CardBody>
-                        </Card>
-                      </Col>
-                    </Row>
-                  </Collapse>
-                </div>
-              </CardBody>
-            </Card>
-          </Col>
-        </Row>
-
-        <Row>
-          <Col>
-            <Card>
-              <CardBody>
-                <Row>
-                  <Col xs="12" sm="12" md="5">
-                    <CardTitle className="mb-0">
-                      Centro de Venta {this.state.user_sale_center} -{" "}
-                      {this.state.user_center_name}
-                    </CardTitle>
-                    <div className="small text-muted">
-                      Pedido sugerido para el {this.state.date}
-                    </div>
-                  </Col>
-                  <Col
-                    xs="12"
-                    sm="12"
-                    md="7"
-                    className="d-none d-sm-inline-block"
+        <InfiniteScroll
+          dataLength={this.state.rows.length}
+          next={this.fetchMoreData}
+          hasMore={true}
+          loader={<h4>Loading...</h4>}
+        >
+          <Row>
+            <Col>
+              <Card>
+                <CardBody>
+                  <div
+                    className="chart-wrapper"
+                    style={{ marginTop: 20 + "px" }}
                   >
-                    <Row className="justify-content-end">
-                      <Col xs="10" sm="10" md="9" lg="10">
-                        <Form onSubmit={this.loadData} autoComplete="off">
-                          <InputGroup>
-                            <Input
-                              type="text"
-                              id="input3-group2"
-                              name="input3-group2"
-                              placeholder="Search"
-                              onChange={this.handleSearch}
-                            />
-                            <InputGroupAddon addonType="append">
-                              <Button
-                                type="button"
-                                color="primary"
-                                onClick={this.loadData}
-                                title="Buscar productos por nombre o ID"
-                              >
-                                <i className="fa fa-search" />
-                              </Button>
-                            </InputGroupAddon>
-                          </InputGroup>
-                        </Form>
-                      </Col>
-                      <Col
-                        xs={{ size: 1, offset: 0 }}
-                        sm={{ size: 1, offset: 0 }}
-                        md={{ size: 1, offset: 1 }}
-                        lg={{ size: 1, offset: 0 }}
-                      >
-                        <Button
-                          disabled={false}
-                          color="primary"
-                          className="float-right"
-                          title="Descargar reporte"
-                          onClick={this.downloadReport}
+                    <Collapse isOpen={true}>
+                      <Row className="row">
+                        <Col
+                          xs={{ size: 12, offset: 0 }}
+                          sm={{ size: 6, offset: 0 }}
+                          md={{ size: 3 }}
+                          lg={{ size: 3 }}
                         >
-                          <i className="icon-cloud-download" />
-                        </Button>
-                      </Col>
-                      <Col
-                        xs={{ size: 1, offset: 0 }}
-                        sm={{ size: 1, offset: 0 }}
-                        md={{ size: 1, offset: 0 }}
-                        lg={{ size: 1, offset: 0 }}
-                      >
-                        <Button
-                          disabled={true}
-                          color="primary"
-                          className="float-right"
-                          title="Enviar pedido por E-mail"
-                          onClick={this.sendReport}
-                        >
-                          <i className="fa fa-envelope" />
-                        </Button>
-                      </Col>
-                    </Row>
-                  </Col>
-                </Row>
+                          <Card className="text-white bg-primary">
+                            <CardBody>
+                              <div className="text-value">
+                                {this.state.ind_transit +
+                                  " - $" +
+                                  Math.round(this.state.ind_transit_money)}
+                              </div>
+                              <div>Tránsito</div>
+                            </CardBody>
+                          </Card>
+                        </Col>
 
-                <div className="chart-wrapper" style={{ marginTop: 40 + "px" }}>
-                  <Table
-                    hover
-                    responsive
-                    className="table-outline mb-0 d-sm-table"
+                        <Col
+                          xs={{ size: 12, offset: 0 }}
+                          sm={{ size: 6, offset: 0 }}
+                          md={{ size: 3 }}
+                          lg={{ size: 3 }}
+                        >
+                          <Card className="text-white bg-primary">
+                            <CardBody>
+                              <div className="text-value">
+                                {this.state.ind_exists +
+                                  " - $" +
+                                  Math.round(this.state.ind_exists_money)}
+                              </div>
+                              <div>Existencia</div>
+                            </CardBody>
+                          </Card>
+                        </Col>
+
+                        <Col
+                          xs={{ size: 12, offset: 0 }}
+                          sm={{ size: 6, offset: 0 }}
+                          md={{ size: 3 }}
+                          lg={{ size: 3 }}
+                        >
+                          <Card className="text-white bg-primary">
+                            <CardBody>
+                              <div className="text-value">
+                                {this.state.ind_safety_stock +
+                                  " - $" +
+                                  Math.round(this.state.ind_safety_stock_money)}
+                              </div>
+                              <div>Safety Stock</div>
+                            </CardBody>
+                          </Card>
+                        </Col>
+
+                        <Col
+                          xs={{ size: 12, offset: 0 }}
+                          sm={{ size: 6, offset: 0 }}
+                          md={{ size: 3 }}
+                          lg={{ size: 3 }}
+                        >
+                          <Card className="text-white bg-primary">
+                            <CardBody>
+                              <div className="text-value">
+                                {this.state.ind_adjustments +
+                                  " - $" +
+                                  Math.round(this.state.ind_adjustment_money)}
+                              </div>
+                              <div>Pedido Final</div>
+                            </CardBody>
+                          </Card>
+                        </Col>
+                      </Row>
+                    </Collapse>
+                  </div>
+                </CardBody>
+              </Card>
+            </Col>
+          </Row>
+
+          <Row>
+            <Col>
+              <Card>
+                <CardBody>
+                  <Row>
+                    <Col xs="12" sm="12" md="5">
+                      <CardTitle className="mb-0">
+                        Centro de Venta {this.state.user_sale_center} -{" "}
+                        {this.state.user_center_name}
+                      </CardTitle>
+                      <div className="small text-muted">
+                        Pedido sugerido para el {this.state.date}
+                      </div>
+                    </Col>
+                    <Col
+                      xs="12"
+                      sm="12"
+                      md="7"
+                      className="d-none d-sm-inline-block"
+                    >
+                      <Row className="justify-content-end">
+                        <Col xs="10" sm="10" md="9" lg="10">
+                          <Form onSubmit={this.loadData} autoComplete="off">
+                            <InputGroup>
+                              <Input
+                                type="text"
+                                id="input3-group2"
+                                name="input3-group2"
+                                placeholder="Search"
+                                onChange={this.handleSearch}
+                              />
+                              <InputGroupAddon addonType="append">
+                                <Button
+                                  type="button"
+                                  color="primary"
+                                  onClick={this.loadData}
+                                  title="Buscar productos por nombre o ID"
+                                >
+                                  <i className="fa fa-search" />
+                                </Button>
+                              </InputGroupAddon>
+                            </InputGroup>
+                          </Form>
+                        </Col>
+                        <Col
+                          xs={{ size: 1, offset: 0 }}
+                          sm={{ size: 1, offset: 0 }}
+                          md={{ size: 1, offset: 1 }}
+                          lg={{ size: 1, offset: 0 }}
+                        >
+                          <Button
+                            disabled={false}
+                            color="primary"
+                            className="float-right"
+                            title="Descargar reporte"
+                            onClick={this.downloadReport}
+                          >
+                            <i className="icon-cloud-download" />
+                          </Button>
+                        </Col>
+                        <Col
+                          xs={{ size: 1, offset: 0 }}
+                          sm={{ size: 1, offset: 0 }}
+                          md={{ size: 1, offset: 0 }}
+                          lg={{ size: 1, offset: 0 }}
+                        >
+                          <Button
+                            disabled={true}
+                            color="primary"
+                            className="float-right"
+                            title="Enviar pedido por E-mail"
+                            onClick={this.sendReport}
+                          >
+                            <i className="fa fa-envelope" />
+                          </Button>
+                        </Col>
+                      </Row>
+                    </Col>
+                  </Row>
+
+                  <div
+                    className="chart-wrapper"
+                    style={{ marginTop: 40 + "px" }}
                   >
-                    <thead className="thead-light">
-                      <tr>
-                        <th className="text-center">Producto</th>
-                        <th className="text-center">Pedido Final</th>
-                        <th className="text-center" />
-                        <th className="text-center" />
-                        <th className="text-center" />
-                      </tr>
-                    </thead>
-                    <tbody>{this.getTableRows()}</tbody>
-                  </Table>
-                </div>
-              </CardBody>
-            </Card>
-          </Col>
-        </Row>
+                    <Table
+                      hover
+                      responsive
+                      className="table-outline mb-0 d-sm-table"
+                    >
+                      <thead className="thead-light">
+                        <tr>
+                          <th className="text-center">Producto</th>
+                          <th className="text-center">Pedido Final</th>
+                          <th className="text-center" />
+                          <th className="text-center" />
+                          <th className="text-center" />
+                        </tr>
+                      </thead>
+                      <tbody>{this.getTableRows()}</tbody>
+                    </Table>
+                  </div>
+                </CardBody>
+              </Card>
+            </Col>
+          </Row>
+        </InfiniteScroll>
       </div>
     );
   }
