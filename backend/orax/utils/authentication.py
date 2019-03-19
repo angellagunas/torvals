@@ -1,7 +1,4 @@
-"""
-Provides various authentication policies.
-"""
-from django.contrib.auth import get_user_model
+"""Provides various authentication policies."""
 from django.utils.encoding import smart_text
 
 import jwt
@@ -71,11 +68,13 @@ class JSONWebTokenAuthentication(BaseJSONWebTokenAuthentication):
             return None
 
         if len(auth) == 1:
-            msg = _('Invalid Authorization header. No credentials provided.')
+            msg = 'Invalid Authorization header. No credentials provided.'
             raise exceptions.AuthenticationFailed(msg)
         elif len(auth) > 2:
-            msg = _('Invalid Authorization header. Credentials string '
-                    'should not contain spaces.')
+            msg = (
+                'Invalid Authorization header. Credentials string '
+                'should not contain spaces.'
+            )
             raise exceptions.AuthenticationFailed(msg)
 
         return auth[1]
