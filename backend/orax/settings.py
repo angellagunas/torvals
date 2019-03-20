@@ -58,9 +58,6 @@ DEBUG_APPS = [
     'debug_toolbar'
 ]
 
-if DEBUG:
-    INSTALLED_APPS += DEBUG_APPS
-
 MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -72,7 +69,6 @@ MIDDLEWARE = [
     'orax.utils.middlewares.DisableCsrfCheck',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'orax.urls'
@@ -116,16 +112,25 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        'NAME': (
+            'django.contrib.auth.password_validation.'
+            'UserAttributeSimilarityValidator'
+        ),
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'NAME': (
+            'django.contrib.auth.password_validation.MinimumLengthValidator'
+        ),
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        'NAME': (
+            'django.contrib.auth.password_validation.CommonPasswordValidator'
+        ),
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        'NAME': (
+            'django.contrib.auth.password_validation.NumericPasswordValidator'
+        ),
     },
 ]
 
@@ -154,13 +159,10 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # api documentation
 #
 SHOW_DOCUMENTATION = False
-TITLE_DOCUMENTATION = "ORAX"
+TITLE_DOCUMENTATION = "BEC"
 
 MEDIA_ROOT = "".join([BASE_DIR, '/media'])
 MEDIA_URL = '/media/'
-
-SHOW_DOCUMENTATION = True
-TITLE_DOCUMENTATION = "Orax Docs"
 
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = '{0}/media'.format(BASE_DIR)
@@ -191,9 +193,8 @@ REST_FRAMEWORK = {
 
 JWT_AUTH_HEADER_PREFIX = 'Bearer'
 
-REDIS_HOST = os.environ['REDIS_HOST'] if not DEBUG else 'localhost'
-REDIS_PORT = int(os.environ['REDIS_PORT']) if not DEBUG else 6379
-
+REDIS_HOST = os.environ.get('REDIS_HOST', 'localhost')
+REDIS_PORT = int(os.environ.get('REDIS_PORT', '6379'))
 CACHE_URL = 'redis://{0}:{1}/1'.format(REDIS_HOST, REDIS_PORT)
 
 CACHES = {
@@ -210,9 +211,26 @@ CELERY_BROKER_URL = 'redis://{0}'.format(REDIS_HOST)
 
 AUTH_USER_MODEL = 'users.User'
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'user@gmail.com'
-EMAIL_HOST_PASSWORD = '123'
-EMAIL_PORT = 587
+#
+# EMAIL CONFIGS
+#
+EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
+SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY", None)
+SENDGRID_SANDBOX_MODE_IN_DEBUG = False
+
+if DEBUG:
+    INSTALLED_APPS += DEBUG_APPS
+    MIDDLEWARE += [
+        'debug_toolbar.middleware.DebugToolbarMiddleware'
+    ]
+
+    #
+    # API documentation configs.
+    #
+    SHOW_DOCUMENTATION = True
+
+    #
+    # emails config.
+    #
+    EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+    EMAIL_FILE_PATH = '/tmp/app-messages'

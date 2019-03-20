@@ -11,4 +11,8 @@ class SaleCenterSerializer(serializers.ModelSerializer):
         """Define the behavior of Serializer."""
 
         model = SaleCenter
-        fields = '__all__'
+        fields = [
+            'id',
+            'external_id',
+            'name'
+        ]

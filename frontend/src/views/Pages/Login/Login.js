@@ -44,8 +44,9 @@ class Login extends Component {
       .then(res => {
         window.localStorage.setItem('jwt', res.data.token);
         window.localStorage.setItem('profile', res.data.email);
-        window.localStorage.setItem('sale_center', res.data.saleCenter.externalId);
-        window.localStorage.setItem('name_center', res.data.saleCenter.name)
+        window.localStorage.setItem('sale_center', res.data.saleCenter[0].externalId);
+        window.localStorage.setItem('name_center', res.data.saleCenter[0].name)
+        window.localStorage.setItem('total_sale_center', res.data.saleCenter.length)
 
         this.props.history.push('/dashboard');
       })

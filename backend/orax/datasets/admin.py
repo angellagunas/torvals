@@ -88,7 +88,10 @@ class DatasetAdmin(admin.ModelAdmin):
         # Set property is_main to all datasets. The new dataset should be only
         # one with this property as True.
         #
-        Dataset.objects.filter(is_main=True).update(is_main=False)
+        Dataset.objects.filter(
+            is_main=True,
+            project=obj.project
+        ).update(is_main=False)
 
         #
         # The new dataset always be main dataset.

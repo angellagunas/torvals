@@ -15,7 +15,6 @@ from soft_drf.api import mixins
 from soft_drf.api.viewsets import GenericViewSet
 from soft_drf.routing.v1.routers import router
 
-from orax import settings
 from orax.datasets import serializers
 from orax.datasets.models import Dataset, DatasetRow
 
@@ -33,14 +32,14 @@ class DatasetrowViewSet(
 
     def get_queryset(self):
         """Return the universe of objects in API."""
-        sale_center = self.request.user.sale_center
+        sales_centers = self.request.user.sale_center.all()
         query_params = self.request.GET.get('q', None)
 
         dataset = Dataset.objects.get(is_main=True)
 
         queryset = DatasetRow.objects.filter(
             is_active=True,
-            sale_center=sale_center,
+            sale_center__in=sales_centers,
             dataset=dataset
         )
 
@@ -73,62 +72,56 @@ class DatasetrowViewSet(
         writer = csv.writer(csv_file)
         writer.writerow(fieldnames)
 
-        dataset = Dataset.objects.get(is_main=True)
-        sale_center = self.request.user.sale_center
-        sale_center_id = self.request.user.sale_center.external_id
+        project = self.request.user.project
+        dataset = Dataset.objects.get(is_main=True, project=project)
+        sales_centers = self.request.user.sale_center.all()
 
         date_adjustment_label = dataset.date_adjustment
         str_date = date_adjustment_label.strftime('%d/%m/%Y')
         str_date = str_date.replace('/', '_de_', 1)
         str_date = str_date.replace('/', '_del_')
 
-        email_to = self.request.user.email
-
         rows = DatasetRow.objects.filter(
             dataset_id=dataset.id,
-            sale_center=sale_center,
+            sale_center__in=sales_centers,
             is_active=True
         )
 
         for row in rows:
-            date = row.date
-            sale_center_id = row.sale_center.external_id
-            item = row.product.external_id
-            product = row.product.name
-            transits = row.transit
-            stocks = row.in_stock
-            safety_stock = row.safety_stock
-            prediction = row.prediction
-            adjustment = row.adjustment
-            beds = row.bed
-            pallets = row.pallet
-
-            row = writer.writerow([
-                date,
-                sale_center_id,
-                item,
-                product,
-                transits,
-                stocks,
-                safety_stock,
-                prediction,
-                adjustment,
-                beds,
-                pallets
+            writer.writerow([
+                row.date,
+                row.sale_center.external_id,
+                row.product.external_id,
+                row.product.name,
+                row.transit,
+                row.in_stock,
+                row.safety_stock,
+                row.prediction,
+                row.adjustment,
+                row.bed,
+                row.pallet
             ])
-            msg = EmailMessage(
-                'Reporte Diario',
-                'Reporte de Ajustes',
-                settings.EMAIL_HOST_USER,
-                [email_to]
-            )
-            msg.content_subtype = "html"
-            file_name = 'adjustment_report_ceve_' + \
-                str(sale_center_id) + '_' + str_date + '.csv'
 
-            msg.attach(file_name,
-                       csv_file.getvalue(), 'text/csv')
-            msg.send()
+        msg = EmailMessage(
+            'Reporte de Ajustes',
+            'Reporte de Ajustes',
+            'contact@abraxasintelligence.com',
+            project.admin_emails + [self.request.user.email]
+        )
+
+        ceves_id = '_'.join([sc.external_id for sc in sales_centers])
+        file_name = 'adjustment_report_ceve_{0}_{1}.csv'.format(
+            ceves_id,
+            str_date
+        )
+
+        msg.content_subtype = "html"
+        msg.attach(
+            file_name,
+            csv_file.getvalue(),
+            'text/csv'
+        )
+        msg.send()
 
         return Response(status=status.HTTP_200_OK)
 

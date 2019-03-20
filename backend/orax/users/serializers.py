@@ -1,6 +1,7 @@
 """Serializer for Dataset rows API."""
 from rest_framework import serializers
 
+from orax.projects.serializers import ProjectSerializer
 from orax.sales_centers.serializers import SaleCenterSerializer
 from orax.users.models import User
 from orax.utils.tokens import create_token
@@ -39,7 +40,8 @@ class AuthResponseSerializer(serializers.ModelSerializer):
     """Serializer for Auth API when GET method is used."""
 
     token = serializers.SerializerMethodField()
-    sale_center = SaleCenterSerializer()
+    sale_center = SaleCenterSerializer(many=True)
+    project = ProjectSerializer()
 
     class Meta:
         """Define the behavior of Serializer."""
@@ -48,7 +50,8 @@ class AuthResponseSerializer(serializers.ModelSerializer):
         fields = [
             'token',
             'email',
-            'sale_center'
+            'sale_center',
+            'project'
         ]
 
     def get_token(self, obj):

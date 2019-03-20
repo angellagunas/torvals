@@ -1,6 +1,7 @@
 """Define the product structure in DB."""
 from django.db import models
 
+from orax.projects.models import Project
 from orax.utils.models import CatalogueMixin
 
 
@@ -37,6 +38,11 @@ class Product(CatalogueMixin):
     external_id = models.CharField(
         max_length=255,
         verbose_name='external id'
+    )
+
+    project = models.ForeignKey(
+        Project,
+        null=True
     )
 
     def __unicode__(self):
