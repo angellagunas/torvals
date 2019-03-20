@@ -243,11 +243,10 @@ class Dashboard extends Component {
         Authorization: "Bearer " + window.localStorage.getItem("jwt")
       }
     };
-    console.log("Entro");
     await axios
       .get("api/v2/datasetrows/send", config)
       .then(res => {
-        console.info("email sent");
+
       })
       .catch(error => {
         console.error(error);
@@ -574,13 +573,10 @@ class Dashboard extends Component {
   }
 
   fetchMoreData = () => {
-    console.log('Entro al fetch')
-    setTimeout(() => {
-      this.setState({
-        page_number: this.state.page_number + 1
-      });
-      this.loadData();
-    }, 1500);
+    this.setState({
+      page_number: this.state.page_number + 1
+    });
+    this.loadData();
   };
 
   render() {
