@@ -71,7 +71,8 @@ MIDDLEWARE = [
     'orax.utils.middlewares.AuthenticationMiddlewareJWT',
     'orax.utils.middlewares.DisableCsrfCheck',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware'
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'orax.urls'
@@ -183,9 +184,9 @@ REST_FRAMEWORK = {
         'rest_framework.parsers.MultiPartParser'
     ),
     'DEFAULT_PAGINATION_CLASS': (
-        'rest_framework.pagination.LimitOffsetPagination'
+        'rest_framework.pagination.PageNumberPagination'
     ),
-    'PAGE_SIZE': 5000
+    'PAGE_SIZE': 50
 }
 
 JWT_AUTH_HEADER_PREFIX = 'Bearer'
