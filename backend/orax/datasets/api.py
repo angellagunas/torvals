@@ -187,6 +187,56 @@ class DatasetrowViewSet(
 
         return response
 
+    @list_route(methods=["GET"])
+    def indicators(self, request, *args, **kwargs):
+        sale_center = self.request.user.sale_center
+        query_params = self.request.GET.get('q', None)
+
+        dataset = Dataset.objects.get(is_main=True)
+
+        queryset = DatasetRow.objects.filter(
+            is_active=True,
+            sale_center=sale_center,
+            dataset=dataset
+        )
+
+        if query_params:
+            queryset = queryset.filter(
+                Q(product__name__icontains=query_params) |
+                Q(product__external_id__icontains=query_params)
+            )
+
+        result = {}
+        total_transit, total_stock, total_safetyStock = 0, 0, 0
+        total_adjustment, transit_money, exists_money = 0, 0, 0
+        safety_stock_money, adjustment_money = 0, 0
+
+        for datasetrow in queryset:
+            total_transit += datasetrow.transit
+            total_stock += datasetrow.in_stock
+            total_safetyStock += datasetrow.safety_stock
+            total_adjustment += datasetrow.adjustment
+
+            transit_money += (datasetrow.transit *
+                              datasetrow.product.price*datasetrow.product.quota)
+            exists_money += (datasetrow.in_stock *
+                             datasetrow.product.price*datasetrow.product.quota)
+            safety_stock_money += (datasetrow.safety_stock *
+                                   datasetrow.product.price*datasetrow.product.quota)
+            adjustment_money += (datasetrow.adjustment *
+                                 datasetrow.product.price*datasetrow.product.quota)
+
+        result['total_transit'] = total_transit
+        result['total_stock'] = total_stock
+        result['total_safetyStock'] = total_safetyStock
+        result['total_adjustment'] = total_adjustment
+        result['transit_money'] = transit_money
+        result['exists_money'] = exists_money
+        result['safety_stock_money'] = safety_stock_money
+        result['adjustment_money'] = adjustment_money
+
+        return Response(result)
+
 
 router.register(
     r"datasetrows",
