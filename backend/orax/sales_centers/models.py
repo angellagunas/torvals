@@ -1,6 +1,7 @@
 """Define the sale center structure in DB."""
 from django.db import models
 
+from orax.projects.models import Project
 from orax.utils.models import CatalogueMixin
 
 
@@ -16,6 +17,11 @@ class SaleCenter(CatalogueMixin):
     external_id = models.CharField(
         max_length=255,
         verbose_name='external id'
+    )
+
+    project = models.ForeignKey(
+        Project,
+        null=True
     )
 
     def __str__(self):

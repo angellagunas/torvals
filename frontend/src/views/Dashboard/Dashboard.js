@@ -143,9 +143,12 @@ class Dashboard extends Component {
     const profile = window.localStorage.getItem("profile");
     const sale_center = window.localStorage.getItem("sale_center");
     const center_name = window.localStorage.getItem("name_center");
+    const total_sale_center = window.localStorage.getItem("total_sale_center");
+
     this.setState({ user_email: profile });
     this.setState({ user_sale_center: sale_center });
     this.setState({ user_center_name: center_name });
+    this.setState({ total_sale_center: parseInt(total_sale_center) });
     this.loadData();
   }
 
@@ -684,8 +687,10 @@ class Dashboard extends Component {
                   <Row>
                     <Col xs="12" sm="12" md="5">
                       <CardTitle className="mb-0">
-                        Centro de Venta {this.state.user_sale_center} -{" "}
+                        Centro de Venta {this.state.user_sale_center} - {" "}
                         {this.state.user_center_name}
+
+                        {this.state.total_sale_center > 1 ? " y " + (this.state.total_sale_center - 1) +" más.": ""}
                       </CardTitle>
                       <div className="small text-muted">
                         Pedido sugerido para el {this.state.date}

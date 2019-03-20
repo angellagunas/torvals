@@ -1,6 +1,7 @@
 """Define the dataset structure in DB."""
 from django.db import models
 
+from orax.projects.models import Project
 from orax.utils.models import CatalogueMixin
 
 BATCH_TYPE = [
@@ -36,3 +37,5 @@ class Batch(CatalogueMixin):
         verbose_name='separated_by',
         default=','
     )
+
+    project = models.ForeignKey(Project)

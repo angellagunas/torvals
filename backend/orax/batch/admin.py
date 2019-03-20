@@ -57,6 +57,8 @@ class BatchAdmin(admin.ModelAdmin):
             drop=True
         )
 
+        project = obj.project
+
         super(BatchAdmin, self).save_model(request, obj, form, change)
 
         #
@@ -73,7 +75,8 @@ class BatchAdmin(admin.ModelAdmin):
 
             data = {
                 'external_id': external_id,
-                'name': row.get(config['name'], 'N/A')
+                'name': row.get(config['name'], 'N/A'),
+                'project': project
             }
 
             if obj.type == 'products':

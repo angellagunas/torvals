@@ -7,6 +7,7 @@ from django.contrib.auth.models import (
 )
 from django.db import models
 
+from orax.projects.models import Project
 from orax.sales_centers.models import SaleCenter
 from orax.utils.models import TimeStampedMixin
 
@@ -49,6 +50,7 @@ class User(AbstractBaseUser, PermissionsMixin, TimeStampedMixin):
 
         verbose_name = 'usuario'
         verbose_name_plural = 'usuarios'
+        ordering = ('email',)
 
     email = models.EmailField(
         max_length=254,
@@ -74,8 +76,12 @@ class User(AbstractBaseUser, PermissionsMixin, TimeStampedMixin):
         default=True
     )
 
-    sale_center = models.ForeignKey(
-        SaleCenter,
+    sale_center = models.ManyToManyField(
+        SaleCenter
+    )
+
+    project = models.ForeignKey(
+        Project,
         null=True
     )
 
@@ -83,6 +89,10 @@ class User(AbstractBaseUser, PermissionsMixin, TimeStampedMixin):
     REQUIRED_FIELDS = ['name']
 
     objects = UserManager()
+
+    def __str__(self):
+        """Return the representation in string."""
+        return self.email
 
     def get_short_name(self):
         """The user is identified by their email address."""

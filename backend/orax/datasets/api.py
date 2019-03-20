@@ -33,14 +33,14 @@ class DatasetrowViewSet(
 
     def get_queryset(self):
         """Return the universe of objects in API."""
-        sale_center = self.request.user.sale_center
+        sales_centers = self.request.user.sale_center.all()
         query_params = self.request.GET.get('q', None)
 
         dataset = Dataset.objects.get(is_main=True)
 
         queryset = DatasetRow.objects.filter(
             is_active=True,
-            sale_center=sale_center,
+            sale_center__in=sales_centers,
             dataset=dataset
         )
 
