@@ -19,9 +19,8 @@ import axios from "axios";
 import "../../App.scss";
 
 import InfiniteScroll from "react-infinite-scroll-component";
-import Swal from 'sweetalert2'
-import withReactContent from 'sweetalert2-react-content'
-import { CircleLoader } from 'react-spinners';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
 
 const brandPrimary = getStyle("--primary");
 

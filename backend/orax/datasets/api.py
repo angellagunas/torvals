@@ -150,11 +150,11 @@ class DatasetrowViewSet(
         writer = csv.writer(response)
         writer.writerow(columns)
 
-        sale_center = self.request.user.sale_center
+        sales_centers = self.request.user.sale_center.all()
 
         rows = DatasetRow.objects.filter(
             dataset_id=dataset.id,
-            sale_center=sale_center,
+            sale_center__in=sales_centers,
             is_active=True
         )
 
@@ -189,14 +189,15 @@ class DatasetrowViewSet(
 
     @list_route(methods=["GET"])
     def indicators(self, request, *args, **kwargs):
-        sale_center = self.request.user.sale_center
+        """Return the sum of indicators."""
+        sales_centers = self.request.user.sale_center.all()
         query_params = self.request.GET.get('q', None)
 
         dataset = Dataset.objects.get(is_main=True)
 
         queryset = DatasetRow.objects.filter(
             is_active=True,
-            sale_center=sale_center,
+            sale_center__in=sales_centers,
             dataset=dataset
         )
 
@@ -217,14 +218,26 @@ class DatasetrowViewSet(
             total_safetyStock += datasetrow.safety_stock
             total_adjustment += datasetrow.adjustment
 
-            transit_money += (datasetrow.transit *
-                              datasetrow.product.price*datasetrow.product.quota)
-            exists_money += (datasetrow.in_stock *
-                             datasetrow.product.price*datasetrow.product.quota)
-            safety_stock_money += (datasetrow.safety_stock *
-                                   datasetrow.product.price*datasetrow.product.quota)
-            adjustment_money += (datasetrow.adjustment *
-                                 datasetrow.product.price*datasetrow.product.quota)
+            transit_money += (
+                datasetrow.transit *
+                datasetrow.product.price *
+                datasetrow.product.quota
+            )
+            exists_money += (
+                datasetrow.in_stock *
+                datasetrow.product.price *
+                datasetrow.product.quota
+            )
+            safety_stock_money += (
+                datasetrow.safety_stock *
+                datasetrow.product.price *
+                datasetrow.product.quota
+            )
+            adjustment_money += (
+                datasetrow.adjustment *
+                datasetrow.product.price *
+                datasetrow.product.quota
+            )
 
         result['total_transit'] = total_transit
         result['total_stock'] = total_stock
