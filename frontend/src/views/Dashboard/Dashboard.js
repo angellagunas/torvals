@@ -18,6 +18,7 @@ import { getStyle } from "@coreui/coreui/dist/js/coreui-utilities";
 import axios from "axios";
 import "../../App.scss";
 import InfiniteScroll from "react-infinite-scroll-component";
+import { CircleLoader } from 'react-spinners';
 
 const brandPrimary = getStyle("--primary");
 
@@ -351,12 +352,64 @@ class Dashboard extends Component {
         Authorization: "Bearer " + window.localStorage.getItem("jwt")
       }
     };
+    // const url = "api/v2/datasetrows?page=" + this.state.page_number + "&q=" + this.state.query_search;
+    const url_inds = "api/v2/datasetrows/indicators?q=" + this.state.query_search;
+
+    await axios
+      .get(url_inds, config)
+      .then(res => {
+        const data_response = res.data;  // [...this.state.rows, ...res.data.results];
+
+
+        const transit = data_response['totalTransit'];
+        const stock = data_response['totalStock'];
+        const safetyStock = data_response['totalSafetyStock'];
+        const adjustment = data_response['totalAdjustment']
+
+
+        const transit_money = data_response['transitMoney']
+        const exists_money = data_response['existsMoney']
+        const safety_stock_money = data_response['safetyStockMoney']
+        const adjustment_money = data_response['adjustmentMoney']
+
+        this.setState({
+          cardChartData: this._getCardChartData([
+            transit,
+            stock,
+            safetyStock,
+            adjustment
+          ]),
+          cardChartOpts: this._getCardChartOpts([
+            transit,
+            stock,
+            safetyStock,
+            adjustment
+          ]),
+          // rows: [...this.state.rows, ...data_response],
+
+
+          ind_transit: transit,
+          ind_exists: stock,
+          ind_safety_stock: safetyStock,
+          ind_adjustments: adjustment,
+
+          ind_transit_money: transit_money,
+          ind_exists_money: exists_money,
+          ind_safety_stock_money: safety_stock_money,
+          ind_adjustment_money: adjustment_money
+        });
+      })
+      .catch(error => {
+        console.error(error);
+      });
+
     const url = "api/v2/datasetrows?page=" + this.state.page_number + "&q=" + this.state.query_search;
 
     await axios
       .get(url, config)
       .then(res => {
         const data_response = [...this.state.rows, ...res.data.results];
+
         let date = "";
         const months = [
           "Enero",
@@ -383,62 +436,16 @@ class Dashboard extends Component {
             date.getUTCFullYear();
         }
 
-        // hacemos sumatoria para los indicadores
-        const transit = data_response.reduce((a, b) => +a + +b.transit, 0);
-        const stock = data_response.reduce((a, b) => +a + +b.inStock, 0);
-        const safetyStock = data_response.reduce((a, b) => +a + +b.safetyStock, 0);
-        const adjustment = data_response.reduce(
-          (a, b) => +a + +b.adjustment,
-          0
-        );
-
-        const transit_money = data_response.reduce(
-          (a, b) => +a + +(b.transit * b.product.price * b.product.quota),
-          0
-        );
-        const exists_money = data_response.reduce(
-          (a, b) => +a + +(b.inStock * b.product.price * b.product.quota),
-          0
-        );
-        const safety_stock_money = data_response.reduce(
-          (a, b) => +a + +(b.safetyStock * b.product.price * b.product.quota),
-          0
-        );
-        const adjustment_money = data_response.reduce(
-          (a, b) => +a + +(b.adjustment * b.product.price * b.product.quota),
-          0
-        );
-
         this.setState({
-          cardChartData: this._getCardChartData([
-            transit,
-            stock,
-            safetyStock,
-            adjustment
-          ]),
-          cardChartOpts: this._getCardChartOpts([
-            transit,
-            stock,
-            safetyStock,
-            adjustment
-          ]),
           rows: [...this.state.rows, ...data_response],
-          date: date,
+          date: date
+        })
 
-          ind_transit: transit,
-          ind_exists: stock,
-          ind_safety_stock: safetyStock,
-          ind_adjustments: adjustment,
-
-          ind_transit_money: transit_money,
-          ind_exists_money: exists_money,
-          ind_safety_stock_money: safety_stock_money,
-          ind_adjustment_money: adjustment_money
-        });
       })
       .catch(error => {
         console.error(error);
       });
+
   }
 
   getTableRows() {
@@ -460,7 +467,7 @@ class Dashboard extends Component {
             className="text-center justify-content-center align-items-center"
             style={{ width: 120 + "px" }}
           >
-            <Input
+            <Input className="text-center"
               tabIndex={i + 1}
               type="number"
               id="input3-group2"
@@ -520,6 +527,20 @@ class Dashboard extends Component {
                 <strong>Pedido Tarimas: </strong>
               </span>{" "}
               {row.pallet}
+            </div>
+          </td>
+          <td key={"corrugados" + i + "_" + Math.random()}>
+            <div className="medium text-muted">
+              <span>
+                <strong>C/ Camas: </strong>
+              </span>{" "}
+              {row.product.bed}
+            </div>
+            <div className="medium text-muted">
+              <span>
+                <strong>C/ Tarimas: </strong>
+              </span>{" "}
+              {row.product.pallet}
             </div>
           </td>
         </tr>
@@ -770,6 +791,7 @@ class Dashboard extends Component {
                         <tr>
                           <th className="text-center">Producto</th>
                           <th className="text-center">Pedido Final</th>
+                          <th className="text-center" />
                           <th className="text-center" />
                           <th className="text-center" />
                           <th className="text-center" />
