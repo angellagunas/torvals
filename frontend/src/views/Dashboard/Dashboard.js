@@ -17,7 +17,10 @@ import { CustomTooltips } from "@coreui/coreui-plugin-chartjs-custom-tooltips";
 import { getStyle } from "@coreui/coreui/dist/js/coreui-utilities";
 import axios from "axios";
 import "../../App.scss";
+
 import InfiniteScroll from "react-infinite-scroll-component";
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
 
 const brandPrimary = getStyle("--primary");
 
@@ -46,7 +49,8 @@ class Dashboard extends Component {
     //download report
     this.downloadReport = this.downloadReport.bind(this);
 
-    //
+    //send report by email
+    this.sendReport = this.sendReport.bind(this);
 
     this.state = {
       // colapse vars
@@ -55,6 +59,7 @@ class Dashboard extends Component {
       // user data
       user_email: "",
       user_route: "",
+      canEdit: true,
 
       // input search
       query_search: "",
@@ -241,19 +246,47 @@ class Dashboard extends Component {
 
   async sendReport(e) {
     e.preventDefault();
-    const config = {
-      headers: {
-        Authorization: "Bearer " + window.localStorage.getItem("jwt")
-      }
-    };
-    await axios
-      .get("api/v2/datasetrows/send", config)
-      .then(res => {
+    this.setState({
+      canEdit: false
+    });
 
-      })
-      .catch(error => {
-        console.error(error);
-      });
+    const MySwal = withReactContent(Swal);
+    MySwal.fire({
+      title: '¿Enviar reporte?',
+      text: "Después de enviarlo ya no prodras modificar el pedido sugerido.",
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      confirmButtonText: 'Enviar',
+      cancelButtonColor: '#d33',
+      cancelButtonText: 'Cancelar'
+    }).then(async(result) => {
+
+      if (result.value) {
+        const config = {
+          headers: {
+            Authorization: "Bearer " + window.localStorage.getItem("jwt")
+          }
+        };
+
+        await axios
+          .get("api/v2/datasetrows/send", config)
+          .then(res => {
+            MySwal.fire(
+              '¡Enviado!',
+              'Tu reporte ha sido enviado a tu supervisor con copia a tu email.',
+              'success'
+            )
+          })
+          .catch(error => {
+            console.error(error);
+          });
+      } else {
+        this.setState({
+          canEdit: true
+        });
+      }
+    });
   }
 
   async handleChange(e, row_id) {
@@ -463,16 +496,20 @@ class Dashboard extends Component {
             className="text-center justify-content-center align-items-center"
             style={{ width: 120 + "px" }}
           >
-            <Input
-              tabIndex={i + 1}
-              type="number"
-              id="input3-group2"
-              name="input3-group2"
-              defaultValue={row.adjustment}
-              onBlur={e => {
-                this.handleChange(e, row.id);
-              }}
-            />
+            {this.state.canEdit ?
+              (<Input
+                tabIndex={i + 1}
+                type="number"
+                id="input3-group2"
+                name="input3-group2"
+                defaultValue={row.adjustment}
+                onBlur={e => {
+                  this.handleChange(e, row.id);
+                }}
+              />) : (
+                <div>{row.adjustment}</div>
+              )
+            }
           </td>
           <td key={"cell_empty_" + i} />
           <td key={"cell_stocks_" + i + "_" + Math.random()}>
