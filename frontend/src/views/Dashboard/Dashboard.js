@@ -749,7 +749,7 @@ class Dashboard extends Component {
                           lg={{ size: 1, offset: 0 }}
                         >
                           <Button
-                            disabled={true}
+                            disabled={false}
                             color="primary"
                             className="float-right"
                             title="Enviar pedido por E-mail"

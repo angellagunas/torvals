@@ -2,6 +2,7 @@
 from django.db import models
 
 from orax.products.models import Product
+from orax.projects.models import Project
 from orax.sales_centers.models import SaleCenter
 from orax.users.models import UserManager
 from orax.utils.models import CatalogueMixin, TimeStampedMixin
@@ -56,6 +57,8 @@ class Dataset(CatalogueMixin):
         blank=True,
         help_text="Fecha en la cual se va a ajustar el forecast."
     )
+
+    project = models.ForeignKey(Project)
 
     objects = UserManager()
 

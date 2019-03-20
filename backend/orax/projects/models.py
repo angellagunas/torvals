@@ -1,4 +1,5 @@
 """Define the project structure in DB."""
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
 from orax.utils.models import CatalogueMixin
@@ -36,6 +37,14 @@ class Project(CatalogueMixin):
     description = models.CharField(
         max_length=255,
         verbose_name='description'
+    )
+
+    admin_emails = ArrayField(
+        models.CharField(
+            max_length=200
+        ),
+        blank=True,
+        null=True
     )
 
     can_adjust = models.BooleanField(
