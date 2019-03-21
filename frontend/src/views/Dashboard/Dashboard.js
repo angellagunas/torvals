@@ -13,8 +13,6 @@ import {
   InputGroup,
   InputGroupAddon
 } from "reactstrap";
-import { CustomTooltips } from "@coreui/coreui-plugin-chartjs-custom-tooltips";
-import { getStyle } from "@coreui/coreui/dist/js/coreui-utilities";
 import axios from "axios";
 import "../../App.scss";
 
@@ -22,7 +20,6 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 
-const brandPrimary = getStyle("--primary");
 
 class Dashboard extends Component {
   constructor(props) {
@@ -37,9 +34,6 @@ class Dashboard extends Component {
     // take the search query an filter data.
     this.handleSearch = this.handleSearch.bind(this);
 
-    // calculate graph data in indicators.
-    this._getCardChartData = this._getCardChartData.bind(this);
-
     // calculate the percentage changed of adjustment.
     this.percentage = this.percentage.bind(this);
 
@@ -52,14 +46,16 @@ class Dashboard extends Component {
     //send report by email
     this.sendReport = this.sendReport.bind(this);
 
+    //load user profile
+    this.loadProfile = this.loadProfile.bind(this);
+
     this.state = {
       // colapse vars
       indicadorsCollapsed: false,
 
       // user data
-      user_email: "",
-      user_route: "",
       canEdit: true,
+      user: {},
 
       // input search
       query_search: "",
@@ -79,62 +75,7 @@ class Dashboard extends Component {
       rows: [],
       date: "",
 
-      // Card Chart
-      cardChartData: {
-        labels: ["Tránsito", "Existencia", "Safety Stock", "Pedido Final"],
-        datasets: [
-          {
-            label: "Total",
-            backgroundColor: brandPrimary,
-            borderColor: "rgba(255,255,255,.55)",
-            data: [65, 59, 84, 84]
-          }
-        ]
-      },
-      cardChartOpts: {
-        tooltips: {
-          enabled: false,
-          custom: CustomTooltips
-        },
-        maintainAspectRatio: false,
-        legend: {
-          display: false
-        },
-        scales: {
-          xAxes: [
-            {
-              gridLines: {
-                color: "transparent",
-                zeroLineColor: "transparent"
-              },
-              ticks: {
-                fontSize: 2,
-                fontColor: "transparent"
-              }
-            }
-          ],
-          yAxes: [
-            {
-              display: false,
-              ticks: {
-                display: false,
-                min: Math.min.apply(Math, [65, 59, 84, 84]) - 5,
-                max: Math.max.apply(Math, [65, 59, 84, 84]) + 5
-              }
-            }
-          ]
-        },
-        elements: {
-          line: {
-            borderWidth: 1
-          },
-          point: {
-            radius: 4,
-            hitRadius: 10,
-            hoverRadius: 4
-          }
-        }
-      },
+      // pagination
       page_number: 1
     };
   }
@@ -145,79 +86,8 @@ class Dashboard extends Component {
       this.props.history.push("/login");
     }
 
-    const profile = window.localStorage.getItem("profile");
-    const sale_center = window.localStorage.getItem("sale_center");
-    const center_name = window.localStorage.getItem("name_center");
-    const total_sale_center = window.localStorage.getItem("total_sale_center");
-
-    this.setState({ user_email: profile });
-    this.setState({ user_sale_center: sale_center });
-    this.setState({ user_center_name: center_name });
-    this.setState({ total_sale_center: parseInt(total_sale_center) });
+    this.loadProfile();
     this.loadData();
-  }
-
-  _getCardChartData(data) {
-    return {
-      labels: ["Tránsito", "Existencia", "Safety Stock", "Pedido Final"],
-      datasets: [
-        {
-          label: "Total",
-          backgroundColor: brandPrimary,
-          borderColor: "rgba(255,255,255,.55)",
-          data: data
-        }
-      ]
-    };
-  }
-
-  _getCardChartOpts(data) {
-    const min = Math.min.apply(Math, data) - 5;
-    const max = Math.max.apply(Math, data) + 5;
-    return {
-      tooltips: {
-        enabled: false,
-        custom: CustomTooltips
-      },
-      maintainAspectRatio: false,
-      legend: {
-        display: false
-      },
-      scales: {
-        xAxes: [
-          {
-            gridLines: {
-              color: "transparent",
-              zeroLineColor: "transparent"
-            },
-            ticks: {
-              fontSize: 2,
-              fontColor: "transparent"
-            }
-          }
-        ],
-        yAxes: [
-          {
-            display: false,
-            ticks: {
-              display: false,
-              min: min,
-              max: max
-            }
-          }
-        ]
-      },
-      elements: {
-        line: {
-          borderWidth: 1
-        },
-        point: {
-          radius: 4,
-          hitRadius: 10,
-          hoverRadius: 4
-        }
-      }
-    };
   }
 
   percentage(prediction, adjustment) {
@@ -246,8 +116,12 @@ class Dashboard extends Component {
 
   async sendReport(e) {
     e.preventDefault();
+
     this.setState({
-      canEdit: false
+      user: {
+        ...this.state.user,
+        canEdit: false
+      }
     });
 
     const MySwal = withReactContent(Swal);
@@ -283,7 +157,10 @@ class Dashboard extends Component {
           });
       } else {
         this.setState({
-          canEdit: true
+          user: {
+            ...this.state.user,
+            canEdit: true
+          }
         });
       }
     });
@@ -319,11 +196,7 @@ class Dashboard extends Component {
     });
 
     let {
-      ind_transit,
       ind_adjustments,
-      ind_exists,
-      ind_safety_stock,
-
       ind_adjustment_money
     } = this.state;
 
@@ -355,22 +228,29 @@ class Dashboard extends Component {
         this.setState({
           rows: updatedRows,
           ind_adjustment_money: ind_adjustment_money,
-          ind_adjustments: ind_adjustments,
-          cardChartData: this._getCardChartData([
-            ind_transit,
-            ind_adjustments,
-            ind_exists,
-            ind_safety_stock
-          ]),
-          cardChartOpts: this._getCardChartOpts([
-            ind_transit,
-            ind_adjustments,
-            ind_exists,
-            ind_safety_stock
-          ])
+          ind_adjustments: ind_adjustments
         });
 
         this.getTableRows();
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  }
+
+  loadProfile() {
+    const config = {
+      headers: {
+        Authorization: "Bearer " + window.localStorage.getItem("jwt")
+      }
+    };
+
+    axios
+      .get("api/v2/me", config)
+      .then(res => {
+        this.setState({
+          user: res.data
+        });
       })
       .catch(error => {
         console.error(error);
@@ -408,20 +288,7 @@ class Dashboard extends Component {
         const adjustment_money = data_response['adjustmentMoney']
 
         this.setState({
-          cardChartData: this._getCardChartData([
-            transit,
-            stock,
-            safetyStock,
-            adjustment
-          ]),
-          cardChartOpts: this._getCardChartOpts([
-            transit,
-            stock,
-            safetyStock,
-            adjustment
-          ]),
           // rows: [...this.state.rows, ...data_response],
-
 
           ind_transit: transit,
           ind_exists: stock,
@@ -502,7 +369,7 @@ class Dashboard extends Component {
             className="text-center justify-content-center align-items-center"
             style={{ width: 120 + "px" }}
           >
-            {this.state.canEdit ?
+            {this.state.user.canEdit && this.state.user.project.canAdjust ?
               (<Input className="text-center"
                 tabIndex={i + 1}
                 type="number"
@@ -742,17 +609,18 @@ class Dashboard extends Component {
               <Card>
                 <CardBody>
                   <Row>
-                    <Col xs="12" sm="12" md="5">
-                      <CardTitle className="mb-0">
-                        Centro de Venta {this.state.user_sale_center} - {" "}
-                        {this.state.user_center_name}
-
-                        {this.state.total_sale_center > 1 ? " y " + (this.state.total_sale_center - 1) +" más.": ""}
-                      </CardTitle>
-                      <div className="small text-muted">
-                        Pedido sugerido para el {this.state.date}
-                      </div>
-                    </Col>
+                    { this.state.user.saleCenter &&
+                      <Col xs="12" sm="12" md="5">
+                        <CardTitle className="mb-0">
+                          Centro de Venta {this.state.user.saleCenter[0].externalId} - {" "}
+                          {this.state.user.saleCenter[0].name} 
+                          {this.state.user.saleCenter.length > 1 ? " y " + (this.state.user.saleCenter.length - 1) +" más.": ""}
+                        </CardTitle>
+                        <div className="small text-muted">
+                          Pedido sugerido para el {this.state.date}
+                        </div>
+                      </Col>
+                    }
                     <Col
                       xs="12"
                       sm="12"
@@ -783,38 +651,42 @@ class Dashboard extends Component {
                             </InputGroup>
                           </Form>
                         </Col>
-                        <Col
-                          xs={{ size: 1, offset: 0 }}
-                          sm={{ size: 1, offset: 0 }}
-                          md={{ size: 1, offset: 1 }}
-                          lg={{ size: 1, offset: 0 }}
-                        >
-                          <Button
-                            disabled={false}
-                            color="primary"
-                            className="float-right"
-                            title="Descargar reporte"
-                            onClick={this.downloadReport}
+                        { this.state.user.project &&
+                            <Col
+                              xs={{ size: 1, offset: 0 }}
+                              sm={{ size: 1, offset: 0 }}
+                              md={{ size: 1, offset: 1 }}
+                              lg={{ size: 1, offset: 0 }}
+                            >
+                              <Button
+                                disabled={!this.state.user.project.canDowloadReport}
+                                color="primary"
+                                className="float-right"
+                                title="Descargar reporte"
+                                onClick={this.downloadReport}
+                              >
+                                <i className="icon-cloud-download" />
+                              </Button>
+                            </Col>
+                        }
+                        { this.state.user.project &&
+                          <Col
+                            xs={{ size: 1, offset: 0 }}
+                            sm={{ size: 1, offset: 0 }}
+                            md={{ size: 1, offset: 0 }}
+                            lg={{ size: 1, offset: 0 }}
                           >
-                            <i className="icon-cloud-download" />
-                          </Button>
-                        </Col>
-                        <Col
-                          xs={{ size: 1, offset: 0 }}
-                          sm={{ size: 1, offset: 0 }}
-                          md={{ size: 1, offset: 0 }}
-                          lg={{ size: 1, offset: 0 }}
-                        >
-                          <Button
-                            disabled={false}
-                            color="primary"
-                            className="float-right"
-                            title="Enviar pedido por E-mail"
-                            onClick={this.sendReport}
-                          >
-                            <i className="fa fa-envelope" />
-                          </Button>
-                        </Col>
+                            <Button
+                              disabled={!(this.state.user.project.canSendReport && this.state.user.canEdit)}
+                              color="primary"
+                              className="float-right"
+                              title="Enviar pedido por E-mail"
+                              onClick={this.sendReport}
+                            >
+                              <i className="fa fa-envelope" />
+                            </Button>
+                          </Col>
+                        }
                       </Row>
                     </Col>
                   </Row>

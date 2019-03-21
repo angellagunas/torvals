@@ -9,8 +9,10 @@ class CustomUserAdmin(UserAdmin):
     """Admin for user."""
 
     ordering = ['email']
+    filter_vertical = ['sale_center']
     list_display = ['email', 'name', 'is_active']
     exclude = ['first_name', 'last_name', 'username', 'date_joined']
+    raw_id_fields = ('project',)
 
     list_filter = ['is_staff', 'is_superuser', 'is_active', 'groups']
     search_fields = ['email']
@@ -25,6 +27,7 @@ class CustomUserAdmin(UserAdmin):
             'is_active',
             'is_staff',
             'is_superuser',
+            'can_edit',
             'groups', 'user_permissions')
         }),
     )
@@ -39,6 +42,7 @@ class CustomUserAdmin(UserAdmin):
             'is_active',
             'is_staff',
             'is_superuser',
+            'can_edit',
             'groups', 'user_permissions')
         }),
     )
