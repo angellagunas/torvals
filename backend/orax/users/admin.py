@@ -21,7 +21,7 @@ class CustomUserAdmin(UserAdmin):
         ('Personal info', {'fields': ('email', 'password')}),
         ('Important dates', {'fields': ('last_login',)}),
         ('Organization config', {
-            'fields': ('sale_center', 'project')
+            'fields': ('sale_center', 'project', 'admin_emails')
         }),
         ('Permissions', {'fields': (
             'is_active',
@@ -36,7 +36,7 @@ class CustomUserAdmin(UserAdmin):
         ('Personal info', {'fields': ('email', 'password1', 'password2')}),
         ('Important dates', {'fields': ('last_login',)}),
         ('Organization config', {
-            'fields': ('sale_center', 'project')
+            'fields': ('sale_center', 'project', 'admin_emails')
         }),
         ('Permissions', {'fields': (
             'is_active',
