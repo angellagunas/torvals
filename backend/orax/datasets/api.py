@@ -106,7 +106,7 @@ class DatasetrowViewSet(
             'Reporte de Ajustes',
             'Reporte de Ajustes',
             'contact@abraxasintelligence.com',
-            project.admin_emails + [self.request.user.email]
+            self.request.user.admin_emails + [self.request.user.email]
         )
 
         ceves_id = '_'.join([sc.external_id for sc in sales_centers])

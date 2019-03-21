@@ -5,6 +5,7 @@ from django.contrib.auth.models import (
     BaseUserManager,
     PermissionsMixin
 )
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
 from orax.projects.models import Project
@@ -86,6 +87,14 @@ class User(AbstractBaseUser, PermissionsMixin, TimeStampedMixin):
 
     project = models.ForeignKey(
         Project,
+        null=True
+    )
+
+    admin_emails = ArrayField(
+        models.CharField(
+            max_length=200
+        ),
+        blank=True,
         null=True
     )
 
