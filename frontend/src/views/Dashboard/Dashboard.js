@@ -16,6 +16,7 @@ import {
 import axios from "axios";
 import "../../App.scss";
 
+import { RingLoader } from 'react-spinners';
 import InfiniteScroll from "react-infinite-scroll-component";
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
@@ -45,6 +46,10 @@ class Dashboard extends Component {
 
     //send report by email
     this.sendReport = this.sendReport.bind(this);
+
+
+    //
+    this.handleKeyPress = this.handleKeyPress.bind(this);
 
     //load user profile
     this.loadProfile = this.loadProfile.bind(this);
@@ -134,7 +139,7 @@ class Dashboard extends Component {
       confirmButtonText: 'Enviar',
       cancelButtonColor: '#d33',
       cancelButtonText: 'Cancelar'
-    }).then(async(result) => {
+    }).then(async (result) => {
 
       if (result.value) {
         const config = {
@@ -194,6 +199,8 @@ class Dashboard extends Component {
 
       return x;
     });
+
+
 
     let {
       ind_adjustments,
@@ -379,6 +386,9 @@ class Dashboard extends Component {
                 onBlur={e => {
                   this.handleChange(e, row.id);
                 }}
+                onKeyPress={e => {
+                  this.handleKeyPress(e, row.id)
+                }}
               />) : (
                 <div>{row.adjustment}</div>
               )
@@ -506,6 +516,12 @@ class Dashboard extends Component {
     this.loadData();
   };
 
+  handleKeyPress(e, row_id) {
+    if (e.key === 'Enter') {
+      this.handleChange(e, row_id)
+    }
+  }
+
   render() {
     return (
       <div className="animated fadeIn">
@@ -513,7 +529,15 @@ class Dashboard extends Component {
           dataLength={this.state.rows.length}
           next={this.fetchMoreData}
           hasMore={true}
-          loader={<h4>Loading...</h4>}
+          loader={<div className='sweet-loading'>
+            <RingLoader
+              sizeUnit={"px"}
+              size={50}
+              color={'#123abc'}
+              radius={5}
+              loading={this.state.loading}
+            />
+          </div>}
         >
           <Row>
             <Col>
