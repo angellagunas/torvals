@@ -1,101 +1,91 @@
-#!/usr/bin/env groovy
-
 pipeline {
-  agent any
+    agent any
+    stages {
+        stage('build') {
+            when { anyOf { branch "stage"; branch "release"} }
+            parallel {
+                stage('build back'){
+                    steps{
+                        script{
+                            if(env.BRANCH_NAME == 'stage'){
+                                env.BACKEND_NAME = "bec-back:1.0.${BUILD_NUMBER}-dev"
+                                sh("echo 'build backend stage: ${env.BACKEND_NAME}'")
+                            }
+                            else if(env.BRANCH_NAME == 'release'){
+                                env.BACKEND_NAME = "bec-back:1.0.${BUILD_NUMBER}-prod"
+                                sh("echo 'build backend production: ${env.BACKEND_NAME}'")
+                            }
+                            
+                            backend_image = docker.build("${GLOBAL_REGISTRY}/${env.BACKEND_NAME}", "--no-cache ./backend")
+                        }
+                    }
+                }
+                stage('build front') {
+                    steps{
+                        script{
+                            if(env.BRANCH_NAME == 'stage'){
+                                env.FRONTEND_NAME = "bec-front:1.0.${BUILD_NUMBER}-dev"
+                                sh("echo 'build frontend stage: ${env.FRONTEND_NAME}'")
+                            }
+                            else if(env.BRANCH_NAME == 'release'){
+                                env.FRONTEND_NAME = "bec-front:1.0.${BUILD_NUMBER}-prod"
+                                sh("echo 'build frontend production: ${env.FRONTEND_NAME}'")
+                            }
 
-  options {
-    ansiColor("xterm")
-  }
+                            frontend_image = docker.build("${GLOBAL_REGISTRY}/${env.FRONTEND_NAME}", "--no-cache ./frontend")
+                        }
+                    }
+                }
+            }
+        }
+        stage('upload fronted and backend') {
+            when { anyOf { branch 'stage'; branch 'release' } }
+            parallel{
+                stage('upload back'){
+                    steps{
+                        script{
+                            docker.withRegistry("https://${GLOBAL_REGISTRY}", "ecr:us-east-1:ECR") {
+                                backend_image.push()
+                            }
 
-  stages {
-    stage("Startup") {
-      steps {
-        script { load "${env.JENKINS_HOME}/.envvars/orax/common/env.groovy" }
-        // TODO: Start test environment
-        // TODO: Install dependencies
-      }
+                            sh("docker rmi ${backend_image.id}")
+                        }
+
+                    }
+                }
+                stage('upload front'){
+                    steps{
+                        script{
+                            docker.withRegistry("https://${GLOBAL_REGISTRY}", "ecr:us-east-1:ECR") {
+                                frontend_image.push()
+                            }
+
+                            sh("docker rmi ${frontend_image.id}")
+                        }
+                    }
+                }
+            }
+        }
     }
-    stage("Test") {
-      when { anyOf { branch "dev" } }
-      steps {
-      }
-      post {
-        always {
+    post {
+        always{
+            script{
+                if (env.BRANCH_NAME == 'stage' || env.BRANCH_NAME == 'release'){
+                    GIT_AUTHOR = sh (
+                        script: 'git log -1 --pretty=format:%an',
+                        returnStdout: true
+                    ).trim()
+                    GIT_MESSAGE = sh (
+                        script: 'git log -1 --pretty=format:%s',
+                        returnStdout: true
+                    ).trim()
+
+                    slackSend (
+                        channel: 'int-dev-cicd',
+                        message: "${currentBuild.fullProjectName}: ${currentBuild.currentResult}\nGit Author: ${GIT_AUTHOR}\nGit Subject: ${GIT_MESSAGE}\nBack: ${env.BACKEND_NAME}\nFront: ${env.FRONTEND_NAME}\nDuration: ${currentBuild.durationString}"
+                    )
+                }
+            }
         }
-      }
     }
-    stage("Build") {
-      when { anyOf { branch "master"; branch "release" } }
-      steps {
-      }
-      post {
-        failure {
-          slackSend(
-            channel: env.SLACK_CHANNEL,
-            color: "danger",
-            message: "Build failed\n${env.BUILD_URL}"
-          )
-        }
-      }
-    }
-    stage("Publish") {
-      when { anyOf { branch "master"; branch "release" } }
-      steps {
-        withAWS(region: env.AWS_REGION, credentials: env.AWS_CREDENTIALS) {
-          script {
-            String login = ecrLogin()
-            sh login
-          }
-        }
-        sh "make publish"
-      }
-      post {
-        failure {
-          slackSend(
-            channel: env.SLACK_CHANNEL,
-            color: "danger",
-            message: "Publish failed\n${env.BUILD_URL}"
-          )
-        }
-      }
-    }
-    stage("Deploy") {
-      when { anyOf { branch "master"; branch "release" } }
-      steps {
-        sh "tar -czf docker.tar.gz -C ~ .docker"
-        withAWS(region: env.AWS_REGION, credentials: env.AWS_CREDENTIALS) {
-          s3Upload(bucket: env.AWS_BUCKET, file: "docker.tar.gz", path: "docker.tar.gz")
-        }
-        script {
-          env.URIS = "\"https://${env.AWS_BUCKET}.s3.amazonaws.com/docker.tar.gz\""
-        }
-        sh "make update_settings"
-        marathon(
-          url: env.MARATHON_URL,
-          id: "/orax/${env.BRANCH_NAME}/kore",
-          forceUpdate: true,
-          credentialsId: env.MARATHON_CREDENTIALS
-        )
-      }
-      post {
-        always {
-          sh "rm docker.tar.gz marathon*.json"
-        }
-        failure {
-          slackSend(
-            channel: env.SLACK_CHANNEL,
-            color: "danger",
-            message: "Deploy failed\n${env.BUILD_URL}"
-          )
-        }
-        success {
-          slackSend(
-            channel: env.SLACK_CHANNEL,
-            color: "good",
-            message: "Successfully deployed ${env.BRANCH_NAME} api"
-          )
-        }
-      }
-    }
-  }
 }
