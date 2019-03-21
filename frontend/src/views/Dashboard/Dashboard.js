@@ -16,8 +16,6 @@ import {
 import axios from "axios";
 import "../../App.scss";
 
-import { RingLoader } from 'react-spinners';
-import InfiniteScroll from "react-infinite-scroll-component";
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 
@@ -66,6 +64,7 @@ class Dashboard extends Component {
       query_search: "",
 
       //indicators
+      indicators: {},
       ind_transit: 0,
       ind_exists: 0,
       ind_safety_stock: 0,
@@ -184,8 +183,16 @@ class Dashboard extends Component {
     let priceOfProductUpdated = 0;
     let bed = 0;
     let pallet = 0;
-    const updatedRows = this.state.rows.map(x => {
+    let hasNotChanges = false;
+    
+    this.state.rows.map(x => {
       if (x.id === row_id) {
+        if(x.adjustment == e.target.value){
+          hasNotChanges = true;
+
+          return x;
+        }
+
         originalAdjustment = x.adjustment;
         x.adjustment = e.target.value;
         x.bed = Math.round(x.adjustment / x.product.bed);
@@ -200,7 +207,9 @@ class Dashboard extends Component {
       return x;
     });
 
-
+    if(hasNotChanges){
+      return;
+    }
 
     let {
       ind_adjustments,
@@ -233,12 +242,9 @@ class Dashboard extends Component {
       )
       .then(res => {
         this.setState({
-          rows: updatedRows,
           ind_adjustment_money: ind_adjustment_money,
           ind_adjustments: ind_adjustments
         });
-
-        this.getTableRows();
       })
       .catch(error => {
         console.error(error);
@@ -312,12 +318,12 @@ class Dashboard extends Component {
         console.error(error);
       });
 
-    const url = "api/v2/datasetrows?page=" + this.state.page_number + "&q=" + this.state.query_search;
+    const url = "api/v2/datasetrows?q=" + this.state.query_search;
 
     await axios
       .get(url, config)
       .then(res => {
-        const data_response = [...this.state.rows, ...res.data.results];
+        //const data_response = [...this.state.rows, ...res.data.results];
 
         let date = "";
         const months = [
@@ -335,8 +341,8 @@ class Dashboard extends Component {
           "Diciembre"
         ];
 
-        if (data_response.length > 0) {
-          date = new Date(data_response[0].date);
+        if (res.data.results.length > 0) {
+          date = new Date(res.data.results[0].date);
           date =
             date.getUTCDate() +
             " de " +
@@ -346,7 +352,7 @@ class Dashboard extends Component {
         }
 
         this.setState({
-          rows: [...this.state.rows, ...data_response],
+          rows: res.data.results,
           date: date
         })
 
@@ -509,13 +515,6 @@ class Dashboard extends Component {
       });
   }
 
-  fetchMoreData = () => {
-    this.setState({
-      page_number: this.state.page_number + 1
-    });
-    this.loadData();
-  };
-
   handleKeyPress(e, row_id) {
     if (e.key === 'Enter') {
       this.handleChange(e, row_id)
@@ -525,20 +524,6 @@ class Dashboard extends Component {
   render() {
     return (
       <div className="animated fadeIn">
-        <InfiniteScroll
-          dataLength={this.state.rows.length}
-          next={this.fetchMoreData}
-          hasMore={true}
-          loader={<div className='sweet-loading'>
-            <RingLoader
-              sizeUnit={"px"}
-              size={50}
-              color={'#123abc'}
-              radius={5}
-              loading={this.state.loading}
-            />
-          </div>}
-        >
           <Row>
             <Col>
               <Card>
@@ -741,7 +726,6 @@ class Dashboard extends Component {
               </Card>
             </Col>
           </Row>
-        </InfiniteScroll>
       </div>
     );
   }
