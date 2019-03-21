@@ -123,6 +123,10 @@ class DatasetrowViewSet(
         )
         msg.send()
 
+        user = self.request.user
+        user.can_edit = False
+        user.save()
+
         return Response(status=status.HTTP_200_OK)
 
     @list_route(methods=["GET"])
