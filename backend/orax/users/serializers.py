@@ -7,6 +7,25 @@ from orax.users.models import User
 from orax.utils.tokens import create_token
 
 
+class UserProfileSerializer(serializers.ModelSerializer):
+    """Profile serializer."""
+
+    sale_center = SaleCenterSerializer(many=True)
+    project = ProjectSerializer()
+
+    class Meta:
+        """Define behaivor."""
+
+        model = User
+        fields = [
+            'id',
+            'email',
+            'sale_center',
+            'project',
+            'can_edit'
+        ]
+
+
 class AuthSerializer(serializers.Serializer):
     """Serializer for Auth API when POST method is used."""
 

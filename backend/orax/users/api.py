@@ -6,13 +6,30 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
+from soft_drf.api import mixins
 from soft_drf.api.viewsets import GenericViewSet
+from soft_drf.api.routers.single import SingleObjectRouter
 from soft_drf.routing.v1.routers import router
 
 from orax.users import serializers
 
 # User model
 User = get_user_model()
+
+
+class ProfileViewSet(mixins.RetrieveModelMixin, GenericViewSet):
+    """Manage the Authentication process."""
+
+    serializer_class = serializers.UserProfileSerializer
+    retrieve_serializer_class = serializers.UserProfileSerializer
+
+    def get_object(self):
+        """Return the user in session."""
+        return self.request.user
+
+    def retrieve(self, request, *args, **kwargs):
+        """Get data for user profile."""
+        return super(ProfileViewSet, self).retrieve(request, *args, **kwargs)
 
 
 class AuthViewSet(GenericViewSet):
@@ -59,4 +76,11 @@ router.register(
     r'auth',
     AuthViewSet,
     base_name="auth",
+)
+
+router.register(
+    r'me',
+    ProfileViewSet,
+    base_name="user_me",
+    router_class=SingleObjectRouter
 )
