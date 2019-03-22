@@ -1,32 +1,13 @@
 """Define the project structure in DB."""
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
 from orax.utils.models import CatalogueMixin
-from orax.organizations.models import Organization
-from orax.rules.models import Rule
 
 
 PROJECT_STATUS = [
-    ('empty', 'empty'),
-    ('processing', 'processing'),
+    ('error', 'error'),
     ('ready', 'ready'),
-    ('reviewing', 'reviewing'),
-    ('pendingRows', 'pendingRows'),
-    ('adjustment', 'adjustment'),
-    ('conciliating', 'conciliating'),
-    ('conciliatingForecast', 'conciliatingForecast'),
-    ('cloning', 'cloning'),
-    ('updating-rules', 'updating-rules'),
-    ('pending-configuration', 'pending-configuration')
-]
-
-PROJECT_CYCLE_STATUS = [
-    ('empty', 'empty'),
-    ('consolidation', 'consolidation'),
-    ('forecastCreation', 'forecastCreation'),
-    ('rangeAdjustmentRequest', 'rangeAdjustmentRequest'),
-    ('rangeAdjustment', 'rangeAdjustment'),
-    ('salesUpload', 'salesUpload')
 ]
 
 
@@ -39,35 +20,51 @@ class Project(CatalogueMixin):
         verbose_name = 'project'
         verbose_name_plural = 'projects'
 
-    organization = models.ForeignKey(Organization)
-    main_dataset = models.ForeignKey(
-        'datasets.Dataset',
-        null=True,
-        blank=True,
-        related_name='main_datasets'
-    )
     active_dataset = models.ForeignKey(
         'datasets.Dataset',
         null=True,
         blank=True,
         related_name='active_datasets'
     )
+
     status = models.CharField(
         max_length=255,
         verbose_name='status',
+        default='ready',
         choices=PROJECT_STATUS
     )
-    cycle_status = models.CharField(
-        max_length=255,
-        verbose_name='cycle status',
-        choices=PROJECT_CYCLE_STATUS
-    )
+
     description = models.CharField(
         max_length=255,
         verbose_name='description'
     )
-    rule = models.ForeignKey(
-        Rule,
-        null=True,
-        blank=True
+
+    admin_emails = ArrayField(
+        models.CharField(
+            max_length=200
+        ),
+        blank=True,
+        null=True
     )
+
+    can_adjust = models.BooleanField(
+        default=True,
+        help_text="Define si se puede ajustar la prediccion en el proyecto."
+    )
+
+    can_dowload_report = models.BooleanField(
+        default=True,
+        help_text="Define si el usuario final puede descargar el reporte."
+    )
+
+    can_send_report = models.BooleanField(
+        default=True,
+        help_text=(
+            "Define si el usuario final puede enviar el reporte por email "
+            "a su superior."
+        )
+    )
+
+    def __str__(self):
+        """Representation in string."""
+        return self.name

@@ -1,28 +1,28 @@
 """Serializer for Dataset rows API."""
 from rest_framework import serializers
 
+from orax.projects.serializers import ProjectSerializer
+from orax.sales_centers.serializers import SaleCenterSerializer
 from orax.users.models import User
 from orax.utils.tokens import create_token
-from orax.routes.serializers import RouteSerializer
-from orax.sales_centers.serializers import SaleCenterSerializer
 
 
-class MeSerializer(serializers.ModelSerializer):
-    """Manage the info in /me endpoint."""
+class UserProfileSerializer(serializers.ModelSerializer):
+    """Profile serializer."""
 
-    route = RouteSerializer()
-    agency = SaleCenterSerializer()
+    sale_center = SaleCenterSerializer(many=True)
+    project = ProjectSerializer()
 
     class Meta:
-        """Define behavior of class."""
+        """Define behaivor."""
 
         model = User
         fields = [
             'id',
             'email',
-            'name',
-            'route',
-            'agency'
+            'sale_center',
+            'project',
+            'can_edit'
         ]
 
 
@@ -59,8 +59,8 @@ class AuthResponseSerializer(serializers.ModelSerializer):
     """Serializer for Auth API when GET method is used."""
 
     token = serializers.SerializerMethodField()
-    route = RouteSerializer()
-    agency = SaleCenterSerializer()
+    sale_center = SaleCenterSerializer(many=True)
+    project = ProjectSerializer()
 
     class Meta:
         """Define the behavior of Serializer."""
@@ -69,8 +69,8 @@ class AuthResponseSerializer(serializers.ModelSerializer):
         fields = [
             'token',
             'email',
-            'route',
-            'agency'
+            'sale_center',
+            'project'
         ]
 
     def get_token(self, obj):

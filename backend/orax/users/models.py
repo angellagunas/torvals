@@ -5,10 +5,10 @@ from django.contrib.auth.models import (
     BaseUserManager,
     PermissionsMixin
 )
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
-from orax.organizations.models import Organization
-from orax.routes.models import Route
+from orax.projects.models import Project
 from orax.sales_centers.models import SaleCenter
 from orax.utils.models import TimeStampedMixin
 
@@ -51,6 +51,7 @@ class User(AbstractBaseUser, PermissionsMixin, TimeStampedMixin):
 
         verbose_name = 'usuario'
         verbose_name_plural = 'usuarios'
+        ordering = ('email',)
 
     email = models.EmailField(
         max_length=254,
@@ -68,27 +69,32 @@ class User(AbstractBaseUser, PermissionsMixin, TimeStampedMixin):
         max_length=300
     )
 
-    organization = models.ForeignKey(
-        Organization,
-        blank=True,
-        null=True
-    )
-
     is_staff = models.BooleanField(
         default=False
     )
 
     is_active = models.BooleanField(
-        default=False
+        default=True
     )
 
-    route = models.ForeignKey(
-        Route,
+    can_edit = models.BooleanField(
+        default=True
+    )
+
+    sale_center = models.ManyToManyField(
+        SaleCenter
+    )
+
+    project = models.ForeignKey(
+        Project,
         null=True
     )
 
-    agency = models.ForeignKey(
-        SaleCenter,
+    admin_emails = ArrayField(
+        models.CharField(
+            max_length=200
+        ),
+        blank=True,
         null=True
     )
 
@@ -96,6 +102,10 @@ class User(AbstractBaseUser, PermissionsMixin, TimeStampedMixin):
     REQUIRED_FIELDS = ['name']
 
     objects = UserManager()
+
+    def __str__(self):
+        """Return the representation in string."""
+        return self.email
 
     def get_short_name(self):
         """The user is identified by their email address."""

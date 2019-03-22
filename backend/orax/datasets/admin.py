@@ -1,18 +1,17 @@
 """Admin for dataset module."""
 import csv
 import math
-import pandas as pd
+
 from datetime import datetime
 
 from django import forms
 from django.contrib import admin
 from django.http import HttpResponse
-from orax.datasets.models import Dataset
-from orax.organizations.models import Organization
-from orax.projects.models import Project
+
+import pandas as pd
+
+from orax.datasets.models import Dataset, DatasetRow
 from orax.products.models import Product
-from orax.routes.models import Route
-from orax.datasetrows.models import DatasetRow
 from orax.sales_centers.models import SaleCenter
 
 
@@ -46,7 +45,6 @@ class DatasetAdmin(admin.ModelAdmin):
             'product_id',
             'product_description',
             'sale_center_id',
-            'route_id',
             'date',
             'suggested',
             'adjustment'
@@ -60,15 +58,13 @@ class DatasetAdmin(admin.ModelAdmin):
         writer.writerow(columns)
 
         rows = DatasetRow.objects.filter(
-            dataset_id=dataset.id,
-            date=dataset.date_adjustment
+            dataset_id=dataset.id
         )
 
         for row in rows:
             product_id = row.product.external_id
             product_name = row.product.name
             sale_center_id = row.sale_center.external_id
-            route_id = row.route.external_id
             date = row.date
             suggested = row.prediction
             adjustment = row.adjustment
@@ -77,7 +73,6 @@ class DatasetAdmin(admin.ModelAdmin):
                 product_id,
                 product_name,
                 sale_center_id,
-                route_id,
                 date,
                 suggested,
                 adjustment
@@ -93,7 +88,10 @@ class DatasetAdmin(admin.ModelAdmin):
         # Set property is_main to all datasets. The new dataset should be only
         # one with this property as True.
         #
-        Dataset.objects.filter(is_main=True).update(is_main=False)
+        Dataset.objects.filter(
+            is_main=True,
+            project=obj.project
+        ).update(is_main=False)
 
         #
         # The new dataset always be main dataset.
@@ -108,35 +106,23 @@ class DatasetAdmin(admin.ModelAdmin):
         #
         # Open the new dataset file.
         #
-        original_file = pd.read_csv(obj.file, sep=',', index_col=False)
+        file = pd.read_csv(obj.file, sep=',', index_col=False)
 
         #
-        # Take only the rows with date equals adjustment date.
-        #
-        file = original_file[original_file['date'] == str(obj.date_adjustment)]
-
-        #
-        # Get the new dataset, the last organization and project.
+        # Get the new dataset.
         #
         dataset = Dataset.objects.order_by('-created_date')[0]
-        org = Organization.objects.order_by('-created_date')[0]
-        project = Project.objects.order_by('-created_date')[0]
 
         products = Product.objects.filter(is_active=True)
-        routes = Route.objects.filter(is_active=True)
         sales_centers = SaleCenter.objects.filter(is_active=True)
         #
         # For make better the performace, we do only one query to get all
-        # products, routes and sales centers and access to
+        # products and sales centers and access to
         # their id by their external id.
         #
         products_dict = {}
         for p in products:
             products_dict[str(p.external_id)] = p.id
-
-        routes_dict = {}
-        for r in routes:
-            routes_dict[str(r.external_id)] = r.id
 
         sales_centers_dict = {}
         for sc in sales_centers:
@@ -152,76 +138,87 @@ class DatasetAdmin(admin.ModelAdmin):
         #
         for index, row in file.iterrows():
             product_id = self._get_or_create(
-                'product_id',
+                'ITEM',
                 row,
                 products_dict,
-                Product,
-                org
-            )
-
-            route_id = self._get_or_create(
-                'cod_ruta_id',
-                row,
-                routes_dict,
-                Route,
-                org
+                Product
             )
 
             sale_center_id = self._get_or_create(
-                'cod_agencia_id',
+                'ceve_id',
                 row,
                 sales_centers_dict,
-                SaleCenter,
-                org
+                SaleCenter
             )
 
-            date = datetime.strptime(row['date'], "%Y-%m-%d").date()
+            date = datetime.strptime(row['fecha_de_venta'], "%Y-%m-%d").date()
 
-            sale = float(row['last_8wk_avg_sales_units'])
-            sale = 0 if math.isnan(sale) else sale
-
-            refund = float(row['last_8wk_avg_return_units'])
-            refund = 0 if math.isnan(refund) else refund
-
-            prediction = int(float(row['Units']))
-            prediction = prediction if prediction >= 0 else (prediction * -1)
-
-            adjustment = int(float(row['Units']))
-            adjustment = adjustment if adjustment >= 0 else (adjustment * -1)
+            transit = self._zero_if_nan(row['transitos'])
+            in_stock = self._zero_if_nan(row['existencia'])
+            safety_stock = self._zero_if_nan(row['safety_stock'])
+            prediction = self._zero_if_nan(row['sugerido'])
+            adjustment = self._zero_if_nan(row['sugerido'])
+            bed = self._zero_if_nan(row['pedido_final_camas'])
+            pallet = self._zero_if_nan(row['pedido_final_tarimas'])
 
             try:
                 DatasetRow.objects.create(
                     dataset_id=dataset.id,
-                    organization_id=org.id,
-                    project_id=project.id,
                     product_id=product_id,
-                    route_id=route_id,
                     sale_center_id=sale_center_id,
-                    status='unmodified',
-                    sale=sale,
-                    refund=refund,
                     prediction=prediction,
                     adjustment=adjustment,
-                    date=date
+                    date=date,
+                    transit=transit,
+                    in_stock=in_stock,
+                    safety_stock=safety_stock,
+                    bed=bed,
+                    pallet=pallet
                 )
             except Exception as e:
                 print(row)
                 print(e)
                 raise e
 
-    def _get_or_create(self, key, row, dict_data, model, org):
+    def _get_or_create(self, key, row, dict_data, model):
         external_id = str(row[key])
         internal_id = dict_data.get(external_id, None)
 
         if not internal_id:
+            name = row['producto'] if key == 'item' else 'NA'
             obj = model.objects.create(
                 external_id=external_id,
-                organization=org,
-                name='nan'
+                name=name
             )
 
             internal_id = obj.id
 
         return internal_id
 
+    def _zero_if_nan(self, value):
+        number = int(float(value))
+        return 0 if math.isnan(number) else number
+
+
+class DatasetRowsAdmin(admin.ModelAdmin):
+    """Admin to manage rows."""
+
+    model = DatasetRow
+    list_display = [
+        'product',
+        'sale_center',
+        'prediction',
+        'adjustment',
+        'date'
+    ]
+    search_fields = ['product']
+
+    def get_queryset(self, request):
+        """Overwrite queryset."""
+        qs = super(DatasetRowsAdmin, self).get_queryset(request)
+        ds = Dataset.objects.get(is_main=True)
+        return qs.filter(is_active=True, dataset=ds)
+
+
+admin.site.register(DatasetRow, DatasetRowsAdmin)
 admin.site.register(Dataset, DatasetAdmin)

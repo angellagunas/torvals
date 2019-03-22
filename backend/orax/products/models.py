@@ -1,8 +1,8 @@
 """Define the product structure in DB."""
 from django.db import models
 
+from orax.projects.models import Project
 from orax.utils.models import CatalogueMixin
-from orax.organizations.models import Organization
 
 
 class Product(CatalogueMixin):
@@ -13,8 +13,6 @@ class Product(CatalogueMixin):
 
         verbose_name = 'product'
         verbose_name_plural = 'products'
-
-    organization = models.ForeignKey(Organization)
 
     price = models.DecimalField(
         max_digits=19,
@@ -27,9 +25,24 @@ class Product(CatalogueMixin):
         help_text="Cantidad de productos para llenar un corrugado."
     )
 
+    bed = models.IntegerField(
+        default=1,
+        help_text="Cantidad de corrugados para llenar una cama."
+    )
+
+    pallet = models.IntegerField(
+        default=1,
+        help_text="Cantidad de corrugados para llenar una tarima."
+    )
+
     external_id = models.CharField(
         max_length=255,
         verbose_name='external id'
+    )
+
+    project = models.ForeignKey(
+        Project,
+        null=True
     )
 
     def __unicode__(self):

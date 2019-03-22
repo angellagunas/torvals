@@ -8,13 +8,28 @@ from rest_framework.response import Response
 
 from soft_drf.api import mixins
 from soft_drf.api.viewsets import GenericViewSet
-from soft_drf.routing.v1.routers import router
 from soft_drf.api.routers.single import SingleObjectRouter
+from soft_drf.routing.v1.routers import router
 
 from orax.users import serializers
 
 # User model
 User = get_user_model()
+
+
+class ProfileViewSet(mixins.RetrieveModelMixin, GenericViewSet):
+    """Manage the Authentication process."""
+
+    serializer_class = serializers.UserProfileSerializer
+    retrieve_serializer_class = serializers.UserProfileSerializer
+
+    def get_object(self):
+        """Return the user in session."""
+        return self.request.user
+
+    def retrieve(self, request, *args, **kwargs):
+        """Get data for user profile."""
+        return super(ProfileViewSet, self).retrieve(request, *args, **kwargs)
 
 
 class AuthViewSet(GenericViewSet):
@@ -57,17 +72,6 @@ class AuthViewSet(GenericViewSet):
         )
 
 
-class MeViewSet(mixins.RetrieveModelMixin, GenericViewSet):
-    """Manage the profile process."""
-
-    serializer_class = serializers.MeSerializer
-    retrieve_serializer_class = serializers.MeSerializer
-
-    def get_object(self):
-        """Get the user in session."""
-        return self.request.user
-
-
 router.register(
     r'auth',
     AuthViewSet,
@@ -75,8 +79,8 @@ router.register(
 )
 
 router.register(
-    r'auth/me',
-    MeViewSet,
-    base_name="auth/me",
+    r'me',
+    ProfileViewSet,
+    base_name="user_me",
     router_class=SingleObjectRouter
 )

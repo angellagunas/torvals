@@ -1,4 +1,4 @@
-"""orax URL Configuration
+"""orax URL Configuration.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/1.11/topics/http/urls/
@@ -13,12 +13,12 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.conf.urls import url, include
+from django.conf.urls import include, url
 from django.contrib import admin
 
-from soft_drf.routing import urls as api_urls
+from soft_drf.routing.v1 import urls as api_urls
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^api/v2/', include('soft_drf.routing.v1.urls', namespace='api.v1'))
+    url(r'^api/v2/', include((api_urls, 'soft_drf'), namespace='v2'))
 ]

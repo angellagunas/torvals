@@ -5,7 +5,7 @@ import axios from "axios";
 
 class Login extends Component {
 
-  constructor(props){
+  constructor(props) {
     super(props);
     this.login = this.login.bind(this);
     this.state = {
@@ -17,35 +17,36 @@ class Login extends Component {
     this.handlePassword = this.handlePassword.bind(this)
   }
 
-  componentWillMount(){
+  componentWillMount() {
     const jwt = window.localStorage.getItem('jwt');
-    if(jwt){
+    if (jwt) {
       this.props.history.push('/dashboard')
     }
   }
 
-  handleEmail(event){
+  handleEmail(event) {
     this.setState({
       email: event.target.value
     })
   }
 
-  handlePassword(event){
+  handlePassword(event) {
     this.setState({
       password: event.target.value
     })
   }
 
-  async login(event){
-      event.preventDefault();
+  async login(event) {
+    event.preventDefault();
 
-      await axios
+    await axios
       .post("api/v2/auth", this.state)
       .then(res => {
         window.localStorage.setItem('jwt', res.data.token);
         window.localStorage.setItem('profile', res.data.email);
-        window.localStorage.setItem('route', res.data.route.externalId);
-        window.localStorage.setItem('agency', res.data.agency.externalId);
+        window.localStorage.setItem('sale_center', res.data.saleCenter[0].externalId);
+        window.localStorage.setItem('name_center', res.data.saleCenter[0].name)
+        window.localStorage.setItem('total_sale_center', res.data.saleCenter.length)
 
         this.props.history.push('/dashboard');
       })
@@ -73,7 +74,7 @@ class Login extends Component {
                             <i className="icon-user"></i>
                           </InputGroupText>
                         </InputGroupAddon>
-                        <Input autoComplete="off" id="email" type="email" placeholder="Email" onChange={this.handleEmail}/>
+                        <Input autoComplete="off" id="email" type="email" placeholder="Email" onChange={this.handleEmail} />
                       </InputGroup>
                       <InputGroup className="mb-4">
                         <InputGroupAddon addonType="prepend">
@@ -81,7 +82,7 @@ class Login extends Component {
                             <i className="icon-lock"></i>
                           </InputGroupText>
                         </InputGroupAddon>
-                        <Input autoComplete="off" id="password" type="password" placeholder="Password" onChange={this.handlePassword}/>
+                        <Input autoComplete="off" id="password" type="password" placeholder="Password" onChange={this.handlePassword} />
                       </InputGroup>
                       <Row>
                         <Col xs={{ size: 4, offset: 8 }}>

@@ -22,7 +22,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'py8t-$h^5@g*ihu5-(#+%k%70i87fr-3ju$jc^ez_*#!$7w1@a'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = int(os.environ['DEBUG']) == 1 if os.environ.get('DEBUG',None) else True
+DEBUG = int(os.environ['DEBUG']) == 1 if os.environ.get(
+    'DEBUG', None) else True
 
 ALLOWED_HOSTS = ['*']
 
@@ -45,32 +46,28 @@ LOCAL_APPS = [
     'orax.utils',
     'orax.batch',
     'orax.datasets',
-    'orax.projects',
-    'orax.channels',
-    'orax.cycles',
-    'orax.datasetrows',
-    'orax.organizations',
-    'orax.periods',
     'orax.products',
-    'orax.rules',
-    'orax.routes',
+    'orax.projects',
     'orax.sales_centers',
-    'orax.users'
+    'orax.users',
 ]
 
 INSTALLED_APPS += LOCAL_APPS
 
+DEBUG_APPS = [
+    'debug_toolbar'
+]
+
 MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'orax.utils.middlewares.DisableCsrfCheck',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'orax.utils.middlewares.AuthenticationMiddlewareJWT',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.security.SecurityMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'orax.utils.middlewares.AuthenticationMiddlewareJWT',
-    'orax.utils.middlewares.DisableCsrfCheck',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware'
 ]
 
 ROOT_URLCONF = 'orax.urls'
@@ -100,16 +97,11 @@ WSGI_APPLICATION = 'orax.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.environ.get('POSTGRES_DB', 'orax'),
+        'NAME': os.environ.get('POSTGRES_DB', 'bec'),
         'USER': os.environ.get('POSTGRES_USER', 'postgres'),
         'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'postgres'),
         'HOST': os.environ.get('POSTGRES_HOST', 'localhost'),
         'PORT': os.environ.get('POSTGRES_PORT', '5432'),
-    },
-    'mongo': {
-        'NAME': os.environ['MONGO_DB'] if not DEBUG else 'marble-seeds-db',
-        'HOST': os.environ['MONGO_HOST'] if not DEBUG else '127.0.0.1',
-        'PORT': int(os.environ['MONGO_PORT']) if not DEBUG else 27017
     }
 }
 
@@ -119,16 +111,25 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        'NAME': (
+            'django.contrib.auth.password_validation.'
+            'UserAttributeSimilarityValidator'
+        ),
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'NAME': (
+            'django.contrib.auth.password_validation.MinimumLengthValidator'
+        ),
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        'NAME': (
+            'django.contrib.auth.password_validation.CommonPasswordValidator'
+        ),
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        'NAME': (
+            'django.contrib.auth.password_validation.NumericPasswordValidator'
+        ),
     },
 ]
 
@@ -157,13 +158,10 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # api documentation
 #
 SHOW_DOCUMENTATION = False
-TITLE_DOCUMENTATION = "ORAX"
+TITLE_DOCUMENTATION = "BEC"
 
 MEDIA_ROOT = "".join([BASE_DIR, '/media'])
 MEDIA_URL = '/media/'
-
-SHOW_DOCUMENTATION = True
-TITLE_DOCUMENTATION = "Orax Docs"
 
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = '{0}/media'.format(BASE_DIR)
@@ -187,16 +185,15 @@ REST_FRAMEWORK = {
         'rest_framework.parsers.MultiPartParser'
     ),
     'DEFAULT_PAGINATION_CLASS': (
-        'rest_framework.pagination.LimitOffsetPagination'
+        'rest_framework.pagination.PageNumberPagination'
     ),
-    'PAGE_SIZE': 5000
+    'PAGE_SIZE': 50
 }
 
 JWT_AUTH_HEADER_PREFIX = 'Bearer'
 
-REDIS_HOST = os.environ['REDIS_HOST'] if not DEBUG else 'localhost'
-REDIS_PORT = int(os.environ['REDIS_PORT']) if not DEBUG else 6379
-
+REDIS_HOST = os.environ.get('REDIS_HOST', 'localhost')
+REDIS_PORT = int(os.environ.get('REDIS_PORT', '6379'))
 CACHE_URL = 'redis://{0}:{1}/1'.format(REDIS_HOST, REDIS_PORT)
 
 CACHES = {
@@ -212,3 +209,27 @@ CACHES = {
 CELERY_BROKER_URL = 'redis://{0}'.format(REDIS_HOST)
 
 AUTH_USER_MODEL = 'users.User'
+
+#
+# EMAIL CONFIGS
+#
+EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
+SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY", None)
+SENDGRID_SANDBOX_MODE_IN_DEBUG = False
+
+if DEBUG:
+    INSTALLED_APPS += DEBUG_APPS
+    MIDDLEWARE += [
+        'debug_toolbar.middleware.DebugToolbarMiddleware'
+    ]
+
+    #
+    # API documentation configs.
+    #
+    SHOW_DOCUMENTATION = True
+
+    #
+    # emails config.
+    #
+    EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+    EMAIL_FILE_PATH = '/tmp/app-messages'
