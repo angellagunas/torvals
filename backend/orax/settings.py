@@ -59,15 +59,14 @@ DEBUG_APPS = [
 ]
 
 MIDDLEWARE = [
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'orax.utils.middlewares.AuthenticationMiddlewareJWT',
     'orax.utils.middlewares.DisableCsrfCheck',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'orax.utils.middlewares.AuthenticationMiddlewareJWT',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
