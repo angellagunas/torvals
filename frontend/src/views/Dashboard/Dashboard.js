@@ -13,6 +13,7 @@ import {
   InputGroup,
   InputGroupAddon
 } from "reactstrap";
+import ReactDOM from 'react-dom'
 import axios from "axios";
 import "../../App.scss";
 
@@ -30,9 +31,6 @@ class Dashboard extends Component {
     // is executed when user make adjustment
     this.handleChange = this.handleChange.bind(this);
 
-    // take the search query an filter data.
-    this.handleSearch = this.handleSearch.bind(this);
-
     // calculate the percentage changed of adjustment.
     this.percentage = this.percentage.bind(this);
 
@@ -45,12 +43,16 @@ class Dashboard extends Component {
     //send report by email
     this.sendReport = this.sendReport.bind(this);
 
-
-    //
+    // handle when user press enter in adjustment field.
     this.handleKeyPress = this.handleKeyPress.bind(this);
 
     //load user profile
     this.loadProfile = this.loadProfile.bind(this);
+
+    // refs
+    this.input_search = React.createRef();
+
+    this.textInput = null;
 
     this.state = {
       // colapse vars
@@ -59,9 +61,6 @@ class Dashboard extends Component {
       // user data
       canEdit: true,
       user: {},
-
-      // input search
-      query_search: "",
 
       //indicators
       indicators: {},
@@ -102,12 +101,6 @@ class Dashboard extends Component {
     }
 
     return Math.round(percentage);
-  }
-
-  handleSearch(event) {
-    this.setState({
-      query_search: event.target.value
-    });
   }
 
   toggleCustom(tab) {
@@ -271,8 +264,11 @@ class Dashboard extends Component {
   }
 
   async loadData(e) {
+    let query_search = "";
+
     if (e) {
       e.preventDefault();
+      query_search = ReactDOM.findDOMNode(this.textInput).value;
     }
 
     const config = {
@@ -280,8 +276,8 @@ class Dashboard extends Component {
         Authorization: "Bearer " + window.localStorage.getItem("jwt")
       }
     };
-    // const url = "api/v2/datasetrows?page=" + this.state.page_number + "&q=" + this.state.query_search;
-    const url_inds = "api/v2/datasetrows/indicators?q=" + this.state.query_search;
+
+    const url_inds = "api/v2/datasetrows/indicators?q=" + query_search;
 
     await axios
       .get(url_inds, config)
@@ -318,7 +314,7 @@ class Dashboard extends Component {
         console.error(error);
       });
 
-    const url = "api/v2/datasetrows?q=" + this.state.query_search;
+    const url = "api/v2/datasetrows?q=" + query_search;
 
     await axios
       .get(url, config)
@@ -645,7 +641,7 @@ class Dashboard extends Component {
                                 id="input3-group2"
                                 name="input3-group2"
                                 placeholder="Search"
-                                onChange={this.handleSearch}
+                                ref={(e)=> { this.textInput = e; }}
                               />
                               <InputGroupAddon addonType="append">
                                 <Button
