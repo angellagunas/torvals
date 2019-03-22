@@ -102,14 +102,19 @@ class DatasetrowViewSet(
                 row.pallet
             ])
 
+        ceves_id = '_'.join([sc.external_id for sc in sales_centers])
+        ceves_name = '_'.join([sc.name for sc in sales_centers])
+        subject = "Pedido sugerido - {0} - {1}".format(
+            ceves_name,
+            ceves_id
+        )
         msg = EmailMessage(
-            'Reporte de Ajustes',
-            'Reporte de Ajustes',
+            subject,
+            subject,
             'contact@abraxasintelligence.com',
             self.request.user.admin_emails + [self.request.user.email]
         )
 
-        ceves_id = '_'.join([sc.external_id for sc in sales_centers])
         file_name = 'adjustment_report_ceve_{0}_{1}.csv'.format(
             ceves_id,
             str_date
