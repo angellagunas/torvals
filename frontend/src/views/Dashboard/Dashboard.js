@@ -367,14 +367,14 @@ class Dashboard extends Component {
 
       tableRows.push(
         <tr key={"row_" + i}>
-          <td key={"cell_product_name_" + i}>
+          <td key={"cell_product_name_" + row.product.externalId}>
             <div>{row.product.name}</div>
             <div className="small text-muted">
               <span>ID</span> | {row.product.externalId}
             </div>
           </td>
           <td
-            key={"cell_adjustment_" + i + "_" + Math.random()}
+            key={"cell_adjustment_" + row.product.externalId}
             className="text-center justify-content-center align-items-center"
             style={{ width: 120 + "px" }}
           >
@@ -396,8 +396,8 @@ class Dashboard extends Component {
               )
             }
           </td>
-          <td key={"cell_empty_" + i} />
-          <td key={"cell_stocks_" + i + "_" + Math.random()}>
+          <td key={"cell_empty_" + row.product.externalId}></td>
+          <td key={"cell_stocks_" + row.product.externalId + "_" + Math.random()}>
             <div className="medium text-muted">
               <span>
                 <strong>Transito:</strong>
@@ -417,7 +417,7 @@ class Dashboard extends Component {
               {row.safetyStock}
             </div>
           </td>
-          <td key={"cell_prediction_" + i + "_" + Math.random()}>
+          <td key={"cell_prediction_" + row.product.externalId + "_" + Math.random()}>
             <div className="medium text-muted">
               <span>
                 <strong>Ajustado: </strong>
@@ -447,7 +447,7 @@ class Dashboard extends Component {
               {row.pallet}
             </div>
           </td>
-          <td key={"corrugados" + i + "_" + Math.random()}>
+          <td key={"corrugados" + row.product.externalId + "_" + Math.random()}>
             <div className="medium text-muted">
               <span>
                 <strong>C/ Camas: </strong>
