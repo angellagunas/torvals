@@ -42,12 +42,17 @@ class DatasetAdmin(admin.ModelAdmin):
         """Export current dataset to csv."""
         dataset = queryset[0]
         columns = [
-            'product_id',
-            'product_description',
-            'sale_center_id',
-            'date',
-            'suggested',
-            'adjustment'
+            'fecha_de_venta',
+            'CEVE',
+            'item',
+            'producto',
+            'transitos',
+            'existencia',
+            'safety_stock',
+            'sugerido',
+            'pedido_final',
+            'pedido_final_camas',
+            'pedido_final_tarimas'
         ]
 
         response = HttpResponse(content_type='text/csv')
@@ -62,20 +67,18 @@ class DatasetAdmin(admin.ModelAdmin):
         )
 
         for row in rows:
-            product_id = row.product.external_id
-            product_name = row.product.name
-            sale_center_id = row.sale_center.external_id
-            date = row.date
-            suggested = row.prediction
-            adjustment = row.adjustment
-
             row = writer.writerow([
-                product_id,
-                product_name,
-                sale_center_id,
-                date,
-                suggested,
-                adjustment
+                row.date,
+                row.sale_center.external_id,
+                row.product.external_id,
+                row.product.name,
+                row.transit,
+                row.in_stock,
+                row.safety_stock,
+                row.prediction,
+                row.adjustment,
+                row.bed,
+                row.pallet
             ])
 
         return response
