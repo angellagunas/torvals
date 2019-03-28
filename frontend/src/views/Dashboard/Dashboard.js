@@ -177,7 +177,7 @@ class Dashboard extends Component {
     let bed = 0;
     let pallet = 0;
     let hasNotChanges = false;
-    
+
     this.state.rows.map(x => {
       if (x.id === row_id) {
         if(x.adjustment == e.target.value){
@@ -222,6 +222,9 @@ class Dashboard extends Component {
       ind_adjustment_money +=
         diferenceBeetwenAdjustments * priceOfProductUpdated;
     }
+
+    bed = bed === Infinity ? 0 : bed;
+    pallet = pallet === Infinity ? 0 : pallet;
 
     await axios
       .patch(
