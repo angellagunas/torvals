@@ -13,6 +13,7 @@ import {
   InputGroup,
   InputGroupAddon
 } from "reactstrap";
+import ReactDOM from 'react-dom'
 import axios from "axios";
 import "../../App.scss";
 
@@ -30,9 +31,6 @@ class Dashboard extends Component {
     // is executed when user make adjustment
     this.handleChange = this.handleChange.bind(this);
 
-    // take the search query an filter data.
-    this.handleSearch = this.handleSearch.bind(this);
-
     // calculate the percentage changed of adjustment.
     this.percentage = this.percentage.bind(this);
 
@@ -45,12 +43,16 @@ class Dashboard extends Component {
     //send report by email
     this.sendReport = this.sendReport.bind(this);
 
-
-    //
+    // handle when user press enter in adjustment field.
     this.handleKeyPress = this.handleKeyPress.bind(this);
 
     //load user profile
     this.loadProfile = this.loadProfile.bind(this);
+
+    // refs
+    this.input_search = React.createRef();
+
+    this.textInput = null;
 
     this.state = {
       // colapse vars
@@ -59,9 +61,6 @@ class Dashboard extends Component {
       // user data
       canEdit: true,
       user: {},
-
-      // input search
-      query_search: "",
 
       //indicators
       indicators: {},
@@ -102,12 +101,6 @@ class Dashboard extends Component {
     }
 
     return Math.round(percentage);
-  }
-
-  handleSearch(event) {
-    this.setState({
-      query_search: event.target.value
-    });
   }
 
   toggleCustom(tab) {
@@ -184,7 +177,7 @@ class Dashboard extends Component {
     let bed = 0;
     let pallet = 0;
     let hasNotChanges = false;
-    
+
     this.state.rows.map(x => {
       if (x.id === row_id) {
         if(x.adjustment == e.target.value){
@@ -230,6 +223,9 @@ class Dashboard extends Component {
         diferenceBeetwenAdjustments * priceOfProductUpdated;
     }
 
+    bed = bed === Infinity ? 0 : bed;
+    pallet = pallet === Infinity ? 0 : pallet;
+
     await axios
       .patch(
         "api/v2/datasetrows/" + row_id,
@@ -271,8 +267,11 @@ class Dashboard extends Component {
   }
 
   async loadData(e) {
+    let query_search = "";
+
     if (e) {
       e.preventDefault();
+      query_search = ReactDOM.findDOMNode(this.textInput).value;
     }
 
     const config = {
@@ -280,8 +279,8 @@ class Dashboard extends Component {
         Authorization: "Bearer " + window.localStorage.getItem("jwt")
       }
     };
-    // const url = "api/v2/datasetrows?page=" + this.state.page_number + "&q=" + this.state.query_search;
-    const url_inds = "api/v2/datasetrows/indicators?q=" + this.state.query_search;
+
+    const url_inds = "api/v2/datasetrows/indicators?q=" + query_search;
 
     await axios
       .get(url_inds, config)
@@ -318,7 +317,7 @@ class Dashboard extends Component {
         console.error(error);
       });
 
-    const url = "api/v2/datasetrows?q=" + this.state.query_search;
+    const url = "api/v2/datasetrows?q=" + query_search;
 
     await axios
       .get(url, config)
@@ -371,14 +370,14 @@ class Dashboard extends Component {
 
       tableRows.push(
         <tr key={"row_" + i}>
-          <td key={"cell_product_name_" + i}>
+          <td key={"cell_product_name_" + row.product.externalId}>
             <div>{row.product.name}</div>
             <div className="small text-muted">
               <span>ID</span> | {row.product.externalId}
             </div>
           </td>
           <td
-            key={"cell_adjustment_" + i + "_" + Math.random()}
+            key={"cell_adjustment_" + row.product.externalId}
             className="text-center justify-content-center align-items-center"
             style={{ width: 120 + "px" }}
           >
@@ -400,8 +399,8 @@ class Dashboard extends Component {
               )
             }
           </td>
-          <td key={"cell_empty_" + i} />
-          <td key={"cell_stocks_" + i + "_" + Math.random()}>
+          <td key={"cell_empty_" + row.product.externalId}></td>
+          <td key={"cell_stocks_" + row.product.externalId + "_" + Math.random()}>
             <div className="medium text-muted">
               <span>
                 <strong>Transito:</strong>
@@ -421,7 +420,7 @@ class Dashboard extends Component {
               {row.safetyStock}
             </div>
           </td>
-          <td key={"cell_prediction_" + i + "_" + Math.random()}>
+          <td key={"cell_prediction_" + row.product.externalId + "_" + Math.random()}>
             <div className="medium text-muted">
               <span>
                 <strong>Ajustado: </strong>
@@ -451,7 +450,7 @@ class Dashboard extends Component {
               {row.pallet}
             </div>
           </td>
-          <td key={"corrugados" + i + "_" + Math.random()}>
+          <td key={"corrugados" + row.product.externalId + "_" + Math.random()}>
             <div className="medium text-muted">
               <span>
                 <strong>C/ Camas: </strong>
@@ -645,7 +644,7 @@ class Dashboard extends Component {
                                 id="input3-group2"
                                 name="input3-group2"
                                 placeholder="Search"
-                                onChange={this.handleSearch}
+                                ref={(e)=> { this.textInput = e; }}
                               />
                               <InputGroupAddon addonType="append">
                                 <Button
