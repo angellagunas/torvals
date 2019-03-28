@@ -65,6 +65,95 @@ class Project(CatalogueMixin):
         )
     )
 
+    #
+    # columns mapping fields.
+    #
+    date = models.CharField(
+        max_length=255,
+        verbose_name='Fecha',
+        blank=True,
+        null=True
+    )
+
+    ceve_id = models.CharField(
+        max_length=255,
+        verbose_name='Centro de venta ID',
+        blank=True,
+        null=True
+    )
+
+    product_id = models.CharField(
+        max_length=255,
+        verbose_name='Producto ID',
+        blank=True,
+        null=True
+    )
+
+    transits = models.CharField(
+        max_length=255,
+        verbose_name='Transitos',
+        blank=True,
+        null=True
+    )
+
+    in_stock = models.CharField(
+        max_length=255,
+        verbose_name='Inventario',
+        blank=True,
+        null=True
+    )
+
+    safety_stock = models.CharField(
+        max_length=255,
+        verbose_name='Safety stock',
+        blank=True,
+        null=True
+    )
+
+    prediction = models.CharField(
+        max_length=255,
+        verbose_name='Predicción',
+        blank=True,
+        null=True
+    )
+
+    adjustment = models.CharField(
+        max_length=255,
+        verbose_name='Predicción ajustada',
+        blank=True,
+        null=True
+    )
+
+    beds = models.CharField(
+        max_length=255,
+        verbose_name='Pedido en camas',
+        blank=True,
+        null=True
+    )
+
+    pallets = models.CharField(
+        max_length=255,
+        verbose_name='Pedido en tarimas',
+        blank=True,
+        null=True
+    )
+
     def __str__(self):
         """Representation in string."""
         return self.name
+
+    def get_columns_name(self):
+        columns = [
+            'fecha_de_venta',
+            'CEVE',
+            'item',
+            'producto',
+            'transitos',
+            'existencia',
+            'safety_stock',
+            'sugerido',
+            'pedido_final',
+            'pedido_final_camas',
+            'pedido_final_tarimas'
+        ]
+        return columns

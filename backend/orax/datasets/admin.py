@@ -1,5 +1,4 @@
 """Admin for dataset module."""
-import csv
 import math
 
 from datetime import datetime
@@ -33,53 +32,22 @@ class DatasetAdmin(admin.ModelAdmin):
         'description',
         'is_active',
         'is_main',
-        'date_adjustment'
+        'date_adjustment',
+        'project'
     ]
-    search_fields = ['name', 'description']
+    search_fields = ['name', 'description', 'project__name']
     actions = ["export_as_csv"]
 
     def export_as_csv(self, request, queryset):
         """Export current dataset to csv."""
         dataset = queryset[0]
-        columns = [
-            'fecha_de_venta',
-            'CEVE',
-            'item',
-            'producto',
-            'transitos',
-            'existencia',
-            'safety_stock',
-            'sugerido',
-            'pedido_final',
-            'pedido_final_camas',
-            'pedido_final_tarimas'
-        ]
 
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename={}.csv'.format(
             dataset.name + '_adjustements'
         )
-        writer = csv.writer(response)
-        writer.writerow(columns)
 
-        rows = DatasetRow.objects.filter(
-            dataset_id=dataset.id
-        )
-
-        for row in rows:
-            row = writer.writerow([
-                row.date,
-                row.sale_center.external_id,
-                row.product.external_id,
-                row.product.name,
-                row.transit,
-                row.in_stock,
-                row.safety_stock,
-                row.prediction,
-                row.adjustment,
-                row.bed,
-                row.pallet
-            ])
+        dataset.to_web_csv(response)
 
         return response
 
@@ -115,6 +83,7 @@ class DatasetAdmin(admin.ModelAdmin):
         # Get the new dataset.
         #
         dataset = Dataset.objects.order_by('-created_date')[0]
+        project = obj.project
 
         products = Product.objects.filter(is_active=True)
         sales_centers = SaleCenter.objects.filter(is_active=True)
@@ -134,35 +103,46 @@ class DatasetAdmin(admin.ModelAdmin):
         #
         # the active rows should be only the new rows.
         #
-        DatasetRow.objects.filter(is_active=True).update(is_active=False)
+        # DatasetRow.objects.filter(is_active=True).update(is_active=False)
 
         #
         # Save all dataset rows.
         #
         for index, row in file.iterrows():
-            product_id = self._get_or_create(
-                'ITEM',
+            (product_id, products_dict) = self._get_or_create(
+                project.product_id,
                 row,
                 products_dict,
-                Product
+                Product,
+                project
             )
 
-            sale_center_id = self._get_or_create(
-                'ceve_id',
+            (sale_center_id, sales_centers_dict) = self._get_or_create(
+                project.ceve_id,
                 row,
                 sales_centers_dict,
-                SaleCenter
+                SaleCenter,
+                project
             )
 
-            date = datetime.strptime(row['fecha_de_venta'], "%Y-%m-%d").date()
+            date = datetime.strptime(row[project.date], "%Y-%m-%d").date()
 
-            transit = self._zero_if_nan(row['transitos'])
-            in_stock = self._zero_if_nan(row['existencia'])
-            safety_stock = self._zero_if_nan(row['safety_stock'])
-            prediction = self._zero_if_nan(row['sugerido'])
-            adjustment = self._zero_if_nan(row['sugerido'])
-            bed = self._zero_if_nan(row['pedido_final_camas'])
-            pallet = self._zero_if_nan(row['pedido_final_tarimas'])
+            transit = 0
+            if project.transits:
+                transit = self._zero_if_nan(row[project.transits])
+
+            bed = 0
+            if project.beds:
+                bed = self._zero_if_nan(row[project.beds])
+
+            pallet = 0
+            if project.pallets:
+                pallet = self._zero_if_nan(row[project.pallets])
+
+            in_stock = self._zero_if_nan(row[project.in_stock])
+            safety_stock = self._zero_if_nan(row[project.safety_stock])
+            prediction = self._zero_if_nan(row[project.prediction])
+            adjustment = self._zero_if_nan(row[project.adjustment])
 
             try:
                 DatasetRow.objects.create(
@@ -183,20 +163,22 @@ class DatasetAdmin(admin.ModelAdmin):
                 print(e)
                 raise e
 
-    def _get_or_create(self, key, row, dict_data, model):
+    def _get_or_create(self, key, row, dict_data, model, project):
         external_id = str(row[key])
         internal_id = dict_data.get(external_id, None)
 
         if not internal_id:
-            name = row['producto'] if key == 'item' else 'NA'
             obj = model.objects.create(
                 external_id=external_id,
-                name=name
+                name='N/A',
+                project=project
             )
 
             internal_id = obj.id
 
-        return internal_id
+        dict_data[external_id] = internal_id
+
+        return (internal_id, dict_data)
 
     def _zero_if_nan(self, value):
         number = int(float(value))
@@ -212,15 +194,21 @@ class DatasetRowsAdmin(admin.ModelAdmin):
         'sale_center',
         'prediction',
         'adjustment',
-        'date'
+        'date',
+        'dataset'
     ]
-    search_fields = ['product']
+    search_fields = ['dataset']
+    list_filter = ['dataset', 'sale_center']
 
     def get_queryset(self, request):
         """Overwrite queryset."""
         qs = super(DatasetRowsAdmin, self).get_queryset(request)
-        ds = Dataset.objects.get(is_main=True)
-        return qs.filter(is_active=True, dataset=ds)
+        try:
+            ds = Dataset.objects.filter(is_main=True)
+        except Exception as e:  # noqa
+            ds = Dataset.objects.all()
+
+        return qs.filter(dataset__in=ds)
 
 
 admin.site.register(DatasetRow, DatasetRowsAdmin)

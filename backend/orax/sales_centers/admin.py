@@ -8,8 +8,12 @@ class SaleCenterAdmin(admin.ModelAdmin):
     """Admin to manage sales centers."""
 
     model = SaleCenter
-    list_display = ['external_id', 'name']
-    search_fields = ['external_id', 'name']
+    list_display = [
+        'external_id',
+        'name',
+        'project'
+    ]
+    search_fields = ['external_id', 'name', 'project__name']
 
     def get_queryset(self, request):
         """Overwrite queryset."""

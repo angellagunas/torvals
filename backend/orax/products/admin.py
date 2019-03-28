@@ -8,8 +8,16 @@ class ProductAdmin(admin.ModelAdmin):
     """Admin to manage products."""
 
     model = Product
-    list_display = ['name', 'external_id', 'price', 'quota', 'bed', 'pallet']
-    search_fields = ['name', 'external_id']
+    list_display = [
+        'name',
+        'external_id',
+        'price',
+        'quota',
+        'bed',
+        'pallet',
+        'project'
+    ]
+    search_fields = ['name', 'external_id', 'project__name']
 
     def get_queryset(self, request):
         """Overwrite queryset."""

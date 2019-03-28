@@ -25,7 +25,7 @@ class BatchAdmin(admin.ModelAdmin):
     """Admin to manage batchs."""
 
     model = Batch
-    list_display = ['name', 'description', 'type', 'is_active']
+    list_display = ['name', 'description', 'type', 'is_active', 'project']
     search_fields = ['name', 'description', 'type']
 
     def save_model(self, request, obj, form, change):
@@ -64,7 +64,10 @@ class BatchAdmin(admin.ModelAdmin):
         #
         # only the new catalog should be active.
         #
-        config['model'].objects.filter(is_active=True).update(is_active=False)
+        config['model'].objects.filter(
+            is_active=True,
+            project=project
+        ).update(is_active=False)
 
         #
         # save all new catalogs

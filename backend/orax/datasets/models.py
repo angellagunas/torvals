@@ -1,4 +1,5 @@
 """Define the dataset structure in DB."""
+import csv
 from django.db import models
 
 from orax.products.models import Product
@@ -62,6 +63,34 @@ class Dataset(CatalogueMixin):
 
     objects = UserManager()
 
+    def to_web_csv(self, response, filters={}):
+        headers = self.project.get_columns_name()
+        writer = csv.writer(response)
+        writer.writerow(headers)
+
+        filters['dataset_id'] = self.id
+        rows = DatasetRow.objects.filter(**filters)
+
+        for row in rows:
+            row = writer.writerow([
+                row.date,
+                row.sale_center.external_id,
+                row.product.external_id,
+                row.product.name,
+                row.transit,
+                row.in_stock,
+                row.safety_stock,
+                row.prediction,
+                row.adjustment,
+                row.bed,
+                row.pallet
+            ])
+
+        return writer
+
+    def __str__(self):
+        return "{0}-{1}".format(self.name, self.project)
+
 
 class DatasetRow(TimeStampedMixin):
     """Save info about Dataset rows."""
@@ -121,6 +150,6 @@ class DatasetRow(TimeStampedMixin):
     #
     pallet = models.PositiveIntegerField()
 
-    def __unicode__(self):
+    def __str__(self):
         """Return the representation in String of this model."""
         return self.adjustment
