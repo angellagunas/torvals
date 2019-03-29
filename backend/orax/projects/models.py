@@ -138,22 +138,29 @@ class Project(CatalogueMixin):
         null=True
     )
 
+    dynamic_columns_name = ArrayField(
+        models.CharField(
+            max_length=200
+        ),
+        null=True,
+        blank=True
+    )
+
     def __str__(self):
         """Representation in string."""
         return self.name
 
     def get_columns_name(self):
         columns = [
-            'fecha_de_venta',
-            'CEVE',
-            'item',
-            'producto',
-            'transitos',
-            'existencia',
-            'safety_stock',
-            'sugerido',
-            'pedido_final',
-            'pedido_final_camas',
-            'pedido_final_tarimas'
+            self.date,
+            self.ceve_id,
+            self.product_id,
+            self.transits,
+            self.in_stock,
+            self.safety_stock,
+            self.prediction,
+            self.adjustment,
+            self.beds,
+            self.pallets
         ]
-        return columns
+        return [c for c in columns if c]

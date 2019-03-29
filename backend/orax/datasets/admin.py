@@ -101,10 +101,11 @@ class DatasetAdmin(admin.ModelAdmin):
             sales_centers_dict[sc.external_id] = sc.id
 
         #
-        # the active rows should be only the new rows.
+        # adittional columns from new dataset
         #
-        # DatasetRow.objects.filter(is_active=True).update(is_active=False)
-
+        extra_columns = dataset.get_extra_columns()
+        project.dynamic_columns_name = extra_columns
+        project.save()
         #
         # Save all dataset rows.
         #
@@ -143,7 +144,10 @@ class DatasetAdmin(admin.ModelAdmin):
             safety_stock = self._zero_if_nan(row[project.safety_stock])
             prediction = self._zero_if_nan(row[project.prediction])
             adjustment = self._zero_if_nan(row[project.adjustment])
-
+            dict_extra_columns = self._get_extra_columns_from_row(
+                row,
+                extra_columns
+            )
             try:
                 DatasetRow.objects.create(
                     dataset_id=dataset.id,
@@ -156,7 +160,8 @@ class DatasetAdmin(admin.ModelAdmin):
                     in_stock=in_stock,
                     safety_stock=safety_stock,
                     bed=bed,
-                    pallet=pallet
+                    pallet=pallet,
+                    extra_columns=dict_extra_columns
                 )
             except Exception as e:
                 print(row)
@@ -184,6 +189,13 @@ class DatasetAdmin(admin.ModelAdmin):
         number = int(float(value))
         return 0 if math.isnan(number) else number
 
+    def _get_extra_columns_from_row(self, row, columns):
+        dict_columns = {}
+        for column in columns:
+            dict_columns[column] = row[column]
+
+        return dict_columns
+
 
 class DatasetRowsAdmin(admin.ModelAdmin):
     """Admin to manage rows."""
@@ -195,7 +207,8 @@ class DatasetRowsAdmin(admin.ModelAdmin):
         'prediction',
         'adjustment',
         'date',
-        'dataset'
+        'dataset',
+        'extra_columns'
     ]
     search_fields = ['dataset']
     list_filter = ['dataset', 'sale_center']

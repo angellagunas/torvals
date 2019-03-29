@@ -177,10 +177,10 @@ class Dashboard extends Component {
     let bed = 0;
     let pallet = 0;
     let hasNotChanges = false;
-    
+
     this.state.rows.map(x => {
       if (x.id === row_id) {
-        if(x.adjustment == e.target.value){
+        if (x.adjustment == e.target.value) {
           hasNotChanges = true;
 
           return x;
@@ -200,7 +200,7 @@ class Dashboard extends Component {
       return x;
     });
 
-    if(hasNotChanges){
+    if (hasNotChanges) {
       return;
     }
 
@@ -398,12 +398,16 @@ class Dashboard extends Component {
           </td>
           <td key={"cell_empty_" + row.product.externalId}></td>
           <td key={"cell_stocks_" + row.product.externalId + "_" + Math.random()}>
-            <div className="medium text-muted">
-              <span>
-                <strong>Transito:</strong>
-              </span>{" "}
-              {row.transit}
-            </div>
+            {(this.state.user.project.transits === '') ? (
+              <div className="medium text-muted">
+                <span>
+                  <strong>Transito:</strong>
+                </span>{" "}
+                {row.transit}
+              </div>
+
+            ) : null}
+
             <div className="medium text-muted">
               <span>
                 <strong>Existencia:</strong>
@@ -418,48 +422,60 @@ class Dashboard extends Component {
             </div>
           </td>
           <td key={"cell_prediction_" + row.product.externalId + "_" + Math.random()}>
-            <div className="medium text-muted">
-              <span>
-                <strong>Ajustado: </strong>
-              </span>
-              {this.percentage(
-                this.state.rows[i].prediction,
-                this.state.rows[i].adjustment
-              )}{" "}
-              %
+            {(this.state.user.project.canAdjust) ? (
+              <div className="medium text-muted">
+                <span>
+                  <strong>Ajustado: </strong>
+                </span>
+                {this.percentage(
+                  this.state.rows[i].prediction,
+                  this.state.rows[i].adjustment
+                )}{" "}
+                %
             </div>
-            <div className="medium text-muted">
-              <span>
-                <strong>Sugerido: </strong>
-              </span>{" "}
-              {row.prediction}
-            </div>
-            <div className="medium text-muted">
-              <span>
-                <strong>Pedido Camas: </strong>
-              </span>{" "}
-              {row.bed}
-            </div>
-            <div className="medium text-muted">
-              <span>
-                <strong>Pedido Tarimas: </strong>
-              </span>{" "}
-              {row.pallet}
-            </div>
+            ) : null}
+            {(this.state.user.project.canAdjust) ? (
+              <div className="medium text-muted">
+                <span>
+                  <strong>Sugerido: </strong>
+                </span>{" "}
+                {row.prediction}
+              </div>
+            ) : null}
+            {(this.state.user.project.beds === '') ? (
+              <div className="medium text-muted">
+                <span>
+                  <strong>Pedido Camas: </strong>
+                </span>{" "}
+                {row.bed}
+              </div>
+            ) : null}
+            {(this.state.user.project.pallets === '') ? (
+              <div className="medium text-muted">
+                <span>
+                  <strong>Pedido Tarimas: </strong>
+                </span>{" "}
+                {row.pallet}
+              </div>
+            ) : null}
           </td>
           <td key={"corrugados" + row.product.externalId + "_" + Math.random()}>
-            <div className="medium text-muted">
-              <span>
-                <strong>C/ Camas: </strong>
-              </span>{" "}
-              {row.product.bed}
-            </div>
-            <div className="medium text-muted">
-              <span>
-                <strong>C/ Tarimas: </strong>
-              </span>{" "}
-              {row.product.pallet}
-            </div>
+            {(row.product.bed !== 0) ? (
+              <div className="medium text-muted">
+                <span>
+                  <strong>C/ Camas: </strong>
+                </span>{" "}
+                {row.product.bed}
+              </div>
+            ) : null}
+            {(row.product.pallet !== 0) ? (
+              <div className="medium text-muted">
+                <span>
+                  <strong>C/ Tarimas: </strong>
+                </span>{" "}
+                {row.product.pallet}
+              </div>
+            ) : null}
           </td>
         </tr>
       );
@@ -520,208 +536,211 @@ class Dashboard extends Component {
   render() {
     return (
       <div className="animated fadeIn">
-          <Row>
-            <Col>
-              <Card>
-                <CardBody>
-                  <div
-                    className="chart-wrapper"
-                    style={{ marginTop: 20 + "px" }}
-                  >
-                    <Collapse isOpen={true}>
-                      <Row className="row">
-                        <Col
-                          xs={{ size: 12, offset: 0 }}
-                          sm={{ size: 6, offset: 0 }}
-                          md={{ size: 3 }}
-                          lg={{ size: 3 }}
-                        >
-                          <Card className="text-white bg-primary">
-                            <CardBody>
-                              <div className="text-value">
-                                {this.state.ind_transit +
-                                  " - $" +
-                                  Math.round(this.state.ind_transit_money)}
-                              </div>
-                              <div>Tránsito</div>
-                            </CardBody>
-                          </Card>
-                        </Col>
-
-                        <Col
-                          xs={{ size: 12, offset: 0 }}
-                          sm={{ size: 6, offset: 0 }}
-                          md={{ size: 3 }}
-                          lg={{ size: 3 }}
-                        >
-                          <Card className="text-white bg-primary">
-                            <CardBody>
-                              <div className="text-value">
-                                {this.state.ind_exists +
-                                  " - $" +
-                                  Math.round(this.state.ind_exists_money)}
-                              </div>
-                              <div>Existencia</div>
-                            </CardBody>
-                          </Card>
-                        </Col>
-
-                        <Col
-                          xs={{ size: 12, offset: 0 }}
-                          sm={{ size: 6, offset: 0 }}
-                          md={{ size: 3 }}
-                          lg={{ size: 3 }}
-                        >
-                          <Card className="text-white bg-primary">
-                            <CardBody>
-                              <div className="text-value">
-                                {this.state.ind_safety_stock +
-                                  " - $" +
-                                  Math.round(this.state.ind_safety_stock_money)}
-                              </div>
-                              <div>Safety Stock</div>
-                            </CardBody>
-                          </Card>
-                        </Col>
-
-                        <Col
-                          xs={{ size: 12, offset: 0 }}
-                          sm={{ size: 6, offset: 0 }}
-                          md={{ size: 3 }}
-                          lg={{ size: 3 }}
-                        >
-                          <Card className="text-white bg-primary">
-                            <CardBody>
-                              <div className="text-value">
-                                {this.state.ind_adjustments +
-                                  " - $" +
-                                  Math.round(this.state.ind_adjustment_money)}
-                              </div>
-                              <div>Pedido Final</div>
-                            </CardBody>
-                          </Card>
-                        </Col>
-                      </Row>
-                    </Collapse>
-                  </div>
-                </CardBody>
-              </Card>
-            </Col>
-          </Row>
-
-          <Row>
-            <Col>
-              <Card>
-                <CardBody>
-                  <Row>
-                    { this.state.user.saleCenter &&
-                      <Col xs="12" sm="12" md="5">
-                        <CardTitle className="mb-0">
-                          Centro de Venta {this.state.user.saleCenter[0].externalId} - {" "}
-                          {this.state.user.saleCenter[0].name} 
-                          {this.state.user.saleCenter.length > 1 ? " y " + (this.state.user.saleCenter.length - 1) +" más.": ""}
-                        </CardTitle>
-                        <div className="small text-muted">
-                          Pedido sugerido para el {this.state.date}
-                        </div>
+        <Row>
+          <Col>
+            <Card>
+              <CardBody>
+                <div
+                  className="chart-wrapper"
+                  style={{ marginTop: 20 + "px" }}
+                >
+                  <Collapse isOpen={true}>
+                    <Row className="row">
+                      <Col
+                        xs={{ size: 12, offset: 0 }}
+                        sm={{ size: 6, offset: 0 }}
+                        md={{ size: 3 }}
+                        lg={{ size: 3 }}
+                      >
+                        <Card className="text-white bg-primary">
+                          <CardBody>
+                            <div className="text-value">
+                              {this.state.ind_transit +
+                                " - $" +
+                                Math.round(this.state.ind_transit_money)}
+                            </div>
+                            <div>Tránsito</div>
+                          </CardBody>
+                        </Card>
                       </Col>
-                    }
-                    <Col
-                      xs="12"
-                      sm="12"
-                      md="7"
-                      className="d-none d-sm-inline-block"
-                    >
-                      <Row className="justify-content-end">
-                        <Col xs="10" sm="10" md="9" lg="10">
-                          <Form onSubmit={this.loadData} autoComplete="off">
-                            <InputGroup>
-                              <Input
-                                type="text"
-                                id="input3-group2"
-                                name="input3-group2"
-                                placeholder="Search"
-                                ref={(e)=> { this.textInput = e; }}
-                              />
-                              <InputGroupAddon addonType="append">
-                                <Button
-                                  type="button"
-                                  color="primary"
-                                  onClick={this.loadData}
-                                  title="Buscar productos por nombre o ID"
-                                >
-                                  <i className="fa fa-search" />
-                                </Button>
-                              </InputGroupAddon>
-                            </InputGroup>
-                          </Form>
-                        </Col>
-                        { this.state.user.project &&
-                            <Col
-                              xs={{ size: 1, offset: 0 }}
-                              sm={{ size: 1, offset: 0 }}
-                              md={{ size: 1, offset: 1 }}
-                              lg={{ size: 1, offset: 0 }}
-                            >
-                              <Button
-                                disabled={!this.state.user.project.canDowloadReport}
-                                color="primary"
-                                className="float-right"
-                                title="Descargar reporte"
-                                onClick={this.downloadReport}
-                              >
-                                <i className="icon-cloud-download" />
-                              </Button>
-                            </Col>
-                        }
-                        { this.state.user.project &&
-                          <Col
-                            xs={{ size: 1, offset: 0 }}
-                            sm={{ size: 1, offset: 0 }}
-                            md={{ size: 1, offset: 0 }}
-                            lg={{ size: 1, offset: 0 }}
-                          >
-                            <Button
-                              disabled={!(this.state.user.project.canSendReport && this.state.user.canEdit)}
-                              color="primary"
-                              className="float-right"
-                              title="Enviar pedido por E-mail"
-                              onClick={this.sendReport}
-                            >
-                              <i className="fa fa-envelope" />
-                            </Button>
-                          </Col>
-                        }
-                      </Row>
-                    </Col>
-                  </Row>
 
-                  <div
-                    className="chart-wrapper"
-                    style={{ marginTop: 40 + "px" }}
+                      <Col
+                        xs={{ size: 12, offset: 0 }}
+                        sm={{ size: 6, offset: 0 }}
+                        md={{ size: 3 }}
+                        lg={{ size: 3 }}
+                      >
+                        <Card className="text-white bg-primary">
+                          <CardBody>
+                            <div className="text-value">
+                              {this.state.ind_exists +
+                                " - $" +
+                                Math.round(this.state.ind_exists_money)}
+                            </div>
+                            <div>Existencia</div>
+                          </CardBody>
+                        </Card>
+                      </Col>
+
+                      <Col
+                        xs={{ size: 12, offset: 0 }}
+                        sm={{ size: 6, offset: 0 }}
+                        md={{ size: 3 }}
+                        lg={{ size: 3 }}
+                      >
+                        <Card className="text-white bg-primary">
+                          <CardBody>
+                            <div className="text-value">
+                              {this.state.ind_safety_stock +
+                                " - $" +
+                                Math.round(this.state.ind_safety_stock_money)}
+                            </div>
+                            <div>Safety Stock</div>
+                          </CardBody>
+                        </Card>
+                      </Col>
+
+                      <Col
+                        xs={{ size: 12, offset: 0 }}
+                        sm={{ size: 6, offset: 0 }}
+                        md={{ size: 3 }}
+                        lg={{ size: 3 }}
+                      >
+                        <Card className="text-white bg-primary">
+                          <CardBody>
+                            <div className="text-value">
+                              {this.state.ind_adjustments +
+                                " - $" +
+                                Math.round(this.state.ind_adjustment_money)}
+                            </div>
+                            <div>Pedido Final</div>
+                          </CardBody>
+                        </Card>
+                      </Col>
+                    </Row>
+                  </Collapse>
+                </div>
+              </CardBody>
+            </Card>
+          </Col>
+        </Row>
+
+        <Row>
+          <Col>
+            <Card>
+              <CardBody>
+                <Row>
+                  {this.state.user.saleCenter &&
+                    <Col xs="12" sm="12" md="5">
+                      <CardTitle className="mb-0">
+                        Centro de Venta {this.state.user.saleCenter[0].externalId} - {" "}
+                        {this.state.user.saleCenter[0].name}
+                        {this.state.user.saleCenter.length > 1 ? " y " + (this.state.user.saleCenter.length - 1) + " más." : ""}
+                      </CardTitle>
+                      <div className="small text-muted">
+                        Pedido sugerido para el {this.state.date}
+                      </div>
+                    </Col>
+                  }
+                  <Col
+                    xs="12"
+                    sm="12"
+                    md="7"
+                    className="d-none d-sm-inline-block"
                   >
-                    <Table
-                      hover
-                      responsive
-                      className="table-outline mb-0 d-sm-table"
-                    >
-                      <thead className="thead-light">
-                        <tr>
-                          <th className="text-center">Producto</th>
-                          <th className="text-center">Pedido Final</th>
-                          <th className="text-center" />
-                          <th className="text-center" />
-                          <th className="text-center" />
-                          <th className="text-center" />
-                        </tr>
-                      </thead>
-                      <tbody>{this.getTableRows()}</tbody>
-                    </Table>
-                  </div>
-                </CardBody>
-              </Card>
-            </Col>
-          </Row>
+                    <Row className="justify-content-end">
+                      <Col xs="10" sm="10" md="9" lg="10">
+                        <Form onSubmit={this.loadData} autoComplete="off">
+                          <InputGroup>
+                            <Input
+                              type="text"
+                              id="input3-group2"
+                              name="input3-group2"
+                              placeholder="Search"
+                              ref={(e) => { this.textInput = e; }}
+                            />
+                            <InputGroupAddon addonType="append">
+                              <Button
+                                type="button"
+                                color="primary"
+                                onClick={this.loadData}
+                                title="Buscar productos por nombre o ID"
+                              >
+                                <i className="fa fa-search" />
+                              </Button>
+                            </InputGroupAddon>
+                          </InputGroup>
+                        </Form>
+                      </Col>
+                      {this.state.user.project &&
+                        <Col
+                          xs={{ size: 1, offset: 0 }}
+                          sm={{ size: 1, offset: 0 }}
+                          md={{ size: 1, offset: 1 }}
+                          lg={{ size: 1, offset: 0 }}
+                        >
+                          <Button
+                            disabled={!this.state.user.project.canDowloadReport}
+                            color="primary"
+                            className="float-right"
+                            title="Descargar reporte"
+                            onClick={this.downloadReport}
+                          >
+                            <i className="icon-cloud-download" />
+                          </Button>
+                        </Col>
+                      }
+                      {this.state.user.project &&
+                        <Col
+                          xs={{ size: 1, offset: 0 }}
+                          sm={{ size: 1, offset: 0 }}
+                          md={{ size: 1, offset: 0 }}
+                          lg={{ size: 1, offset: 0 }}
+                        >
+                          <Button
+                            disabled={!(this.state.user.project.canSendReport && this.state.user.canEdit)}
+                            color="primary"
+                            className="float-right"
+                            title="Enviar pedido por E-mail"
+                            onClick={this.sendReport}
+                          >
+                            <i className="fa fa-envelope" />
+                          </Button>
+                        </Col>
+                      }
+                    </Row>
+                  </Col>
+                </Row>
+
+                <div
+                  className="chart-wrapper"
+                  style={{ marginTop: 40 + "px" }}
+                >
+                  <Table
+                    hover
+                    responsive
+                    className="table-outline mb-0 d-sm-table"
+                  >
+                    <thead className="thead-light">
+                      <tr>
+                        <th className="text-center">Producto</th>
+                        {(this.state.user && this.state.user.project && this.state.user.project.name === 'Ecuador') ?
+                          (<th className="text-center">Tinas</th>) :
+                          (<th className="text-center">Pedido Final</th>)
+                        }
+                        <th className="text-center" />
+                        <th className="text-center" />
+                        <th className="text-center" />
+                        <th className="text-center" />
+                      </tr>
+                    </thead>
+                    <tbody>{this.getTableRows()}</tbody>
+                  </Table>
+                </div>
+              </CardBody>
+            </Card>
+          </Col>
+        </Row>
       </div>
     );
   }
