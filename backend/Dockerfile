@@ -8,6 +8,8 @@ RUN mkdir /orax
 ADD . /orax
 WORKDIR /orax
 
+RUN chmod +x /orax/config/start.sh
+
 RUN mkdir /var/log/uwsgi && \
     touch /var/log/uwsgi/uwsgi.log && \
     touch /var/log/supervisor/supervisord.log && \
@@ -25,4 +27,4 @@ RUN python /orax/manage.py collectstatic
 
 EXPOSE 8000
 
-ENTRYPOINT supervisord -c /etc/supervisor/supervisord.conf -n
+CMD ["/orax/config/start.sh"]
