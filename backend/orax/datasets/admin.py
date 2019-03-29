@@ -192,9 +192,16 @@ class DatasetAdmin(admin.ModelAdmin):
     def _get_extra_columns_from_row(self, row, columns):
         dict_columns = {}
         for column in columns:
-            dict_columns[column] = row[column]
+            value = row[column]
+            if isinstance(value, str):
+                dict_columns[column] = value
+            else:
+                dict_columns[column] = self._convert_nan_to_zero(row[column])
 
         return dict_columns
+
+    def _convert_nan_to_zero(self, number):
+        return 0 if math.isnan(number) else number
 
 
 class DatasetRowsAdmin(admin.ModelAdmin):
