@@ -398,7 +398,7 @@ class Dashboard extends Component {
           </td>
           <td key={"cell_empty_" + row.product.externalId}></td>
           <td key={"cell_stocks_" + row.product.externalId + "_" + Math.random()}>
-            {(this.state.user.project.transits === '') ? (
+            {(this.state.user.project.transits && this.state.user.project.transits !== '') ? (
               <div className="medium text-muted">
                 <span>
                   <strong>Transito:</strong>
@@ -407,19 +407,22 @@ class Dashboard extends Component {
               </div>
 
             ) : null}
-
-            <div className="medium text-muted">
-              <span>
-                <strong>Existencia:</strong>
-              </span>{" "}
-              {row.inStock}
-            </div>
-            <div className="medium text-muted">
-              <span>
-                <strong>Safety Stock:</strong>
-              </span>{" "}
-              {row.safetyStock}
-            </div>
+            {(this.state.user.project.inStock && this.state.user.project.inStock !== '') ? (
+              <div className="medium text-muted">
+                <span>
+                  <strong>Existencia:</strong>
+                </span>{" "}
+                {row.inStock}
+              </div>
+            ) : null}
+            {(this.state.user.project.safetyStock && this.state.user.project.safetyStock !== '') ? (
+              <div className="medium text-muted">
+                <span>
+                  <strong>Safety Stock:</strong>
+                </span>{" "}
+                {row.safetyStock}
+              </div>
+            ) : null}
           </td>
           <td key={"cell_prediction_" + row.product.externalId + "_" + Math.random()}>
             {(this.state.user.project.canAdjust) ? (
@@ -442,7 +445,7 @@ class Dashboard extends Component {
                 {row.prediction}
               </div>
             ) : null}
-            {(this.state.user.project.beds === '') ? (
+            {(this.state.user.project.beds && this.state.user.project.beds !== '') ? (
               <div className="medium text-muted">
                 <span>
                   <strong>Pedido Camas: </strong>
@@ -450,7 +453,7 @@ class Dashboard extends Component {
                 {row.bed}
               </div>
             ) : null}
-            {(this.state.user.project.pallets === '') ? (
+            {(this.state.user.project.pallets && this.state.user.project.pallets !== '') ? (
               <div className="medium text-muted">
                 <span>
                   <strong>Pedido Tarimas: </strong>
@@ -460,7 +463,7 @@ class Dashboard extends Component {
             ) : null}
           </td>
           <td key={"corrugados" + row.product.externalId + "_" + Math.random()}>
-            {(row.product.bed !== 0) ? (
+            {(this.state.user.project.beds && this.state.user.project.beds !== '') ? (
               <div className="medium text-muted">
                 <span>
                   <strong>C/ Camas: </strong>
@@ -468,7 +471,7 @@ class Dashboard extends Component {
                 {row.product.bed}
               </div>
             ) : null}
-            {(row.product.pallet !== 0) ? (
+            {(this.state.user.project.pallets && this.state.user.project.pallets !== '') ? (
               <div className="medium text-muted">
                 <span>
                   <strong>C/ Tarimas: </strong>

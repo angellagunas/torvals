@@ -71,7 +71,7 @@ class Dataset(CatalogueMixin):
     def to_web_csv(self, response, filters={}):
         extra_columns = self.project.dynamic_columns_name
 
-        headers = self.project.get_columns_name() + extra_columns
+        headers = self.project.get_map_columns_name() + extra_columns
 
         writer = csv.writer(response)
         writer.writerow(headers)
@@ -80,24 +80,12 @@ class Dataset(CatalogueMixin):
         rows = DatasetRow.objects.filter(**filters)
 
         for row in rows:
-
             row = writer.writerow(
                 self._get_row_values_from_headers(
                     row,
                     self.project.get_columns_name(),
                     extra_columns
                 )
-                # row.date,
-                # row.sale_center.external_id,
-                # row.product.external_id,
-                # row.product.name,
-                # row.transit,
-                # row.in_stock,
-                # row.safety_stock,
-                # row.prediction,
-                # row.adjustment,
-                # row.bed,
-                # row.pallet
             )
 
         return writer
@@ -106,7 +94,7 @@ class Dataset(CatalogueMixin):
         return "{0}-{1}".format(self.name, self.project)
 
     def get_extra_columns(self):
-        static_columns = self.project.get_columns_name()
+        static_columns = self.project.get_map_columns_name()
         path = os.path.join(MEDIA_ROOT, self.file.name)
         csv_file = pd.read_csv(path)
         all_columns = list(csv_file.columns)
@@ -117,8 +105,23 @@ class Dataset(CatalogueMixin):
         full_row = []
         extra_data = row.extra_columns
 
-        for column in static_columns:
-            full_row.append(getattr(row, column, 0))
+        full_row.append(row.date)
+        full_row.append(row.sale_center.external_id)
+        full_row.append(row.product.external_id)
+
+        if self.project.transits:
+            full_row.append(row.transit)
+
+        full_row.append(row.in_stock)
+        full_row.append(row.safety_stock)
+        full_row.append(row.prediction)
+        full_row.append(row.adjustment)
+
+        if self.project.beds:
+            full_row.append(row.bed)
+
+        if self.project.pallets:
+            full_row.append(row.pallet)
 
         for column in dynamic_columns_name:
             full_row.append(extra_data.get(column, 0))

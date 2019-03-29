@@ -150,7 +150,7 @@ class Project(CatalogueMixin):
         """Representation in string."""
         return self.name
 
-    def get_columns_name(self):
+    def get_map_columns_name(self):
         columns = [
             self.date,
             self.ceve_id,
@@ -164,3 +164,19 @@ class Project(CatalogueMixin):
             self.pallets
         ]
         return [c for c in columns if c]
+
+    def get_columns_name(self):
+        columns = [
+            'date',
+            'sale_center_id',
+            'product',
+            'transit',
+            'in_stock',
+            'safety_stock',
+            'prediction',
+            'adjustment',
+            'bed',
+            'pallet'
+        ]
+
+        return columns
