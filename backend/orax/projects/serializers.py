@@ -16,5 +16,15 @@ class ProjectSerializer(serializers.ModelSerializer):
             'can_adjust',
             'can_dowload_report',
             'can_send_report',
-            'name'
+            'name',
+            'date',
+            'ceve_id',
+            'product_id',
+            'transits',
+            'in_stock',
+            'safety_stock',
+            'prediction',
+            'adjustment',
+            'beds',
+            'pallets'
         ]
