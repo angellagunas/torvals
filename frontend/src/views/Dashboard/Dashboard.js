@@ -223,6 +223,9 @@ class Dashboard extends Component {
         diferenceBeetwenAdjustments * priceOfProductUpdated;
     }
 
+    bed = bed === Infinity ? 0 : bed;
+    pallet = pallet === Infinity ? 0 : pallet;
+
     await axios
       .patch(
         "api/v2/datasetrows/" + row_id,
@@ -507,12 +510,10 @@ class Dashboard extends Component {
         Authorization: "Bearer " + window.localStorage.getItem("jwt")
       }
     };
-    const file_name =
-      "adjustment_report_ceve_" +
-      this.state.user_sale_center +
-      "_" +
-      this.state.date.replace(/ /g, "_") +
-      ".csv";
+    const ceves = this.state.user.saleCenter.map(e => e.externalId).join('_');
+    const date = this.state.date.replace(/ /g, "_");
+
+    const file_name = "adjustment_report_ceve_" + ceves + "_" + date + ".csv";
     const url = "api/v2/datasetrows/download";
     const responseType = "blob";
     await axios
