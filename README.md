@@ -36,8 +36,8 @@ Desde el Admin:
 1- Si es para un nuevo proyecto, crear el Proyecto en Project
 
 2- En Batch, añadir dos:
-	- Uno de tipo productos (Type:productos)
-	- Otro de tipo centros de ventas (Type: sales_centers)
+- Uno de tipo productos (Type:productos)
+- Otro de tipo centros de ventas (Type: sales_centers)
 
 
 3- Mapear el Dataset:
