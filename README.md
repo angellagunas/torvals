@@ -27,3 +27,22 @@ Pasos para ejecutar torvals
 
 7- Ejecutar:
 - `python backend/manage.py migrate`
+
+**************************************************************
+Pasos para cargar información 
+
+Desde el Admin:
+
+1- Si es para un nuevo proyecto, crear el Proyecto en Project
+
+2- En Batch, añadir dos:
+	- Uno de tipo productos (Type:productos)
+	- Otro de tipo centros de ventas (Type: sales_centers)
+
+
+3- Mapear el Dataset:
+- En Project asociar las columnas que vienen en el dataset que se va a cargar con las que se necesitan en el proyecto
+
+3- En Datasets, añadir el dataset
+
+4- Asignar al usuario el o los centros de ventas
