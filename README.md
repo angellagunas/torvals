@@ -26,7 +26,7 @@ Pasos para ejecutar torvals
 - Password: `123technologies`
 
 7- Ejecutar:
-- `python backend/manage.py migrate`
+- `python backend/manage.py runserver`
 
 **************************************************************
 Pasos para cargar información 
