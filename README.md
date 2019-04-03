@@ -21,7 +21,7 @@ Pasos para ejecutar torvals
 
 6- Crear superusuario (dentro de backend):
 - `python backend/manage.py createsuperuser`
-- Correo electronico: `technlogies@grupoabraxas.com`
+- Correo electronico: `technologies@grupoabraxas.com`
 - Nombre: `tech`
 - Password: `123technologies`
 
