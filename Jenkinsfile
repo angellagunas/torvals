@@ -20,22 +20,6 @@ pipeline {
                         }
                     }
                 }
-                stage('build front') {
-                    steps{
-                        script{
-                            if(env.BRANCH_NAME == 'stage'){
-                                env.FRONTEND_NAME = "bec-front:1.0.${BUILD_NUMBER}-dev"
-                                sh("echo 'build frontend stage: ${env.FRONTEND_NAME}'")
-                            }
-                            else if(env.BRANCH_NAME == 'release'){
-                                env.FRONTEND_NAME = "bec-front:1.0.${BUILD_NUMBER}-prod"
-                                sh("echo 'build frontend production: ${env.FRONTEND_NAME}'")
-                            }
-
-                            frontend_image = docker.build("${GLOBAL_REGISTRY}/${env.FRONTEND_NAME}", "--no-cache ./frontend")
-                        }
-                    }
-                }
             }
         }
         stage('upload fronted and backend') {
@@ -51,17 +35,6 @@ pipeline {
                             sh("docker rmi ${backend_image.id}")
                         }
 
-                    }
-                }
-                stage('upload front'){
-                    steps{
-                        script{
-                            docker.withRegistry("https://${GLOBAL_REGISTRY}", "ecr:us-east-1:ECR") {
-                                frontend_image.push()
-                            }
-
-                            sh("docker rmi ${frontend_image.id}")
-                        }
                     }
                 }
             }
