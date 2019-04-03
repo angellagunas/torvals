@@ -25,7 +25,19 @@ SECRET_KEY = 'py8t-$h^5@g*ihu5-(#+%k%70i87fr-3ju$jc^ez_*#!$7w1@a'
 DEBUG = int(os.environ['DEBUG']) == 1 if os.environ.get(
     'DEBUG', None) else True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+    'http://localhost',
+    'https://localhost',
+    'https://bec.orax.io/',
+    'http://bec.orax.io/',
+    'https://bec.orax.io',
+    'http://bec.orax.io',
+    'https://staging.bec.orax.io/',
+    'http://staging.bec.orax.io/',
+    'https://staging.bec.orax.io',
+    'http://staging.bec.orax.io',
+    '*'
+]
 
 
 # Application definition
