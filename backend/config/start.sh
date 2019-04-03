@@ -2,6 +2,6 @@
 
 set -e
 
-python /orax/manage.py migrate
+python /app/manage.py migrate
 
 supervisord -c /etc/supervisor/supervisord.conf -n

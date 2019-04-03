@@ -1,17 +1,5 @@
 version: '2.3'
 services:
-  web:
-    restart: always
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    ports:
-      - "3002:80"
-    cpu_shares: 50
-    mem_limit: 2000M
-    mem_reservation: 500m
-    env_file:
-      - .env
   python:
     restart: always
     build:
