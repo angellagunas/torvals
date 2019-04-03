@@ -5,7 +5,7 @@ Pasos para ejecutar torvals
 - `python3 -m venv ~/venvs/torvals`
 
 2- Activar el ambiente:
-- `source ~/venvs/torvals`
+- `source ~/venvs/torvals/bin/activate`
 
 
 3- Instalar los requerimientos:
