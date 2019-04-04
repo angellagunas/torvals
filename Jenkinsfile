@@ -8,11 +8,11 @@ pipeline {
                     steps{
                         script{
                             if(env.BRANCH_NAME == 'stage'){
-                                env.BACKEND_NAME = "bec-back:1.0.${BUILD_NUMBER}-dev"
+                                env.BACKEND_NAME = "torvals-back:1.0.${BUILD_NUMBER}-dev"
                                 sh("echo 'build backend stage: ${env.BACKEND_NAME}'")
                             }
                             else if(env.BRANCH_NAME == 'release'){
-                                env.BACKEND_NAME = "bec-back:1.0.${BUILD_NUMBER}-prod"
+                                env.BACKEND_NAME = "torvals-back:1.0.${BUILD_NUMBER}-prod"
                                 sh("echo 'build backend production: ${env.BACKEND_NAME}'")
                             }
                             
@@ -22,7 +22,7 @@ pipeline {
                 }
             }
         }
-        stage('upload fronted and backend') {
+        stage('upload backend') {
             when { anyOf { branch 'stage'; branch 'release' } }
             parallel{
                 stage('upload back'){
