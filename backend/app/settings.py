@@ -26,19 +26,14 @@ DEBUG = int(os.environ['DEBUG']) == 1 if os.environ.get(
     'DEBUG', None) else True
 
 ALLOWED_HOSTS = [
-    'http://localhost',
-    'https://localhost',
-    'https://bec.orax.io/',
-    'http://bec.orax.io/',
-    'https://bec.orax.io',
-    'http://bec.orax.io',
-    'https://staging.bec.orax.io/',
-    'http://staging.bec.orax.io/',
-    'https://staging.bec.orax.io',
-    'http://staging.bec.orax.io',
-    '*'
+    'localhost',
+    'torvals.abraxasintelligence.com',
+    'bec.orax.io',
+    'staging.bec.orax.io',
+    'ecu.orax.io'
 ]
 
+CSRF_TRUSTED_ORIGINS = ALLOWED_HOSTS
 
 # Application definition
 
