@@ -1,10 +1,12 @@
 """API for datasetrows."""
 from io import StringIO
 
+import botocore
+import boto3
+
 from django.core.mail import EmailMessage
 from django.db.models import Q
 from django.http import HttpResponse
-
 
 from rest_framework import status
 from rest_framework.decorators import list_route
@@ -14,8 +16,65 @@ from soft_drf.api import mixins
 from soft_drf.api.viewsets import GenericViewSet
 from soft_drf.routing.v1.routers import router
 
+from app.settings import AWS_ACCESS_ID, AWS_ACCESS_KEY, MEDIA_ROOT
 from app.datasets import serializers
 from app.datasets.models import Dataset, DatasetRow
+from app.projects.models import Project
+
+
+class DatasetViewSet(GenericViewSet):
+    """Manage datasets endpoints."""
+    serializer_class = serializers.DatasetSerializer
+    s3_serializer_class = serializers.DatasetSerializer
+
+    @list_route(methods=["POST"])
+    def s3(self, request, *args, **kwargs):
+        """Load dataset from s3."""
+        s3_serializer = self.get_serializer(
+            data=request.data,
+            action='s3'
+        )
+
+        validation_response = s3_serializer.is_valid(raise_exception=True)
+
+        if not validation_response:
+            return Response(
+                s3_serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        FILE_NAME = s3_serializer.data['file_name']
+
+        try:
+            project = Project.objects.get(id=s3_serializer.data['project_id'])
+        except Exception:
+            return Response(
+                'Project not found',
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        try:
+            s3 = boto3.resource(
+                's3',
+                aws_access_key_id=AWS_ACCESS_ID,
+                aws_secret_access_key=AWS_ACCESS_KEY
+            )
+            BUCKET_NAME = project.bucket_name
+
+            S3_DIR = project.bucket_folder
+            S3_FILE_NAME = '{0}/{1}'.format(S3_DIR, FILE_NAME)
+
+            TARGET_PATH = '{0}/s3/{1}'.format(
+                MEDIA_ROOT,
+                FILE_NAME
+            )
+
+            s3.Bucket(BUCKET_NAME).download_file(S3_FILE_NAME, TARGET_PATH)
+        except botocore.exceptions.ClientError as e:
+            msg = e.response['Error']['Message']
+            return Response(msg, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(status=status.HTTP_200_OK)
 
 
 class DatasetrowViewSet(
@@ -166,4 +225,10 @@ router.register(
     r"datasetrows",
     DatasetrowViewSet,
     base_name="datasetrows",
+)
+
+router.register(
+    r"datasets",
+    DatasetViewSet,
+    base_name="datasets",
 )

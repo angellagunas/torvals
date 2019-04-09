@@ -224,6 +224,12 @@ EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
 SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY", None)
 SENDGRID_SANDBOX_MODE_IN_DEBUG = False
 
+#
+# AWS CONFIGS
+#
+AWS_ACCESS_ID = os.environ.get("AWS_ACCESS_ID", "")
+AWS_ACCESS_KEY = os.environ.get("AWS_ACCESS_KEY", "")
+
 if DEBUG:
     INSTALLED_APPS += DEBUG_APPS
     MIDDLEWARE += [
