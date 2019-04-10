@@ -1,17 +1,19 @@
 """Define the dataset structure in DB."""
 import csv
 import os
-import pandas as pd
 
 from django.contrib.postgres.fields import JSONField
 from django.db import models
 
+import pandas as pd
+
+
 from app.products.models import Product
 from app.projects.models import Project
 from app.sales_centers.models import SaleCenter
+from app.settings import MEDIA_ROOT
 from app.users.models import UserManager
 from app.utils.models import CatalogueMixin, TimeStampedMixin
-from app.settings import MEDIA_ROOT
 
 
 class Dataset(CatalogueMixin):
