@@ -49,7 +49,19 @@ class AuthSerializer(serializers.Serializer):
 
         if not user.is_active:
             raise serializers.ValidationError(
-                'the user has not been activated'
+                'The user has not been activated'
+            )
+
+        if not user.project:
+            raise serializers.ValidationError(
+                'The user does not have any project assigned.',
+                code=401
+            )
+
+        if not user.sale_center.count():
+            raise serializers.ValidationError(
+                'The user does not have any sales center assigned.',
+                code=401
             )
 
         return data
