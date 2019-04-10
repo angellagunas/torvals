@@ -3,8 +3,10 @@ from io import StringIO
 
 import botocore
 import boto3
+import datetime
 
 from django.core.mail import EmailMessage
+from django.core.files import File
 from django.db.models import Q
 from django.http import HttpResponse
 
@@ -19,6 +21,7 @@ from soft_drf.routing.v1.routers import router
 from app.settings import AWS_ACCESS_ID, AWS_ACCESS_KEY, MEDIA_ROOT
 from app.datasets import serializers
 from app.datasets.models import Dataset, DatasetRow
+from app.datasets.utils import load_dataset
 from app.projects.models import Project
 
 
@@ -44,7 +47,7 @@ class DatasetViewSet(GenericViewSet):
             )
 
         FILE_NAME = s3_serializer.data['file_name']
-
+        print(FILE_NAME)
         try:
             project = Project.objects.get(id=s3_serializer.data['project_id'])
         except Exception:
@@ -70,6 +73,29 @@ class DatasetViewSet(GenericViewSet):
             )
 
             s3.Bucket(BUCKET_NAME).download_file(S3_FILE_NAME, TARGET_PATH)
+
+            #
+            # Create dataset and load data
+            #
+
+            Dataset.objects.filter(
+                is_main=True,
+                project=project
+            ).update(is_main=False)
+
+            file_s3 = open(TARGET_PATH)
+
+            dataset = Dataset(
+                name=S3_FILE_NAME,
+                description=S3_FILE_NAME + 'cargado desde S3',
+                is_main=True,
+                project=project,
+                file=File(file_s3),
+                date_adjustment=s3_serializer.data['date_adjustment']
+            )
+            dataset.save()
+            load_dataset(dataset)
+
         except botocore.exceptions.ClientError as e:
             msg = e.response['Error']['Message']
             return Response(msg, status=status.HTTP_400_BAD_REQUEST)
