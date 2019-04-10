@@ -3,7 +3,6 @@ from io import StringIO
 
 import botocore
 import boto3
-import datetime
 
 from django.core.mail import EmailMessage
 from django.core.files import File
@@ -27,6 +26,7 @@ from app.projects.models import Project
 
 class DatasetViewSet(GenericViewSet):
     """Manage datasets endpoints."""
+
     serializer_class = serializers.DatasetSerializer
     s3_serializer_class = serializers.DatasetSerializer
 
@@ -46,8 +46,7 @@ class DatasetViewSet(GenericViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        FILE_NAME = s3_serializer.data['file_name']
-        print(FILE_NAME)
+        FILE_NAME = s3_serializer.data['file_name']  # noqa
         try:
             project = Project.objects.get(id=s3_serializer.data['project_id'])
         except Exception:
@@ -62,12 +61,12 @@ class DatasetViewSet(GenericViewSet):
                 aws_access_key_id=AWS_ACCESS_ID,
                 aws_secret_access_key=AWS_ACCESS_KEY
             )
-            BUCKET_NAME = project.bucket_name
+            BUCKET_NAME = project.bucket_name  # noqa
 
-            S3_DIR = project.bucket_folder
-            S3_FILE_NAME = '{0}/{1}'.format(S3_DIR, FILE_NAME)
+            S3_DIR = project.bucket_folder  # noqa
+            S3_FILE_NAME = '{0}/{1}'.format(S3_DIR, FILE_NAME)  # noqa
 
-            TARGET_PATH = '{0}/s3/{1}'.format(
+            TARGET_PATH = '{0}/s3/{1}'.format(  # noqa
                 MEDIA_ROOT,
                 FILE_NAME
             )
