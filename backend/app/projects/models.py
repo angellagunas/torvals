@@ -69,6 +69,23 @@ class Project(CatalogueMixin):
         blank=True
     )
 
+    #
+    # S3 CONFIG
+    #
+    bucket_name = models.CharField(
+        max_length=255,
+        verbose_name='AWS BUCKET NAME',
+        blank=True,
+        null=True
+    )
+
+    bucket_folder = models.CharField(
+        max_length=255,
+        verbose_name='AWS BUCKET FOLDER',
+        blank=True,
+        null=True
+    )
+
     def __str__(self):
         """Representation in string."""
         return self.name
