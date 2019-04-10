@@ -5,6 +5,11 @@ from app.datasets.models import DatasetRow
 from app.products.serializers import ProductSerializer
 from app.sales_centers.serializers import SaleCenterSerializer
 
+class DatasetSerializer(serializers.Serializer):
+    file_name = serializers.CharField(max_length=255)
+    project_id = serializers.IntegerField(min_value=1)
+    date_adjustment = serializers.DateField()
+
 
 class DatasetrowSerializer(serializers.ModelSerializer):
     """Serializer for Datasetrows API when GET method is used."""
