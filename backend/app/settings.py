@@ -35,6 +35,8 @@ ALLOWED_HOSTS = [
 
 CSRF_TRUSTED_ORIGINS = ALLOWED_HOSTS
 
+CORS_ORIGIN_ALLOW_ALL = True
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -47,6 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.postgres',
     'rest_framework',
     'soft_drf',
+    'corsheaders'
 ]
 
 LOCAL_APPS = [
@@ -68,6 +71,7 @@ DEBUG_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'app.utils.middlewares.DisableCsrfCheck',
     'django.middleware.csrf.CsrfViewMiddleware',
