@@ -11,6 +11,7 @@ from django.http import HttpResponse
 
 from rest_framework import status
 from rest_framework.decorators import list_route
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from soft_drf.api import mixins
@@ -107,6 +108,8 @@ class DatasetrowViewSet(
         mixins.PartialUpdateModelMixin,
         GenericViewSet):
     """Manage datasetrows endpoints."""
+
+    permission_classes = (AllowAny,)
 
     serializer_class = serializers.DatasetrowSerializer
     list_serializer_class = serializers.DatasetrowSerializer
