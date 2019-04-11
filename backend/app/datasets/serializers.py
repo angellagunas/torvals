@@ -52,6 +52,7 @@ class RetrieveDatasetSerializer(serializers.ModelSerializer):
 
         model = Dataset
         fields = [
+            'id',
             'name',
             'description',
             'date_adjustment',
