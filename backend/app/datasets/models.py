@@ -2,18 +2,23 @@
 import csv
 import os
 
+import boto3
+
 from django.contrib.postgres.fields import JSONField
 from django.db import models
+from django.utils.text import slugify
 
 import pandas as pd
 
-
+from app.datasets.utils import load_dataset
 from app.products.models import Product
 from app.projects.models import Project
 from app.sales_centers.models import SaleCenter
 from app.settings import MEDIA_ROOT
 from app.users.models import UserManager
+from app.utils import get_csv_columns
 from app.utils.models import CatalogueMixin, TimeStampedMixin
+from app.settings import AWS_ACCESS_ID, AWS_ACCESS_KEY, MEDIA_ROOT
 
 
 class Dataset(CatalogueMixin):
@@ -25,7 +30,10 @@ class Dataset(CatalogueMixin):
         verbose_name = 'dataset'
         verbose_name_plural = 'datasets'
 
-    file = models.FileField(upload_to="files")
+    file = models.FileField(
+        upload_to="files",
+        null=True
+    )
 
     description = models.CharField(
         max_length=255,
@@ -47,6 +55,7 @@ class Dataset(CatalogueMixin):
     objects = UserManager()
 
     def to_web_csv(self, response, filters={}):
+        """Export rows to csv."""
         extra_columns = self.project.dynamic_columns_name
 
         headers = self.project.get_map_columns_name() + extra_columns
@@ -69,13 +78,17 @@ class Dataset(CatalogueMixin):
         return writer
 
     def __str__(self):
+        """Representaction in string."""
         return "{0}-{1}".format(self.name, self.project)
 
-    def get_extra_columns(self):
+    def get_extra_columns(self, _path=None):
+        """Return columns names."""
         static_columns = self.project.get_map_columns_name()
-        path = os.path.join(MEDIA_ROOT, self.file.name)
-        csv_file = pd.read_csv(path)
-        all_columns = list(csv_file.columns)
+
+        path = _path if _path else os.path.join(MEDIA_ROOT, self.file.name)
+
+        all_columns = get_csv_columns(path)
+
         extra = list(set(all_columns) - set(static_columns))
         return extra
 
@@ -91,6 +104,24 @@ class Dataset(CatalogueMixin):
             full_row.append(extra_data.get(column, 0))
 
         return full_row
+
+    def append_rows_from_s3(self, aws_file_name, aws_dir, aws_bucket_name):
+        """Load rows from s3."""
+        dataset_id = self.id
+
+        s3 = boto3.resource(
+            's3',
+            aws_access_key_id=AWS_ACCESS_ID,
+            aws_secret_access_key=AWS_ACCESS_KEY
+        )
+
+        s3_path = '{0}/{1}'.format(aws_dir, aws_file_name)
+        target_path = '{0}/s3/{1}'.format(MEDIA_ROOT, slugify(aws_file_name))
+
+        s3.Bucket(aws_bucket_name).download_file(s3_path, target_path)
+
+        file_s3 = open(target_path)
+        return load_dataset(self, _file=file_s3, dataset_id=dataset_id)
 
 
 class DatasetRow(TimeStampedMixin):

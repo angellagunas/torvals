@@ -2,7 +2,6 @@ import math
 
 from datetime import datetime
 
-from app.datasets.models import Dataset, DatasetRow
 from app.products.models import Product
 from app.sales_centers.models import SaleCenter
 
@@ -43,20 +42,35 @@ def get_extra_columns_from_row(row, columns):
     return dict_columns
 
 
-def load_dataset(obj):
+def load_dataset(obj, _file=None, dataset_id=None):
+    """Load dataset rows."""
+
+    from app.datasets.models import Dataset, DatasetRow
     #
     # Open the new dataset file.
     #
-    file = pd.read_csv(obj.file, sep=',', index_col=False)
+    csv_file = _file if _file else obj.file
+    file = pd.read_csv(csv_file, sep=',', index_col=False)
 
     #
     # Get the new dataset.
     #
-    dataset = Dataset.objects.order_by('-created_date')[0]
-    project = obj.project
+    if dataset_id:
+        dataset = Dataset.objects.get(id=dataset_id)
+    else:
+        dataset = Dataset.objects.order_by('-created_date')[0]
 
-    products = Product.objects.filter(is_active=True)
-    sales_centers = SaleCenter.objects.filter(is_active=True)
+    project = dataset.project
+
+    products = Product.objects.filter(
+        is_active=True,
+        project_id=project.id
+    )
+
+    sales_centers = SaleCenter.objects.filter(
+        is_active=True,
+        project_id=project.id
+    )
     #
     # For make better the performace, we do only one query to get all
     # products and sales centers and access to
@@ -73,7 +87,7 @@ def load_dataset(obj):
     #
     # adittional columns from new dataset
     #
-    extra_columns = dataset.get_extra_columns()
+    extra_columns = dataset.get_extra_columns(_path=csv_file.name)
     project.dynamic_columns_name = extra_columns
     project.save()
     #
