@@ -23,25 +23,39 @@
 
       .background {
         background-color: var(--light-peach);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
       }
 
       .inner-rectangle {
         height: 315px;
+        width: 600px;
         border-radius: 21px;
         box-shadow: 0 2px 9px 0 rgba(0, 0, 0, 0.19);
         background-color: #ffffff;
         margin: 63px 20px 35px;
-        padding: 20px;
+        /* padding: 40px; */
         text-align: center;
         display: flex;
-        justify-content: space-around;
+        justify-content: center;
         align-items: center;
         flex-direction: column;
+        position: relative;
+      }
+
+      .wrapper {
+        width: 312px;
+        height: 80%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
       }
 
       .titulo {
-        /* width: 253px; */
-        /* height: 27px; */
+        margin: 16px 0;
         font-family: Arial;
         font-size: 24px;
         font-weight: bold;
@@ -53,8 +67,7 @@
       }
 
       .texto {
-        /* width: 312px; */
-        /* height: 45px; */
+        margin-bottom: 16px;
         font-family: Arial;
         font-size: 14px;
         font-weight: normal;
@@ -67,8 +80,7 @@
       }
 
       .archivo {
-        /* width: 59px; */
-        /* height: 16px; */
+        margin-bottom: 16px;
         font-family: Arial;
         font-size: 14px;
         font-weight: bold;
@@ -81,27 +93,20 @@
       }
 
       .despedida {
-        /* width: 312px; */
-        /* height: 55px; */
         font-family: Arial;
         font-size: 14px;
         font-weight: normal;
         font-style: normal;
         font-stretch: normal;
-        line-height: normal;
+        line-height: 2;
         letter-spacing: normal;
         text-align: center;
         color: var(--greyish-brown);
       }
 
       .lgBEC {
-        /* width: 60px; */
-        /* height: 60px; */
-        /* object-fit: contain; */
-        /* margin: 0 50%; */
-        /* position: relative; */
-        /* bottom: 30px; */
-        display: block; /* tambien se puede quitar */
+        position: absolute;
+        top: -30px;
       }
 
       .footer {
@@ -159,18 +164,21 @@
         srcset="img/lgBEC@2x.png 2x, img/lgBEC@3x.png 3x"
         class="lgBEC"
       />
-      <div class="titulo">
-        ¡Hola @recievernamer!
-      </div>
-      <div class="texto">
-        Te compartimos el dataset de los pedidos de @ceve, que @sender ha
-        enviado.
-      </div>
-      <div class="archivo">
-        {file.csv}
-      </div>
-      <div class="despedida">
-        Saludos cordiales, El Equipo de Intelligence.
+      <div class="wrapper">
+        <div class="titulo">
+          ¡Hola @recievernamer!
+        </div>
+        <div class="texto">
+          Te compartimos el dataset de los pedidos de @ceve, que @sender ha
+          enviado.
+        </div>
+        <div class="archivo">
+          {file.csv}
+        </div>
+        <div class="despedida">
+          Saludos cordiales, <br />
+          El Equipo de Intelligence.
+        </div>
       </div>
     </div>
     <div class="footer">
