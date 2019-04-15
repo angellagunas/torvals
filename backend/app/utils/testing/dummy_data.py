@@ -45,5 +45,5 @@ def create_datasets():
         description='dataset con csv',
         is_main=True,
         date_adjustment=datetime.now(),
-        project=1
+        project_id=1
     )
