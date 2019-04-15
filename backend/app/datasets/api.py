@@ -1,26 +1,171 @@
 """API for datasetrows."""
 from io import StringIO
 
+import botocore
+import boto3
+
 from django.core.mail import EmailMessage
+from django.core.files import File
 from django.db.models import Q
 from django.http import HttpResponse
-
+from django.shortcuts import get_object_or_404
 
 from rest_framework import status
-from rest_framework.decorators import list_route
+from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 
 from soft_drf.api import mixins
 from soft_drf.api.viewsets import GenericViewSet
 from soft_drf.routing.v1.routers import router
 
+from app.settings import AWS_ACCESS_ID, AWS_ACCESS_KEY, MEDIA_ROOT
 from app.datasets import serializers
 from app.datasets.models import Dataset, DatasetRow
+from app.datasets.utils import load_dataset
+from app.projects.models import Project
+
+
+class DatasetViewSet(
+        GenericViewSet,
+        mixins.CreateModelMixin,
+        mixins.PartialUpdateModelMixin):
+    """Manage datasets endpoints."""
+
+    serializer_class = serializers.DatasetSerializer
+    create_serializer_class = serializers.CreateDatasetSerializer
+    retrieve_serializer_class = serializers.RetrieveDatasetSerializer
+    update_serializer_class = serializers.UpdateDatasetSerializer
+
+    s3_serializer_class = serializers.DatasetSerializer
+    append_serializer_class = serializers.AppendDatasetSerializer
+
+    def partial_update(self, request, *args, **kwargs):
+        """Overwrite method to update dataset."""
+        if request.data.get('is_main', False):
+            dataset = get_object_or_404(Dataset, id=kwargs['pk'])
+            Dataset.objects.filter(
+                project=dataset.project,
+                is_main=True
+            ).update(is_main=False)
+
+        return super(
+            DatasetViewSet, self).partial_update(request, *args, **kwargs)
+
+    @detail_route(methods=["POST"])
+    def append(self, request, *args, **kwargs):
+        """Append data into existing dataset."""
+        dataset_id = kwargs['pk']
+        dataset = get_object_or_404(Dataset, id=dataset_id)
+
+        append_serializer = self.get_serializer(
+            data=request.data,
+            action='append'
+        )
+
+        validation_response = append_serializer.is_valid(raise_exception=True)
+
+        if not validation_response:
+            return Response(
+                append_serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        aws_file_name = append_serializer.data['aws_file_name']
+        aws_dir = append_serializer.data['aws_dir']
+        aws_bucket_name = append_serializer.data['aws_bucket_name']
+
+        try:
+            dataset.append_rows_from_s3(
+                aws_file_name,
+                aws_dir,
+                aws_bucket_name
+            )
+        except botocore.exceptions.ClientError as e:
+            msg = e.response['Error']['Message']
+            return Response(msg, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(status=status.HTTP_200_OK)
+
+    @list_route(methods=["POST"])
+    def s3(self, request, *args, **kwargs):
+        """Load dataset from s3."""
+        s3_serializer = self.get_serializer(
+            data=request.data,
+            action='s3'
+        )
+
+        validation_response = s3_serializer.is_valid(raise_exception=True)
+
+        if not validation_response:
+            return Response(
+                s3_serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        FILE_NAME = s3_serializer.data['file_name']  # noqa
+        try:
+            project = Project.objects.get(id=s3_serializer.data['project_id'])
+        except Exception:
+            return Response(
+                'Project not found',
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        try:
+            s3 = boto3.resource(
+                's3',
+                aws_access_key_id=AWS_ACCESS_ID,
+                aws_secret_access_key=AWS_ACCESS_KEY
+            )
+            BUCKET_NAME = project.bucket_name  # noqa
+
+            S3_DIR = project.bucket_folder  # noqa
+            S3_FILE_NAME = '{0}/{1}'.format(S3_DIR, FILE_NAME)  # noqa
+
+            TARGET_PATH = '{0}/s3/{1}'.format(  # noqa
+                MEDIA_ROOT,
+                FILE_NAME
+            )
+
+            s3.Bucket(BUCKET_NAME).download_file(S3_FILE_NAME, TARGET_PATH)
+
+            #
+            # Create dataset and load data
+            #
+
+            Dataset.objects.filter(
+                is_main=True,
+                project=project
+            ).update(is_main=False)
+
+            file_s3 = open(TARGET_PATH)
+
+            dataset = Dataset(
+                name=S3_FILE_NAME,
+                description=S3_FILE_NAME + 'cargado desde S3',
+                is_main=True,
+                project=project,
+                file=File(file_s3),
+                date_adjustment=s3_serializer.data['date_adjustment']
+            )
+            dataset.save()
+            load_dataset(dataset)
+
+        except botocore.exceptions.ClientError as e:
+            msg = e.response['Error']['Message']
+            return Response(msg, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(status=status.HTTP_200_OK)
+
+    def get_queryset(self):
+        """Universe of datasets."""
+        return Dataset.objects.all()
 
 
 class DatasetrowViewSet(
         mixins.ListModelMixin,
         mixins.PartialUpdateModelMixin,
+        mixins.CreateModelMixin,
         GenericViewSet):
     """Manage datasetrows endpoints."""
 
@@ -28,6 +173,7 @@ class DatasetrowViewSet(
     list_serializer_class = serializers.DatasetrowSerializer
     retrieve_serializer_class = serializers.DatasetrowUpdateSerializer
     update_serializer_class = serializers.DatasetrowUpdateSerializer
+    create_serializer_class = serializers.DatasetRowCreateSerializer
 
     def get_queryset(self):
         """Return the universe of objects in API."""
@@ -166,4 +312,10 @@ router.register(
     r"datasetrows",
     DatasetrowViewSet,
     base_name="datasetrows",
+)
+
+router.register(
+    r"datasets",
+    DatasetViewSet,
+    base_name="datasets",
 )
