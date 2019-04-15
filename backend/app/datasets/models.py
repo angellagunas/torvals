@@ -8,10 +8,13 @@ from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.utils.text import slugify
 
+import pandas as pd
+
 from app.datasets.utils import load_dataset
 from app.products.models import Product
 from app.projects.models import Project
 from app.sales_centers.models import SaleCenter
+from app.settings import MEDIA_ROOT
 from app.users.models import UserManager
 from app.utils import get_csv_columns
 from app.utils.models import CatalogueMixin, TimeStampedMixin

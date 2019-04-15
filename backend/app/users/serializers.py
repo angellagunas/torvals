@@ -1,4 +1,7 @@
 """Serializer for Dataset rows API."""
+from django.contrib.auth.models import Permission
+
+
 from rest_framework import serializers
 
 from app.projects.serializers import ProjectSerializer
@@ -7,11 +10,18 @@ from app.users.models import User
 from app.utils.tokens import create_token
 
 
+class UserPermissionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Permission
+        fields = '__all__'
+
+
 class UserProfileSerializer(serializers.ModelSerializer):
     """Profile serializer."""
 
     sale_center = SaleCenterSerializer(many=True)
     project = ProjectSerializer()
+    user_permissions = UserPermissionSerializer(many=True)
 
     class Meta:
         """Define behaivor."""
@@ -22,7 +32,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'email',
             'sale_center',
             'project',
-            'can_edit'
+            'can_edit',
+            'user_permissions'
         ]
 
 
@@ -49,7 +60,19 @@ class AuthSerializer(serializers.Serializer):
 
         if not user.is_active:
             raise serializers.ValidationError(
-                'the user has not been activated'
+                'The user has not been activated'
+            )
+
+        if not user.project:
+            raise serializers.ValidationError(
+                'The user does not have any project assigned.',
+                code=401
+            )
+
+        if not user.sale_center.count():
+            raise serializers.ValidationError(
+                'The user does not have any sales center assigned.',
+                code=401
             )
 
         return data
