@@ -165,6 +165,7 @@ class DatasetViewSet(
 class DatasetrowViewSet(
         mixins.ListModelMixin,
         mixins.PartialUpdateModelMixin,
+        mixins.CreateModelMixin,
         GenericViewSet):
     """Manage datasetrows endpoints."""
 
@@ -172,6 +173,7 @@ class DatasetrowViewSet(
     list_serializer_class = serializers.DatasetrowSerializer
     retrieve_serializer_class = serializers.DatasetrowUpdateSerializer
     update_serializer_class = serializers.DatasetrowUpdateSerializer
+    create_serializer_class = serializers.DatasetRowCreateSerializer
 
     def get_queryset(self):
         """Return the universe of objects in API."""
