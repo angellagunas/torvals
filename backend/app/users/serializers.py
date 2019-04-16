@@ -17,6 +17,8 @@ class UserPermissionSerializer(serializers.ModelSerializer):
 
 
 class GroupPermissionSerializer(serializers.ModelSerializer):
+    permissions = UserPermissionSerializer(many=True)
+
     class Meta:
         model = Group
         fields = '__all__'
