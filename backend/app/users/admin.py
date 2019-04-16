@@ -3,6 +3,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
 from app.users.models import User
+from django.contrib.auth.models import Group, Permission
 
 
 class CustomUserAdmin(UserAdmin):
@@ -48,3 +49,6 @@ class CustomUserAdmin(UserAdmin):
 
 
 admin.site.register(User, CustomUserAdmin)
+admin.site.unregister(Group)
+admin.site.register(Group)
+admin.site.register(Permission)
