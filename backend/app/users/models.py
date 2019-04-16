@@ -52,6 +52,10 @@ class User(AbstractBaseUser, PermissionsMixin, TimeStampedMixin):
         verbose_name = 'usuario'
         verbose_name_plural = 'usuarios'
         ordering = ('email',)
+        permissions = (
+            ("can_adjust_sales", "Can adjust sales"),
+            ("can_adjust_last_order", "Can adjust last order"),
+        )
 
     email = models.EmailField(
         max_length=254,
