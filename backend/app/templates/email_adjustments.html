@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      /* Color palette */
+      :root {
+        --lipstick: #d02a67;
+        --greyish-brown: #654e4a;
+        --light-peach: #e2dede;
+      }
+
+      /* Sample text styles */
+      header {
+        font-family: system-ui;
+        font-size: 24px;
+        font-weight: normal;
+        font-style: normal;
+        font-stretch: normal;
+        line-height: normal;
+        letter-spacing: normal;
+        color: #554d56;
+      }
+
+      .background {
+        background-color: var(--light-peach);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .inner-rectangle {
+        height: 315px;
+        width: 600px;
+        border-radius: 21px;
+        box-shadow: 0 2px 9px 0 rgba(0, 0, 0, 0.19);
+        background-color: #ffffff;
+        margin: 63px 20px 35px;
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        position: relative;
+      }
+
+      .wrapper {
+        width: 312px;
+        height: 80%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .titulo {
+        margin: 16px 0;
+        font-family: Arial;
+        font-size: 24px;
+        font-weight: bold;
+        font-style: normal;
+        font-stretch: normal;
+        line-height: normal;
+        letter-spacing: normal;
+        color: var(--lipstick);
+      }
+
+      .texto {
+        margin-bottom: 16px;
+        font-family: Arial;
+        font-size: 14px;
+        font-weight: normal;
+        font-style: normal;
+        font-stretch: normal;
+        line-height: normal;
+        letter-spacing: normal;
+        text-align: center;
+        color: var(--greyish-brown);
+      }
+
+      .archivo {
+        margin-bottom: 16px;
+        font-family: Arial;
+        font-size: 14px;
+        font-weight: bold;
+        font-style: normal;
+        font-stretch: normal;
+        line-height: normal;
+        letter-spacing: normal;
+        text-align: center;
+        color: var(--lipstick);
+      }
+
+      .despedida {
+        font-family: Arial;
+        font-size: 14px;
+        font-weight: normal;
+        font-style: normal;
+        font-stretch: normal;
+        line-height: 2;
+        letter-spacing: normal;
+        text-align: center;
+        color: var(--greyish-brown);
+      }
+
+      .lgBEC {
+        position: absolute;
+        top: -30px;
+      }
+
+      .footer {
+        margin: auto;
+        margin-top: 21px;
+        margin-bottom: 24px;
+        text-align: center;
+        width: 50%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .row1 {
+        display: inline-block;
+        vertical-align: middle;
+      }
+
+      .lg-intelligence {
+        width: 74px;
+        height: 27px;
+        object-fit: contain;
+      }
+
+      .lg-bec {
+        width: 40px;
+        height: 14px;
+        object-fit: contain;
+        margin-bottom: 7px;
+        margin-top: auto;
+        margin-left: 17px;
+      }
+
+      .Copyright-2019 {
+        width: 68px;
+        height: 11px;
+        font-family: Arial;
+        font-size: 10px;
+        font-weight: normal;
+        font-style: normal;
+        font-stretch: normal;
+        line-height: normal;
+        letter-spacing: normal;
+        text-align: center;
+        color: #4e545e;
+        margin: auto;
+      }
+    </style>
+  </head>
+
+  <body class="background">
+    <div class="inner-rectangle">
+      <img
+        src="img/lgBEC.png"
+        srcset="img/lgBEC@2x.png 2x, img/lgBEC@3x.png 3x"
+        class="lgBEC"
+      />
+      <div class="wrapper">
+        <div class="titulo">
+          ¡Hola @recievernamer!
+        </div>
+        <div class="texto">
+          Te compartimos el dataset de los pedidos de @ceve, que @sender ha
+          enviado.
+        </div>
+        <div class="archivo">
+          {file.csv}
+        </div>
+        <div class="despedida">
+          Saludos cordiales, <br />
+          El Equipo de Intelligence.
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <div class="row1">
+        <img
+          src="img/lg-intelligence.png"
+          srcset="img/lg-intelligence@2x.png 2x, img/lg-intelligence@3x.png 3x"
+          class="lg-intelligence"
+        />
+        <img
+          src="img/lg-bec.png"
+          srcset="img/lg-bec@2x.png 2x, img/lg-bec@3x.png 3x"
+          class="lg-bec"
+        />
+      </div>
+      <div class="Copyright-2019">
+        Copyright-2019
+      </div>
+    </div>
+  </body>
+</html>
