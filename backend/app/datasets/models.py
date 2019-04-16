@@ -85,7 +85,8 @@ class Dataset(CatalogueMixin):
         """Return columns names."""
         static_columns = self.project.get_map_columns_name()
 
-        path = os.path.join(MEDIA_ROOT, _path)
+        path = _path if _path else self.file.name
+        path = os.path.join(MEDIA_ROOT, path)
 
         all_columns = get_csv_columns(path)
 
