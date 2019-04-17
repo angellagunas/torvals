@@ -148,7 +148,7 @@ class DatasetRowCreateSerializer(serializers.Serializer):
         temp_datasetRow = DatasetRow.objects.filter(
             dataset=dataset
         )[0]
-        print(temp_datasetRow)
+        
         temp_extra_columns = temp_datasetRow.extra_columns
 
         for column in temp_extra_columns:
