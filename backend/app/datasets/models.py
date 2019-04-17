@@ -159,6 +159,11 @@ class DatasetRow(TimeStampedMixin):
     #
     extra_columns = JSONField(null=True, blank=True)
 
+    is_extraordinary = models.BooleanField(
+        default=False,
+        verbose_name='is extraordinary'
+    )
+
     def __str__(self):
         """Return the representation in String of this model."""
         return self.product.name
