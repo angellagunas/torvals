@@ -85,7 +85,8 @@ class Dataset(CatalogueMixin):
         """Return columns names."""
         static_columns = self.project.get_map_columns_name()
 
-        path = _path if _path else os.path.join(MEDIA_ROOT, self.file.name)
+        path = _path if _path else self.file.name
+        path = os.path.join(MEDIA_ROOT, path)
 
         all_columns = get_csv_columns(path)
 
@@ -116,7 +117,8 @@ class Dataset(CatalogueMixin):
         )
 
         s3_path = '{0}/{1}'.format(aws_dir, aws_file_name)
-        target_path = '{0}/s3/{1}'.format(MEDIA_ROOT, slugify(aws_file_name))
+        target_path = '{0}/files/{1}'.format(MEDIA_ROOT,
+                                             slugify(aws_file_name))
 
         s3.Bucket(aws_bucket_name).download_file(s3_path, target_path)
 
@@ -156,6 +158,11 @@ class DatasetRow(TimeStampedMixin):
     # transit, in_stock, safety_stock, prediction, adjustment, bed, pallet
     #
     extra_columns = JSONField(null=True, blank=True)
+
+    is_extraordinary = models.BooleanField(
+        default=False,
+        verbose_name='is extraordinary'
+    )
 
     def __str__(self):
         """Return the representation in String of this model."""

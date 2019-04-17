@@ -22,6 +22,7 @@ from app.settings import AWS_ACCESS_ID, AWS_ACCESS_KEY, MEDIA_ROOT
 from app.datasets import serializers
 from app.datasets.models import Dataset, DatasetRow
 from app.datasets.utils import load_dataset
+from app.datasets.permissions import AddRowPermission
 from app.projects.models import Project
 
 
@@ -168,7 +169,7 @@ class DatasetrowViewSet(
         mixins.CreateModelMixin,
         GenericViewSet):
     """Manage datasetrows endpoints."""
-
+    permission_classes = [AddRowPermission]
     serializer_class = serializers.DatasetrowSerializer
     list_serializer_class = serializers.DatasetrowSerializer
     retrieve_serializer_class = serializers.DatasetrowUpdateSerializer

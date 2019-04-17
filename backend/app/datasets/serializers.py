@@ -87,7 +87,8 @@ class DatasetrowSerializer(serializers.ModelSerializer):
             'product',
             'sale_center',
             'date',
-            'extra_columns'
+            'extra_columns',
+            'is_extraordinary'
         ]
 
 
@@ -139,14 +140,28 @@ class DatasetRowCreateSerializer(serializers.Serializer):
             is_active=True).last()
 
         sale_center = get_object_or_404(
-            SaleCenter, external_id=data.get('sale_center')
+            SaleCenter, external_id=data.get('sale_center'),
+            project=self.context['request'].user.project,
+            is_active=True
         )
+
+        temp_datasetRow = DatasetRow.objects.filter(
+            dataset=dataset
+        )[0]
+        
+        temp_extra_columns = temp_datasetRow.extra_columns
+
+        for column in temp_extra_columns:
+            temp_extra_columns[column] = 0
+
+        temp_extra_columns['pedido_final'] = data.get('pedido')
 
         datasetRow = DatasetRow.objects.create(
             product=product,
             dataset=dataset,
             sale_center=sale_center,
             date=dataset.date_adjustment,
-            extra_columns={'pedidoFinal': data.get('pedido')}
+            extra_columns=temp_extra_columns,
+            is_extraordinary=True
         )
         return datasetRow

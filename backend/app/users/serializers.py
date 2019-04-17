@@ -1,5 +1,5 @@
 """Serializer for Dataset rows API."""
-from django.contrib.auth.models import Permission
+from django.contrib.auth.models import Group, Permission
 
 
 from rest_framework import serializers
@@ -17,12 +17,21 @@ class UserPermissionSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class GroupPermissionSerializer(serializers.ModelSerializer):
+    permissions = UserPermissionSerializer(many=True)
+
+    class Meta:
+        model = Group
+        fields = '__all__'
+
+
 class UserProfileSerializer(serializers.ModelSerializer):
     """Profile serializer."""
 
     sale_center = SaleCenterSerializer(many=True)
     project = ProjectSerializer()
     user_permissions = UserPermissionSerializer(many=True)
+    groups = GroupPermissionSerializer(many=True)
 
     class Meta:
         """Define behaivor."""
@@ -34,7 +43,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'sale_center',
             'project',
             'can_edit',
-            'user_permissions'
+            'user_permissions',
+            'groups'
         ]
 
 

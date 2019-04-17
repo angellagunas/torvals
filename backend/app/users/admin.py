@@ -3,6 +3,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
 from app.users.models import User
+from django.contrib.auth.models import Group, Permission
 
 
 class CustomUserAdmin(UserAdmin):
@@ -12,7 +13,6 @@ class CustomUserAdmin(UserAdmin):
     filter_vertical = ['sale_center']
     list_display = ['email', 'name', 'is_active']
     exclude = ['first_name', 'last_name', 'username', 'date_joined']
-    raw_id_fields = ('project',)
 
     list_filter = ['is_staff', 'is_superuser', 'is_active', 'groups']
     search_fields = ['email']
@@ -49,3 +49,6 @@ class CustomUserAdmin(UserAdmin):
 
 
 admin.site.register(User, CustomUserAdmin)
+admin.site.unregister(Group)
+admin.site.register(Group)
+admin.site.register(Permission)
