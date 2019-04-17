@@ -153,7 +153,7 @@ class DatasetRowCreateSerializer(serializers.Serializer):
         for column in temp_extra_columns:
             temp_extra_columns[column] = 0
 
-        temp_extra_columns['pedidoFinal'] = data.get('pedido')
+        temp_extra_columns['pedido_final'] = data.get('pedido')
 
         datasetRow = DatasetRow.objects.create(
             product=product,
