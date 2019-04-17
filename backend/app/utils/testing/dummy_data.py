@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from app.datasets.models import Dataset
+from app.datasets.models import Dataset, DatasetRow
 from app.projects.models import Project
 from app.sales_centers.models import SaleCenter
 from app.users.models import User
@@ -46,4 +46,17 @@ def create_datasets():
         is_main=True,
         date_adjustment=datetime.now(),
         project_id=1
+    )
+
+def create_datasetrows():
+    """ Function that creates a datasetrow. """
+    return DatasetRow.objects.create(
+        created_date=datetime.now(),
+        last_modified=datetime.now(),
+        dataset='',
+        product='',
+        sale_center='',
+        isactive=True,
+        date=datetime.date(),
+        extra_columns=''
     )
