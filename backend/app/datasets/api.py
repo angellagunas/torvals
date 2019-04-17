@@ -1,11 +1,12 @@
 """API for datasetrows."""
 from io import StringIO
 
-import botocore
 import boto3
 
-from django.core.mail import EmailMessage
+import botocore
+
 from django.core.files import File
+from django.core.mail import EmailMessage
 from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -18,12 +19,12 @@ from soft_drf.api import mixins
 from soft_drf.api.viewsets import GenericViewSet
 from soft_drf.routing.v1.routers import router
 
-from app.settings import AWS_ACCESS_ID, AWS_ACCESS_KEY, MEDIA_ROOT
 from app.datasets import serializers
 from app.datasets.models import Dataset, DatasetRow
-from app.datasets.utils import load_dataset
 from app.datasets.permissions import AddRowPermission
+from app.datasets.utils import load_dataset
 from app.projects.models import Project
+from app.settings import AWS_ACCESS_ID, AWS_ACCESS_KEY, MEDIA_ROOT
 
 
 class DatasetViewSet(

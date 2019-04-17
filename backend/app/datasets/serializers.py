@@ -5,8 +5,8 @@ from rest_framework import serializers
 
 from app.datasets.models import Dataset, DatasetRow
 from app.products.models import Product
-from app.sales_centers.models import SaleCenter
 from app.products.serializers import ProductSerializer
+from app.sales_centers.models import SaleCenter
 from app.sales_centers.serializers import SaleCenterSerializer
 
 
@@ -148,7 +148,7 @@ class DatasetRowCreateSerializer(serializers.Serializer):
         temp_datasetRow = DatasetRow.objects.filter(
             dataset=dataset
         )[0]
-        
+
         temp_extra_columns = temp_datasetRow.extra_columns
 
         for column in temp_extra_columns:

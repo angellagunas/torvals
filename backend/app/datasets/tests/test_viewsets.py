@@ -3,13 +3,13 @@
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from app.utils.tokens import create_token
 from app.utils.testing.dummy_data import (
     create_datasets,
     create_project,
     create_sales_center,
     create_user
 )
+from app.utils.tokens import create_token
 
 
 class DatasetrowViewSetTests(APITestCase):
