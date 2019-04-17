@@ -1,5 +1,6 @@
 """Define the project structure in DB."""
 from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.fields import JSONField
 from django.db import models
 
 from app.utils.models import CatalogueMixin
@@ -24,7 +25,7 @@ class Project(CatalogueMixin):
         help_text="Define si se puede ajustar la prediccion en el proyecto."
     )
 
-    can_dowload_report = models.BooleanField(
+    can_download_report = models.BooleanField(
         default=True,
         help_text="Define si el usuario final puede descargar el reporte."
     )
@@ -85,6 +86,14 @@ class Project(CatalogueMixin):
         blank=True,
         null=True
     )
+
+    #
+    # define columns to download in report
+    #
+    report_columns = ArrayField(models.CharField(max_length=200),
+                                blank=True,
+                                null=True
+                                )
 
     def __str__(self):
         """Representation in string."""
