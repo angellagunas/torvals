@@ -56,9 +56,9 @@ class Dataset(CatalogueMixin):
 
     def to_web_csv(self, response, filters={}):
         """Export rows to csv."""
-        extra_columns = self.project.dynamic_columns_name
+        report_columns = self.project.report_columns
 
-        headers = self.project.get_map_columns_name() + extra_columns
+        headers = self.project.get_map_columns_name() + report_columns
 
         writer = csv.writer(response)
         writer.writerow(headers)
@@ -71,7 +71,7 @@ class Dataset(CatalogueMixin):
                 self._get_row_values_from_headers(
                     row,
                     self.project.get_columns_name(),
-                    extra_columns
+                    report_columns
                 )
             )
 
