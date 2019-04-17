@@ -87,7 +87,8 @@ class DatasetrowSerializer(serializers.ModelSerializer):
             'product',
             'sale_center',
             'date',
-            'extra_columns'
+            'extra_columns',
+            'is_extraordinary'
         ]
 
 
@@ -147,7 +148,7 @@ class DatasetRowCreateSerializer(serializers.Serializer):
         temp_datasetRow = DatasetRow.objects.filter(
             dataset=dataset
         )[0]
-
+        
         temp_extra_columns = temp_datasetRow.extra_columns
 
         for column in temp_extra_columns:
@@ -160,6 +161,7 @@ class DatasetRowCreateSerializer(serializers.Serializer):
             dataset=dataset,
             sale_center=sale_center,
             date=dataset.date_adjustment,
-            extra_columns=temp_extra_columns
+            extra_columns=temp_extra_columns,
+            is_extraordinary=True
         )
         return datasetRow
