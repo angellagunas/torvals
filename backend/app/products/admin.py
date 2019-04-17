@@ -15,9 +15,10 @@ class ProductAdmin(admin.ModelAdmin):
         'quota',
         'bed',
         'pallet',
-        'project'
+        'project',
+        'type'
     ]
-    search_fields = ['name', 'external_id', 'project__name']
+    search_fields = ['name', 'external_id', 'type', 'project__name']
 
     def get_queryset(self, request):
         """Overwrite queryset."""
