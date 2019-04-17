@@ -14,7 +14,7 @@ class ProjectSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'can_adjust',
-            'can_dowload_report',
+            'can_download_report',
             'can_send_report',
             'name',
             'date',
