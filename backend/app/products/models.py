@@ -40,6 +40,13 @@ class Product(CatalogueMixin):
         verbose_name='external id'
     )
 
+    type = models.CharField(
+        max_length=3,
+        verbose_name='product type',
+        help_text="Tipo de producto. A, B o C.",
+        default="A"
+    )
+
     project = models.ForeignKey(
         Project,
         null=True
