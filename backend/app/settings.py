@@ -28,6 +28,7 @@ DEBUG = int(os.environ['DEBUG']) == 1 if os.environ.get(
 ALLOWED_HOSTS = [
     'localhost',
     'torvals.abraxasintelligence.com',
+    'torvals.orax.io',
     'bec.orax.io',
     'staging.bec.orax.io',
     'ecu.orax.io'
