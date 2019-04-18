@@ -75,9 +75,8 @@ class AuthSerializer(serializers.Serializer):
             )
 
         if not user.project:
-            raise serializers.ValidationError(
-                'The user does not have any project assigned.',
-                code=401
+            raise AuthenticationFailed(
+                'The user does not have any project assigned.'
             )
 
         if not user.sale_center.count():
