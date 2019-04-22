@@ -13,6 +13,7 @@ from django.shortcuts import get_object_or_404
 
 from rest_framework import status
 from rest_framework.decorators import detail_route, list_route
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from soft_drf.api import mixins
@@ -170,7 +171,7 @@ class DatasetrowViewSet(
         mixins.CreateModelMixin,
         GenericViewSet):
     """Manage datasetrows endpoints."""
-    permission_classes = [AddRowPermission]
+    permission_classes = [AddRowPermission, IsAuthenticated]
     serializer_class = serializers.DatasetrowSerializer
     list_serializer_class = serializers.DatasetrowSerializer
     retrieve_serializer_class = serializers.DatasetrowUpdateSerializer
