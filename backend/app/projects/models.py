@@ -67,7 +67,8 @@ class Project(CatalogueMixin):
             max_length=200
         ),
         null=True,
-        blank=True
+        blank=True,
+        default=list
     )
 
     #
@@ -90,10 +91,12 @@ class Project(CatalogueMixin):
     #
     # define columns to download in report
     #
-    report_columns = ArrayField(models.CharField(max_length=200),
-                                blank=True,
-                                null=True
-                                )
+    report_columns = ArrayField(
+        models.CharField(max_length=200),
+        blank=True,
+        null=True,
+        default=list
+    )
 
     def __str__(self):
         """Representation in string."""
