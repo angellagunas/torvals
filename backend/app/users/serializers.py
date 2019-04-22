@@ -42,7 +42,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'email',
             'sale_center',
             'project',
-            'can_edit',
             'user_permissions',
             'groups'
         ]
