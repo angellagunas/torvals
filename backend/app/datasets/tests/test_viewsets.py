@@ -96,32 +96,143 @@ class DatasetrowViewSetTests(APITestCase):
         response = self.client.get(endpoint_url, format='json')
         self.assertEqual(len(response.data['results']), 1000)
 
-    def test_can_download_report():
+    def test_can_download_report(self):
         """ Function to test if report download flag. """
         user = create_user()
         token = create_token(user)
 
         self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + token)
 
-        endpoint_url = '/api/v1/auth'
+        endpoint_url = '/api/v1/datasetrows/download'
 
         project = create_project()
         user.project_id = project.id
         user.save()
+        ceve = create_sales_center()
+        user.sale_center.add(ceve)
+        print(project.report_columns)
 
-        response = self.client.post(endpoint_url, data, format='json')
+        dataset = create_datasets()
+        product = create_product()
+        for x in range(1000):
+            create_datasetrows(dataset.id, product.id, ceve.id)
+
+        response = self.client.get(endpoint_url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_cannot_download_report():
+    def test_cannot_download_report(self):
         """ Function to test if report download flag. """
         user = create_user()
 
-        endpoint_url = '/api/v1/datasetrows'
+        endpoint_url = '/api/v1/datasetrows/download'
 
         project = create_project(can_download_report=False)
         user.project_id = project.id
         user.save()
+        ceve = create_sales_center()
+        user.sale_center.add(ceve)
 
-        response = self.client.post(endpoint_url, data, format='json')
+        dataset = create_datasets()
+        product = create_product()
+        for x in range(1000):
+            create_datasetrows(dataset.id, product.id, ceve.id)
+
+        response = self.client.get(endpoint_url, format='json')
         self.assertEqual(response.status_code,
                          status.HTTP_401_UNAUTHORIZED)
+
+    def test_can_send_report_and_can_edit(self):
+        """ Function to test if report can be send and user can edit. """
+        user = create_user()
+        token = create_token(user)
+
+        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + token)
+
+        endpoint_url = '/api/v1/datasetrows/send'
+
+        project = create_project()
+        user.project_id = project.id
+        user.save()
+        ceve = create_sales_center()
+        user.sale_center.add(ceve)
+        print(project.report_columns)
+
+        dataset = create_datasets()
+        product = create_product()
+        for x in range(1000):
+            create_datasetrows(dataset.id, product.id, ceve.id)
+
+        response = self.client.get(endpoint_url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_can_send_report_and_cannot_edit(self):
+        """ Function to test if report can be send and user cannot edit. """
+        user = create_user(can_edit=False)
+        token = create_token(user)
+
+        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + token)
+
+        endpoint_url = '/api/v1/datasetrows/send'
+
+        project = create_project()
+        user.project_id = project.id
+        user.save()
+        ceve = create_sales_center()
+        user.sale_center.add(ceve)
+        print(project.report_columns)
+
+        dataset = create_datasets()
+        product = create_product()
+        for x in range(1000):
+            create_datasetrows(dataset.id, product.id, ceve.id)
+
+        response = self.client.get(endpoint_url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_cannot_send_report_and_can_edit(self):
+        """ Function to test if report cannot be send and user can edit. """
+        user = create_user()
+        token = create_token(user)
+
+        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + token)
+
+        endpoint_url = '/api/v1/datasetrows/send'
+
+        project = create_project(can_send_report=False)
+        user.project_id = project.id
+        user.save()
+        ceve = create_sales_center()
+        user.sale_center.add(ceve)
+        print(project.report_columns)
+
+        dataset = create_datasets()
+        product = create_product()
+        for x in range(1000):
+            create_datasetrows(dataset.id, product.id, ceve.id)
+
+        response = self.client.get(endpoint_url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_cannot_send_report_and_cannot_edit(self):
+        """ Function to test if report cannot be send and user cannot edit. """
+        user = create_user(can_edit=False)
+        token = create_token(user)
+
+        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + token)
+
+        endpoint_url = '/api/v1/datasetrows/send'
+
+        project = create_project(can_send_report=False)
+        user.project_id = project.id
+        user.save()
+        ceve = create_sales_center()
+        user.sale_center.add(ceve)
+        print(project.report_columns)
+
+        dataset = create_datasets()
+        product = create_product()
+        for x in range(1000):
+            create_datasetrows(dataset.id, product.id, ceve.id)
+
+        response = self.client.get(endpoint_url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)

@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 
 from app.datasets.models import Dataset, DatasetRow
@@ -14,16 +15,17 @@ def create_project(can_download_report=True, can_send_report=True):
         last_modified=datetime.now(),
         name='Merida',
         description='Proyecto a validar',
-        can_dowload_report=can_download_report,
-        can_send_report=can_send_report,
+        can_download_report=can_download_report,
+        can_send_report=can_send_report
     )
 
 
-def create_user():
+def create_user(can_edit=True):
     """ Function that creates a user. """
     return User.objects.create_superuser(
         email='test@intelligence.com',
-        password='123intelligence'
+        password='123intelligence',
+        can_edit=can_edit
     )
 
 
@@ -82,5 +84,14 @@ def create_datasetrows(dataset_id=1, product_id=1, sale_center_id=1):
         sale_center_id=sale_center_id,
         is_active=True,
         date=datetime.today(),
-        extra_columns=''
+        extra_columns=json.loads("""{
+                "producto": "GOLDEN NUTS SEMILLA 20G BAR",
+                "sugerido": 0,
+                "transitos": 0,
+                "existencia": 3,
+                "pedidoFinal": 0,
+                "safetyStock": 0,
+                "pedidoFinalCamas": 0,
+                "pedidoFinalTarimas": 0
+            }""")
     )
