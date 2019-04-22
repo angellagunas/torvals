@@ -81,10 +81,6 @@ class User(AbstractBaseUser, PermissionsMixin, TimeStampedMixin):
         default=True
     )
 
-    can_edit = models.BooleanField(
-        default=True
-    )
-
     sale_center = models.ManyToManyField(
         SaleCenter
     )

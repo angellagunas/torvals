@@ -27,7 +27,6 @@ class CustomUserAdmin(UserAdmin):
             'is_active',
             'is_staff',
             'is_superuser',
-            'can_edit',
             'groups', 'user_permissions')
         }),
     )
@@ -42,7 +41,6 @@ class CustomUserAdmin(UserAdmin):
             'is_active',
             'is_staff',
             'is_superuser',
-            'can_edit',
             'groups', 'user_permissions')
         }),
     )
