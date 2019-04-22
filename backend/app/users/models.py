@@ -95,7 +95,8 @@ class User(AbstractBaseUser, PermissionsMixin, TimeStampedMixin):
             max_length=200
         ),
         blank=True,
-        null=True
+        null=True,
+        default=list
     )
 
     USERNAME_FIELD = 'email'
