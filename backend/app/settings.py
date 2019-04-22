@@ -30,6 +30,7 @@ ALLOWED_HOSTS = [
     'torvals.abraxasintelligence.com',
     'torvals.orax.io',
     'staging.torvals.orax.io',
+    'staging.torvals.abraxasintelligence.com',
     'bec.orax.io',
     'staging.bec.orax.io',
     'ecu.orax.io'
