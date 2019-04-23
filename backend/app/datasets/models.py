@@ -57,8 +57,12 @@ class Dataset(CatalogueMixin):
     def to_web_csv(self, response, filters={}):
         """Export rows to csv."""
         report_columns = self.project.report_columns
+        static_columns = self.project.get_map_columns_name() + ['product']
 
-        headers = self.project.get_map_columns_name() + report_columns
+        if not report_columns:
+            report_columns = []
+
+        headers = static_columns + report_columns
 
         writer = csv.writer(response)
         writer.writerow(headers)
@@ -100,6 +104,10 @@ class Dataset(CatalogueMixin):
         full_row.append(row.date)
         full_row.append(row.sale_center.external_id)
         full_row.append(row.product.external_id)
+        #
+        # added product
+        #
+        full_row.append(row.product.name)
 
         for column in dynamic_cols_name:
             full_row.append(extra_data.get(column, 0))
