@@ -20,12 +20,11 @@ def create_project(can_download_report=True, can_send_report=True):
     )
 
 
-def create_user(can_edit=True):
+def create_user():
     """ Function that creates a user. """
     return User.objects.create_superuser(
         email='test@intelligence.com',
-        password='123intelligence',
-        can_edit=can_edit
+        password='123intelligence'
     )
 
 
