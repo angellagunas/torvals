@@ -91,8 +91,6 @@ class DatasetrowViewSetTests(APITestCase):
                 ceve.id
             )
 
-        print(project, dataset_uno, dataset_dos)
-
         response = self.client.get(endpoint_url, format='json')
         self.assertEqual(len(response.data['results']), 1000)
 
@@ -110,7 +108,6 @@ class DatasetrowViewSetTests(APITestCase):
         user.save()
         ceve = create_sales_center()
         user.sale_center.add(ceve)
-        print(project.report_columns)
 
         dataset = create_datasets()
         product = create_product()
@@ -155,7 +152,6 @@ class DatasetrowViewSetTests(APITestCase):
         user.save()
         ceve = create_sales_center()
         user.sale_center.add(ceve)
-        print(project.report_columns)
 
         dataset = create_datasets()
         product = create_product()
@@ -179,7 +175,6 @@ class DatasetrowViewSetTests(APITestCase):
         user.save()
         ceve = create_sales_center()
         user.sale_center.add(ceve)
-        print(project.report_columns)
 
         dataset = create_datasets()
         product = create_product()
@@ -203,7 +198,7 @@ class DatasetrowViewSetTests(APITestCase):
         user.save()
         ceve = create_sales_center()
         user.sale_center.add(ceve)
-        print(project.report_columns)
+        print(project.can_send_report)
 
         dataset = create_datasets()
         product = create_product()
@@ -227,7 +222,6 @@ class DatasetrowViewSetTests(APITestCase):
         user.save()
         ceve = create_sales_center()
         user.sale_center.add(ceve)
-        print(project.report_columns)
 
         dataset = create_datasets()
         product = create_product()
