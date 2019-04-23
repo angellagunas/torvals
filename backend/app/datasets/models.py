@@ -69,7 +69,7 @@ class Dataset(CatalogueMixin):
 
         filters['dataset_id'] = self.id
         rows = DatasetRow.objects.filter(**filters)
-        print(headers)
+
         for row in rows:
             row = writer.writerow(
                 self._get_row_values_from_headers(
