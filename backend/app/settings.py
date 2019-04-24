@@ -237,6 +237,19 @@ SENDGRID_SANDBOX_MODE_IN_DEBUG = False
 AWS_ACCESS_ID = os.environ.get("AWS_ACCESS_ID", "")
 AWS_ACCESS_KEY = os.environ.get("AWS_ACCESS_KEY", "")
 
+
+#
+# Slack Token
+#
+SLACKBOT_TOKEN = os.environ.get("SLACKBOT_TOKEN", "")
+
+
+#
+# Torvals slack channel for notifications
+#
+NOTIFICATIONS_CHANNEL = "#int-dev-notifications"
+
+
 if DEBUG:
     INSTALLED_APPS += DEBUG_APPS
     MIDDLEWARE += [
