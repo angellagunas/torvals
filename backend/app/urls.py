@@ -20,5 +20,6 @@ from soft_drf.routing.v1 import urls as api_urls
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^api/v1/', include((api_urls, 'soft_drf'), namespace='v1'))
+    url(r'^api/v1/', include((api_urls, 'soft_drf'), namespace='v1')),
+    url(r'^select2/', include('django_select2.urls')),
 ]

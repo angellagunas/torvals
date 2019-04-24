@@ -52,7 +52,9 @@ INSTALLED_APPS = [
     'django.contrib.postgres',
     'rest_framework',
     'soft_drf',
-    'corsheaders'
+    'corsheaders',
+    'django_json_widget',
+    'django_select2'
 ]
 
 LOCAL_APPS = [
