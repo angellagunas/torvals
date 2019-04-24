@@ -55,6 +55,7 @@ class User(AbstractBaseUser, PermissionsMixin, TimeStampedMixin):
         permissions = (
             ("can_adjust_sales", "Can adjust sales"),
             ("can_adjust_last_order", "Can adjust last order"),
+            ("can_add_order", "Can add order")
         )
 
     email = models.EmailField(
@@ -81,10 +82,6 @@ class User(AbstractBaseUser, PermissionsMixin, TimeStampedMixin):
         default=True
     )
 
-    can_edit = models.BooleanField(
-        default=True
-    )
-
     sale_center = models.ManyToManyField(
         SaleCenter
     )
@@ -99,7 +96,8 @@ class User(AbstractBaseUser, PermissionsMixin, TimeStampedMixin):
             max_length=200
         ),
         blank=True,
-        null=True
+        null=True,
+        default=list
     )
 
     USERNAME_FIELD = 'email'
