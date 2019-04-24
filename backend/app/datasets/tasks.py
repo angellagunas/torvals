@@ -7,7 +7,7 @@ from celery import shared_task
 def set_schedulled_main_dataset(dataset_id, is_main=True):
     """ Task that set a dataset as main in periodic intervals. """
     message = (
-        'Torvals notifications: The dataset, with id: {0}, was set as main.'
+        'The dataset, with id: {0}, was set as main.'
     ).format(
         dataset_id
     )
