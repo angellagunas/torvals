@@ -33,7 +33,7 @@ class ProjectAdmin(admin.ModelAdmin):
         """Load external assets."""
 
         js = (
-            'http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js',
+            'https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js',
         )
 
 
