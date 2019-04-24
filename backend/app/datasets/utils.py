@@ -126,3 +126,22 @@ def load_dataset(obj, _file=None, dataset_id=None):
             )
         except Exception as e:
             raise e
+
+        #
+        # Add to every user permission to send email
+        #
+        if project.can_send_report:
+            try:
+                p = Permission.objects.get(codename="can_send_email")
+                user_list = User.objects.filter(project=project)
+                for user in user_list:
+                    user.user_permissions.add(p)
+            except Exception as e:
+                raise e
+
+
+def user_has_permission(user, permission):
+    for perm in user.user_permissions.all():
+        if perm.codename == permission:
+            return True
+    return False
