@@ -9,7 +9,7 @@ def send_slack_notifications(message):
     slack = Slacker(SLACKBOT_TOKEN)
     channel = NOTIFICATIONS_CHANNEL
     message = (
-        'Torvals notifications: {0}'
+        '*:bellhop_bell:  Torvals notifications:*\n>{0}'
     ).format(
         message
     )
