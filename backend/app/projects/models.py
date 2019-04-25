@@ -24,7 +24,7 @@ class Project(CatalogueMixin):
         help_text="Define si se puede ajustar la prediccion en el proyecto."
     )
 
-    can_dowload_report = models.BooleanField(
+    can_download_report = models.BooleanField(
         default=True,
         help_text="Define si el usuario final puede descargar el reporte."
     )
@@ -66,7 +66,8 @@ class Project(CatalogueMixin):
             max_length=200
         ),
         null=True,
-        blank=True
+        blank=True,
+        default=list
     )
 
     #
@@ -84,6 +85,16 @@ class Project(CatalogueMixin):
         verbose_name='AWS BUCKET FOLDER',
         blank=True,
         null=True
+    )
+
+    #
+    # define columns to download in report
+    #
+    report_columns = ArrayField(
+        models.CharField(max_length=200),
+        blank=True,
+        null=True,
+        default=list
     )
 
     def __str__(self):

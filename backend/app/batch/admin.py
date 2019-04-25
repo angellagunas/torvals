@@ -99,6 +99,8 @@ class BatchAdmin(admin.ModelAdmin):
                 pallet = 0 if math.isnan(pallet) else pallet
                 data['pallet'] = pallet
 
+                data['type'] = row.get('type', 'A')
+
             config['model'].objects.create(**data)
 
 

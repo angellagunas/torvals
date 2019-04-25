@@ -28,6 +28,9 @@ DEBUG = int(os.environ['DEBUG']) == 1 if os.environ.get(
 ALLOWED_HOSTS = [
     'localhost',
     'torvals.abraxasintelligence.com',
+    'torvals.orax.io',
+    'staging.torvals.orax.io',
+    'staging.torvals.abraxasintelligence.com',
     'bec.orax.io',
     'staging.bec.orax.io',
     'ecu.orax.io'
@@ -233,6 +236,19 @@ SENDGRID_SANDBOX_MODE_IN_DEBUG = False
 #
 AWS_ACCESS_ID = os.environ.get("AWS_ACCESS_ID", "")
 AWS_ACCESS_KEY = os.environ.get("AWS_ACCESS_KEY", "")
+
+
+#
+# Slack Token
+#
+SLACKBOT_TOKEN = os.environ.get("SLACKBOT_TOKEN", "")
+
+
+#
+# Torvals slack channel for notifications
+#
+NOTIFICATIONS_CHANNEL = "#int-dev-notifications"
+
 
 if DEBUG:
     INSTALLED_APPS += DEBUG_APPS

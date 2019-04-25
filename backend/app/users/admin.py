@@ -1,9 +1,9 @@
 """Admin for users module."""
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.models import Group, Permission
 
 from app.users.models import User
-from django.contrib.auth.models import Group, Permission
 
 
 class CustomUserAdmin(UserAdmin):
@@ -27,7 +27,6 @@ class CustomUserAdmin(UserAdmin):
             'is_active',
             'is_staff',
             'is_superuser',
-            'can_edit',
             'groups', 'user_permissions')
         }),
     )
@@ -42,7 +41,6 @@ class CustomUserAdmin(UserAdmin):
             'is_active',
             'is_staff',
             'is_superuser',
-            'can_edit',
             'groups', 'user_permissions')
         }),
     )

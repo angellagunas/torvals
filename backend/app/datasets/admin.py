@@ -1,18 +1,10 @@
 """Admin for dataset module."""
-import math
-
-from datetime import datetime
-
 from django import forms
 from django.contrib import admin
 from django.http import HttpResponse
 
-import pandas as pd
-
 from app.datasets.models import Dataset, DatasetRow
 from app.datasets.utils import load_dataset
-from app.products.models import Product
-from app.sales_centers.models import SaleCenter
 
 
 class DatasetForm(forms.ModelForm):

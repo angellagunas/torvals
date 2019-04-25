@@ -46,4 +46,3 @@ Desde el Admin:
 3- En Datasets, añadir el dataset
 
 4- Asignar al usuario el o los centros de ventas
-

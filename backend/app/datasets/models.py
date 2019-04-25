@@ -8,17 +8,14 @@ from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.utils.text import slugify
 
-import pandas as pd
-
 from app.datasets.utils import load_dataset
 from app.products.models import Product
 from app.projects.models import Project
 from app.sales_centers.models import SaleCenter
-from app.settings import MEDIA_ROOT
+from app.settings import AWS_ACCESS_ID, AWS_ACCESS_KEY, MEDIA_ROOT
 from app.users.models import UserManager
 from app.utils import get_csv_columns
 from app.utils.models import CatalogueMixin, TimeStampedMixin
-from app.settings import AWS_ACCESS_ID, AWS_ACCESS_KEY, MEDIA_ROOT
 
 
 class Dataset(CatalogueMixin):
@@ -56,9 +53,13 @@ class Dataset(CatalogueMixin):
 
     def to_web_csv(self, response, filters={}):
         """Export rows to csv."""
-        extra_columns = self.project.dynamic_columns_name
+        report_columns = self.project.report_columns
+        static_columns = self.project.get_map_columns_name() + ['product']
 
-        headers = self.project.get_map_columns_name() + extra_columns
+        if not report_columns:
+            report_columns = []
+
+        headers = static_columns + report_columns
 
         writer = csv.writer(response)
         writer.writerow(headers)
@@ -71,7 +72,7 @@ class Dataset(CatalogueMixin):
                 self._get_row_values_from_headers(
                     row,
                     self.project.get_columns_name(),
-                    extra_columns
+                    report_columns
                 )
             )
 
@@ -100,6 +101,10 @@ class Dataset(CatalogueMixin):
         full_row.append(row.date)
         full_row.append(row.sale_center.external_id)
         full_row.append(row.product.external_id)
+        #
+        # added product
+        #
+        full_row.append(row.product.name)
 
         for column in dynamic_cols_name:
             full_row.append(extra_data.get(column, 0))
@@ -158,6 +163,11 @@ class DatasetRow(TimeStampedMixin):
     # transit, in_stock, safety_stock, prediction, adjustment, bed, pallet
     #
     extra_columns = JSONField(null=True, blank=True)
+
+    is_extraordinary = models.BooleanField(
+        default=False,
+        verbose_name='is extraordinary'
+    )
 
     def __str__(self):
         """Return the representation in String of this model."""
