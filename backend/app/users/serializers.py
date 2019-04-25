@@ -3,6 +3,7 @@ from django.contrib.auth.models import Group, Permission
 
 
 from rest_framework import serializers
+from rest_framework.exceptions import AuthenticationFailed
 
 from app.projects.serializers import ProjectSerializer
 from app.sales_centers.serializers import SaleCenterSerializer
@@ -73,15 +74,13 @@ class AuthSerializer(serializers.Serializer):
             )
 
         if not user.project:
-            raise serializers.ValidationError(
-                'The user does not have any project assigned.',
-                code=401
+            raise AuthenticationFailed(
+                'The user does not have any project assigned.'
             )
 
         if not user.sale_center.count():
-            raise serializers.ValidationError(
-                'The user does not have any sales center assigned.',
-                code=401
+            raise AuthenticationFailed(
+                'The user does not have any sales center assigned.'
             )
 
         return data

@@ -2,10 +2,10 @@ import math
 
 from datetime import datetime
 
+import pandas as pd
+
 from app.products.models import Product
 from app.sales_centers.models import SaleCenter
-
-import pandas as pd
 
 
 def get_or_create(key, row, dict_data, model, project):

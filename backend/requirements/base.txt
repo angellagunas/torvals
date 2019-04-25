@@ -4,6 +4,7 @@ django-debug-toolbar==1.6
 django-cors-headers==2.1.0
 django-filter==2.0.0
 django-sendgrid-v5==0.7.1
+django-slack==5.13.0
 djangorestframework==3.6.4
 djangorestframework-camel-case==0.2.0
 djangorestframework-jwt==1.11.0
