@@ -54,7 +54,8 @@ INSTALLED_APPS = [
     'soft_drf',
     'corsheaders',
     'django_json_widget',
-    'django_select2'
+    'django_select2',
+    'django_celery_beat'
 ]
 
 LOCAL_APPS = [
