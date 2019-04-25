@@ -3,11 +3,8 @@ from django import forms
 from django.contrib import admin
 from django.http import HttpResponse
 
-<<<<<<< HEAD
-=======
 from django_json_widget.widgets import JSONEditorWidget
 
->>>>>>> b3210bd8fe2025bdefc8e39deec58c797eae6473
 from app.datasets.models import Dataset, DatasetRow
 from app.datasets.utils import load_dataset
 
