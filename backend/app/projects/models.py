@@ -1,6 +1,5 @@
 """Define the project structure in DB."""
 from django.contrib.postgres.fields import ArrayField
-from django.contrib.postgres.fields import JSONField
 from django.db import models
 
 from app.utils.models import CatalogueMixin
