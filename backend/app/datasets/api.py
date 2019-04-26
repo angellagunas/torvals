@@ -1,29 +1,32 @@
 """API for datasetrows."""
 from io import StringIO
 
-import botocore
 import boto3
 
-from django.core.mail import EmailMessage
+import botocore
+
 from django.core.files import File
+from django.core.mail import EmailMessage
 from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 
 from rest_framework import status
 from rest_framework.decorators import detail_route, list_route
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from soft_drf.api import mixins
 from soft_drf.api.viewsets import GenericViewSet
 from soft_drf.routing.v1.routers import router
 
-from app.settings import AWS_ACCESS_ID, AWS_ACCESS_KEY, MEDIA_ROOT
 from app.datasets import serializers
 from app.datasets.models import Dataset, DatasetRow
-from app.datasets.utils import load_dataset
 from app.datasets.permissions import AddRowPermission
+from app.datasets.utils import load_dataset
 from app.projects.models import Project
+from app.settings import AWS_ACCESS_ID, AWS_ACCESS_KEY, MEDIA_ROOT
+from app.utils.tasks import send_slack_notifications
 
 
 class DatasetViewSet(
@@ -75,6 +78,12 @@ class DatasetViewSet(
         aws_dir = append_serializer.data['aws_dir']
         aws_bucket_name = append_serializer.data['aws_bucket_name']
 
+        message = ('{0}/{1}/{2} was succesfully appended.').format(
+            aws_bucket_name,
+            aws_dir,
+            aws_file_name
+        )
+
         try:
             dataset.append_rows_from_s3(
                 aws_file_name,
@@ -83,8 +92,17 @@ class DatasetViewSet(
             )
         except botocore.exceptions.ClientError as e:
             msg = e.response['Error']['Message']
+            message = (
+                'An error was encountered, '
+                'trying to append {0}/{1}/{2}'
+            ).format(
+                aws_bucket_name,
+                aws_dir,
+                aws_file_name
+            )
             return Response(msg, status=status.HTTP_400_BAD_REQUEST)
 
+        send_slack_notifications.apply_async((message))
         return Response(status=status.HTTP_200_OK)
 
     @list_route(methods=["POST"])
@@ -111,6 +129,13 @@ class DatasetViewSet(
                 'Project not found',
                 status=status.HTTP_404_NOT_FOUND
             )
+
+        message = (
+            'The dataset given, with name: {0}, '
+            'was succesfully uploaded.'
+        ).format(
+            FILE_NAME
+        )
 
         try:
             s3 = boto3.resource(
@@ -154,8 +179,16 @@ class DatasetViewSet(
 
         except botocore.exceptions.ClientError as e:
             msg = e.response['Error']['Message']
+            message = (
+                'An error was encontered '
+                'trying to upload the dataset to aws service. '
+                'Dataset name: {0}'
+            ).format(
+                FILE_NAME
+            )
             return Response(msg, status=status.HTTP_400_BAD_REQUEST)
 
+        send_slack_notifications.apply_async((message))
         return Response(status=status.HTTP_200_OK)
 
     def get_queryset(self):
@@ -169,7 +202,8 @@ class DatasetrowViewSet(
         mixins.CreateModelMixin,
         GenericViewSet):
     """Manage datasetrows endpoints."""
-    permission_classes = [AddRowPermission]
+
+    permission_classes = [AddRowPermission, IsAuthenticated]
     serializer_class = serializers.DatasetrowSerializer
     list_serializer_class = serializers.DatasetrowSerializer
     retrieve_serializer_class = serializers.DatasetrowUpdateSerializer
