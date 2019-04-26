@@ -226,10 +226,10 @@ class DatasetrowViewSet(
             sale_center__in=sales_centers,
             dataset=dataset
         )
-
+        print(query_params)
         if query_params:
             queryset = queryset.order_by(OrderBy(
-                RawSQL("cast(extra_columns->>%s as integer)", (query_params,)),
+                RawSQL("cast(extra_columns->>%s as float)", (query_params,)),
                 descending=True)
             )
         return queryset
