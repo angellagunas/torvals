@@ -13,7 +13,7 @@ class CustomUserAdmin(UserAdmin):
 
     ordering = ['email']
     filter_vertical = ['sale_center']
-    list_display = ['email', 'name', 'is_active']
+    list_display = ['email', 'name', 'is_active', 'project']
     exclude = ['first_name', 'last_name', 'username', 'date_joined']
 
     list_filter = ['is_staff', 'is_superuser', 'is_active', 'groups']
