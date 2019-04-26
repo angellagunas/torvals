@@ -1,12 +1,12 @@
-import csv
-import os
+from bson.objectid import ObjectId
+
 import pandas as pd
 
-from bson.objectid import ObjectId
 
 def _id(data):
     """convert string to mongo ObjectId"""
     return ObjectId(data)
+
 
 def get_csv_columns(path):
     """Return the column headers of given csv."""

@@ -119,7 +119,7 @@ class LoginTests(APITestCase):
             'password': '123intelligence'
         }
         response = self.client.post(endpoint_url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_login_user_without_assigned_sales_centers(self):
         """ Test login user with unassigned sales_centers """
@@ -134,4 +134,4 @@ class LoginTests(APITestCase):
             'password': '123intelligence'
         }
         response = self.client.post(endpoint_url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
