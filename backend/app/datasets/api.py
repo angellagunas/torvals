@@ -78,8 +78,7 @@ class DatasetViewSet(
         aws_dir = append_serializer.data['aws_dir']
         aws_bucket_name = append_serializer.data['aws_bucket_name']
 
-        message = ('{0}/{1}/{2} was succesfully appended.
-                   ).format(
+        message = ('{0}/{1}/{2} was succesfully appended.').format(
             aws_bucket_name,
             aws_dir,
             aws_file_name
@@ -203,6 +202,7 @@ class DatasetrowViewSet(
         mixins.CreateModelMixin,
         GenericViewSet):
     """Manage datasetrows endpoints."""
+
     permission_classes = [AddRowPermission, IsAuthenticated]
     serializer_class = serializers.DatasetrowSerializer
     list_serializer_class = serializers.DatasetrowSerializer
