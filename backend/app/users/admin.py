@@ -2,8 +2,10 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Group, Permission
+from django.contrib.postgres.fields import ArrayField
 
 from app.users.models import User
+from app.utils.widgets import Select2TagWidgetArray
 
 
 class CustomUserAdmin(UserAdmin):
@@ -44,6 +46,19 @@ class CustomUserAdmin(UserAdmin):
             'groups', 'user_permissions')
         }),
     )
+
+    formfield_overrides = {
+        ArrayField: {
+            'widget': Select2TagWidgetArray
+        },
+    }
+
+    class Media:
+        """Load external assets."""
+
+        js = (
+            'http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js',
+        )
 
 
 admin.site.register(User, CustomUserAdmin)

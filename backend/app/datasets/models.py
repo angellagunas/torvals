@@ -169,6 +169,11 @@ class DatasetRow(TimeStampedMixin):
         verbose_name='is extraordinary'
     )
 
+    @property
+    def project_name(self):
+        """Project which row belongs to."""
+        return self.dataset.project.name
+
     def __str__(self):
         """Return the representation in String of this model."""
         return self.product.name
