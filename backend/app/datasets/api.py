@@ -7,7 +7,6 @@ import botocore
 
 from django.core.files import File
 from django.core.mail import EmailMessage
-from django.contrib.postgres.fields.jsonb import KeyTextTransform
 from django.db.models import Q
 from django.db.models.expressions import RawSQL, OrderBy
 from django.http import HttpResponse
