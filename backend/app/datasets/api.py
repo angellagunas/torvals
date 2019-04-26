@@ -7,7 +7,6 @@ import botocore
 
 from django.core.files import File
 from django.core.mail import EmailMessage
-from django.db.models import Q
 from django.db.models.expressions import RawSQL, OrderBy
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -103,7 +102,7 @@ class DatasetViewSet(
             )
             return Response(msg, status=status.HTTP_400_BAD_REQUEST)
 
-        send_slack_notifications.apply_async((message))
+        send_slack_notifications.apply_async((message,))
         return Response(status=status.HTTP_200_OK)
 
     @list_route(methods=["POST"])
@@ -189,7 +188,7 @@ class DatasetViewSet(
             )
             return Response(msg, status=status.HTTP_400_BAD_REQUEST)
 
-        send_slack_notifications.apply_async((message))
+        send_slack_notifications.apply_async((message,))
         return Response(status=status.HTTP_200_OK)
 
     def get_queryset(self):
