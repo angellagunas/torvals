@@ -93,10 +93,10 @@ class DatasetRowsAdmin(admin.ModelAdmin):
         'sale_center',
         'date',
         'dataset',
-        'extra_columns'
+        'project_name'
     ]
-    search_fields = ['dataset']
-    list_filter = ['dataset', 'sale_center']
+    search_fields = ['dataset__name', 'dataset__id', 'dataset__project__name']
+    list_filter = ['dataset']
 
     def get_queryset(self, request):
         """Overwrite queryset."""
