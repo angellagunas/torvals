@@ -7,7 +7,9 @@ import botocore
 
 from django.core.files import File
 from django.core.mail import EmailMessage
+from django.contrib.postgres.fields.jsonb import KeyTextTransform
 from django.db.models import Q
+from django.db.models.expressions import RawSQL, OrderBy
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 
@@ -213,7 +215,7 @@ class DatasetrowViewSet(
     def get_queryset(self):
         """Return the universe of objects in API."""
         sales_centers = self.request.user.sale_center.all()
-        query_params = self.request.GET.get('q', None)
+        query_params = self.request.GET.get('sortBy', None)
 
         dataset = Dataset.objects.get(
             is_main=True,
@@ -227,11 +229,11 @@ class DatasetrowViewSet(
         )
 
         if query_params:
-            queryset = queryset.filter(
-                Q(product__name__icontains=query_params) |
-                Q(product__external_id__icontains=query_params)
+            queryset = queryset.order_by(OrderBy(
+                RawSQL("cast(extra_columns->>%s as integer)", (query_params,)),
+                descending=True)
             )
-        return queryset.order_by('-product__name')
+        return queryset
 
     def partial_update(self, request, *args, **kwargs):
         """Overwrite method to save datasetrow."""
