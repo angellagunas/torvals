@@ -230,7 +230,7 @@ AUTH_USER_MODEL = 'users.User'
 # EMAIL CONFIGS
 #
 EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
-SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY", None)
+SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY", "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")
 SENDGRID_SANDBOX_MODE_IN_DEBUG = False
 
 #
