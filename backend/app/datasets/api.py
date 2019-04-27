@@ -249,68 +249,71 @@ class DatasetrowViewSet(
     @list_route(methods=["GET"])
     def send(self, request, *args, **kwargs):
         """Send the adjustment report of user in session."""
-        csv_file = StringIO()
-        send_slack_notifications.apply_async(("Send Email 1...",))
-        project = self.request.user.project
-        dataset = Dataset.objects.get(
-            is_main=True,
-            project=project
-        )
-        send_slack_notifications.apply_async(("Send Email 2...",))
+        try:
+            csv_file = StringIO()
+            send_slack_notifications.apply_async(("Send Email 1...",))
+            project = self.request.user.project
+            dataset = Dataset.objects.get(
+                is_main=True,
+                project=project
+            )
+            send_slack_notifications.apply_async(("Send Email 2...",))
 
-        sales_centers = self.request.user.sale_center.all()
-        send_slack_notifications.apply_async(("Send Email 3...",))
-        date_adjustment_label = dataset.date_adjustment
-        send_slack_notifications.apply_async(("Send Email 4...",))
-        str_date = date_adjustment_label.strftime('%d/%m/%Y')
-        str_date = str_date.replace('/', '_de_', 1)
-        str_date = str_date.replace('/', '_del_')
-        send_slack_notifications.apply_async(("Send Email 5...",))
+            sales_centers = self.request.user.sale_center.all()
+            send_slack_notifications.apply_async(("Send Email 3...",))
+            date_adjustment_label = dataset.date_adjustment
+            send_slack_notifications.apply_async(("Send Email 4...",))
+            str_date = date_adjustment_label.strftime('%d/%m/%Y')
+            str_date = str_date.replace('/', '_de_', 1)
+            str_date = str_date.replace('/', '_del_')
+            send_slack_notifications.apply_async(("Send Email 5...",))
 
-        dataset.to_web_csv(csv_file, filters={
-            'sale_center__in': sales_centers,
-            'is_active': True
-        })
-        send_slack_notifications.apply_async(("Send Email 6...",))
+            dataset.to_web_csv(csv_file, filters={
+                'sale_center__in': sales_centers,
+                'is_active': True
+            })
+            send_slack_notifications.apply_async(("Send Email 6...",))
 
-        receivers = set(
-            self.request.user.admin_emails + [self.request.user.email]
-        )
-        send_slack_notifications.apply_async(("Send Email 7...",))
+            receivers = set(
+                self.request.user.admin_emails + [self.request.user.email]
+            )
+            send_slack_notifications.apply_async(("Send Email 7...",))
 
-        ceves_id = '_'.join([sc.external_id for sc in sales_centers])
-        send_slack_notifications.apply_async(("Send Email 8...",))
-        ceves_name = '_'.join([sc.name for sc in sales_centers])
-        send_slack_notifications.apply_async(("Send Email 9...",))
-        subject = "Pedido sugerido - {0} - {1}".format(
-            ceves_name,
-            ceves_id
-        )
-        send_slack_notifications.apply_async(("Send Email 10...",))
-        msg = EmailMessage(
-            subject,
-            subject,
-            'contact@abraxasintelligence.com',
-            receivers
-        )
-        send_slack_notifications.apply_async(("Send Email 11...",))
+            ceves_id = '_'.join([sc.external_id for sc in sales_centers])
+            send_slack_notifications.apply_async(("Send Email 8...",))
+            ceves_name = '_'.join([sc.name for sc in sales_centers])
+            send_slack_notifications.apply_async(("Send Email 9...",))
+            subject = "Pedido sugerido - {0} - {1}".format(
+                ceves_name,
+                ceves_id
+            )
+            send_slack_notifications.apply_async(("Send Email 10...",))
+            msg = EmailMessage(
+                subject,
+                subject,
+                'contact@abraxasintelligence.com',
+                receivers
+            )
+            send_slack_notifications.apply_async(("Send Email 11...",))
 
-        file_name = 'adjustment_report_ceve_{0}_{1}.csv'.format(
-            ceves_id,
-            str_date
-        )
-        send_slack_notifications.apply_async(("Send Email 12...",))
+            file_name = 'adjustment_report_ceve_{0}_{1}.csv'.format(
+                ceves_id,
+                str_date
+            )
+            send_slack_notifications.apply_async(("Send Email 12...",))
 
-        msg.content_subtype = "html"
-        send_slack_notifications.apply_async(("Send Email 13...",))
-        msg.attach(
-            file_name,
-            csv_file.getvalue(),
-            'text/csv'
-        )
-        send_slack_notifications.apply_async(("Email Sent...",))
-        msg.send()
-        send_slack_notifications.apply_async(("Send Email 14...",))
+            msg.content_subtype = "html"
+            send_slack_notifications.apply_async(("Send Email 13...",))
+            msg.attach(
+                file_name,
+                csv_file.getvalue(),
+                'text/csv'
+            )
+            send_slack_notifications.apply_async(("Email Sent...",))
+            msg.send()
+            send_slack_notifications.apply_async(("Send Email 14...",))
+        except Exception as e:
+            send_slack_notifications.apply_async(("Error: {0}".format(e),))
 
         return Response(status=status.HTTP_200_OK)
 
