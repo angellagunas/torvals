@@ -67,7 +67,8 @@ class DatasetAdmin(admin.ModelAdmin):
         # Execute the normal flow of admin save.
         #
         super(DatasetAdmin, self).save_model(request, obj, form, change)
-        #load_dataset(obj)
+        if not change:
+            load_dataset(obj)
 
 
 class DatasetRowsForm(forms.ModelForm):
