@@ -15,7 +15,7 @@ RUN rm /etc/nginx/sites-enabled/default
 COPY ./config/supervisord.conf /etc/supervisor/conf.d/app.conf
 RUN ln -s /app/config/nginx-python /etc/nginx/sites-enabled/default
 
-RUN pip install -r requirements/base.txt
+RUN pip install -r requirements/production.txt
 RUN python /app/manage.py collectstatic
 
 EXPOSE 8000
