@@ -53,21 +53,21 @@ class DatasetAdmin(admin.ModelAdmin):
         # Set property is_main to all datasets. The new dataset should be only
         # one with this property as True.
         #
-        Dataset.objects.filter(
-            is_main=True,
-            project=obj.project
-        ).update(is_main=False)
+        #Dataset.objects.filter(
+        #    is_main=True,
+        #    project=obj.project
+        #).update(is_main=False)
 
         #
         # The new dataset always be main dataset.
         #
-        obj.is_main = True
+        #obj.is_main = True
 
         #
         # Execute the normal flow of admin save.
         #
         super(DatasetAdmin, self).save_model(request, obj, form, change)
-        load_dataset(obj)
+        #load_dataset(obj)
 
 
 class DatasetRowsForm(forms.ModelForm):
