@@ -78,10 +78,12 @@ class DatasetViewSet(
         aws_dir = append_serializer.data['aws_dir']
         aws_bucket_name = append_serializer.data['aws_bucket_name']
 
-        message = ('{0}/{1}/{2} was succesfully appended.').format(
+        message = ('{0}/{1}/{2} was succesfully appended. \n {3} \n {4}').format(
             aws_bucket_name,
             aws_dir,
-            aws_file_name
+            aws_file_name,
+            "dataset id: " + dataset_id,
+            "dataset name: " + dataset.name
         )
 
         try:
@@ -94,11 +96,13 @@ class DatasetViewSet(
             msg = e.response['Error']['Message']
             message = (
                 'An error was encountered, '
-                'trying to append {0}/{1}/{2}'
+                'trying to append {0}/{1}/{2}. \n {3}{4}'
             ).format(
                 aws_bucket_name,
                 aws_dir,
-                aws_file_name
+                aws_file_name,
+                "dataset id: " + dataset_id,
+                "dataset name: " + dataset.name
             )
             return Response(msg, status=status.HTTP_400_BAD_REQUEST)
 
@@ -251,67 +255,58 @@ class DatasetrowViewSet(
         """Send the adjustment report of user in session."""
         try:
             csv_file = StringIO()
-            send_slack_notifications.apply_async(("Send Email 1...",))
             project = self.request.user.project
             dataset = Dataset.objects.get(
                 is_main=True,
                 project=project
             )
-            send_slack_notifications.apply_async(("Send Email 2...",))
 
             sales_centers = self.request.user.sale_center.all()
-            send_slack_notifications.apply_async(("Send Email 3...",))
+
             date_adjustment_label = dataset.date_adjustment
-            send_slack_notifications.apply_async(("Send Email 4...",))
             str_date = date_adjustment_label.strftime('%d/%m/%Y')
             str_date = str_date.replace('/', '_de_', 1)
             str_date = str_date.replace('/', '_del_')
-            send_slack_notifications.apply_async(("Send Email 5...",))
 
             dataset.to_web_csv(csv_file, filters={
                 'sale_center__in': sales_centers,
                 'is_active': True
             })
-            send_slack_notifications.apply_async(("Send Email 6...",))
 
             receivers = set(
                 self.request.user.admin_emails + [self.request.user.email]
             )
-            send_slack_notifications.apply_async(("Send Email 7...",))
 
             ceves_id = '_'.join([sc.external_id for sc in sales_centers])
-            send_slack_notifications.apply_async(("Send Email 8...",))
             ceves_name = '_'.join([sc.name for sc in sales_centers])
-            send_slack_notifications.apply_async(("Send Email 9...",))
+
             subject = "Pedido sugerido - {0} - {1}".format(
                 ceves_name,
                 ceves_id
             )
-            send_slack_notifications.apply_async(("Send Email 10...",))
+
             msg = EmailMessage(
                 subject,
                 subject,
                 'contact@abraxasintelligence.com',
                 receivers
             )
-            send_slack_notifications.apply_async(("Send Email 11...",))
 
             file_name = 'adjustment_report_ceve_{0}_{1}.csv'.format(
                 ceves_id,
                 str_date
             )
-            send_slack_notifications.apply_async(("Send Email 12...",))
-
             msg.content_subtype = "html"
-            send_slack_notifications.apply_async(("Send Email 13...",))
             msg.attach(
                 file_name,
                 csv_file.getvalue(),
                 'text/csv'
             )
-            send_slack_notifications.apply_async(("Email Sent...",))
             msg.send()
-            send_slack_notifications.apply_async(("Send Email 14...",))
+            send_slack_notifications.apply_async(("Email Sent: \n from: {0} \n to: {1}".format(
+                self.request.user,
+                self.request.user.admin_emails),
+            ))
         except Exception as e:
             send_slack_notifications.apply_async(("Error: {0}".format(e),))
 
