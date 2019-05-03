@@ -268,10 +268,12 @@ class DatasetrowViewSet(
             str_date = str_date.replace('/', '_de_', 1)
             str_date = str_date.replace('/', '_del_')
 
-            dataset.to_web_csv(csv_file, filters={
+            query_params = list(self.request.GET.values())
+            filters = {
                 'sale_center__in': sales_centers,
                 'is_active': True
-            })
+            }
+            dataset.to_web_csv(csv_file, filters, query_params)
 
             receivers = set(
                 self.request.user.admin_emails + [self.request.user.email]
@@ -308,7 +310,13 @@ class DatasetrowViewSet(
                 self.request.user.admin_emails),
             ))
         except Exception as e:
-            send_slack_notifications.apply_async(("Error: {0}".format(e),))
+            send_slack_notifications.apply_async(
+                ("Error: {0} \n trying to send an email \n from: {1} \n to: {2}".format(
+                    e,
+                    self.request.user,
+                    self.request.user.admin_emails),
+                 )
+            )
 
         return Response(status=status.HTTP_200_OK)
 
@@ -327,10 +335,13 @@ class DatasetrowViewSet(
 
         sales_centers = self.request.user.sale_center.all()
 
-        dataset.to_web_csv(response, filters={
+        query_params = list(self.request.GET.values())
+
+        filters = {
             'sale_center__in': sales_centers,
             'is_active': True
-        })
+        }
+        dataset.to_web_csv(response, filters, query_params)
 
         return response
 
