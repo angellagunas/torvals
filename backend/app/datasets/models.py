@@ -51,13 +51,16 @@ class Dataset(CatalogueMixin):
 
     objects = UserManager()
 
-    def to_web_csv(self, response, filters={}):
+    def to_web_csv(self, response, filters={}, fields=[]):
         """Export rows to csv."""
         report_columns = self.project.report_columns
         static_columns = self.project.get_map_columns_name() + ['product']
 
-        if not report_columns:
-            report_columns = []
+        if len(fields) > 0:
+            report_columns = fields
+        else:
+            if not report_columns:
+                report_columns = []
 
         headers = static_columns + report_columns
 
