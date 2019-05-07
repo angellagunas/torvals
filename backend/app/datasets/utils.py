@@ -1,11 +1,13 @@
 import math
 
 from datetime import datetime
+from django.contrib.auth.models import Permission
 
 import pandas as pd
 
 from app.products.models import Product
 from app.sales_centers.models import SaleCenter
+from app.users.models import User
 
 
 def get_or_create(key, row, dict_data, model, project):
@@ -126,3 +128,22 @@ def load_dataset(obj, _file=None, dataset_id=None):
             )
         except Exception as e:
             raise e
+
+        #
+        # Add to every user permission to send email
+        #
+        if project.can_send_report:
+            try:
+                p = Permission.objects.get(codename="can_send_email")
+                user_list = User.objects.filter(project=project)
+                for user in user_list:
+                    user.user_permissions.add(p)
+            except Exception as e:
+                raise e
+
+
+def user_has_permission(user, permission):
+    for perm in user.user_permissions.all():
+        if perm.codename == permission:
+            return True
+    return False

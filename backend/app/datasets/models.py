@@ -60,7 +60,7 @@ class Dataset(CatalogueMixin):
             report_columns = fields
         else:
             if not report_columns:
-                report_columns = []
+                report_columns = self.project.dynamic_columns_name
 
         headers = static_columns + report_columns
 

@@ -5,6 +5,7 @@ import boto3
 
 import botocore
 
+from django.contrib.auth.models import Permission
 from django.core.files import File
 from django.core.mail import EmailMessage
 from django.db.models.expressions import RawSQL, OrderBy
@@ -305,6 +306,11 @@ class DatasetrowViewSet(
                 'text/csv'
             )
             msg.send()
+            user = self.request.user
+            p = Permission.objects.get(codename="can_send_email")
+            user.user_permissions.remove(p)
+
+            user.save()
             send_slack_notifications.apply_async(("Email Sent: \n from: {0} \n to: {1}".format(
                 self.request.user,
                 self.request.user.admin_emails),
