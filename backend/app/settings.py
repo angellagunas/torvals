@@ -59,6 +59,7 @@ INSTALLED_APPS = [
 
 LOCAL_APPS = [
     'app.utils',
+    'app.utils.plugins',
     'app.batch',
     'app.datasets',
     'app.products',
