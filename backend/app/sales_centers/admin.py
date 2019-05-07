@@ -39,7 +39,8 @@ class SaleCenterAdmin(admin.ModelAdmin):
 
         rows = DatasetRow.objects.filter(
             dataset=dataset,
-            sale_center=queryset[0]
+            sale_center=queryset[0],
+            is_active=True
         ).delete()
 
         self.message_user(request, 'Se eliminaron {0} rows'.format(rows))
