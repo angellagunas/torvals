@@ -19,7 +19,7 @@ from app.utils.tasks import send_slack_notifications
 
 class GloboUtils(object):
     """Utitlities specific for elGlobo project."""
-    current_dir = os.path.dirname(os.path.abspath(__file__))
+    current_dir = '/tmp'
 
     def _path(self, relative_path):
         return "{0}/{1}".format(self.current_dir, relative_path)
