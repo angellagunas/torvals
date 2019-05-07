@@ -12,6 +12,7 @@ from datetime import datetime
 
 from app.datasets.models import Dataset
 from app.projects.models import Project
+from app.settings import AWS_ACCESS_ID, AWS_ACCESS_KEY
 from app.utils.s3 import download_file, save_s3_dataframe
 from app.utils.tasks import send_slack_notifications
 
@@ -347,7 +348,11 @@ class GloboUtils(object):
             'proporciones.csv'
         ]
 
-        s3_client = boto3.client('s3')
+        s3_client = boto3.client(
+            's3',
+            aws_access_key_id=AWS_ACCESS_ID,
+            aws_secret_access_key=AWS_ACCESS_KEY
+        )
         response = s3_client.list_objects_v2(
             Bucket='abraxasiq-data',
             Prefix='elglobo/elglobo_results/orax/'
