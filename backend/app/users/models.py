@@ -55,7 +55,8 @@ class User(AbstractBaseUser, PermissionsMixin, TimeStampedMixin):
         permissions = (
             ("can_adjust_sales", "Can adjust sales"),
             ("can_adjust_last_order", "Can adjust last order"),
-            ("can_add_order", "Can add order")
+            ("can_add_order", "Can add order"),
+            ("can_send_email", "Can send email")
         )
 
     email = models.EmailField(
