@@ -9,6 +9,7 @@ ADD . /app
 WORKDIR /app
 
 RUN chmod +x /app/config/start.sh
+RUN chmod -R +x /tmp
 
 RUN rm /etc/nginx/sites-enabled/default
 

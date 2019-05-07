@@ -219,7 +219,7 @@ class GloboUtils(object):
         return(merged)
 
 
-    def buildorders(self, bom, debug=False):
+    def buildorders(self, bom, debug=False, drop_first_week=True):
         """ ------------------------------------------------------------------------
         Takes bom from buildbom() and creates orders by semana_bimbo
         ------------------------------------------------------------------------"""
@@ -236,12 +236,18 @@ class GloboUtils(object):
         cupos = grouped["cantidad_explosionada"].sum().reset_index()
         cupos = cupos.merge(right=cat_cupos, on=['componente_id'])
         pedidos = self._prorate_orders(cupos)
-        if(debug == False):
+        # Generate more variables for debugging possible errors
+        if(debug is False):
             pedidos = pedidos.drop(['cupo', 'exp_tot', 'total_pedido', 'prorateo'],
                                    axis=1)
         # Save to csv
-        semanas = sorted(pedidos.semana_bimbo.unique())
-        sem_string = 's'+'-'.join(semanas)
+        if(drop_first_week is True):
+            target_week = max(pedidos.semana_bimbo.unique())
+            pedidos = pedidos[pedidos.semana_bimbo == target_week]
+            sem_string = 's' + target_week
+        else:
+            semanas = sorted(pedidos.semana_bimbo.unique())
+            sem_string = 's'+'-'.join(semanas)
         # pedidos.to_csv('output/pedidos_' + sem_string + '.csv', index=False)
         return(pedidos)
 
@@ -275,7 +281,9 @@ class GloboUtils(object):
                 input_row = repeated_rows[repeated_rows['fecha'] == fecha_original]
 
                 if not input_row.empty:
+                    suggest_name = str(fecha).replace('pedido', 'sugerido')
                     output_row[fecha] = input_row.iloc[0]['pedido']
+                    output_row[suggest_name] = input_row.iloc[0]['pedido']
 
             df_output = df_output.append(output_row, ignore_index=True)
             df_output.fillna(0, inplace=True)
@@ -290,7 +298,7 @@ class GloboUtils(object):
         #
         # CHANGE THIS DATE
         #
-        df_output['fecha'] = pd.Timestamp('2019-05-07')
+        df_output['fecha'] = pd.Timestamp(datetime.now().strftime("%Y-%m-%d"))
 
         save_s3_dataframe(df_output, bucket_name, path_s3, identifier)
         #
@@ -328,7 +336,7 @@ class GloboUtils(object):
             send_slack_notifications.apply_async((message,))
 
     def run(self):
-        logging.basicConfig(format='%(asctime)-15s %(message)s', level=10)
+        logging.basicConfig(format='%(asctime)-15s %(message)s', level=20)
         logger = logging.getLogger(__name__)
 
         logger.info("Calculating order.")
