@@ -1,11 +1,13 @@
 import math
 
 from datetime import datetime
+from django.contrib.auth.models import Permission
 
 import pandas as pd
 
 from app.products.models import Product
 from app.sales_centers.models import SaleCenter
+from app.users.models import User
 
 
 def get_or_create(key, row, dict_data, model, project):
