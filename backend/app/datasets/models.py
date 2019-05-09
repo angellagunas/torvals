@@ -69,7 +69,7 @@ class Dataset(CatalogueMixin):
 
     objects = UserManager()
 
-    type = models.ForeignKey(DatasetType, null=True)
+    type = models.ForeignKey(DatasetType, null=True, blank=True)
 
     def to_web_csv(self, response, filters={}, fields=[]):
         """Export rows to csv."""
@@ -168,11 +168,15 @@ class DatasetRow(TimeStampedMixin):
     )
 
     product = models.ForeignKey(
-        Product
+        Product,
+        null=True,
+        blank=True
     )
 
     sale_center = models.ForeignKey(
-        SaleCenter
+        SaleCenter,
+        null=True,
+        blank=True
     )
 
     is_active = models.BooleanField(
@@ -197,6 +201,6 @@ class DatasetRow(TimeStampedMixin):
         """Project which row belongs to."""
         return self.dataset.project.name
 
-    def __str__(self):
-        """Return the representation in String of this model."""
-        return self.product.name
+    # def __str__(self):
+    #     """Return the representation in String of this model."""
+    #     return self.product.name

@@ -1,4 +1,6 @@
+import datetime
 import math
+import os
 
 from datetime import datetime
 from django.contrib.auth.models import Permission
@@ -7,7 +9,9 @@ import pandas as pd
 
 from app.products.models import Product
 from app.sales_centers.models import SaleCenter
+from app.settings import MEDIA_ROOT
 from app.users.models import User
+from app.utils import get_csv_columns
 
 
 def get_or_create(key, row, dict_data, model, project):
@@ -140,6 +144,44 @@ def load_dataset(obj, _file=None, dataset_id=None):
                     user.user_permissions.add(p)
             except Exception as e:
                 raise e
+
+
+def load_extra_columns(obj, _file=None, dataset_id=None):
+    from app.datasets.models import Dataset, DatasetRow
+    #
+    # Open the new dataset file.
+    #
+    csv_file = _file if _file else obj.file
+    file = pd.read_csv(csv_file, sep=',', index_col=False)
+
+    #
+    # Get the new dataset.
+    #
+    if dataset_id:
+        dataset = Dataset.objects.get(id=dataset_id)
+    else:
+        dataset = Dataset.objects.order_by('-created_date')[0]
+
+    path = os.path.join(MEDIA_ROOT, csv_file.name)
+
+    extra_columns = get_csv_columns(path)
+    date = datetime.now().strftime("%Y-%m-%d")
+
+    for index, row in file.iterrows():
+
+        dict_extra_columns = get_extra_columns_from_row(
+            row,
+            extra_columns
+        )
+
+        try:
+            DatasetRow.objects.create(
+                dataset_id=dataset.id,
+                date=date,
+                extra_columns=dict_extra_columns
+            )
+        except Exception as e:
+            raise e
 
 
 def user_has_permission(user, permission):

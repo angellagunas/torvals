@@ -12,7 +12,7 @@ from django.db.models.expressions import RawSQL, OrderBy
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 
-from rest_framework import status
+from rest_framework import status, renderers
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -209,34 +209,42 @@ class DatasetrowViewSet(
     """Manage datasetrows endpoints."""
 
     permission_classes = [AddRowPermission, IsAuthenticated]
+    renderer_classes = [renderers.JSONRenderer]
     serializer_class = serializers.DatasetrowSerializer
     list_serializer_class = serializers.DatasetrowSerializer
     retrieve_serializer_class = serializers.DatasetrowUpdateSerializer
     update_serializer_class = serializers.DatasetrowUpdateSerializer
     create_serializer_class = serializers.DatasetRowCreateSerializer
 
+    def create(self, request, *args, **kwargs):
+        print(request.data)
+        return super(DatasetrowViewSet, self).create(request, *args, **kwargs)
+
     def get_queryset(self):
         """Return the universe of objects in API."""
         sales_centers = self.request.user.sale_center.all()
         query_params = self.request.GET.get('sortBy', None)
-        query_type = self.request.GET.get('datasetType')
+        query_type = self.request.GET.get('datasetType', 'pedidos')
 
-        dataset_type = "pedidos"
-
-        if query_type:
-            dataset_type = query_type
+        dataset_type = query_type if query_type else "pedidos"
 
         dataset = Dataset.objects.get(
             is_main=True,
             project=self.request.user.project,
-            type__name=dataset_type
+            type__slug=dataset_type
         )
 
-        queryset = DatasetRow.objects.filter(
-            is_active=True,
-            sale_center__in=sales_centers,
-            dataset=dataset
-        )
+        if query_type == "pedidos":
+            queryset = DatasetRow.objects.filter(
+                is_active=True,
+                sale_center__in=sales_centers,
+                dataset=dataset
+            )
+        else:
+            queryset = DatasetRow.objects.filter(
+                is_active=True,
+                dataset=dataset
+            )
 
         if query_params:
             queryset = queryset.order_by(OrderBy(
