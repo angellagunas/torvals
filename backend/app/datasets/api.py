@@ -22,7 +22,7 @@ from soft_drf.api.viewsets import GenericViewSet
 from soft_drf.routing.v1.routers import router
 
 from app.datasets import serializers
-from app.datasets.models import Dataset, DatasetRow
+from app.datasets.models import Dataset, DatasetRow, DatasetType
 from app.datasets.permissions import AddRowPermission
 from app.datasets.utils import load_dataset
 from app.projects.models import Project
@@ -219,10 +219,17 @@ class DatasetrowViewSet(
         """Return the universe of objects in API."""
         sales_centers = self.request.user.sale_center.all()
         query_params = self.request.GET.get('sortBy', None)
+        query_type = self.request.GET.get('datasetType')
+
+        dataset_type = "pedidos"
+
+        if query_type:
+            dataset_type = query_type
 
         dataset = Dataset.objects.get(
             is_main=True,
-            project=self.request.user.project
+            project=self.request.user.project,
+            type__name=dataset_type
         )
 
         queryset = DatasetRow.objects.filter(
@@ -368,6 +375,21 @@ class DatasetrowViewSet(
         return Response(result)
 
 
+class DatasetTypeViewSet(GenericViewSet,
+                         mixins.ListModelMixin):
+    serializer_class = serializers.DatasetTypeSerializer
+    list_serializer_class = serializers.DatasetTypeSerializer
+
+    def get_queryset(self):
+        project = self.request.user.project
+
+        queryset = DatasetType.objects.filter(
+            project=project
+        )
+
+        return queryset
+
+
 router.register(
     r"datasetrows",
     DatasetrowViewSet,
@@ -378,4 +400,10 @@ router.register(
     r"datasets",
     DatasetViewSet,
     base_name="datasets",
+)
+
+router.register(
+    r"datasettypes",
+    DatasetTypeViewSet,
+    base_name="datasettypes"
 )

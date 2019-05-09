@@ -3,9 +3,10 @@ from django.shortcuts import get_object_or_404
 
 from rest_framework import serializers
 
-from app.datasets.models import Dataset, DatasetRow
+from app.datasets.models import Dataset, DatasetRow, DatasetType
 from app.products.models import Product
 from app.products.serializers import ProductSerializer
+from app.projects.serializers import ProjectSerializer
 from app.sales_centers.models import SaleCenter
 from app.sales_centers.serializers import SaleCenterSerializer
 
@@ -165,3 +166,16 @@ class DatasetRowCreateSerializer(serializers.Serializer):
             is_extraordinary=True
         )
         return datasetRow
+
+
+class DatasetTypeSerializer(serializers.ModelSerializer):
+    project = ProjectSerializer()
+
+    class Meta:
+        model = DatasetType
+        fields = [
+            'id',
+            'name',
+            'slug',
+            'project'
+        ]

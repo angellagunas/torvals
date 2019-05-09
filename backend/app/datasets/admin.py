@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.http import HttpResponse
 
 from django_json_widget.widgets import JSONEditorWidget
-from app.datasets.models import Dataset, DatasetRow
+from app.datasets.models import Dataset, DatasetRow, DatasetType
 from app.datasets.utils import load_dataset
 
 
@@ -53,10 +53,10 @@ class DatasetAdmin(admin.ModelAdmin):
         # Set property is_main to all datasets. The new dataset should be only
         # one with this property as True.
         #
-        #Dataset.objects.filter(
+        # Dataset.objects.filter(
         #    is_main=True,
         #    project=obj.project
-        #).update(is_main=False)
+        # ).update(is_main=False)
 
         #
         # The new dataset always be main dataset.
@@ -110,5 +110,11 @@ class DatasetRowsAdmin(admin.ModelAdmin):
         return qs.filter(dataset__in=ds)
 
 
+class DatasetTypeAdmin(admin.ModelAdmin):
+    model = DatasetType
+    readonly_fields = ['slug']
+
+
 admin.site.register(DatasetRow, DatasetRowsAdmin)
 admin.site.register(Dataset, DatasetAdmin)
+admin.site.register(DatasetType, DatasetTypeAdmin)
