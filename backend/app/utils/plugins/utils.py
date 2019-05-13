@@ -213,7 +213,7 @@ class GloboUtils(object):
                                  'componente_id', 'semana_bimbo', 'cupo'])
         merged['total_pedido'] = merged.exp_tot / merged.cupo
         merged['prorateo'] = merged.cantidad_explosionada / merged.exp_tot
-        merged['pedido'] = round(merged.total_pedido * merged.prorateo)
+        merged['pedido'] = np.ceil(merged.total_pedido * merged.prorateo)
         merged['pedido'] = merged.pedido.fillna(0)
         # cupos['pedido'] = (np.ceil(cupos.cantidad_explosionada/cupos.cupo))
         return(merged)
