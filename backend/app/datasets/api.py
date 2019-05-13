@@ -209,7 +209,7 @@ class DatasetrowViewSet(
     """Manage datasetrows endpoints."""
 
     permission_classes = [AddRowPermission, IsAuthenticated]
-    renderer_classes = [renderers.JSONRenderer]
+    scape_camel_case_parser = ['create']
     serializer_class = serializers.DatasetrowSerializer
     list_serializer_class = serializers.DatasetrowSerializer
     retrieve_serializer_class = serializers.DatasetrowUpdateSerializer
