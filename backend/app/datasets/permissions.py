@@ -8,12 +8,12 @@ class AddRowPermission(BasePermission):
 
         if view.action == 'create':
             for permission in user_permissions:
-                if permission.codename == 'add_datasetrow':
+                if permission.codename == 'can_add_order':
                     return True
 
             for group in user_groups:
                 for perm in group.permissions.all():
-                    if perm.codename == 'add_datasetrow':
+                    if perm.codename == 'can_add_order':
                         return True
 
         else:
