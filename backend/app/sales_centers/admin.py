@@ -15,11 +15,17 @@ class SaleCenterAdmin(admin.ModelAdmin):
         'project'
     ]
     search_fields = ['external_id', 'name', 'project__name']
-    actions = ["disable_rows", 'delete_rows_in_main']
+    actions = ["disable_rows_in_main", 'delete_rows_in_main']
 
-    def disable_rows(self, request, queryset):
+    def disable_rows_in_main(self, request, queryset):
         """Disable rows which belongs to given sale center."""
+        dataset = Dataset.objects.filter(
+            project=queryset[0].project,
+            is_main=True
+        )[0]
+
         rows = DatasetRow.objects.filter(
+            dataset=dataset,
             sale_center__in=queryset,
             is_active=True
         ).update(
@@ -28,7 +34,7 @@ class SaleCenterAdmin(admin.ModelAdmin):
 
         self.message_user(request, 'Se actualizaron {0} rows'.format(rows))
 
-    disable_rows.short_description = "Disable rows"
+    disable_rows_in_main.short_description = "Disable rows in main"
 
     def delete_rows_in_main(self, request, queryset):
         """Delete rows in dataset main."""
