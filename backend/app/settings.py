@@ -252,7 +252,6 @@ SLACKBOT_TOKEN = os.environ.get("SLACKBOT_TOKEN", "")
 #
 NOTIFICATIONS_CHANNEL = "#int-dev-notifications"
 
-
 if False:
     INSTALLED_APPS += DEBUG_APPS
     MIDDLEWARE += [

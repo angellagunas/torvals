@@ -134,7 +134,8 @@ class Dataset(CatalogueMixin):
 
         return full_row
 
-    def append_rows_from_s3(self, aws_file_name, aws_dir, aws_bucket_name):
+    def append_rows_from_s3(
+            self, aws_file_name, aws_dir, aws_bucket_name, target_path=None):
         """Load rows from s3."""
         dataset_id = self.id
 
@@ -145,13 +146,22 @@ class Dataset(CatalogueMixin):
         )
 
         s3_path = '{0}/{1}'.format(aws_dir, aws_file_name)
-        target_path = '{0}/files/{1}'.format(MEDIA_ROOT,
-                                             slugify(aws_file_name))
 
-        s3.Bucket(aws_bucket_name).download_file(s3_path, target_path)
+        if not target_path:
+            target_path = '{0}/files/{1}'.format(MEDIA_ROOT, aws_file_name)
 
-        file_s3 = open(target_path)
-        return load_dataset(self, _file=file_s3, dataset_id=dataset_id)
+        try:
+            s3.Bucket(aws_bucket_name).download_file(s3_path, target_path)
+        except Exception as e:
+            print(s3_path)
+            print(target_path)
+            print('Error downloading file from s3: {0}'.format(e))
+
+        try:
+            file_s3 = open(target_path)
+            return load_dataset(self, _file=file_s3, dataset_id=dataset_id)
+        except Exception as e:
+            print('Error opening file from local: {0}'.format(e))
 
 
 class DatasetRow(TimeStampedMixin):
