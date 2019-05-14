@@ -16,6 +16,9 @@ from app.settings import AWS_ACCESS_ID, AWS_ACCESS_KEY
 from app.utils.s3 import download_file, save_s3_dataframe
 from app.utils.tasks import send_slack_notifications
 
+logging.basicConfig(format='%(asctime)-15s %(message)s', level=20)
+logger = logging.getLogger(__name__)
+
 
 class GloboUtils(object):
     """Utitlities specific for elGlobo project."""
@@ -213,7 +216,7 @@ class GloboUtils(object):
                                  'componente_id', 'semana_bimbo', 'cupo'])
         merged['total_pedido'] = merged.exp_tot / merged.cupo
         merged['prorateo'] = merged.cantidad_explosionada / merged.exp_tot
-        merged['pedido'] = round(merged.total_pedido * merged.prorateo)
+        merged['pedido'] = np.ceil(merged.total_pedido * merged.prorateo)
         merged['pedido'] = merged.pedido.fillna(0)
         # cupos['pedido'] = (np.ceil(cupos.cantidad_explosionada/cupos.cupo))
         return(merged)
@@ -307,12 +310,15 @@ class GloboUtils(object):
         dataset.append_rows_from_s3(
             '{0}.csv'.format(identifier),
             path_s3[:-1],
-            bucket_name
+            bucket_name,
+            target_path=self._path('files/{0}.csv'.format(identifier))
         )
 
     def modify_format(self, df_pedidos, dataset):
         sucursales = df_pedidos['sucursal_id'].unique()
         message = ''
+
+        logger.info("Sucursales: {}".format(sucursales))
 
         for id_sucursal in sucursales:
 
@@ -321,11 +327,13 @@ class GloboUtils(object):
                     df_pedidos['sucursal_id']== id_sucursal
                 ]
 
+                logger.info("Saving sucursal: {}".format(id_sucursal))
                 self.save_new_format_sucursal(df_pedidos_sucursales, dataset)
                 message = 'The sucursal {0} has loaded successfully.'.format(
                     id_sucursal
                 )
             except Exception as e:
+                logger.info("Error: {}".format(e))
                 message = (
                     'There was an error saving the sucursal: {0} \n'
                     'Error: {1}'
@@ -336,9 +344,6 @@ class GloboUtils(object):
             send_slack_notifications.apply_async((message,))
 
     def run(self):
-        logging.basicConfig(format='%(asctime)-15s %(message)s', level=20)
-        logger = logging.getLogger(__name__)
-
         logger.info("Calculating order.")
         #
         # s3 folder where the dataset will be stored
@@ -368,22 +373,25 @@ class GloboUtils(object):
         last_dataset = max(response['Contents'], key=lambda x: x['LastModified'])
 
         #
+        # download catalogs.
+        #
+        logger.info("Download catalogues and forecast.")
+
+        #
         # download forecast
         #
         target_forecast_path = '{0}/forecasts/{1}'.format(
             self.current_dir,
             'forecast.csv'
         )
+
+        logger.info('    {0}'.format(last_dataset['Key']))
         download_file(
             last_dataset['Key'],
             target_forecast_path,
             'abraxasiq-data'
         )
 
-        #
-        # download catalogs.
-        #
-        logger.info("Download catalogues.")
         for catalog in s3_catalogs:
             s3_catalog_path = '{0}/{1}'.format(s3_catalogs_path, catalog)
             target_catalog_path = '{0}/catalogues/{1}'.format(

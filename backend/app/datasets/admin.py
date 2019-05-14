@@ -4,8 +4,8 @@ from django.contrib import admin
 from django.http import HttpResponse
 
 from django_json_widget.widgets import JSONEditorWidget
-from app.datasets.models import Dataset, DatasetRow
-from app.datasets.utils import load_dataset
+from app.datasets.models import Dataset, DatasetRow, DatasetType
+from app.datasets.utils import load_dataset, load_extra_columns
 
 
 class DatasetForm(forms.ModelForm):
@@ -27,7 +27,8 @@ class DatasetAdmin(admin.ModelAdmin):
         'is_active',
         'is_main',
         'date_adjustment',
-        'project'
+        'project',
+        'type'
     ]
     search_fields = ['name', 'description', 'project__name']
     actions = ["export_as_csv"]
@@ -53,22 +54,38 @@ class DatasetAdmin(admin.ModelAdmin):
         # Set property is_main to all datasets. The new dataset should be only
         # one with this property as True.
         #
-        #Dataset.objects.filter(
-        #    is_main=True,
-        #    project=obj.project
-        #).update(is_main=False)
+        if obj.type is None:
+            Dataset.objects.filter(
+                is_main=True,
+                project=obj.project
+            ).update(is_main=False)
 
-        #
-        # The new dataset always be main dataset.
-        #
-        #obj.is_main = True
+            #
+            # The new dataset always be main dataset.
+            #
+            obj.is_main = True
+        else:
+            Dataset.objects.filter(
+                is_main=True,
+                project=obj.project,
+                type__name=obj.type.name
+            ).update(is_main=False)
+
+            #
+            # The new dataset always be main dataset.
+            #
+            obj.is_main = True
 
         #
         # Execute the normal flow of admin save.
         #
         super(DatasetAdmin, self).save_model(request, obj, form, change)
+
         if not change:
-            load_dataset(obj)
+            if obj.type.name == "pedidos":
+                load_dataset(obj)
+            else:
+                load_extra_columns(obj, dataset_id=obj.id)
 
 
 class DatasetRowsForm(forms.ModelForm):
@@ -110,5 +127,11 @@ class DatasetRowsAdmin(admin.ModelAdmin):
         return qs.filter(dataset__in=ds)
 
 
+class DatasetTypeAdmin(admin.ModelAdmin):
+    model = DatasetType
+    readonly_fields = ['slug']
+
+
 admin.site.register(DatasetRow, DatasetRowsAdmin)
 admin.site.register(Dataset, DatasetAdmin)
+admin.site.register(DatasetType, DatasetTypeAdmin)

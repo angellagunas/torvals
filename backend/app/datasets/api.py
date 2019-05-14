@@ -12,7 +12,7 @@ from django.db.models.expressions import RawSQL, OrderBy
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 
-from rest_framework import status
+from rest_framework import status, renderers
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -22,7 +22,7 @@ from soft_drf.api.viewsets import GenericViewSet
 from soft_drf.routing.v1.routers import router
 
 from app.datasets import serializers
-from app.datasets.models import Dataset, DatasetRow
+from app.datasets.models import Dataset, DatasetRow, DatasetType
 from app.datasets.permissions import AddRowPermission
 from app.datasets.utils import load_dataset
 from app.projects.models import Project
@@ -209,27 +209,41 @@ class DatasetrowViewSet(
     """Manage datasetrows endpoints."""
 
     permission_classes = [AddRowPermission, IsAuthenticated]
+    scape_camel_case_parser = ['create', 'partial_update']
     serializer_class = serializers.DatasetrowSerializer
     list_serializer_class = serializers.DatasetrowSerializer
     retrieve_serializer_class = serializers.DatasetrowUpdateSerializer
     update_serializer_class = serializers.DatasetrowUpdateSerializer
     create_serializer_class = serializers.DatasetRowCreateSerializer
 
+    def create(self, request, *args, **kwargs):
+        return super(DatasetrowViewSet, self).create(request, *args, **kwargs)
+
     def get_queryset(self):
         """Return the universe of objects in API."""
         sales_centers = self.request.user.sale_center.all()
         query_params = self.request.GET.get('sortBy', None)
+        query_type = self.request.GET.get('datasetType', 'pedidos')
+
+        dataset_type = query_type if query_type else "pedidos"
 
         dataset = Dataset.objects.get(
             is_main=True,
-            project=self.request.user.project
+            project=self.request.user.project,
+            type__slug=dataset_type
         )
 
-        queryset = DatasetRow.objects.filter(
-            is_active=True,
-            sale_center__in=sales_centers,
-            dataset=dataset
-        )
+        if query_type == "pedidos":
+            queryset = DatasetRow.objects.filter(
+                is_active=True,
+                sale_center__in=sales_centers,
+                dataset=dataset
+            )
+        else:
+            queryset = DatasetRow.objects.filter(
+                is_active=True,
+                dataset=dataset
+            )
 
         if query_params:
             queryset = queryset.order_by(OrderBy(
@@ -257,9 +271,13 @@ class DatasetrowViewSet(
         try:
             csv_file = StringIO()
             project = self.request.user.project
+
+            query_type = self.request.GET.get('datasetType', 'pedidos')
+
             dataset = Dataset.objects.get(
                 is_main=True,
-                project=project
+                project=project,
+                type__slug=query_type
             )
 
             sales_centers = self.request.user.sale_center.all()
@@ -329,9 +347,12 @@ class DatasetrowViewSet(
     @list_route(methods=["GET"])
     def download(self, request, *args, **kwargs):
         """Download current dataset."""
+        query_type = self.request.GET.get('datasetType', 'pedidos')
+
         dataset = Dataset.objects.get(
             is_main=True,
-            project=request.user.project
+            project=request.user.project,
+            type__slug=query_type
         )
 
         response = HttpResponse(content_type='text/csv')
@@ -368,6 +389,21 @@ class DatasetrowViewSet(
         return Response(result)
 
 
+class DatasetTypeViewSet(GenericViewSet,
+                         mixins.ListModelMixin):
+    serializer_class = serializers.DatasetTypeSerializer
+    list_serializer_class = serializers.DatasetTypeSerializer
+
+    def get_queryset(self):
+        project = self.request.user.project
+
+        queryset = DatasetType.objects.filter(
+            project=project
+        )
+
+        return queryset
+
+
 router.register(
     r"datasetrows",
     DatasetrowViewSet,
@@ -378,4 +414,10 @@ router.register(
     r"datasets",
     DatasetViewSet,
     base_name="datasets",
+)
+
+router.register(
+    r"datasettypes",
+    DatasetTypeViewSet,
+    base_name="datasettypes"
 )

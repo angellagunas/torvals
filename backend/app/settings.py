@@ -198,7 +198,7 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
     ),
     'DEFAULT_PARSER_CLASSES': (
-        'djangorestframework_camel_case.parser.CamelCaseJSONParser',
+        'app.utils.parser.CamelCaseJSONParser',
         'rest_framework.parsers.MultiPartParser'
     ),
     'DEFAULT_PAGINATION_CLASS': (
@@ -252,8 +252,7 @@ SLACKBOT_TOKEN = os.environ.get("SLACKBOT_TOKEN", "")
 #
 NOTIFICATIONS_CHANNEL = "#int-dev-notifications"
 
-
-if DEBUG:
+if False:
     INSTALLED_APPS += DEBUG_APPS
     MIDDLEWARE += [
         'debug_toolbar.middleware.DebugToolbarMiddleware'
