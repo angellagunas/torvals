@@ -4,12 +4,12 @@ MAINTAINER Angel Lagunas <alagunas@grupoabraxas.com>
 RUN apt-get update && apt-get install -y libxml2-dev libxslt1-dev libffi-dev build-essential libssl-dev curl git supervisor libghc-hdbc-postgresql-dev nginx --no-install-recommends && rm -rf /var/lib/apt/lists/*
 RUN pip install --upgrade pip
 
-RUN mkdir /app && mkdir /tmp/forecasts && mkdir /tmp/catalogues
+RUN mkdir /app && mkdir /tmp/forecasts && mkdir /tmp/catalogues && mkdir /tmp/files
 ADD . /app
 WORKDIR /app
 
 RUN chmod +x /app/config/start.sh
-RUN chmod -R +x /tmp
+RUN chmod -R 777 /tmp
 
 RUN rm /etc/nginx/sites-enabled/default
 
