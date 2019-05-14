@@ -209,7 +209,7 @@ class DatasetrowViewSet(
     """Manage datasetrows endpoints."""
 
     permission_classes = [AddRowPermission, IsAuthenticated]
-    scape_camel_case_parser = ['create']
+    scape_camel_case_parser = ['create', 'partial_update']
     serializer_class = serializers.DatasetrowSerializer
     list_serializer_class = serializers.DatasetrowSerializer
     retrieve_serializer_class = serializers.DatasetrowUpdateSerializer
@@ -217,7 +217,6 @@ class DatasetrowViewSet(
     create_serializer_class = serializers.DatasetRowCreateSerializer
 
     def create(self, request, *args, **kwargs):
-        print(request.data)
         return super(DatasetrowViewSet, self).create(request, *args, **kwargs)
 
     def get_queryset(self):
@@ -272,9 +271,13 @@ class DatasetrowViewSet(
         try:
             csv_file = StringIO()
             project = self.request.user.project
+
+            query_type = self.request.GET.get('datasetType', 'pedidos')
+
             dataset = Dataset.objects.get(
                 is_main=True,
-                project=project
+                project=project,
+                type__slug=query_type
             )
 
             sales_centers = self.request.user.sale_center.all()
@@ -344,9 +347,12 @@ class DatasetrowViewSet(
     @list_route(methods=["GET"])
     def download(self, request, *args, **kwargs):
         """Download current dataset."""
+        query_type = self.request.GET.get('datasetType', 'pedidos')
+
         dataset = Dataset.objects.get(
             is_main=True,
-            project=request.user.project
+            project=request.user.project,
+            type__slug=query_type
         )
 
         response = HttpResponse(content_type='text/csv')

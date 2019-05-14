@@ -4,6 +4,7 @@ import re
 
 import six
 from django.conf import settings
+from django.core.files import File
 from django.http import QueryDict
 from rest_framework.exceptions import ParseError
 from rest_framework.parsers import JSONParser
