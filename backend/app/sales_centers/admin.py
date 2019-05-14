@@ -34,7 +34,7 @@ class SaleCenterAdmin(admin.ModelAdmin):
 
         self.message_user(request, 'Se actualizaron {0} rows'.format(rows))
 
-    disable_rows_in_main.short_description = "Disable rows"
+    disable_rows_in_main.short_description = "Disable rows in main"
 
     def delete_rows_in_main(self, request, queryset):
         """Delete rows in dataset main."""
