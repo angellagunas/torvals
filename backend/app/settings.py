@@ -198,7 +198,7 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
     ),
     'DEFAULT_PARSER_CLASSES': (
-        'djangorestframework_camel_case.parser.CamelCaseJSONParser',
+        'app.utils.parser.CamelCaseJSONParser',
         'rest_framework.parsers.MultiPartParser'
     ),
     'DEFAULT_PAGINATION_CLASS': (

@@ -18,6 +18,24 @@ from app.utils import get_csv_columns
 from app.utils.models import CatalogueMixin, TimeStampedMixin
 
 
+class DatasetType(models.Model):
+
+    name = models.CharField(
+        max_length=500,
+        verbose_name='name'
+    )
+    project = models.ForeignKey(Project)
+
+    slug = models.SlugField(max_length=40)
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
+        super(DatasetType, self).save(*args, **kwargs)
+
+
 class Dataset(CatalogueMixin):
     """Save info about Dataset."""
 
@@ -50,6 +68,8 @@ class Dataset(CatalogueMixin):
     project = models.ForeignKey(Project)
 
     objects = UserManager()
+
+    type = models.ForeignKey(DatasetType, null=True, blank=True)
 
     def to_web_csv(self, response, filters={}, fields=[]):
         """Export rows to csv."""
@@ -158,11 +178,15 @@ class DatasetRow(TimeStampedMixin):
     )
 
     product = models.ForeignKey(
-        Product
+        Product,
+        null=True,
+        blank=True
     )
 
     sale_center = models.ForeignKey(
-        SaleCenter
+        SaleCenter,
+        null=True,
+        blank=True
     )
 
     is_active = models.BooleanField(
@@ -187,6 +211,6 @@ class DatasetRow(TimeStampedMixin):
         """Project which row belongs to."""
         return self.dataset.project.name
 
-    def __str__(self):
-        """Return the representation in String of this model."""
-        return self.product.name
+    # def __str__(self):
+    #     """Return the representation in String of this model."""
+    #     return self.product.name
