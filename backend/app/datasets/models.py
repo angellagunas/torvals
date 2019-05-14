@@ -29,7 +29,7 @@ class DatasetType(models.Model):
     slug = models.SlugField(max_length=40)
 
     def __str__(self):
-        return self.name
+        return "{0}-{1}".format(self.name, self.project.name)
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
