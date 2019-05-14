@@ -18,6 +18,24 @@ from app.utils import get_csv_columns
 from app.utils.models import CatalogueMixin, TimeStampedMixin
 
 
+class DatasetType(models.Model):
+
+    name = models.CharField(
+        max_length=500,
+        verbose_name='name'
+    )
+    project = models.ForeignKey(Project)
+
+    slug = models.SlugField(max_length=40)
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
+        super(DatasetType, self).save(*args, **kwargs)
+
+
 class Dataset(CatalogueMixin):
     """Save info about Dataset."""
 
@@ -50,6 +68,8 @@ class Dataset(CatalogueMixin):
     project = models.ForeignKey(Project)
 
     objects = UserManager()
+
+    type = models.ForeignKey(DatasetType, null=True, blank=True)
 
     def to_web_csv(self, response, filters={}, fields=[]):
         """Export rows to csv."""
@@ -114,7 +134,8 @@ class Dataset(CatalogueMixin):
 
         return full_row
 
-    def append_rows_from_s3(self, aws_file_name, aws_dir, aws_bucket_name):
+    def append_rows_from_s3(
+            self, aws_file_name, aws_dir, aws_bucket_name, target_path=None):
         """Load rows from s3."""
         dataset_id = self.id
 
@@ -125,13 +146,22 @@ class Dataset(CatalogueMixin):
         )
 
         s3_path = '{0}/{1}'.format(aws_dir, aws_file_name)
-        target_path = '{0}/files/{1}'.format(MEDIA_ROOT,
-                                             slugify(aws_file_name))
 
-        s3.Bucket(aws_bucket_name).download_file(s3_path, target_path)
+        if not target_path:
+            target_path = '{0}/files/{1}'.format(MEDIA_ROOT, aws_file_name)
 
-        file_s3 = open(target_path)
-        return load_dataset(self, _file=file_s3, dataset_id=dataset_id)
+        try:
+            s3.Bucket(aws_bucket_name).download_file(s3_path, target_path)
+        except Exception as e:
+            print(s3_path)
+            print(target_path)
+            print('Error downloading file from s3: {0}'.format(e))
+
+        try:
+            file_s3 = open(target_path)
+            return load_dataset(self, _file=file_s3, dataset_id=dataset_id)
+        except Exception as e:
+            print('Error opening file from local: {0}'.format(e))
 
 
 class DatasetRow(TimeStampedMixin):
@@ -148,11 +178,15 @@ class DatasetRow(TimeStampedMixin):
     )
 
     product = models.ForeignKey(
-        Product
+        Product,
+        null=True,
+        blank=True
     )
 
     sale_center = models.ForeignKey(
-        SaleCenter
+        SaleCenter,
+        null=True,
+        blank=True
     )
 
     is_active = models.BooleanField(
@@ -177,6 +211,6 @@ class DatasetRow(TimeStampedMixin):
         """Project which row belongs to."""
         return self.dataset.project.name
 
-    def __str__(self):
-        """Return the representation in String of this model."""
-        return self.product.name
+    # def __str__(self):
+    #     """Return the representation in String of this model."""
+    #     return self.product.name

@@ -3,9 +3,10 @@ from django.shortcuts import get_object_or_404
 
 from rest_framework import serializers
 
-from app.datasets.models import Dataset, DatasetRow
+from app.datasets.models import Dataset, DatasetRow, DatasetType
 from app.products.models import Product
 from app.products.serializers import ProductSerializer
+from app.projects.serializers import ProjectSerializer
 from app.sales_centers.models import SaleCenter
 from app.sales_centers.serializers import SaleCenterSerializer
 
@@ -104,64 +105,85 @@ class DatasetrowUpdateSerializer(serializers.ModelSerializer):
 
 class DatasetRowCreateSerializer(serializers.Serializer):
     """""Serializer for Datasetrows API when create method is used """
-    product_id = serializers.CharField(
-        max_length=200,
-        min_length=1,
-        required=True
-    )
 
-    product_name = serializers.CharField(
-        max_length=200,
-        min_length=1,
-        required=True
-    )
-    pedido = serializers.IntegerField(
-        min_value=0,
-        required=True
-    )
-    sale_center = serializers.CharField(
-        max_length=200,
-        min_length=1,
-        required=True
-    )
+    extra_columns = serializers.DictField()
 
     def create(self, data):
-        product, created = Product.objects.get_or_create(
-            quota=0,
-            bed=0,
-            pallet=0,
-            external_id=data.get('product_id'),
-            name=data.get('product_name'),
-            project=self.context['request'].user.project
-        )
+        query_params = self.context['request'].GET
+        dataset_type = query_params.get('dataset_type', 'pedidos')
+        product_id = query_params.get('product_id', None)
+        sale_center_id = query_params.get('sale_center_id', None)
+        product = None
+        sale_center = None
+
+        if product_id:
+            product, created = Product.objects.get_or_create(
+                quota=0,
+                bed=0,
+                pallet=0,
+                external_id=product_id,
+                name=query_params.get('product_name', 'N/A'),
+                project=self.context['request'].user.project
+            )
 
         dataset = Dataset.objects.filter(
             project=self.context['request'].user.project,
-            is_active=True).last()
+            is_active=True,
+            is_main=True,
+            type__slug=dataset_type).last()
 
-        sale_center = get_object_or_404(
-            SaleCenter, external_id=data.get('sale_center'),
-            project=self.context['request'].user.project,
-            is_active=True
-        )
+        if sale_center_id:
+            sale_center = get_object_or_404(
+                SaleCenter,
+                external_id=sale_center_id,
+                project=self.context['request'].user.project,
+                is_active=True
+            )
 
-        temp_datasetRow = DatasetRow.objects.filter(
-            dataset=dataset
-        )[0]
+        # temp_datasetRow = DatasetRow.objects.filter(
+        #     dataset=dataset
+        # )[0]
 
-        temp_extra_columns = temp_datasetRow.extra_columns
+        # temp_extra_columns = temp_datasetRow.extra_columns
 
-        for column in temp_extra_columns:
-            temp_extra_columns[column] = 0
+        # for column in temp_extra_columns:
+        #     temp_extra_columns[column] = 0
 
-        temp_extra_columns['pedido_final'] = data.get('pedido')
+        # temp_extra_columns['pedido_final'] = data.get('pedido')
 
-        datasetRow = DatasetRow.objects.create(
-            product=product,
-            dataset=dataset,
-            sale_center=sale_center,
-            date=dataset.date_adjustment,
-            extra_columns=temp_extra_columns,
-            is_extraordinary=True
-        )
-        return datasetRow
+        # datasetRow = DatasetRow.objects.create(
+        #     product=product,
+        #     dataset=dataset,
+        #     sale_center=sale_center,
+        #     date=dataset.date_adjustment,
+        #     extra_columns=temp_extra_columns,
+        #     is_extraordinary=True
+        # )
+        print(data)
+        row = {
+            'dataset': dataset,
+            'date': dataset.date_adjustment,
+            'extra_columns': data['extra_columns']
+        }
+        if product:
+            row['product'] = product
+
+        if sale_center:
+            row['sale_center'] = sale_center
+
+        new_row = DatasetRow.objects.create(**row)
+
+        return new_row
+
+
+class DatasetTypeSerializer(serializers.ModelSerializer):
+    project = ProjectSerializer()
+
+    class Meta:
+        model = DatasetType
+        fields = [
+            'id',
+            'name',
+            'slug',
+            'project'
+        ]
