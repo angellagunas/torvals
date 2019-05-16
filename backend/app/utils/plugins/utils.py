@@ -1,5 +1,7 @@
 """Define utilities specifics for each project."""
 # flake8: noqa
+from io import StringIO
+
 import pandas as pd
 import numpy as np
 import glob
@@ -10,9 +12,12 @@ import boto3
 
 from datetime import datetime
 
+from django.core.mail import EmailMessage
+
 from app.datasets.models import Dataset
 from app.projects.models import Project
 from app.settings import AWS_ACCESS_ID, AWS_ACCESS_KEY
+from app.users.models import User
 from app.utils.s3 import download_file, save_s3_dataframe
 from app.utils.tasks import send_slack_notifications
 
@@ -20,8 +25,63 @@ logging.basicConfig(format='%(asctime)-15s %(message)s', level=20)
 logger = logging.getLogger(__name__)
 
 
+class BarcelUtils(object):
+    """Utils for Barcel."""
+
+    def send_order_to_dispatcher(self, dispatcher_email, receivers):
+        """Send report without adjustments."""
+        csv_file = StringIO()
+        user = User.objects.get(email=dispatcher_email)
+
+        dataset = Dataset.objects.get(
+            is_main=True,
+            project=user.project,
+            type__slug='pedidos'
+        )
+
+        sales_centers = user.sale_center.all()
+        date_adjustment_label = dataset.date_adjustment
+        str_date = date_adjustment_label.strftime('%d_de_%m_del_%Y')
+
+        filters = {
+            'sale_center__in': sales_centers,
+            'is_active': True
+        }
+
+        dataset.to_web_csv(csv_file, filters, ['field1', 'field2'])
+
+        ceves_id = '_'.join([sc.external_id for sc in sales_centers])
+        ceves_name = '_'.join([sc.name for sc in sales_centers])
+
+        subject = "Pedido sugerido - {0} - {1}".format(
+            ceves_name,
+            ceves_id
+        )
+
+        msg = EmailMessage(
+            subject=subject,
+            body=subject,
+            from_email='contact@abraxasintelligence.com',
+            to=[dispatcher_email],
+            cc=receivers
+        )
+
+        file_name = 'order_ceve_{0}_{1}.csv'.format(
+            ceves_id,
+            str_date
+        )
+        msg.content_subtype = "html"
+        msg.attach(
+            file_name,
+            csv_file.getvalue(),
+            'text/csv'
+        )
+        msg.send()
+
+
 class GloboUtils(object):
     """Utitlities specific for elGlobo project."""
+
     current_dir = '/tmp'
 
     def _path(self, relative_path):
