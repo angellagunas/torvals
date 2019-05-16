@@ -27,7 +27,15 @@ class CreateDatasetSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         """Overwrite method create."""
+        user = self.context['request'].user
+
+        dataset_type = DatasetType.objects.filter(
+            project=user.project,
+            slug='pedidos'
+        )[0]
+
         validated_data['is_main'] = False
+        validated_data['type'] = dataset_type
         return Dataset.objects.create(**validated_data)
 
 
