@@ -14,7 +14,7 @@ from datetime import datetime
 
 from django.core.mail import EmailMessage
 
-from app.datasets.models import Dataset
+from app.datasets.models import Dataset, DatasetRow
 from app.projects.models import Project
 from app.settings import AWS_ACCESS_ID, AWS_ACCESS_KEY
 from app.users.models import User
@@ -39,6 +39,10 @@ class BarcelUtils(object):
             type__slug='pedidos'
         )
 
+        row = DatasetRow.objects.filter(
+            dataset=dataset, is_active=True
+        ).last()
+
         sales_centers = user.sale_center.all()
         date_adjustment_label = dataset.date_adjustment
         str_date = date_adjustment_label.strftime('%d_de_%m_del_%Y')
@@ -48,7 +52,7 @@ class BarcelUtils(object):
             'is_active': True
         }
 
-        dataset.to_web_csv(csv_file, filters, ['field1', 'field2'])
+        dataset.to_web_csv(csv_file, filters, list(row.extra_columns.keys()))
 
         ceves_id = '_'.join([sc.external_id for sc in sales_centers])
         ceves_name = '_'.join([sc.name for sc in sales_centers])
