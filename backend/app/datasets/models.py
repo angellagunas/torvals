@@ -76,11 +76,17 @@ class Dataset(CatalogueMixin):
         report_columns = self.project.report_columns
         static_columns = self.project.get_map_columns_name() + ['product']
 
+        rows = DatasetRow.objects.filter(**filters)
+
+        extra = list(
+            rows[0].extra_columns.keys())
+
         if len(fields) > 0:
             report_columns = fields
         else:
             if not report_columns:
-                report_columns = self.project.dynamic_columns_name
+                report_columns = list(
+                    rows[0].extra_columns.keys())
 
         headers = static_columns + report_columns
 
@@ -88,7 +94,6 @@ class Dataset(CatalogueMixin):
         writer.writerow(headers)
 
         filters['dataset_id'] = self.id
-        rows = DatasetRow.objects.filter(**filters)
 
         for row in rows:
             row = writer.writerow(
