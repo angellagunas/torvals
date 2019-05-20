@@ -81,7 +81,7 @@ class DatasetAdmin(admin.ModelAdmin):
         #
         super(DatasetAdmin, self).save_model(request, obj, form, change)
 
-        if not change:
+        if True:
             if obj.type.name == "pedidos":
                 load_dataset(obj)
             else:
