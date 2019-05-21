@@ -52,7 +52,17 @@ class BarcelUtils(object):
             'is_active': True
         }
 
-        dataset.to_web_csv(csv_file, filters, list(row.extra_columns.keys()))
+        columns = [
+            'Categoria',
+            'ExisR_corr',
+            'Transito_corr_(Qty)',
+            'pol_inv_corr',
+            'sugerido_corrugados'
+            'pedido_final',
+            'sugerido_camas',
+            'sugerido_tarimas'
+        ]
+        dataset.to_web_csv(csv_file, filters, columns)
 
         ceves_id = '_'.join([sc.external_id for sc in sales_centers])
         ceves_name = '_'.join([sc.name for sc in sales_centers])
