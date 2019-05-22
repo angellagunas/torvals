@@ -19,6 +19,7 @@ from app.utils.models import CatalogueMixin, TimeStampedMixin
 
 
 class DatasetType(models.Model):
+    """Save info about DatasetTypes."""
 
     name = models.CharField(
         max_length=500,
@@ -29,9 +30,11 @@ class DatasetType(models.Model):
     slug = models.SlugField(max_length=40)
 
     def __str__(self):
-        return "{0}-{1}".format(self.name, self.project.name)
+        """Representation in string."""
+        return "{0} - {1}".format(self.name, self.project.name)
 
     def save(self, *args, **kwargs):
+        """Add slug before save instance."""
         self.slug = slugify(self.name)
         super(DatasetType, self).save(*args, **kwargs)
 
@@ -153,7 +156,10 @@ class Dataset(CatalogueMixin):
         s3_path = '{0}/{1}'.format(aws_dir, aws_file_name)
 
         if not target_path:
-            target_path = '{0}/files/{1}'.format(MEDIA_ROOT, aws_file_name)
+            target_path = '{0}/files/{1}'.format(
+                MEDIA_ROOT,
+                slugify(aws_file_name)
+            )
 
         try:
             s3.Bucket(aws_bucket_name).download_file(s3_path, target_path)
