@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 import os
+import rollbar
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -21,23 +22,16 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'py8t-$h^5@g*ihu5-(#+%k%70i87fr-3ju$jc^ez_*#!$7w1@a'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = int(os.environ['DEBUG']) == 1 if os.environ.get('DEBUG', None) else True
+DEBUG = True
+
+if os.environ.get('DEBUG', '') in ['False', 'false', False, '0', 0]:
+    DEBUG = False
 
 ALLOWED_HOSTS = [
     'localhost',
-    'torvals.abraxasintelligence.com',
-    'torvals.orax.io',
-    'staging.torvals.orax.io',
-    'staging.torvals.abraxasintelligence.com',
-    'bec.orax.io',
-    'staging.bec.orax.io',
-    'ecu.orax.io'
+    'localhost:8000',
+    '127.0.0.1'
 ]
-
-CSRF_TRUSTED_ORIGINS = ALLOWED_HOSTS
-
-CORS_ORIGIN_ALLOW_ALL = True
 
 # Application definition
 
@@ -85,6 +79,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'rollbar.contrib.django.middleware.RollbarNotifierMiddleware',
 ]
 
 ROOT_URLCONF = 'app.urls'
@@ -228,13 +223,6 @@ CELERY_BROKER_URL = 'redis://{0}'.format(REDIS_HOST)
 AUTH_USER_MODEL = 'users.User'
 
 #
-# EMAIL CONFIGS
-#
-EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
-SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY", "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")
-SENDGRID_SANDBOX_MODE_IN_DEBUG = False
-
-#
 # AWS CONFIGS
 #
 AWS_ACCESS_ID = os.environ.get("AWS_ACCESS_ID", "")
@@ -246,25 +234,61 @@ AWS_ACCESS_KEY = os.environ.get("AWS_ACCESS_KEY", "")
 #
 SLACKBOT_TOKEN = os.environ.get("SLACKBOT_TOKEN", "")
 
+#
+# API documentation configs.
+#
+SHOW_DOCUMENTATION = True
+
+#
+# emails config.
+#
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = '/tmp/app-messages'
+
 
 #
 # Torvals slack channel for notifications
 #
 NOTIFICATIONS_CHANNEL = "#int-dev-notifications"
 
-if False:
+if not DEBUG:
+    #
+    # Show API documentation
+    #
+    SHOW_DOCUMENTATION = False
+
+    #
+    # EMAIL CONFIGS
+    #
+    EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
+    SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY", "")
+    SENDGRID_SANDBOX_MODE_IN_DEBUG = False
+
+    #
+    # ROLLBAR CONFIGS
+    #
+    ROLLBAR = {
+        'access_token': os.environ.get("ROLLBAR_TOKEN", ""),
+        'environment': 'production',
+        'root': BASE_DIR,
+    }
+
+    rollbar.init(**ROLLBAR)
+
+    ALLOWED_HOSTS = [
+        'torvals.abraxasintelligence.com',
+        'torvals.orax.io',
+        'staging.torvals.orax.io',
+        'staging.torvals.abraxasintelligence.com',
+        'bec.orax.io',
+        'staging.bec.orax.io',
+        'ecu.orax.io'
+    ]
+
+if DEBUG:
     INSTALLED_APPS += DEBUG_APPS
     MIDDLEWARE += [
         'debug_toolbar.middleware.DebugToolbarMiddleware'
     ]
 
-    #
-    # API documentation configs.
-    #
-    SHOW_DOCUMENTATION = True
-
-    #
-    # emails config.
-    #
-    EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
-    EMAIL_FILE_PATH = '/tmp/app-messages'
+CSRF_TRUSTED_ORIGINS = ALLOWED_HOSTS
