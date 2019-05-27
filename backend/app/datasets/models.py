@@ -78,6 +78,8 @@ class Dataset(CatalogueMixin):
         """Export rows to csv."""
         report_columns = self.project.report_columns
         static_columns = self.project.get_map_columns_name() + ['product']
+        
+        filters['dataset_id'] = self.id
 
         rows = DatasetRow.objects.filter(**filters)
 
