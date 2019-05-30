@@ -140,6 +140,8 @@ class DatasetRowCreateSerializer(serializers.Serializer):
             is_main=True,
             type__slug=dataset_type).last()
 
+        date = query_params.get('date', dataset.date_adjustment)
+
         if sale_center_id:
             sale_center = get_object_or_404(
                 SaleCenter,
@@ -148,29 +150,9 @@ class DatasetRowCreateSerializer(serializers.Serializer):
                 is_active=True
             )
 
-        # temp_datasetRow = DatasetRow.objects.filter(
-        #     dataset=dataset
-        # )[0]
-
-        # temp_extra_columns = temp_datasetRow.extra_columns
-
-        # for column in temp_extra_columns:
-        #     temp_extra_columns[column] = 0
-
-        # temp_extra_columns['pedido_final'] = data.get('pedido')
-
-        # datasetRow = DatasetRow.objects.create(
-        #     product=product,
-        #     dataset=dataset,
-        #     sale_center=sale_center,
-        #     date=dataset.date_adjustment,
-        #     extra_columns=temp_extra_columns,
-        #     is_extraordinary=True
-        # )
-        print(data)
         row = {
             'dataset': dataset,
-            'date': dataset.date_adjustment,
+            'date': date,
             'extra_columns': data['extra_columns']
         }
         if product:
