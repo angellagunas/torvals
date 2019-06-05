@@ -276,6 +276,7 @@ if not DEBUG:
     rollbar.init(**ROLLBAR)
 
     ALLOWED_HOSTS = [
+        'localhost',
         'torvals.abraxasintelligence.com',
         'torvals.orax.io',
         'staging.torvals.orax.io',

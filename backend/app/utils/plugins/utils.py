@@ -57,7 +57,7 @@ class BarcelUtils(object):
             'ExisR_corr',
             'Transito_corr_(Qty)',
             'pol_inv_corr',
-            'sugerido_corrugados'
+            'sugerido_corrugados',
             'pedido_final',
             'sugerido_camas',
             'sugerido_tarimas'
