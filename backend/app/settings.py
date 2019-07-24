@@ -251,6 +251,13 @@ EMAIL_FILE_PATH = '/tmp/app-messages'
 #
 NOTIFICATIONS_CHANNEL = "#int-dev-notifications"
 
+#
+# Extractor config
+#
+SSH_REMOTE_HOST = os.environ.get("SSH_REMOTE_HOST", "")
+SSH_REMOTE_USER = os.environ.get("SSH_REMOTE_USER", "")
+SSH_REMOTE_PEM = os.environ.get("SSH_REMOTE_PEM", "")
+
 if not DEBUG:
     #
     # Show API documentation

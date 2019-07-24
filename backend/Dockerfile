@@ -1,7 +1,7 @@
-FROM python:3.6
+FROM python:3.6-jessie
 MAINTAINER Angel Lagunas <alagunas@grupoabraxas.com>
 
-RUN apt-get update && apt-get install -y libxml2-dev libxslt1-dev libffi-dev build-essential libssl-dev curl git supervisor libghc-hdbc-postgresql-dev nginx --no-install-recommends && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y libxml2-dev libxslt1-dev libffi-dev build-essential libssl-dev curl git supervisor libghc-hdbc-postgresql-dev nginx openjdk-7-jdk --no-install-recommends && rm -rf /var/lib/apt/lists/*
 RUN pip install --upgrade pip
 
 RUN mkdir /app && mkdir /tmp/forecasts && mkdir /tmp/catalogues && mkdir /tmp/files
