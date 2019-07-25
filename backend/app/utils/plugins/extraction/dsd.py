@@ -246,7 +246,7 @@ class DSDExtractor(object):
         client.connect(
             hostname=settings.SSH_REMOTE_HOST,
             username=settings.SSH_REMOTE_USER,
-            port=settings.SSH_PORT,
+            port=settings.SSH_REMOTE_PORT,
             pkey=key
         )
 
