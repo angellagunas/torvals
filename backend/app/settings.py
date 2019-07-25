@@ -255,6 +255,7 @@ NOTIFICATIONS_CHANNEL = "#int-dev-notifications"
 # Extractor config
 #
 SSH_REMOTE_HOST = os.environ.get("SSH_REMOTE_HOST", "")
+SSH_PORT = os.environ.get("SSH_PORT", 22)
 SSH_REMOTE_USER = os.environ.get("SSH_REMOTE_USER", "")
 SSH_REMOTE_PEM = os.environ.get("SSH_REMOTE_PEM", "")
 
