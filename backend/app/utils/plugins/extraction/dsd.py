@@ -229,7 +229,7 @@ class DSDExtractor(object):
                 meta[count].append(metainfo)
         return meta, transfer
 
-    def _main(self, xml_config, searching_date, query):
+    def _main(self, xml_config, searching_date, query, name):
         """Main function that runs each step to extract the requiered information.
 
         params:
@@ -270,7 +270,8 @@ class DSDExtractor(object):
             transfer_obj = S3Transfer(
                 transfer_df,
                 searching_date,
-                self.s3_bucket
+                self.s3_bucket,
+                name
             )
 
             for element in meta[count]:
@@ -278,15 +279,15 @@ class DSDExtractor(object):
 
             transfer_obj.transfer(
                 self.s3_folder,
-                'BM_ventacliente_raw'
+                name
             )
             transfer_obj.transfer_metadada(self.s3_folder)
 
         client.close()
         self.slack.slack_messages(stage=4)
 
-    def extract(self, xml_config, query, date=datetime.now(tz=tz.gettz('CST')),
-                slack_channel='CFAPTFH1S'):
+    def extract(self, xml_config, query, name, slack_channel='CFAPTFH1S',
+                date=datetime.now(tz=tz.gettz('CST'))):
         """Main function to run the extraction.
 
         params:
@@ -304,4 +305,4 @@ class DSDExtractor(object):
         self.slack.channel = slack_channel
         self.slack.slack_messages(stage=0)
 
-        self._main(xml_config, look_date, query)
+        self._main(xml_config, look_date, query, name)
