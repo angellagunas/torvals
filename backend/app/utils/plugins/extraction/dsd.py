@@ -46,7 +46,11 @@ class S3Transfer():
             csv_buffer = convert(meta, self.file_type, self.metadata)
 
         # TODO: If the file exists in the bucket it will be overwritten
-        s3 = boto3.resource('s3')
+        session = boto3.Session(
+            aws_access_key_id=settings.AWS_ACCESS_ID,
+            aws_secret_access_key=settings.AWS_ACCESS_KEY
+        )
+        s3 = session.resource('s3')
         s3.Object(
             self.bucket,
             '{0}/{1}.{2}'.format(folder, file_name, self.file_type)
