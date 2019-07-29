@@ -26,6 +26,6 @@ def send_order_to_dispatcher(dispatcher_email, receivers):
 
 
 @shared_task
-def extract_bimbo_sales_for_one_day(xml_config, query, date):
+def extract_bimbo_sales_for_one_day(xml_config, query, date, name):
     """Extact bimbo sales for one day only."""
-    return DSDExtractor().extract(xml_config, query, date)
+    return DSDExtractor().extract(xml_config, query, date, name)
