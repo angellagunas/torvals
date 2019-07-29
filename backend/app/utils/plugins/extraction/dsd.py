@@ -92,13 +92,16 @@ class DSDExtractor(object):
     def __init__(self,
                  s3_bucket="abraxasiq-data",
                  s3_folder="development/torvalds/extraction",
-                 s3_region="us-east-2"):
+                 s3_region="us-east-2",
+                 name=""):
         """Initialize class and set default properties."""
         self.s3_bucket = s3_bucket
         self.s3_folder = s3_folder
         self.s3_region = s3_region
 
-        self.slack = SlackNotifications()
+        self.slack = SlackNotifications(
+            process=f'Torvalds Extraction {name}'
+        )
 
     def execute_query(self, curs, query, date, **options):
         """Run the query in the remote database."""
