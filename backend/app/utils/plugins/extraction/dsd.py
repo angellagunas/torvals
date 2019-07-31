@@ -274,11 +274,11 @@ class DSDExtractor(object):
 
         for count, item in enumerate(transfer):
             transfer_df = pd.concat(item, ignore_index=True)
+
             transfer_obj = S3Transfer(
-                transfer_df,
-                searching_date,
-                self.s3_bucket,
-                name
+                data_frame=transfer_df,
+                date=searching_date,
+                bucket=self.s3_bucket
             )
 
             for element in meta[count]:
@@ -286,7 +286,7 @@ class DSDExtractor(object):
 
             transfer_obj.transfer(
                 self.s3_folder,
-                name
+                file_name=name
             )
             transfer_obj.transfer_metadada(self.s3_folder)
 
