@@ -19,4 +19,4 @@ ddagent-install.log
 __pycache__
 *.pyc
 *.swp
-src/media
+backend/media

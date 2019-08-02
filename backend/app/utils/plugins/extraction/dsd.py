@@ -13,6 +13,7 @@ import jaydebeapi
 import jpype
 
 from django.conf import settings
+from app.settings import MEDIA_ROOT
 from app.utils.plugins.extraction import tunnel as paramiko_tunnel
 from app.utils.plugins.extraction.transfer.utils import convert
 from app.utils.plugins.extraction.notifications import SlackNotifications
@@ -274,6 +275,10 @@ class DSDExtractor(object):
 
         for count, item in enumerate(transfer):
             transfer_df = pd.concat(item, ignore_index=True)
+
+            file_name_local = '{0}/{1}.csv'.format(MEDIA_ROOT, name)
+
+            transfer_df.to_csv(file_name_local, sep='|')
 
             transfer_obj = S3Transfer(
                 data_frame=transfer_df,
