@@ -43,7 +43,6 @@ const executeQuery = (host, port, dbName, user, pass, queries, path) => {
                         })
                         .catch(err => {
                             db.disconnect();
-                            console.info("------------------->8");
                             return resolve([]);
                         });
 
@@ -57,12 +56,10 @@ const executeQuery = (host, port, dbName, user, pass, queries, path) => {
                     })
                     .catch(err => {
                         db.disconnect();
-                        console.info("------------6>");
                         return resolve([]);
                     });
             })
             .catch(err => {
-                console.info("------------7>");
                 return reject([]);
             });
     });
@@ -73,7 +70,7 @@ const getTunnelConfig = (dstHost, dstPort, localPort) => {
         username: "hadoop",
         host: "ec2-54-209-116-133.compute-1.amazonaws.com",
         port: 22,
-        privateKey: fs.readFileSync("/home/al/.ssh/Dataiku.pem"),
+        privateKey: fs.readFileSync("/home/rooster/.ssh/Dataiku.pem"),
         localHost: "127.0.0.1",
         dstHost,
         dstPort,
@@ -110,13 +107,11 @@ const _run = (err, params) => {
                                 )
                                     .then(path => resolve(path))
                                     .catch(err => {
-                                        console.info("------------------3>");
                                         return resolve([]);
                                     });
                             });
                         })
                         .catch(err => {
-                            console.info("-----------------------4>");
                             return resolve([]);
                         });
                 })
@@ -128,7 +123,6 @@ const _run = (err, params) => {
                 return resolve(values);
             })
             .catch(err => {
-                console.info("----------------2>", values);
                 resolve([]);
             });
     });
@@ -140,13 +134,12 @@ const withXML = (path, callback, params) => {
         const xml_string = fs.readFileSync(path, "utf8");
 
         return parser.parseString(xml_string, (err, xml) => {
-            params["agencies"] = xml.AGENCIAS.AGENCIA;
+            params["agencies"] = xml.AGENCIAS.AGENCIA.slice(0, 100);
             callback(err, params)
                 .then(values => {
                     return resolve(values);
                 })
                 .catch(err => {
-                    console.info("--------------1>", values);
                     resolve([]);
                 });
         });
@@ -167,4 +160,4 @@ const run = async xmlPath => {
     console.info("END ---------------------->", new Date().toLocaleString());
 };
 
-run("/home/al/Descargas/agencias.xml");
+run("/home/rooster/Downloads/agencias_barcel.xml");
