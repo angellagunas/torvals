@@ -280,20 +280,20 @@ class DSDExtractor(object):
 
             transfer_df.to_csv(file_name_local, sep='|')
 
-            transfer_obj = S3Transfer(
-                data_frame=transfer_df,
-                date=searching_date,
-                bucket=self.s3_bucket
-            )
+            #transfer_obj = S3Transfer(
+            #    data_frame=transfer_df,
+            #    date=searching_date,
+            #    bucket=self.s3_bucket
+            #)
 
-            for element in meta[count]:
-                transfer_obj.add_meta(*element)
+            #for element in meta[count]:
+            #    transfer_obj.add_meta(*element)
 
-            transfer_obj.transfer(
-                self.s3_folder,
-                file_name=name
-            )
-            transfer_obj.transfer_metadada(self.s3_folder)
+            #transfer_obj.transfer(
+            #    self.s3_folder,
+            #    file_name=name
+            #)
+            #transfer_obj.transfer_metadada(self.s3_folder)
 
         client.close()
         self.slack.slack_messages(stage=4)
