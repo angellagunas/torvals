@@ -29,3 +29,9 @@ def send_order_to_dispatcher(dispatcher_email, receivers):
 def extract_bimbo_sales_for_one_day(xml_config, query, date):
     """Extact bimbo sales for one day only."""
     return DSDExtractor().extract(xml_config, query, date)
+
+
+@shared_task
+def create_sales_report(project_id=4, folder_s3='barcel/barcel_diario/Reportes'):
+    """Task to create sales report and upload it to s3."""
+    return BarcelUtils().upload_sales_report(project_id=project_id, folder_s3=folder_s3)

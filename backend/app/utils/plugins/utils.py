@@ -1,6 +1,7 @@
 """Define utilities specifics for each project."""
 # flake8: noqa
 from io import StringIO
+from tempfile import NamedTemporaryFile
 
 import pandas as pd
 import numpy as np
@@ -27,6 +28,52 @@ logger = logging.getLogger(__name__)
 
 class BarcelUtils(object):
     """Utils for Barcel."""
+
+    def upload_sales_report(self, project_id, folder_s3):
+        """Create sales report and upload it to s3.."""
+        csv_file = StringIO()
+
+        dataset = Dataset.objects.get(
+            is_main=True,
+            project_id=project_id
+        )
+
+        date_adjustment_label = dataset.date_adjustment
+        str_date = date_adjustment_label.strftime('%d_de_%m_del_%Y')
+
+        filters = {
+            'is_active': True
+        }
+
+        columns = [
+            'Categoria',
+            'ExisR_corr',
+            'Transito_corr_(Qty)',
+            'pol_inv_corr',
+            'sugerido_corrugados',
+            'pedido_final',
+            'sugerido_camas',
+            'sugerido_tarimas'
+        ]
+        dataset.to_web_csv(csv_file, filters, columns)
+
+        file_name = f'{folder_s3}/order_ceve_{str_date}.csv'
+        f = NamedTemporaryFile()
+        f.write(csv_file.getvalue().encode())
+
+
+        client = boto3.client(
+            's3',
+            aws_access_key_id=AWS_ACCESS_ID,
+            aws_secret_access_key=AWS_ACCESS_KEY,
+        )
+
+        client.upload_file(
+            f.name,
+            dataset.project.bucket_name,
+            file_name
+        )
+
 
     def send_order_to_dispatcher(self, dispatcher_email, receivers):
         """Send report without adjustments."""
