@@ -16,10 +16,12 @@ const sqlToFile = (data, path) => {
     }
 
     fs.writeFileSync(path, `${csv.join("\n")}`);
+
+    return path;
 };
 
 const executeQuery = (host, port, dbName, user, pass, queries, path) => {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolveGlobal, reject) => {
         const db = new Sybase({
             host: host,
             port: port,
@@ -30,20 +32,17 @@ const executeQuery = (host, port, dbName, user, pass, queries, path) => {
 
         db.connect()
             .then((connection, err) => {
-                if (err) return reject(err);
+                if (err) return resolveGlobal(err);
                 const promises = [];
 
                 queries.forEach(query => {
                     const promise = db
                         .query(query)
                         .then(data => {
-                            sqlToFile(data, path);
-
-                            return path;
+                            return sqlToFile(data, path);
                         })
                         .catch(err => {
-                            db.disconnect();
-                            return resolve([]);
+                            return [];
                         });
 
                     promises.push(promise);
@@ -52,15 +51,17 @@ const executeQuery = (host, port, dbName, user, pass, queries, path) => {
                 Promise.all(promises)
                     .then(values => {
                         db.disconnect();
-                        return resolve(values);
+                        console.info('--------------------')
+                        console.info(values);
+                        return resolveGlobal(values);
                     })
                     .catch(err => {
                         db.disconnect();
-                        return resolve([]);
+                        return resolveGlobal([]);
                     });
             })
             .catch(err => {
-                return reject([]);
+                return resolveGlobal([]);
             });
     });
 };
@@ -95,8 +96,8 @@ const _run = (err, params) => {
                             );
                             const path = `${params.targetFolder}/${params.filePrefix}_${agencia.IdAgencia}.csv`;
 
-                            tunnel(config, (err, server) => {
-                                executeQuery(
+                            tunnel(config, async(err, server) => {
+                                const paths = await executeQuery(
                                     config.localHost,
                                     config.localPort,
                                     agencia.sia_db,
@@ -105,13 +106,16 @@ const _run = (err, params) => {
                                     params.queries,
                                     path
                                 )
-                                    .then(path => resolve(path))
-                                    .catch(err => {
-                                        return resolve([]);
-                                    });
+
+                                console.info('------------------>', paths);
+                                return resolve([]);
+                            }).on('error', (err)=>{
+                                console.info('ERROR with connection.');
+                                return resolve([]);
                             });
                         })
                         .catch(err => {
+                            console.info('me lleva la verga!')
                             return resolve([]);
                         });
                 })
@@ -120,9 +124,12 @@ const _run = (err, params) => {
 
         Promise.all(promises)
             .then(values => {
+                console.info('fuck i hate u......................................');
                 return resolve(values);
             })
             .catch(err => {
+                console.info(err)
+                console.info('fuck i hate u, in catch......................................');
                 resolve([]);
             });
     });
@@ -137,17 +144,19 @@ const withXML = (path, callback, params) => {
             params["agencies"] = xml.AGENCIAS.AGENCIA.slice(0, 100);
             callback(err, params)
                 .then(values => {
+                    console.info('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1');
                     return resolve(values);
                 })
                 .catch(err => {
-                    resolve([]);
+                    console.info('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa2');
+                    return resolve([]);
                 });
         });
     });
 };
 
 const run = async xmlPath => {
-    console.info("START ---------------------->", new Date().toLocaleString());
+    console.time('EXTRACTING SCRIPT');
     const params = {
         agencies: [],
         queries: ["SELECT * FROM ClienteGpsNormalizado"],
@@ -155,9 +164,13 @@ const run = async xmlPath => {
         filePrefix: "gps_normalizado"
     };
 
-    const paths = await withXML(xmlPath, _run, params);
-    console.info([].concat.apply([], paths));
-    console.info("END ---------------------->", new Date().toLocaleString());
+    withXML(xmlPath, _run, params).then((paths)=>{
+        console.info('worale')
+        console.info([].concat.apply([], paths));
+    }).catch(err =>{
+        'valio verga'
+    })
+
 };
 
 run("/home/rooster/Downloads/agencias_barcel.xml");
