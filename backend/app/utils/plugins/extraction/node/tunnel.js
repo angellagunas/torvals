@@ -5,7 +5,7 @@ const tunnelPromised = (config) => {
     tunnel(config, (err, server) => {
       if (err) reject(err);
 
-      resolve(server);
+      return resolve(server);
     });
   })
 }

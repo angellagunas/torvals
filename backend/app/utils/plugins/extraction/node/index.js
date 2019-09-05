@@ -97,7 +97,11 @@ const _run = (err, params) => {
                 const path = `${params.targetFolder}/${params.filePrefix}_${agencia.IdAgencia}.csv`;
 
                 tunnel(config)
-                    .then(server =>{
+                    .then((server, error) =>{
+                        if(error) {
+                            return resolve([]);
+                        };
+
                         executeQuery(
                             config.localHost,
                             config.localPort,
@@ -109,10 +113,14 @@ const _run = (err, params) => {
                         )
                             .then(path => resolve(path))
                             .catch(err => resolve([]))
-                            .finally(() => tnl.close());
+
+                        server.on('error', (error) => {
+                            server.close();
+                            console.info('esto se fue a la verga---------->', error);
+                            return resolve([]);
+                        });
                     })
                     .catch(err => {
-                        console.info('error en la conexion');
                         resolve([]);
                     })
 
