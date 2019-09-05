@@ -278,7 +278,7 @@ class DSDExtractor(object):
 
             file_name_local = '{0}/{1}.csv'.format(MEDIA_ROOT, name)
 
-            transfer_df.to_csv(file_name_local, sep='|')
+            transfer_df.to_csv(file_name_local, sep=',')
 
             #transfer_obj = S3Transfer(
             #    data_frame=transfer_df,

@@ -1,8 +1,10 @@
-var tunnel = require("tunnel-ssh");
-var fs = require("fs");
+const tunnel = require("./tunnel");
+const fs = require("fs");
 const Sybase = require("sybase-promised");
-var xml2js = require("xml2js");
+const xml2js = require("xml2js");
 const getPort = require("get-port");
+
+
 
 const sqlToFile = (data, path) => {
     const csv = [];
@@ -28,35 +30,37 @@ const executeQuery = (host, port, dbName, user, pass, queries, path) => {
             password: pass
         });
 
-        db.connect()
+        return db.connect()
             .then((connection, err) => {
                 if (err) return reject(err);
                 const promises = [];
 
-                queries.forEach(query => {
+                for(i = 0; i<queries.lenght; i++){
                     const promise = db
                         .query(query)
                         .then(data => {
                             sqlToFile(data, path);
-
                             return path;
                         })
                         .catch(err => {
-                            db.disconnect();
                             return resolve([]);
+                        }).finally(()=>{
+                            db.disconnect();
                         });
 
                     promises.push(promise);
-                });
+                }
 
+                let results = [];
                 Promise.all(promises)
                     .then(values => {
-                        db.disconnect();
-                        return resolve(values);
+                        results = value;
                     })
                     .catch(err => {
+                        results = [];
+                    }).finally(()=>{
                         db.disconnect();
-                        return resolve([]);
+                        return resolve(results);
                     });
             })
             .catch(err => {
@@ -70,6 +74,7 @@ const getTunnelConfig = (dstHost, dstPort, localPort) => {
         username: "hadoop",
         host: "ec2-54-209-116-133.compute-1.amazonaws.com",
         port: 22,
+        keepAlive: true,
         privateKey: fs.readFileSync("/home/rooster/.ssh/Dataiku.pem"),
         localHost: "127.0.0.1",
         dstHost,
@@ -79,51 +84,52 @@ const getTunnelConfig = (dstHost, dstPort, localPort) => {
 };
 
 const _run = (err, params) => {
-    return new Promise((resolve, reject) => {
-        const promises = [];
+    return new Promise((globalResolve, globalReject) => {
+        const promises = params.agencies.map(agencia => {
+            return new Promise(async(resolve, reject) => {
+                const freePort = await getPort();
+                const [host, port] = agencia.serverIp[0].split(",");
+                const config = getTunnelConfig(
+                    host,
+                    port,
+                    freePort
+                );
+                const path = `${params.targetFolder}/${params.filePrefix}_${agencia.IdAgencia}.csv`;
 
-        params.agencies.forEach(agencia => {
-            promises.push(
-                new Promise((resolve, reject) => {
-                    getPort()
-                        .then(freePort => {
-                            const [host, port] = agencia.serverIp[0].split(",");
-                            const config = getTunnelConfig(
-                                host,
-                                port,
-                                freePort
-                            );
-                            const path = `${params.targetFolder}/${params.filePrefix}_${agencia.IdAgencia}.csv`;
+                tunnel(config)
+                    .then(server =>{
+                        executeQuery(
+                            config.localHost,
+                            config.localPort,
+                            agencia.sia_db,
+                            agencia.sia_user,
+                            agencia.sia_pwd,
+                            params.queries,
+                            path
+                        )
+                            .then(path => resolve(path))
+                            .catch(err => resolve([]))
+                            .finally(() => tnl.close());
+                    })
+                    .catch(err => {
+                        console.info('error en la conexion');
+                        resolve([]);
+                    })
 
-                            tunnel(config, (err, server) => {
-                                executeQuery(
-                                    config.localHost,
-                                    config.localPort,
-                                    agencia.sia_db,
-                                    agencia.sia_user,
-                                    agencia.sia_pwd,
-                                    params.queries,
-                                    path
-                                )
-                                    .then(path => resolve(path))
-                                    .catch(err => {
-                                        return resolve([]);
-                                    });
-                            });
-                        })
-                        .catch(err => {
-                            return resolve([]);
-                        });
-                })
-            );
-        });
+                /*.on('error', err => {
+                    console.info('error en la conexion');
+                    tnl.close();
+                    return resolve([]);
+                });*/
+            });
+        })
 
-        Promise.all(promises)
+        return Promise.all(promises)
             .then(values => {
-                return resolve(values);
+                return globalResolve(values);
             })
             .catch(err => {
-                resolve([]);
+                return globalResolve([]);
             });
     });
 };
@@ -134,20 +140,21 @@ const withXML = (path, callback, params) => {
         const xml_string = fs.readFileSync(path, "utf8");
 
         return parser.parseString(xml_string, (err, xml) => {
-            params["agencies"] = xml.AGENCIAS.AGENCIA.slice(0, 100);
-            callback(err, params)
+            params["agencies"] = xml.AGENCIAS.AGENCIA.slice(16, 18);
+            return callback(err, params)
                 .then(values => {
                     return resolve(values);
                 })
                 .catch(err => {
-                    resolve([]);
+                    return resolve([]);
                 });
         });
     });
 };
 
 const run = async xmlPath => {
-    console.info("START ---------------------->", new Date().toLocaleString());
+    console.time('duration');
+
     const params = {
         agencies: [],
         queries: ["SELECT * FROM ClienteGpsNormalizado"],
@@ -156,8 +163,10 @@ const run = async xmlPath => {
     };
 
     const paths = await withXML(xmlPath, _run, params);
+
     console.info([].concat.apply([], paths));
-    console.info("END ---------------------->", new Date().toLocaleString());
+    console.timeEnd('duration');
 };
+
 
 run("/home/rooster/Downloads/agencias_barcel.xml");
