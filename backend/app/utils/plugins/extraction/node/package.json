@@ -1,6 +1,6 @@
 {
   "name": "dsd",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "script to extract bimbo sales",
   "main": "index.js",
   "scripts": {
@@ -12,10 +12,11 @@
   "author": "al",
   "license": "ISC",
   "dependencies": {
+    "cassandra-driver": "4.1.0",
     "fs": "0.0.1-security",
-    "get-port": "^5.0.0",
-    "sybase-promised": "^1.0.4",
-    "tunnel-ssh": "^4.1.4",
-    "xml2js": "^0.4.21"
+    "get-port": "5.0.0",
+    "sybase-promised": "1.0.4",
+    "tunnel-ssh": "4.1.4",
+    "xml2js": "0.4.21"
   }
 }

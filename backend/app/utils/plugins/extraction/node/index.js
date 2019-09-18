@@ -1,10 +1,9 @@
 const tunnel = require("./tunnel");
+const responseToCassandra = require("./cassandra");
 const fs = require("fs");
 const Sybase = require("sybase-promised");
 const xml2js = require("xml2js");
 const getPort = require("get-port");
-
-
 
 const sqlToFile = (data, path) => {
     const csv = [];
@@ -30,21 +29,28 @@ const executeQuery = (host, port, dbName, user, pass, queries, path) => {
             password: pass
         });
 
-        return db.connect()
+        return db
+            .connect()
             .then((connection, err) => {
                 if (err) return reject(err);
                 const promises = [];
-
-                for(i = 0; i<queries.lenght; i++){
+                console.info("connection to bimbo DB is ready!");
+                for (query of queries) {
                     const promise = db
-                        .query(query)
+                        .query(query.query)
                         .then(data => {
-                            sqlToFile(data, path);
+                            //sqlToFile(data, path);
+                            responseToCassandra(data, query.tableName, "test");
                             return path;
                         })
                         .catch(err => {
+                            console.info(
+                                "error in connection to bimbo DB.",
+                                err
+                            );
                             return resolve([]);
-                        }).finally(()=>{
+                        })
+                        .finally(() => {
                             db.disconnect();
                         });
 
@@ -58,12 +64,14 @@ const executeQuery = (host, port, dbName, user, pass, queries, path) => {
                     })
                     .catch(err => {
                         results = [];
-                    }).finally(()=>{
+                    })
+                    .finally(() => {
                         db.disconnect();
                         return resolve(results);
                     });
             })
             .catch(err => {
+                db.disconnect();
                 return reject([]);
             });
     });
@@ -86,21 +94,17 @@ const getTunnelConfig = (dstHost, dstPort, localPort) => {
 const _run = (err, params) => {
     return new Promise((globalResolve, globalReject) => {
         const promises = params.agencies.map(agencia => {
-            return new Promise(async(resolve, reject) => {
+            return new Promise(async (resolve, reject) => {
                 const freePort = await getPort();
                 const [host, port] = agencia.serverIp[0].split(",");
-                const config = getTunnelConfig(
-                    host,
-                    port,
-                    freePort
-                );
+                const config = getTunnelConfig(host, port, freePort);
                 const path = `${params.targetFolder}/${params.filePrefix}_${agencia.IdAgencia}.csv`;
 
                 tunnel(config)
-                    .then((server, error) =>{
-                        if(error) {
+                    .then((server, error) => {
+                        if (error) {
                             return resolve([]);
-                        };
+                        }
 
                         executeQuery(
                             config.localHost,
@@ -113,24 +117,13 @@ const _run = (err, params) => {
                         )
                             .then(path => resolve(path))
                             .catch(err => resolve([]))
-
-                        server.on('error', (error) => {
-                            server.close();
-                            console.info('esto se fue a la verga---------->', error);
-                            return resolve([]);
-                        });
+                            .finally(() => server.close());
                     })
                     .catch(err => {
                         resolve([]);
-                    })
-
-                /*.on('error', err => {
-                    console.info('error en la conexion');
-                    tnl.close();
-                    return resolve([]);
-                });*/
+                    });
             });
-        })
+        });
 
         return Promise.all(promises)
             .then(values => {
@@ -148,7 +141,7 @@ const withXML = (path, callback, params) => {
         const xml_string = fs.readFileSync(path, "utf8");
 
         return parser.parseString(xml_string, (err, xml) => {
-            params["agencies"] = xml.AGENCIAS.AGENCIA.slice(16, 18);
+            params["agencies"] = xml.AGENCIAS.AGENCIA.slice(0, 20);
             return callback(err, params)
                 .then(values => {
                     return resolve(values);
@@ -161,11 +154,17 @@ const withXML = (path, callback, params) => {
 };
 
 const run = async xmlPath => {
-    console.time('duration');
+    console.time("duration");
 
     const params = {
         agencies: [],
-        queries: ["SELECT * FROM ClienteGpsNormalizado"],
+        queries: [
+            {
+                query: "SELECT * FROM ClienteGpsNormalizado",
+                tableName: "clientesNomalizado", // nombre de la tabla donde se va a guardar el resultado
+                primaryColumns: ["fecha", "cliente", "producto"]
+            }
+        ],
         targetFolder: "/tmp",
         filePrefix: "gps_normalizado"
     };
@@ -173,8 +172,7 @@ const run = async xmlPath => {
     const paths = await withXML(xmlPath, _run, params);
 
     console.info([].concat.apply([], paths));
-    console.timeEnd('duration');
+    console.timeEnd("duration");
 };
 
-
-run("/home/rooster/Downloads/agencias_barcel.xml");
+run("/home/rooster/Downloads/agencias_v1_bimbo.xml");
