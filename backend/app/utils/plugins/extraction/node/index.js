@@ -19,35 +19,37 @@ const sqlToFile = (data, path) => {
     fs.writeFileSync(path, `${csv.join("\n")}`);
 };
 
-const executeQuery = (host, port, dbName, user, pass, queries, path) => {
+const executeQuery = (host, port, dbN, user, pass, queries, path, params) => {
     return new Promise((resolve, reject) => {
-        const db = new Sybase({
-            host: host,
-            port: port,
-            dbname: dbName,
-            username: user,
-            password: pass
-        });
+        let db;
+        try {
+            db = new Sybase({
+                host: host,
+                port: port,
+                dbname: dbN,
+                username: user,
+                password: pass
+            });
+        } catch (err) {
+            console.error("DB error connection: ", err);
+        }
 
         return db
             .connect()
             .then((connection, err) => {
                 if (err) return reject(err);
                 const promises = [];
-                console.info("connection to bimbo DB is ready!");
+
                 for (query of queries) {
                     const promise = db
                         .query(query.query)
                         .then(data => {
                             //sqlToFile(data, path);
-                            responseToCassandra(data, query.tableName, "test");
+                            responseToCassandra(data, query, params);
                             return path;
                         })
                         .catch(err => {
-                            console.info(
-                                "error in connection to bimbo DB.",
-                                err
-                            );
+                            console.error("Query execution error: ", err);
                             return resolve([]);
                         })
                         .finally(() => {
@@ -60,9 +62,10 @@ const executeQuery = (host, port, dbName, user, pass, queries, path) => {
                 let results = [];
                 Promise.all(promises)
                     .then(values => {
-                        results = value;
+                        results = values;
                     })
                     .catch(err => {
+                        console.error("All promises in executeQuery: ", err);
                         results = [];
                     })
                     .finally(() => {
@@ -71,6 +74,7 @@ const executeQuery = (host, port, dbName, user, pass, queries, path) => {
                     });
             })
             .catch(err => {
+                console.error("DB error connection: ", err);
                 db.disconnect();
                 return reject([]);
             });
@@ -82,7 +86,6 @@ const getTunnelConfig = (dstHost, dstPort, localPort) => {
         username: "hadoop",
         host: "ec2-54-209-116-133.compute-1.amazonaws.com",
         port: 22,
-        keepAlive: true,
         privateKey: fs.readFileSync("/home/rooster/.ssh/Dataiku.pem"),
         localHost: "127.0.0.1",
         dstHost,
@@ -92,40 +95,82 @@ const getTunnelConfig = (dstHost, dstPort, localPort) => {
 };
 
 const _run = (err, params) => {
-    return new Promise((globalResolve, globalReject) => {
-        const promises = params.agencies.map(agencia => {
-            return new Promise(async (resolve, reject) => {
-                const freePort = await getPort();
-                const [host, port] = agencia.serverIp[0].split(",");
-                const config = getTunnelConfig(host, port, freePort);
-                const path = `${params.targetFolder}/${params.filePrefix}_${agencia.IdAgencia}.csv`;
+    return new Promise(async (globalResolve, globalReject) => {
+        let agencies = [];
+        let cont = 1;
+        const bulkSize = 9;
+        // const promises = params.agencies.slice(0, 30).map(agencia => {});
 
-                tunnel(config)
-                    .then((server, error) => {
-                        if (error) {
-                            return resolve([]);
-                        }
+        for (agencia of params.agencies) {
+            if (agencies.length >= bulkSize) {
+                await Promise.all(agencies)
+                    .then(result => {
+                        const msg = `
+                            Bulk saved! --->
+                            ${cont * bulkSize} of ${params.agencies.length}
+                        `;
 
-                        executeQuery(
-                            config.localHost,
-                            config.localPort,
-                            agencia.sia_db,
-                            agencia.sia_user,
-                            agencia.sia_pwd,
-                            params.queries,
-                            path
-                        )
-                            .then(path => resolve(path))
-                            .catch(err => resolve([]))
-                            .finally(() => server.close());
+                        console.info(msg);
                     })
                     .catch(err => {
-                        resolve([]);
+                        console.error("Error resolving promises in _run", err);
+                    })
+                    .finally(() => {
+                        agencies = [];
                     });
-            });
-        });
+                agencies = [];
+                cont++;
+            }
 
-        return Promise.all(promises)
+            agencies.push(
+                new Promise(async (resolve, reject) => {
+                    const freePort = await getPort();
+                    const [host, port] = agencia.serverIp[0].split(",");
+                    const config = getTunnelConfig(host, port, freePort);
+                    const path = `${params.targetFolder}/${params.filePrefix}_${agencia.IdAgencia}.csv`;
+
+                    const server = tunnel(config)
+                        .then((server, err) => {
+                            if (err) {
+                                console.error(`SSH connection error: `, err);
+                                return resolve([]);
+                            }
+
+                            server.on("error", err => {
+                                console.error(
+                                    `Error in tunnel ${agencia.nombre}-${agencia.serverIp}: `,
+                                    err
+                                );
+                                server.close();
+                                return resolve([]);
+                            });
+
+                            executeQuery(
+                                config.localHost,
+                                config.localPort,
+                                agencia.sia_db,
+                                agencia.sia_user,
+                                agencia.sia_pwd,
+                                params.queries,
+                                path,
+                                params
+                            )
+                                .then(path => resolve(path))
+                                .catch(err => {
+                                    console.error("Error executing query", err);
+                                    resolve([]);
+                                })
+                                .finally(() => server.close());
+                        })
+                        .catch(err => {
+                            console.error("SSH connection error: ", err);
+                            resolve([]);
+                        });
+                })
+            );
+        }
+
+        return Promise.all(agencies)
             .then(values => {
                 return globalResolve(values);
             })
@@ -141,7 +186,7 @@ const withXML = (path, callback, params) => {
         const xml_string = fs.readFileSync(path, "utf8");
 
         return parser.parseString(xml_string, (err, xml) => {
-            params["agencies"] = xml.AGENCIAS.AGENCIA.slice(0, 20);
+            params["agencies"] = xml.AGENCIAS.AGENCIA;
             return callback(err, params)
                 .then(values => {
                     return resolve(values);
@@ -161,18 +206,18 @@ const run = async xmlPath => {
         queries: [
             {
                 query: "SELECT * FROM ClienteGpsNormalizado",
-                tableName: "clientesNomalizado", // nombre de la tabla donde se va a guardar el resultado
-                primaryColumns: ["fecha", "cliente", "producto"]
+                tableName: "clientes_normalizado",
+                primaryColumns: ["CLICOD", "codigoAgencia"]
             }
         ],
+        keyspace: "dsd",
         targetFolder: "/tmp",
         filePrefix: "gps_normalizado"
     };
 
     const paths = await withXML(xmlPath, _run, params);
 
-    console.info([].concat.apply([], paths));
     console.timeEnd("duration");
 };
 
-run("/home/rooster/Downloads/agencias_v1_bimbo.xml");
+run("/home/rooster/Downloads/agencias_v2_bimbo.xml");

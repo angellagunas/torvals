@@ -17,24 +17,29 @@ const _getOrCreateKeyspace = async keyspace => {
         AND durable_writes = true
     `;
 
-    return client.execute(query, []).then(result => {
-        console.info(`Ready keyspace ${keyspace}`);
-        return client;
-    });
+    return client
+        .execute(query, [])
+        .then(result => {
+            return client;
+        })
+        .catch(err => {
+            console.erro("Error creating keyspace", err);
+            return;
+        });
 };
 
 const _getFormatedColumns = columnsName => {
     return columnsName.map(column => `${column} text`).join(",");
 };
 
-const _getOrCreateTable = async (tableName, keyspace, columnsName) => {
+const _getOrCreateTable = async (tableName, keyspace, columnsName, keys) => {
     const client = await _getOrCreateKeyspace(keyspace);
     const columns = _getFormatedColumns(columnsName);
 
     const query = `
         CREATE TABLE IF NOT EXISTS ${keyspace}.${tableName} (
           ${columns},
-          PRIMARY KEY (${columnsName.join(",")})
+          PRIMARY KEY (${keys.join(",")})
         );
     `;
 
@@ -45,17 +50,26 @@ const _getOrCreateTable = async (tableName, keyspace, columnsName) => {
             return client;
         })
         .catch(err => {
-            console.info(err);
+            console.erro("Error creating table", err);
             return;
         });
 };
 
-const prepareQuery = async (data, tableName, keyspace) => {
+const prepareQuery = async (data, queryConf, params) => {
+    if (data.length === 0) return [null, []];
+
+    const tableName = queryConf.tableName;
+    const keyspace = params.keyspace;
     const queries = [];
     const columns = Object.keys(data[0]);
     const values = columns.map(i => "?").join(",");
 
-    const client = await _getOrCreateTable(tableName, keyspace, columns);
+    const client = await _getOrCreateTable(
+        tableName,
+        keyspace,
+        columns,
+        queryConf.primaryColumns
+    );
 
     const query = `
         INSERT INTO ${keyspace}.${tableName} 
@@ -72,13 +86,17 @@ const prepareQuery = async (data, tableName, keyspace) => {
     return [client, queries];
 };
 
-const responseToCassandra = async (data, table, keyspace) => {
-    const [client, queries] = await prepareQuery(data, table, keyspace);
+const responseToCassandra = async (data, query, params) => {
+    const [client, queries] = await prepareQuery(data, query, params);
+    if (client === null || queries.length === 0) return;
+
     let promises = [];
 
     for (query of queries) {
         if (promises.length >= 2000) {
-            await Promise.all(promises);
+            await Promise.all(promises).catch(err => {
+                console.error("Error saving bulk in cassandra", err);
+            });
             promises = [];
         }
 
@@ -88,14 +106,12 @@ const responseToCassandra = async (data, table, keyspace) => {
     }
 
     Promise.all(promises)
-        .then(results => {
-            console.info("Termino de guardar la data en cassandra.");
+        .catch(err => {
+            console.info("All promises error in responseToCassandra", err);
         })
-        .catch(err => console.info(err))
         .finally(() => {
             client.shutdown().then(result => {
-                console.info("server shutdown");
-                console.info("Done!");
+                console.info("Data saved in cassandra.");
             });
         });
 };
