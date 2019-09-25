@@ -23,13 +23,13 @@ const _getOrCreateKeyspace = async keyspace => {
             return client;
         })
         .catch(err => {
-            console.erro("Error creating keyspace", err);
+            console.error("Error creating keyspace", err);
             return;
         });
 };
 
 const _getFormatedColumns = columnsName => {
-    return columnsName.map(column => `${column} text`).join(",");
+    return columnsName.map(column => `${column.toLowerCase()} text`).join(",");
 };
 
 const _getOrCreateTable = async (tableName, keyspace, columnsName, keys) => {
@@ -50,7 +50,7 @@ const _getOrCreateTable = async (tableName, keyspace, columnsName, keys) => {
             return client;
         })
         .catch(err => {
-            console.erro("Error creating table", err);
+            console.error("Error creating table", err);
             return;
         });
 };
@@ -73,7 +73,7 @@ const prepareQuery = async (data, queryConf, params) => {
 
     const query = `
         INSERT INTO ${keyspace}.${tableName} 
-        (${columns.join(",")}) VALUES (${values})
+        (${columns.map(c => c.toLowerCase()).join(",")}) VALUES (${values})
     `;
 
     for (register of data) {

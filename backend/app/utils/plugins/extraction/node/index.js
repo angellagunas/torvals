@@ -200,12 +200,18 @@ const withXML = (path, callback, params) => {
 
 const run = async xmlPath => {
     console.time("duration");
+    /*{
+        query: "SELECT * FROM ClienteGpsNormalizado",
+        tableName: "clientes_normalizado",
+        primaryColumns: ["CLICOD", "codigoAgencia"]
+    }*/
 
     const params = {
         agencies: [],
         queries: [
             {
-                query: "SELECT * FROM ClienteGpsNormalizado",
+                query: `SELECT DISTINCT c.ID_CLIENTE,c.DESCRIPCION_CLIENTE,c.ID_RUTA,
+                        gps.CLICOD, gps.codigoAgencia codigoAgencia,gps.latitud,gps.longitud FROM ClienteGpsNormalizado gps INNER JOIN HHc_Clientes c ON c.ID_CLIENTE=gps.CLICOD`,
                 tableName: "clientes_normalizado",
                 primaryColumns: ["CLICOD", "codigoAgencia"]
             }
@@ -220,4 +226,4 @@ const run = async xmlPath => {
     console.timeEnd("duration");
 };
 
-run("/home/rooster/Downloads/agencias_v2_bimbo.xml");
+run("/home/rooster/Downloads/agencias_barcel_v10.xml");
