@@ -1,5 +1,7 @@
 const tunnel = require("./tunnel");
 const responseToCassandra = require("./cassandra");
+const defaultQueries = require("./queries");
+
 const fs = require("fs");
 const Sybase = require("sybase-promised");
 const xml2js = require("xml2js");
@@ -19,7 +21,7 @@ const sqlToFile = (data, path) => {
     fs.writeFileSync(path, `${csv.join("\n")}`);
 };
 
-const executeQuery = (host, port, dbN, user, pass, queries, path, params) => {
+const executeQuery = (host, port, gency, dbN, user, pass, queries, params) => {
     return new Promise((resolve, reject) => {
         let db;
         try {
@@ -40,12 +42,14 @@ const executeQuery = (host, port, dbN, user, pass, queries, path, params) => {
                 if (err) return reject(err);
                 const promises = [];
 
-                for (query of queries) {
+                for (index in queries) {
+                    const query = queries[index];
                     const promise = db
                         .query(query.query)
                         .then(data => {
-                            //sqlToFile(data, path);
-                            responseToCassandra(data, query, params);
+                            const path = `${params.targetFolder}/${query.filePrefix}_${gency}.csv`;
+                            sqlToFile(data, path);
+                            //responseToCassandra(data, query, params);
                             return path;
                         })
                         .catch(err => {
@@ -101,14 +105,15 @@ const _run = (err, params) => {
         const bulkSize = 9;
         // const promises = params.agencies.slice(0, 30).map(agencia => {});
 
-        for (agencia of params.agencies) {
+        for (index in params.agencies) {
+            const agencia = params.agencies[index];
             if (agencies.length >= bulkSize) {
                 await Promise.all(agencies)
                     .then(result => {
                         const msg = `
-                            Bulk saved! --->
-                            ${cont * bulkSize} of ${params.agencies.length}
-                        `;
+              Bulk saved! --->
+              ${cont * bulkSize} of ${params.agencies.length}
+            `;
 
                         console.info(msg);
                     })
@@ -127,7 +132,6 @@ const _run = (err, params) => {
                     const freePort = await getPort();
                     const [host, port] = agencia.serverIp[0].split(",");
                     const config = getTunnelConfig(host, port, freePort);
-                    const path = `${params.targetFolder}/${params.filePrefix}_${agencia.IdAgencia}.csv`;
 
                     const server = tunnel(config)
                         .then((server, err) => {
@@ -148,11 +152,11 @@ const _run = (err, params) => {
                             executeQuery(
                                 config.localHost,
                                 config.localPort,
+                                agencia.IdAgencia,
                                 agencia.sia_db,
                                 agencia.sia_user,
                                 agencia.sia_pwd,
                                 params.queries,
-                                path,
                                 params
                             )
                                 .then(path => resolve(path))
@@ -200,24 +204,22 @@ const withXML = (path, callback, params) => {
 
 const run = async xmlPath => {
     console.time("duration");
-    /*{
-        query: "SELECT * FROM ClienteGpsNormalizado",
-        tableName: "clientes_normalizado",
-        primaryColumns: ["CLICOD", "codigoAgencia"]
-    }*/
 
+    const date = "2019-08-31";
+
+    console.info(date.replace(/-/g, ""));
     const params = {
         agencies: [],
         queries: [
             {
-                query: `SELECT DISTINCT c.ID_CLIENTE,c.DESCRIPCION_CLIENTE,c.ID_RUTA,
-                        gps.CLICOD, gps.codigoAgencia codigoAgencia,gps.latitud,gps.longitud FROM ClienteGpsNormalizado gps INNER JOIN HHc_Clientes c ON c.ID_CLIENTE=gps.CLICOD`,
-                tableName: "clientes_normalizado",
-                primaryColumns: ["CLICOD", "codigoAgencia"]
+                query: defaultQueries.queryAlma(date, date),
+                tableName: `recorridos_${date.replace(/-/g, "")}`,
+                primaryColumns: ["CLICOD", "codigo_agencia"],
+                filePrefix: `recorridos_${date.replace(/-/g, "")}`
             }
         ],
         keyspace: "dsd",
-        targetFolder: "/tmp",
+        targetFolder: "/tmp/recorridos",
         filePrefix: "gps_normalizado"
     };
 
@@ -226,4 +228,4 @@ const run = async xmlPath => {
     console.timeEnd("duration");
 };
 
-run("/home/rooster/Downloads/agencias_barcel_v10.xml");
+run("/home/rooster/Descargas/agencias_r_.xml");
