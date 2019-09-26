@@ -1,4 +1,13 @@
+const env = require("./env");
+
 const cassandra = require("cassandra-driver");
+
+const _getCredentials = () => {
+    return new cassandra.auth.PlainTextAuthProvider(
+        env.CASSANDRA_USER,
+        env.CASSANDRA_PASS
+    );
+};
 
 const _getOrCreateKeyspace = async keyspace => {
     /*
@@ -6,7 +15,8 @@ const _getOrCreateKeyspace = async keyspace => {
      */
     const client = new cassandra.Client({
         localDataCenter: "datacenter1",
-        contactPoints: ["127.0.0.1"]
+        contactPoints: [env.CASSANDRA_HOST],
+        authProvider: _getCredentials()
     });
 
     await client.connect();
@@ -86,13 +96,14 @@ const prepareQuery = async (data, queryConf, params) => {
     return [client, queries];
 };
 
-const responseToCassandra = async (data, query, params) => {
+const responseToCassandra = async args => {
+    const { data, query, params } = args;
     const [client, queries] = await prepareQuery(data, query, params);
     if (client === null || queries.length === 0) return;
 
     let promises = [];
 
-    for (query of queries) {
+    for (const conf of queries) {
         if (promises.length >= 2000) {
             await Promise.all(promises).catch(err => {
                 console.error("Error saving bulk in cassandra", err);
@@ -101,13 +112,13 @@ const responseToCassandra = async (data, query, params) => {
         }
 
         promises.push(
-            client.execute(query.query, query.params, { prepare: true })
+            client.execute(conf.query, conf.params, { prepare: true })
         );
     }
 
     Promise.all(promises)
         .catch(err => {
-            console.info("All promises error in responseToCassandra", err);
+            console.error("All promises error in responseToCassandra", err);
         })
         .finally(() => {
             client.shutdown().then(result => {

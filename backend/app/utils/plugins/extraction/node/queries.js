@@ -1,5 +1,43 @@
 module.exports = {
-  queryAlma: (startDate, endDate) => `
+  query: () => `select * from CatCodigoBarras`,
+  columns: () => `
+    SELECT syscolumns.name as name, systypes.name as type, sysobjects.name as tablename
+    FROM sysobjects 
+    JOIN syscolumns ON sysobjects.id = syscolumns.id
+    JOIN systypes ON systypes.type = syscolumns.type AND systypes.usertype = syscolumns.usertype
+  `,
+  // WHERE sysobjects.name LIKE 'CatCodigoBarras'
+  // WHERE sysobjects.name LIKE 'CODIGO_CATEGORIA'
+  tables: () => `
+    select name
+    from sysobjects o
+    where type = 'U'
+  `,
+  rutas: () => `
+    SELECT
+      canal.AG47DS descripcion_canal,
+      canal.AG47ID id_canal,
+      r.codigo_agencia,
+      r.codigo_ruta,
+      r.codigo_fabrica,
+      r.carga_adelantada
+    FROM ruta r
+    INNER JOIN linea_ruta lr ON r.cod_linea_ruta=lr.cod_linea_ruta 
+    INNER JOIN AGM047 canal ON canal.AG47ID=lr.AG47ID
+  `,
+  productos: () => `
+    SELECT codigo_producto, descr_producto, codigo_barras from producto
+  `, //HHC_PRODUCTO HHc_Productos Meta_semanal ruta_cliente CATEGORIA_PRODUCTOS
+  clientes: () => `
+    SELECT 
+      DISTINCT c.ID_CLIENTE,c.DESCRIPCION_CLIENTE,c.ID_RUTA,
+      gps.codigoAgencia codigo_agencia, 
+      gps.latitud, 
+      gps.longitud 
+    FROM ClienteGpsNormalizado gps 
+    INNER JOIN HHc_Clientes c ON c.ID_CLIENTE=gps.CLICOD 
+  `,
+  recorridos: date => `
     select
       Anio,
       Semana,
@@ -104,8 +142,8 @@ module.exports = {
                     from
                       Registro_Visitas
                     where
-                      fecha between '${startDate}'
-                      and '${endDate}'
+                      fecha between '${date}'
+                      and '${date}'
                   ) resumen_compara
               ) a on a5.CLICOD + '_' + a5.codigo_ruta = a.compara
               left outer join (
@@ -117,8 +155,8 @@ module.exports = {
             where
               a.compara is null
               and comodin.compara is null
-              and FechaActualizacion between '${startDate}'
-              and '${endDate}'
+              and FechaActualizacion between '${date}'
+              and '${date}'
             union
             select
               distinct(CLICOD) as CLICOD,
@@ -143,8 +181,8 @@ module.exports = {
             from
               Registro_Visitas reg
             where
-              fecha between '${startDate}'
-              and '${endDate}'
+              fecha between '${date}'
+              and '${date}'
           ) reg
           left outer join (
             select
@@ -234,8 +272,8 @@ module.exports = {
             from
               customerLocation
             where
-              fechaLiq between '${startDate}'
-              and '${endDate}'
+              fechaLiq between '${date}'
+              and '${date}'
             group by
               codigo_ruta,
               fechaLiq,
@@ -244,8 +282,8 @@ module.exports = {
           and reg.codigo_ruta = cl.Ruta
           and reg.CLICOD = cl.Cliente
         where
-          reg.FechaActualizacion between '${startDate}'
-          and '${endDate}'
+          reg.FechaActualizacion between '${date}'
+          and '${date}'
       ) inter,
       agencia ag
   `
